@@ -1,2 +1,34 @@
 # Placeholder
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic types
+## Project Setup
+
+### Installing node modules
+run ``npm install``
+
+### Database configuration
+
+Create src/database/dbConfig.js with the following content: <br />
+```js
+module.exports = {
+    user: "your-username-here", 
+    password: "your-password-here", 
+    server: "localhost",
+    database: "database-name-here",
+    trustServerCertificate: true,
+    options: {
+      port: 1433, 
+      connectionTimeout: 60000, 
+    },
+  }
+```
+You can change the content of the file to match your settings or set up the sql server to match its content
+
+### Database setup
+run ``npm run seed`` <br />
+You can also rerun this command to reset the database to its seeded form <br />
+The sql to seed the database can be found in src/database/seedScript.js <br />
+
+### Starting server
+``npm start`` (for nodemon) <br />
+or <br />
+``node app.js``
+
