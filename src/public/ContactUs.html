@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/index.css">
+    <!-- Linking to external stylesheets for icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Afacad' rel='stylesheet'>
+    <title>Contact Us</title>
+</head>
+<body>
+
+<!-- navbar -->
+<nav></nav>
+
+    <br><br><br><br><br><br>
+    <div style="background-color:#ffffff; color:#000000; min-height:100vh;">
+        <div style="max-width:1200px; margin:auto; padding:32px;">
+            <div style="box-shadow:0 4px 6px rgba(0, 0, 0, 1); background-color:#ffffff; border-radius:8px;">
+                <div style="padding:24px;">
+                    <h2 style="font-size:24px; font-weight:bold; margin-bottom:8px;">Contact Us</h2>
+                    <p style="color:#6b7280; margin-bottom:24px;">
+                        Have a question or inquiry? Fill out the form below to get in touch with us.
+                    </p>
+                </div>
+                <div style="padding:24px;">
+                    <form id="contact-form">
+                        <div style="display:grid; grid-gap:16px;">
+                            <div>
+                                <label for="name" style="display:block; font-weight:500; margin-bottom:8px;">Name</label>
+                                <input type="text" id="name" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;" required />
+                            </div>
+                            <div>
+                                <label for="email" style="display:block; font-weight:500; margin-bottom:8px;">Email</label>
+                                <input type="email" id="email" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;" required />
+                            </div>
+                            <div>
+                                <label for="subject" style="display:block; font-weight:500; margin-bottom:8px;">Subject</label>
+                                <input type="text" id="subject" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;" required />
+                            </div>
+                            <div>
+                                <label for="message" style="display:block; font-weight:500; margin-bottom:8px;">Message</label>
+                                <textarea id="message" rows="4" style="width:100%; padding:8px; border:1px solid #d1d5db; border-radius:4px;" required></textarea>
+                            </div>
+                        </div>
+                        <div style="margin-top:24px;">
+                            <button type="submit" style="background-color:#1f2937; color:white; padding:8px 16px; border:none; border-radius:4px; cursor:pointer;">
+                                Submit
+                            </button>
+                        </div>
+                    </form>
+                    <div id="lottie-container" style="display:none; margin-top:24px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--Footer-->
+<footer></footer>
+
+    <script src="scripts/common.js"></script>
+</body>
+</html>
