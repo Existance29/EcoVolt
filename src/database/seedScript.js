@@ -1,5 +1,5 @@
 const sql = require("mssql");
-const dbConfig = require("./dbConfig"); // Import your database configuration
+const dbConfig = require("./dbConfig"); // Import your database configuration   
 
 // SQL to drop all foreign key constraints
 const dropForeignKeysSQL = `
@@ -114,8 +114,8 @@ VALUES
     (1, '2024-08-01', 5850.00, 16.00),
     (1, '2024-09-01', 6000.00, 15.00);
 
--- Insert sample data into sustainability_goals table
-INSERT INTO sustainability_goals (company_id, goal_name, target_value, current_value, target_year, progress)
+-- Insert sample data into company_sustainability_goals table
+INSERT INTO company_sustainability_goals (company_id, goal_name, target_value, current_value, target_year, progress)
 VALUES
     (1, 'CO₂e Reduction', 4000.00, 6000.00, 2025, 0.60),
     (1, 'PUE Improvement', 1.40, 1.65, 2025, 0.85),
