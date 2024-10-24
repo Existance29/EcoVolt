@@ -4,8 +4,9 @@ const app = express()
 const port = process.env.PORT || 3000
 const dbConfig = require("./database/dbConfig")
 const sql = require("mssql")
+const route = require("./routes/routes")
 // const route = require("./routes/routes")
-const bodyParser = require("body-parser")
+const bodyParser = require("body-parser");
 
 //load frontend
 const staticMiddleware = express.static("public")
@@ -16,7 +17,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 //setup routes
-// route(app)
+route(app);
 
 app.listen(port, async () => {
   try {
