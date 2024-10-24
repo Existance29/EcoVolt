@@ -93,7 +93,7 @@ INSERT INTO companies (name, alias)
 VALUES
     ('Singapore Telecommunications Limited', 'Singtel'),
     ('M1 Limited', 'M1'),
-    ('SIMBA Telecom', 'SIMBA'),
+    ('SIMBA Telecom Pte Ltd', 'SIMBA'),
     ('StarHub Limited', 'StarHub');
 
 -- Insert sample data into cell tower energy_consumption table
