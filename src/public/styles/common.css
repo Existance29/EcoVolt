@@ -19,25 +19,25 @@ body {
 /*You can also use this for sizing but idk how well it will work*/
 @media (min-width: 2000px) {
   html {
-      font-size: calc(14px / 16);
+      font-size: calc(15px / 16);
   }
 }
 
 @media (max-width: 2000px) {
   html {
-      font-size: calc(14px / 16);
+      font-size: calc(15px / 16);
   }
 }
 
 @media (max-width: 1200px) {
   html {
-      font-size: calc(11px / 16);
+      font-size: calc(12px / 16);
   }
 }
 
 @media (max-width: 900px) {
   html {
-      font-size: calc(9.5px / 16);
+      font-size: calc(10px / 16);
   }
 }
 
