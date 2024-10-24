@@ -1,7 +1,6 @@
 /* Global styling */
 
 body {
-  background-color: #f1f1f1; /* Set background color for the entire page */
   min-height: 100vh; /* Set a minimum height of 100% of the viewport height */
 }
 
@@ -10,7 +9,10 @@ body {
   margin: 0; /* Reset margin to zero for all elements */
   padding: 0; /* Reset padding to zero for all elements */
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
-  font-family: 'Afacad';
+}
+
+button{
+  all: unset;
 }
 
 /*Font sizes for different screen widths, matches figma*/
