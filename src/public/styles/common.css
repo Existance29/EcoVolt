@@ -13,6 +13,7 @@ body {
 
 button{
   all: unset;
+  cursor: pointer;
 }
 
 /*Font sizes for different screen widths, matches figma*/

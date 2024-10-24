@@ -35,6 +35,18 @@ CREATE TABLE companies (
     email_domain VARCHAR(255) NULL,
 );
 
+-- Create table for Users
+CREATE TABLE users (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    company_id INT NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+
+
 -- Create table for energy consumption data (cell tower)
 CREATE TABLE cell_tower_energy_consumption (
     id INT IDENTITY(1,1) PRIMARY KEY,
