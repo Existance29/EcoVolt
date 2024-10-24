@@ -1,5 +1,5 @@
 const sql = require("mssql");
-const dbConfig = require("./dbConfig"); // Import your database configuration
+const dbConfig = require("./dbConfig"); // Import your database configuration   
 
 // SQL to drop all foreign key constraints
 const dropForeignKeysSQL = `
@@ -32,10 +32,24 @@ CREATE TABLE companies (
     id INT IDENTITY(1,1) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     alias VARCHAR(255) NULL,
+    email_domain VARCHAR(255) NULL,
 );
 
--- Create table for energy consumption data
-CREATE TABLE energy_consumption (
+-- Create table for energy consumption data (cell tower)
+CREATE TABLE cell_tower_energy_consumption (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    company_id INT NOT NULL,
+    date DATE NOT NULL,
+    total_energy_kwh DECIMAL(10, 2) NOT NULL,
+    radio_equipment_energy_kwh DECIMAL(10, 2) NOT NULL,
+    cooling_energy_kwh DECIMAL(10, 2) NOT NULL,
+    backup_power_energy_kwh DECIMAL(10, 2),
+    misc_energy_kwh DECIMAL(10,2),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+-- Create table for energy consumption data 
+CREATE TABLE data_center_energy_consumption (
     id INT IDENTITY(1,1) PRIMARY KEY,
     company_id INT NOT NULL,
     date DATE NOT NULL,
@@ -51,7 +65,7 @@ CREATE TABLE energy_consumption (
 );
 
 -- Create table for carbon emissions data
-CREATE TABLE carbon_emissions (
+CREATE TABLE data_center_carbon_emissions (
     id INT IDENTITY(1,1) PRIMARY KEY,
     company_id INT NOT NULL,
     date DATE NOT NULL,
@@ -61,7 +75,7 @@ CREATE TABLE carbon_emissions (
 );
 
 -- Create table for sustainability goals
-CREATE TABLE sustainability_goals (
+CREATE TABLE company_sustainability_goals (
     id INT IDENTITY(1,1) PRIMARY KEY,
     company_id INT NOT NULL,
     goal_name VARCHAR(255) NOT NULL,
@@ -76,31 +90,108 @@ CREATE TABLE sustainability_goals (
 const insertData = `
 
 -- Insert sample data into companies table
-INSERT INTO companies (name, alias)
+INSERT INTO companies (name, alias, email_domain)
 VALUES
-    ('Singapore Telecommunications Limited', 'Singtel');
+    ('Singapore Telecommunications Limited', 'Singtel', 'singtel.com'),
+    ('M1 Limited', 'M1', 'm1.com.sg'),
+    ('SIMBA Telecom Pte Ltd', 'SIMBA', 'simba.sg'),
+    ('StarHub Limited', 'StarHub', 'starhub.com');
 
--- Insert sample data into energy_consumption table
-INSERT INTO energy_consumption (company_id, date, total_energy_mwh, it_energy_mwh, cooling_energy_mwh, backup_power_energy_mwh, lighting_energy_mwh, pue, cue, wue)
+-- Insert sample data into cell tower energy_consumption table
+INSERT INTO cell_tower_energy_consumption (company_id, date, total_energy_kwh, radio_equipment_energy_kwh, cooling_energy_kwh, backup_power_energy_kwh, misc_energy_kwh)
 VALUES
+    (1, '2024-07-01', 120.00, 72, 36, 8, 4),
+    (1, '2024-08-01', 121.00, 73, 35, 10, 3),
+    (1, '2024-09-01', 120.00, 72, 34, 8, 6);
+
+-- Insert sample data into data center energy_consumption table
+INSERT INTO data_center_energy_consumption (company_id, date, total_energy_mwh, it_energy_mwh, cooling_energy_mwh, backup_power_energy_mwh, lighting_energy_mwh, pue, cue, wue)
+VALUES
+    -- Singtel data
     (1, '2024-07-01', 12000.00, 3900.00, 5400.00, 1200.00, 1500.00, 1.65, 0.50, 1.40),
     (1, '2024-08-01', 12100.00, 3950.00, 5450.00, 1200.00, 1500.00, 1.64, 0.49, 1.38),
-    (1, '2024-09-01', 12500.00, 4000.00, 5500.00, 1200.00, 1800.00, 1.65, 0.50, 1.40);
+    (1, '2024-09-01', 12500.00, 4000.00, 5500.00, 1200.00, 1800.00, 1.65, 0.50, 1.40),
+    (1, '2024-10-01', 12800.00, 4200.00, 5600.00, 1300.00, 1900.00, 1.62, 0.52, 1.45),
+    (1, '2024-11-01', 13000.00, 4300.00, 5700.00, 1300.00, 2000.00, 1.61, 0.51, 1.46),
 
--- Insert sample data into carbon_emissions table
-INSERT INTO carbon_emissions (company_id, date, co2_emissions_tons, renewable_energy_percentage)
+    -- M1 data
+    (2, '2024-07-01', 9000.00, 2500.00, 4000.00, 1000.00, 1500.00, 1.70, 0.48, 1.35),
+    (2, '2024-08-01', 9100.00, 2550.00, 4100.00, 1000.00, 1450.00, 1.68, 0.47, 1.33),
+    (2, '2024-09-01', 9200.00, 2600.00, 4150.00, 1050.00, 1400.00, 1.67, 0.49, 1.32),
+    (2, '2024-10-01', 9300.00, 2650.00, 4200.00, 1100.00, 1600.00, 1.65, 0.50, 1.38),
+    (2, '2024-11-01', 9400.00, 2700.00, 4250.00, 1150.00, 1580.00, 1.63, 0.49, 1.36),
+
+    -- SIMBA data
+    (3, '2024-07-01', 5000.00, 1500.00, 2000.00, 600.00, 900.00, 1.75, 0.45, 1.25),
+    (3, '2024-08-01', 5050.00, 1525.00, 2025.00, 620.00, 900.00, 1.73, 0.46, 1.24),
+    (3, '2024-09-01', 5100.00, 1550.00, 2050.00, 630.00, 920.00, 1.72, 0.47, 1.23),
+    (3, '2024-10-01', 5150.00, 1575.00, 2075.00, 640.00, 960.00, 1.70, 0.46, 1.26),
+    (3, '2024-11-01', 5200.00, 1600.00, 2100.00, 650.00, 970.00, 1.68, 0.45, 1.27),
+
+    -- StarHub data
+    (4, '2024-07-01', 8500.00, 2800.00, 3000.00, 900.00, 800.00, 1.60, 0.51, 1.50),
+    (4, '2024-08-01', 8600.00, 2850.00, 3050.00, 900.00, 800.00, 1.58, 0.52, 1.48),
+    (4, '2024-09-01', 8700.00, 2900.00, 3100.00, 920.00, 800.00, 1.57, 0.53, 1.47),
+    (4, '2024-10-01', 8800.00, 2950.00, 3150.00, 950.00, 850.00, 1.55, 0.50, 1.52),
+    (4, '2024-11-01', 8900.00, 3000.00, 3200.00, 970.00, 860.00, 1.54, 0.51, 1.53);
+
+-- Insert sample data into data center carbon_emissions table
+INSERT INTO data_center_carbon_emissions (company_id, date, co2_emissions_tons, renewable_energy_percentage)
 VALUES
+    -- Singtel data
     (1, '2024-07-01', 5800.00, 15.00),
     (1, '2024-08-01', 5850.00, 16.00),
-    (1, '2024-09-01', 6000.00, 15.00);
+    (1, '2024-09-01', 6000.00, 15.00),
+    (1, '2024-10-01', 6100.00, 16.00),
+    (1, '2024-11-01', 6200.00, 16.50),
 
--- Insert sample data into sustainability_goals table
-INSERT INTO sustainability_goals (company_id, goal_name, target_value, current_value, target_year, progress)
+    -- M1 data
+    (2, '2024-07-01', 4600.00, 20.00),
+    (2, '2024-08-01', 4700.00, 21.00),
+    (2, '2024-09-01', 4800.00, 22.00),
+    (2, '2024-10-01', 4900.00, 22.00),
+    (2, '2024-11-01', 4950.00, 22.50),
+
+    -- SIMBA data
+    (3, '2024-07-01', 2800.00, 18.00),
+    (3, '2024-08-01', 2850.00, 18.50),
+    (3, '2024-09-01', 2900.00, 19.00),
+    (3, '2024-10-01', 2950.00, 19.00),
+    (3, '2024-11-01', 3000.00, 19.50),
+
+    -- StarHub data
+    (4, '2024-07-01', 5400.00, 10.00),
+    (4, '2024-08-01', 5500.00, 10.50),
+    (4, '2024-09-01', 5600.00, 11.00),
+    (4, '2024-10-01', 5700.00, 11.50),
+    (4, '2024-11-01', 5800.00, 12.00);
+
+-- Insert sample data into company_sustainability_goals table
+INSERT INTO company_sustainability_goals (company_id, goal_name, target_value, current_value, target_year, progress)
 VALUES
+    -- Singtel goals
     (1, 'CO₂e Reduction', 4000.00, 6000.00, 2025, 0.60),
     (1, 'PUE Improvement', 1.40, 1.65, 2025, 0.85),
     (1, 'Renewable Energy Usage', 30.00, 15.00, 2025, 0.50),
-    (1, 'Water Usage Reduction (WUE)', 1.10, 1.40, 2025, 0.78);
+    (1, 'Water Usage Reduction (WUE)', 1.10, 1.40, 2025, 0.78),
+
+    -- M1 goals
+    (2, 'CO₂e Reduction', 3500.00, 4800.00, 2025, 0.73),
+    (2, 'PUE Improvement', 1.30, 1.67, 2025, 0.78),
+    (2, 'Renewable Energy Usage', 35.00, 22.00, 2025, 0.63),
+    (2, 'Water Usage Reduction (WUE)', 1.15, 1.32, 2025, 0.87),
+
+    -- SIMBA goals
+    (3, 'CO₂e Reduction', 2000.00, 2900.00, 2025, 0.69),
+    (3, 'PUE Improvement', 1.50, 1.72, 2025, 0.87),
+    (3, 'Renewable Energy Usage', 40.00, 19.00, 2025, 0.48),
+    (3, 'Water Usage Reduction (WUE)', 1.20, 1.23, 2025, 0.98),
+
+    -- StarHub goals
+    (4, 'CO₂e Reduction', 3000.00, 5600.00, 2025, 0.54),
+    (4, 'PUE Improvement', 1.35, 1.57, 2025, 0.86),
+    (4, 'Renewable Energy Usage', 20.00, 11.00, 2025, 0.55),
+    (4, 'Water Usage Reduction (WUE)', 1.05, 1.47, 2025, 0.71);
 `;
 
 async function seedDatabase() {
