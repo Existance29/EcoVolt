@@ -89,7 +89,7 @@ CREATE TABLE company_sustainability_goals (
 const insertData = `
 
 -- Insert sample data into companies table
-INSERT INTO companies (name, alias)
+INSERT INTO companies (name, alias, email_domain)
 VALUES
     ('Singapore Telecommunications Limited', 'Singtel'),
     ('M1 Limited', 'M1'),
