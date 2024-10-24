@@ -14,12 +14,34 @@ class Report {
         try {
             const connection = await sql.connect(dbConfig);
             const query = `
-                SELECT c.name AS companyName, ec.date, ec.total_energy_mwh, ce.co2_emissions_tons,
+                SELECT c.name AS companyName, 
+                ec.date, 
+                ec.total_energy_kwh AS totalEnergyKWH, 
+                ce.co2_emissions_tons AS co2EmissionsTons,
                 sg.goal_name, sg.target_value, sg.current_value, sg.target_year, sg.progress 
-                FROM companies c INNER JOIN energy_consumption ec ON c.id = ec.company_id 
-                INNER JOIN carbon_emissions ce ON c.id = ce.company_id 
-                INNER JOIN sustainability_goals sg ON c.id = sg.company_id
+                FROM companies c 
+                INNER JOIN cell_tower_energy_consumption ec ON c.id = ec.company_id 
+                INNER JOIN data_center_carbon_emissions ce ON c.id = ce.company_id 
+                AND ec.date = ce.date 
+                INNER JOIN company_sustainability_goals sg ON c.id = sg.company_id
+                WHERE ec.total_energy_kwh IS NOT NULL
+
+                UNION ALL
+
+                SELECT c.name AS companyName, 
+                    dc.date, 
+                    dc.total_energy_mwh * 1000 AS totalEnergyKWH, -- Convert MWh to kWh
+                    ce.co2_emissions_tons AS co2EmissionsTons,
+                    sg.goal_name, sg.target_value, sg.current_value, sg.target_year, sg.progress 
+                FROM companies c 
+                INNER JOIN data_center_energy_consumption dc ON c.id = dc.company_id 
+                INNER JOIN data_center_carbon_emissions ce 
+                ON c.id = ce.company_id 
+                AND dc.date = ce.date
+                INNER JOIN company_sustainability_goals sg ON c.id = sg.company_id
+                WHERE dc.total_energy_mwh IS NOT NULL
                 ORDER BY ec.date;
+
             `;
             const result = await connection.query(query);
             const reports = result.recordset.map((row) => {
