@@ -1,5 +1,4 @@
 /* Global styling */
-/* HI THIS IS FOR NAV BAR */
 
 body {
   background-color: #f1f1f1; /* Set background color for the entire page */
@@ -14,157 +13,104 @@ body {
   font-family: 'Afacad';
 }
 
-/* Header styling */
-header {
-  width: 100%; /* Set the width to 100% */
-  height: atuo;
-  background-color: #1b2b40; /* Set background color for the header */
-}
-
-/* Navbar styling */
-header .navbar {
-  position: fixed; /* Fixed position to stay at the top */
-  top: 0; /* Align to the top of the page */
-  width: 100%; /* Set the width to 100% */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 130px;
-  background-color: #1b2b40; /* Use the color scheme */
-  color: black; /* Adjust text color if needed */
-  padding: 0 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a shadow for better visibility */
-  z-index: 1000; /* Ensure it stays on top of other elements */
-}
-
-/* Global Logo styling */
-.navbar .logo {
-  color: #d9aa52; /* Default color */
-  font-weight: bold;
-  font-size: 30px; /* Set font size for the logo */
-  text-decoration: none; /* Remove underline from the logo text */
-}
-
-.navbar .logo span {
-  color: #d9aa52; /* Default color for the span within the logo */
-}
-
-/* Global Menu links styling */
-.navbar .menu-links {
-  display: flex; /* Use flexbox for layout of menu links */
-  list-style: none; /* Remove default list styles */
-  gap: 30px; /* Set the gap between menu links */
-}
-
-.navbar .menu-links li a {
-  font-size: 15px;
-  color: #d9aa52; /* Default color for menu links */
-  text-decoration: none; /* Remove underline from menu links */
-  transition: 0.2s ease; /* Add a smooth transition effect */
-}
-
-.navbar .menu-links li a:hover {
-  color: #9a9c84; /* Change color on hover */
-}
-
-/* Auth links styling */
-.auth-links {
-  display: flex;
-  gap: 15px;
-}
-
-.auth-links a {
-  font-size: 15px;
-  color: #d9aa52; /* Default color for auth links */
-  text-decoration: none; /* Remove underline from auth links */
-  transition: 0.2s ease; /* Add a smooth transition effect */
-  border: 2px solid #d9aa52; /* Add border color */
-  border-radius: 5px; /* Add border radius */
-  padding: 8px 12px; /* Add padding for better appearance */
-}
-
-.auth-links a:hover {
-  color: #9a9c84; /* Change color on hover */
-  border-color: #9a9c84; /* Change border color on hover */
-}
-
-/* Mobile menu and hamburger button styling */
-#close-menu-btn {
-  position: absolute; /* Set the position to absolute for the close menu button */
-  right: 20px; /* Set the right position for the close menu button */
-  top: 20px; /* Set the top position for the close menu button */
-  cursor: pointer; /* Set cursor to pointer for the close menu button */
-  display: none; /* Initially hide the close menu button */
-}
-
-#hamburger-btn {
-  color: #CD8D7A; /* Set text color for the hamburger button */
-  cursor: pointer; /* Set cursor to pointer for the hamburger button */
-  display: none; /* Initially hide the hamburger button */
-}
-
-#navbar-signup {
-  background-color: #d9aa52;
-  color: #1b2b40;
-}
-
-  /* footer */
-
-  /* New footer trying out */
-  .footer {
-    margin-top: 30px;
-    background: #1b2b40;
-    padding: 30px 0px;
-    font-family: 'Play', sans-serif;
-    text-align: center;
-    justify-content: initial !important;
+/*Font sizes for different screen widths, matches figma*/
+/*Responsive font sizes*/
+/*How to use: use rem as the unit, 1-1 conversion from figma. ie, 16px in figma = 16rem in html*/
+/*You can also use this for sizing but idk how well it will work*/
+@media (min-width: 2000px) {
+  html {
+      font-size: calc(15px / 16);
   }
-  
-  .footer .row {
-    width: 100%;
-    margin: 1% 0%;
-    padding: 0.6% 0%;
-    color: #d9aa52;
-    font-size: 0.8em;
+}
+
+@media (max-width: 2000px) {
+  html {
+      font-size: calc(15px / 16);
   }
-  
-  .footer .row a {
-    text-decoration: none;
-    color: #d9aa52;
-    transition: 0.5s;
+}
+
+@media (max-width: 1200px) {
+  html {
+      font-size: calc(12px / 16);
   }
-  
-  .footer .row a:hover {
-    color: #fff;
+}
+
+@media (max-width: 900px) {
+  html {
+      font-size: calc(10px / 16);
   }
-  
-  .footer .row ul {
-    width: 100%;
+}
+
+@media (max-width: 700px) {
+  html {
+      font-size: calc(8px / 16);
   }
-  
-  .footer .row ul li {
-    display: inline-block;
-    margin: 0px 30px;
+}
+
+@media (max-width: 560px) {
+  html {
+      font-size: calc(7px / 16);
   }
-  
-  .footer .row a i {
-    font-size: 2em;
-    margin: 0% 1%;
-  }
-  
-  @media (max-width: 600px) {
-    .footer {
-        text-align: left;
-        padding: 5%;
-    }
-  
-    .footer .row ul li {
-        display: block;
-        margin: 10px 0px;
-        text-align: left;
-    }
-  
-    .footer .row a i {
-        margin: 0% 3%;
-    }
-  }
+}
+
+/*Font inter*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+.inter-bold {
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.inter-semibold {
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.inter-medium {
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.inter-regular {
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+}
+
+/*Font time open sans*/
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+.open-sans-bold {
+  font-family: 'Open Sans', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.open-sans-semibold {
+  font-family: 'Open Sans', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.open-sans-medium {
+  font-family: 'Open Sans', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.open-sans-regular {
+  font-family: 'Open Sans', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
