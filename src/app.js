@@ -7,7 +7,6 @@ const sql = require("mssql")
 const route = require("./routes/routes")
 // const route = require("./routes/routes")
 const bodyParser = require("body-parser");
-const route = require("./route/route");
 
 //load frontend
 const staticMiddleware = express.static("public")
@@ -16,10 +15,8 @@ app.use(staticMiddleware)
 //use parse middlewares
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-route(app)
 
 //setup routes
-// route(app)
 route(app);
 
 app.listen(port, async () => {
