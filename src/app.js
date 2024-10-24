@@ -4,6 +4,7 @@ const app = express()
 const port = process.env.PORT || 3000
 const dbConfig = require("./database/dbConfig")
 const sql = require("mssql")
+const route = require("./routes/routes")
 // const route = require("./routes/routes")
 const bodyParser = require("body-parser");
 const route = require("./route/route");
@@ -15,6 +16,7 @@ app.use(staticMiddleware)
 //use parse middlewares
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+route(app)
 
 //setup routes
 // route(app)

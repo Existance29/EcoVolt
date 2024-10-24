@@ -19,11 +19,34 @@
     </main>
         <img src="assets/sign-up/bg-banner.png" class="bg-banner">
         <!--actual content-->
-        <div style="display: flex; flex-direction: column; align-items: center; position: relative; padding-top: 15vh;">
+        <div style="display: flex; flex-direction: column; align-items: center; padding-top: 15vh;">
             <h1 style="color: #FFFFFF; font-size: 32rem;" class="inter-bold">Welcome!</h1>
             <div style="color: #FFFFFF; font-size: 14rem; margin-top: 15rem;" class="inter-regular">Start monitoring your energy usage today!</div>
-            <div style="margin-top: 10vh; background-color: #FFFFFF; height: 100px; width: 35%; border-radius: 15px;">
-                <div style="color: #2D3748; font-size: 18rem; margin-top: 35rem; width: 100%; text-align: center;" class="inter-bold">Sign Up</div>
+            <div class="signup-container">
+                <div style="color: #2D3748; font-size: 18rem; margin-top: 35rem;" class="inter-bold">Sign Up</div>
+                <form>
+                    <div class="field">
+                        <label for="name" class="open-sans-regular">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your full name" class="open-sans-regular text-input">
+                    </div>
+                    <div class="field">
+                        <label for="company-email" class="open-sans-regular">Company Email</label>
+                        <input type="text" id="company-email" name="company-email" placeholder="Your company email" class="open-sans-regular text-input">
+                    </div>
+                    <div class="field">
+                        <label for="password" class="open-sans-regular">Password</label>
+                        <input type="text" id="password" name="password" placeholder="Your password" class="open-sans-regular text-input">
+                    </div>
+                    <div style="display: flex; gap: 18rem; font-size: 12rem; margin-top: 23rem;" class="open-sans-regular">
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                        Remember Me
+                    </div>
+                    <button class="inter-bold">Sign Up</button>
+                    <div style="font-size: 14rem; color: #A0AEC0; width: 100%; text-align: center; margin-top: 20rem;" class="open-sans-regular">Already have an account? <a style="color: #4FD1C5;" href="https://www.w3schools.com" class="inter-bold">Sign in</a></div>
+                </form>
             </div>
         </div>
         
