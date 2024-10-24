@@ -32,6 +32,7 @@ CREATE TABLE companies (
     id INT IDENTITY(1,1) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     alias VARCHAR(255) NULL,
+    email_domain VARCHAR(255) NULL,
 );
 
 -- Create table for energy consumption data (cell tower)
@@ -91,10 +92,10 @@ const insertData = `
 -- Insert sample data into companies table
 INSERT INTO companies (name, alias)
 VALUES
-    ('Singapore Telecommunications Limited', 'Singtel'),
-    ('M1 Limited', 'M1'),
-    ('SIMBA Telecom Pte Ltd', 'SIMBA'),
-    ('StarHub Limited', 'StarHub');
+    ('Singapore Telecommunications Limited', 'Singtel', 'singtel.com'),
+    ('M1 Limited', 'M1', 'm1.com.sg'),
+    ('SIMBA Telecom Pte Ltd', 'SIMBA', 'simba.sg'),
+    ('StarHub Limited', 'StarHub', 'starhub.com');
 
 -- Insert sample data into cell tower energy_consumption table
 INSERT INTO cell_tower_energy_consumption (company_id, date, total_energy_kwh, radio_equipment_energy_kwh, cooling_energy_kwh, backup_power_energy_kwh, misc_energy_kwh)
