@@ -1,6 +1,7 @@
 # Placeholder
 ## Project Setup
 
+**Before proceeding, cd into the /src directory**
 ### Installing node modules
 run ``npm install``
 
