@@ -28,16 +28,18 @@ class dataCenterDashboard {
         this.sustainability_goals = sustainability_goals;
         }
         
-    static async getAllCarbonEmissionsData(company_id, date) {
+    static async getAllCarbonEmissionsData(company_id, year) {
+        let connection;
         try {
-            const connection = await sql.connect(dbConfig);
-            const sqlQuery = `SELECT * FROM data_center_carbon_emissions WHERE company_id=@company_id AND date=@date`; // retrieiving data from data_center_carbon_emissions where company_id = company_id and date = date
+            connection = await sql.connect(dbConfig);
+            const sqlQuery = `SELECT * FROM data_center_carbon_emissions WHERE company_id=@company_id AND YEAR(date)=@year`; // retrieiving data from data_center_carbon_emissions where company_id = company_id
 
             const request = connection.request();
             request.input('company_id', company_id);
-            request.input('date', date);
-            const result = await reuqest.query(sqlQuery);
-            if(result.rowsAffected[0] === 0) {
+            request.input('year', year);
+            const result = await request.query(sqlQuery);
+            console.log(result);
+            if(result.recordset.length === 0) {
                 return null;
             }
             return result.recordset;
@@ -50,16 +52,15 @@ class dataCenterDashboard {
         }
     }
 
-    static async getAllSustainabilityGoalsData(company_id, date) {
+    static async getAllSustainabilityGoalsData(company_id) {
+        let connection;
         try {
-            const connection = await sql.connect(dbConfig);
-            const sqlQuery = `SELECT * FROM company_sustainability_goals WHERE company_id=@company_id AND target_year = YEAR(@date)`; // retrieiving data from company_sustainability_goals where company_id = company_id and target_year = target_year
-    
+            connection = await sql.connect(dbConfig);
+            const sqlQuery = `SELECT * FROM company_sustainability_goals WHERE company_id=@company_id`; // retrieiving data from company_sustainability_goals where company_id = company_id
             const request = connection.request();
             request.input('company_id', company_id);
-            request.input('date', date);
-            const result = await requst.query(sqlQuery);
-            if(result.rowsAffected[0] === 0) {
+            const result = await request.query(sqlQuery);
+            if(result.recordset.length === 0) {
                 return null;
             }
             return result.recordset;

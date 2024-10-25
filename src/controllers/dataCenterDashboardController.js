@@ -4,7 +4,9 @@ const getAllCarbonEmissionsData = async (req, res) => {
     const company_id = parseInt(req.params.company_id); // convert string to integer
     const date = req.params.date;
     try {
-        const data = await dataCenterDashboard.getAllCarbonEmissionsData(company_id, date);
+        // Extract the year from the date parameter
+        const year = new Date(date).getFullYear();
+        const data = await dataCenterDashboard.getAllCarbonEmissionsData(company_id, year);
         if (!data) {
             return res.status(404).send('Carbon Emissions Data not found.');
         }
@@ -17,9 +19,8 @@ const getAllCarbonEmissionsData = async (req, res) => {
 
 const getAllSustainabilityGoalsData = async (req, res) => {
     const company_id = parseInt(req.params.company_id); // convert string to integer
-    const date = req.params.date;
     try {
-        const data = await dataCenterDashboard.getAllSustainabilityGoalsData(company_id, date);
+        const data = await dataCenterDashboard.getAllSustainabilityGoalsData(company_id);
         if (!data) {
             return res.status(404).send('Sustainability Goals Data not found.');
         }
