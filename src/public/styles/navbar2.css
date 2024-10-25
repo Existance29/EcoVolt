@@ -9,6 +9,27 @@
     padding: 0 23%;
 }
 
+.logo-text{
+    margin-left: 0.7rem; 
+    font-size: 1rem;
+}
+
+.light .logo-text{
+    color: #FFFFFF
+}
+
+.dark .logo-text{
+    color: #000000
+}
+
+.light .nav-item{
+    --text-color: #FFFFFF;
+}
+
+.dark .nav-item{
+    --text-color: #2D3748;
+}
+
 .content{
     width: 100%;
     display: flex;
