@@ -27,6 +27,30 @@ class dataCenterDashboard {
         // Sustainability Goals
         this.sustainability_goals = sustainability_goals;
         }
+
+    static async getAllYear() { // Get the years that exist in the database so that it populates the filter dropdown dynamically
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+            const sqlQuery = `
+                SELECT DISTINCT YEAR(date) AS year
+                FROM data_center_energy_consumption
+                ORDER BY year;
+            `; // If there is energy consumotion, then there is carbon emission. hence selecting from only one table
+            const request = connection.request();
+            const result = await request.query(sqlQuery);
+            if(result.recordset.length === 0) {
+                return null;
+            }
+            return result.recordset;
+        } catch (error) {
+            throw new Error("Error retrieving Year");
+        } finally {
+            if (connection) {
+                await connection.close();
+            }
+        }
+    }
         
     static async getAllCarbonEmissionsData(company_id, year) {
         let connection;
@@ -85,7 +109,34 @@ class dataCenterDashboard {
         }
     }
 
-
+    static async getAllEnergyConsumptionData(company_id, year) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+            const sqlQuery = `
+                SELECT energy.*, centers.data_center_name, companies.name AS company_name
+                FROM data_center_energy_consumption AS energy
+                INNER JOIN data_centers AS centers ON energy.data_center_id = centers.id
+                INNER JOIN companies ON centers.company_id = companies.id
+                WHERE companies.id = @company_id
+                AND YEAR(energy.date) = @year
+            `; // retrieiving data from data_center_energy_consumption where company_id = company_id
+            const request = connection.request();
+            request.input('company_id', company_id);
+            request.input('year', year);
+            const result = await request.query(sqlQuery);
+            if(result.recordset.length === 0) {
+                return null;
+            }
+            return result.recordset;
+        } catch (error) {
+            throw new Error("Error retrieving Energy Consumption Data");
+        } finally {
+            if (connection) {
+                await connection.close();
+            }
+        }
+    }
 
 
 
