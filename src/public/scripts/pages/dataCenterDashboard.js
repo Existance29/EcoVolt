@@ -2,11 +2,10 @@
 const today = new Date().toISOString().slice(0, 10); // Format: YYYY-MM-DD
 document.getElementById('current-date').textContent = today;
 
-// temp storage of company id ***********************************************************************************************************************************************************************
-sessionStorage.setItem('company_id', 1);
-
 // Retrieve company ID from session storage
-const companyId = sessionStorage.getItem('company_id'); //  the company_id is stored in session storage
+//const companyId = getCompanyId()
+//temporary
+const companyId = 1
 
 // Populate the company name (just for display, you can modify based on your data structure)
 document.getElementById('company-name').textContent = `Company ${companyId}`;

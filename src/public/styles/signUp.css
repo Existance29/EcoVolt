@@ -34,7 +34,7 @@ label{
 form .field{
     display: flex;
     flex-direction: column;
-    margin-top: 1.125rem;
+    margin-top: 0.6rem;
 }
 
 .text-input{
@@ -73,10 +73,10 @@ a{
 }
 
 .field-error{
-  margin-top: 5                                                                                                                                                     rem;
+  margin-top: 0.3rem                                                                                                                                                     rem;
   color: red;
   font-size: 0.875rem;
-  display: none;
+  opacity: 0;
 }
 
 /*Custom switch*/

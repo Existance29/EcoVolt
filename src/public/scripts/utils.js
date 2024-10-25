@@ -1,7 +1,7 @@
 //a bunch of utility functions
 
-function getCompanyID(){
-    return localStorage.getItem("companyId") || sessionStorage.getItem("companyId");
+function getCompanyId(){
+    return localStorage.company_id || sessionStorage.company_id
 }
 
 //get the value of the url parameter of the current address

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/common.css">
-    <link rel="stylesheet" href="styles/sign-up.css">
+    <link rel="stylesheet" href="styles/signUp.css">
     <!-- Linking to external stylesheets for icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -31,23 +31,23 @@
                         <div class="field-error inter-medium" id = "name-error">Error message</div>
                     </div>
                     <div class="field">
-                        <label for="company-email" class="open-sans-regular">Company Email</label>
-                        <input type="text" id="company-email" name="company-email" placeholder="Your company email" class="open-sans-regular text-input">
+                        <label for="email" class="open-sans-regular">Company Email</label>
+                        <input type="text" id="email" name="email" placeholder="Your company email" class="open-sans-regular text-input">
                         <div class="field-error inter-medium" id = "email-error">Error message</div>
                     </div>
                     <div class="field">
                         <label for="password" class="open-sans-regular">Password</label>
-                        <input type="text" id="password" name="password" placeholder="Your password" class="open-sans-regular text-input">
+                        <input type="password" id="password" name="password" placeholder="Your password" class="open-sans-regular text-input">
                         <div class="field-error inter-medium" id = "password-error">Error message</div>
                     </div>
-                    <div style="display: flex; gap: 1.125rem; font-size: 0.75rem; margin-top: 1.4375rem;" class="open-sans-regular">
+                    <div style="display: flex; gap: 1.125rem; font-size: 0.75rem; margin-top: 0.9rem;" class="open-sans-regular">
                         <label class="switch">
                             <input type="checkbox" id = "remember-me">
                             <span class="slider round"></span>
                         </label>
                         Remember Me
                     </div>
-                    <button class="inter-bold">Sign Up</button>
+                    <button class="inter-bold" id = "submit-btn">Sign Up</button>
                     <div style="font-size: 0.875rem; color: #A0AEC0; width: 100%; text-align: center; margin-top: 1.25rem;" class="open-sans-regular">Already have an account? <a style="color: #4FD1C5;" href="https://www.w3schools.com" class="inter-bold">Sign in</a></div>
                 </form>
             </div>
@@ -58,6 +58,6 @@
     <!-- Linking js to html -->
     <script src="scripts/common.js"></script>
     <script src="scripts/api.js"></script>
-    <script src="scripts/sign-up.js"></script>
+    <script src="scripts/pages/signUp.js"></script>
 </body>
 </html>
