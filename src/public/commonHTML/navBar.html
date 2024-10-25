@@ -8,25 +8,37 @@
 </head>
 <body>
 
-    <!-- navbar -->
-    <header>
-        <nav class="navbar">
-            <a class="logo" href="Index.html"><i class="fa fa-slideshare"></i>&nbsp;EcoVolt</span></a>
-            <ul class="menu-links" id="menu-links">
-                <li><a href="Index.html">Home</a></li>
-                <li><a href="overviewDashboard.html" id="nav-courses">Dashboard</a></li>
-                <li><a href="Report.html" id="nav-activityfeed">Report</a></li>
-                <li><a href="Blog.html">Blog</a></li>
-                <li><a href="ContactUs.html">Contact Us</a></li>
-            </ul>
-            <div class="auth-links" id="auth-links">
-                <a href="signIn.html" id="navbar-login">LOG IN</a>
-                <a href="signUp.html" id="navbar-signup">SIGN UP</a>
-            </div>
-            <span id="hamburger-btn" class="material-symbols-outlined">menu</span>
-        </nav>
-    </header>
+ <!-- Navbar -->
+ <header>
+    <nav class="navbar">
+        <a class="logo" href="Index.html"><i class="fa fa-slideshare"></i>&nbsp;EcoVolt</a>
+        <ul class="menu-links" id="menu-links">
+            <li><a href="Index.html">Home</a></li>
+            <li><a href="overviewDashboard.html" id="nav-courses">Dashboard</a></li>
+            <li><a href="Report.html" id="nav-activityfeed">Report</a></li>
+            <li><a href="Blog.html">Blog</a></li>
+            <li><a href="ContactUs.html">Contact Us</a></li>
+        </ul>
+        <div class="auth-links" id="auth-links">
+            <a href="signIn.html" id="navbar-login">LOG IN</a>
+            <a href="signUp.html" id="navbar-signup">SIGN UP</a>
+        </div>
+        <!-- Hamburger button for mobile -->
+        <span id="hamburger-btn" class="material-icons">menu</span>
+    </nav>
+</header>
     <link rel="stylesheet" href="styles/navbar.css">
+
+     <!-- Include a script to handle the menu toggle -->
+     <script>
+        const menuLinks = document.getElementById("menu-links");
+        const hamburgerBtn = document.getElementById("hamburger-btn");
+
+        hamburgerBtn.addEventListener("click", () => {
+            menuLinks.classList.toggle("active");
+        });
+    </script>
+
 
 </body>
 </html>

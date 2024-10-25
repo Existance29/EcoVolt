@@ -1,0 +1,139 @@
+/* Footer Styling */
+footer {
+    background-color: #1b2b40;
+    padding: 40px 0;
+    color: #d9d9d9;
+    font-family: 'Arial', sans-serif;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 20px;
+}
+
+.footer-section {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.footer-logo {
+    flex: 1;
+}
+
+.footer-logo img {
+    max-width: 120px; /* Adjust to your logo size */
+    margin-bottom: 15px;
+}
+
+.footer-logo p {
+    font-size: 14px;
+    color: #999;
+}
+
+.footer-links {
+    flex: 1;
+}
+
+.footer-links h4 {
+    font-size: 16px;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.footer-links ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links ul li {
+    margin-bottom: 10px;
+}
+
+.footer-links ul li a {
+    color: #d9d9d9;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-links ul li a:hover {
+    color: #6ec18b; /* Add hover color */
+}
+
+.footer-subscribe {
+    flex: 1;
+}
+
+.footer-subscribe h4 {
+    font-size: 16px;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.footer-subscribe form {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.footer-subscribe input {
+    padding: 10px;
+    border: none;
+    border-radius: 3px 0 0 3px;
+    flex: 1;
+    font-size: 14px;
+}
+
+.footer-subscribe button {
+    padding: 10px;
+    background-color: #6ec18b;
+    border: none;
+    border-radius: 0 3px 3px 0;
+    cursor: pointer;
+    color: white;
+}
+
+.footer-subscribe button i {
+    font-size: 16px;
+}
+
+.footer-subscribe .social-links {
+    margin-top: 20px;
+}
+
+.footer-subscribe .social-links a {
+    color: #d9d9d9;
+    margin-right: 15px;
+    font-size: 20px;
+}
+
+.footer-subscribe .social-links a:hover {
+    color: #6ec18b;
+}
+
+/* Responsive footer */
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-logo,
+    .footer-links,
+    .footer-subscribe {
+        flex: none;
+        margin-bottom: 20px;
+    }
+
+    .footer-logo img {
+        max-width: 100px;
+    }
+}

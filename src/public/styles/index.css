@@ -1,102 +1,391 @@
-/* EDUCATION */
-/* index page  */
+/* Reset some browser styles */
+body, h1, h2, h3, p {
+  margin: 0;
+  padding: 0;
+}
 
 /* Hero section styling */
 .hero {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 100px 20px;
-    background-color: white; /* Hero section background color */
-    color: #1b2b40; /* Hero section text color */
-    overflow: hidden;
-  }
-  
-  .hero-content, .hero-image {
-    flex: 1; /* Each child element will take up equal space */
-    margin: 50px; /* Margin to add spacing */
-    max-width: 100%;
-  }
-  
-  .hero-image {
-    flex: 1; /* Allow the image to take up equal space */
-    display: flex;
-    justify-content: center; /* Center the image horizontally within its container */
-  }
-  
-  .hero-image img {
-    margin-left: 40px;
-    max-width: 180%; 
-  }
-  
-  .hero h1 {
-    font-size: 3em;
-    margin-bottom: 20px;
-  }
-  
-  .hero p {
-    font-size: 1.2em;
-    margin-bottom: 30px;
-  }
-  
-  .hero a.btn-primary {
-    background-color: #d9aa52;
-    color: black;
-    text-decoration: none;
-    padding: 15px 30px;
-    border-radius: 5px;
-    transition: 0.2s ease;
-  }
-  
-  .hero a.btn-primary:hover {
-    background-color: #9a9c84;
-    color: white;
-  }
-  
-  /* Info section styling */
-  .title_for_offer h2 {
-    padding: 20px;
-    text-align: center;
-  }
-  
-  /* Info section styling */
-  .info-section {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 columns of equal width */
-    gap: 20px; /* Gap between boxes */
-    padding: 100px 20px;
-    background-color: white; /* Info section background color */
-  }
-  
-  .info-box {
-    background-color: #f1f1f1;
-    padding: 20px;
-    border-radius: 5px;
-    text-align: center;
-  }
-  
-  .info-box h3 {
-    margin-bottom: 10px;
-  }
-  
-  .info-box p {
-    font-size: 1em;
-  }
-  
-  /* Ensure the first 4 items take a full row each */
-  .info-box:nth-child(1),
-  .info-box:nth-child(2),
-  .info-box:nth-child(3),
-  .info-box:nth-child(4) {
-    grid-column: span 1;
-  }
-  
-  /* Center the next 2 items in a new row */
-  .info-box:nth-child(5) {
-    grid-column: 2 / 3;
-  }
-  
-  .info-box:nth-child(6) {
-    grid-column: 3 / 4;
-  }
-  
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 100px 50px;
+  background-color: #f9f9f9;
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero-content span {
+  color: #4FD1C5;
+}
+
+.hero h1 {
+  font-size: 48px;
+  color: #222;
+}
+
+.hero p {
+  font-size: 18px;
+  color: #666;
+  margin: 20px 0;
+}
+
+.hero-content a {
+  font-size: 18px;
+}
+
+
+.hero .btn-primary {
+  background-color: #4FD1C5;
+  color: white;
+  padding: 15px 30px;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.hero .btn-primary:hover {
+  background-color: #55A870;
+}
+
+/* Clients Section */
+.clients {
+  padding: 50px 0;
+  text-align: center;
+  background-color: #fff;
+}
+
+.clients h2 {
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.clients p {
+  margin-bottom: 30px;
+  color: #666;
+}
+
+.client-logos img {
+  max-width: 150px;
+  margin: 10px;
+}
+
+/* Features Section */
+.features {
+  padding: 50px 0;
+  text-align: center;
+  background-color: #f8f8f8;
+}
+
+.feature-boxes {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.feature-box {
+  width: 100%;
+  background-color: #fff;
+  padding: 60px 30px;
+  margin: 50px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Ensure text and image are centered */
+}
+
+.feature-box h3 {
+  font-size: 25px;
+  margin-bottom: 10px;
+}
+
+.feature-box p {
+  font-size: 14px;
+  margin-top: 20px;
+}
+
+.feature-box img {
+  max-width: 80px; /* Set a max width for the image */
+  margin-bottom: 20px; /* Add space between image and heading */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Opportunities Section */
+.opportunities {
+  display: flex;
+  justify-content: space-between;
+  padding: 50px 20px;
+  margin: 50px;
+  background-color: #fff;
+}
+
+.opportunity-content {
+  max-width: 50%;
+}
+
+.opportunity-content h2 {
+  font-size: 25px;
+}
+
+.opportunity-image {
+  max-width: 50%;
+}
+
+/* Slideshow container */
+.slideshow-container {
+  position: relative;
+  max-width: 100%; /* Adjusts to container width */
+  margin: auto;
+}
+
+.mySlides {
+  display: none; /* Hide all slides by default */
+}
+
+.mySlides img {
+  width: 100%; /* Image will take full container width */
+
+  border-radius: 10px;
+}
+
+/* Next & previous buttons */
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  padding: 16px;
+  margin-top: -22px;
+  color: black;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+}
+
+.next {
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}
+
+.prev {
+  left: 0;
+}
+
+/* On hover, add a slight background color to buttons */
+.prev:hover, .next:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Fading animation */
+.fade {
+  animation-name: fade;
+  animation-duration: 1.5s;
+}
+
+@keyframes fade {
+  from {opacity: 0.4} 
+  to {opacity: 1}
+}
+
+.opportunities {
+  display: flex;
+  justify-content: space-between;
+  padding: 50px 20px;
+  background-color: #fff;
+}
+
+.opportunity-content {
+  max-width: 50%;
+  padding: 30px;  
+}
+
+.opportunity-content h2 {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.opportunity-content p {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+/* Functions List */
+.functions {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.function-item {
+  width: 45%; /* Adjust width to fit two items in a row */
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.bullet {
+  width: 10px;
+  height: 10px;
+  background-color: #4FD1C5;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.function-item span {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.btn-primary {
+  background-color: #4FD1C5;
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #e68a00;
+}
+
+
+
+/* Stats Section */
+.stats {
+  background-color: #f8f8f8;
+  color: black;
+  text-align: center;
+  padding: 50px 0;
+}
+
+.stat-boxes {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.stat-box {
+  width: 20%;
+}
+
+/* Report Section */
+.report-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 50px;
+  background-color: #fff;
+}
+
+.report-image {
+  width: 50%; /* Adjust width of the image section */
+}
+
+.report-image img {
+  width: 100%; /* Image takes full width of its container */
+  border-radius: 8px; /* Optional: Adds rounded corners */
+}
+
+.report-content {
+  max-width: 45%;
+  margin: 30px;
+  text-align: left;
+}
+
+.report-content h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.report-content p {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* Bullet Points */
+.functions {
+  margin-top: 25px;
+}
+
+.function-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.bullet {
+  width: 10px;
+  height: 10px;
+  background-color: #4FD1C5;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+/* Button */
+.btn-primary {
+  background-color: #4FD1C5;
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+.btn-primary:hover {
+  background-color: #e68a00;
+}
+/* Testimonial Section */
+/* .testimonial {
+  padding: 50px 20px;
+  background-color: #f8f8f8;
+  text-align: center;
+}
+
+.testimonial blockquote {
+  font-size: 18px;
+  color: #666;
+  margin: 0;
+} */
+
+/* Blog Section */
+.blog {
+  padding: 50px 20px;
+  text-align: center;
+  background-color: #f8f8f8;
+}
+
+.blog-cards {
+  display: flex;
+  justify-content: space-around;
+}
+
+.blog-card {
+  width: 30%;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+  display: inline-block;
+  margin-top: 20px;
+  background-color: #6EC18B;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+}
