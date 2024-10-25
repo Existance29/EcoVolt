@@ -1,13 +1,21 @@
 //functions for CRUD api calls
 
-const accessToken = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
+const accessToken = localStorage.accessToken || sessionStorage.eaccessToken;
 
 //check if user is logged in 
-async function isLoggedIn(){
-    if (accessToken === null) return false
+async function isSignedIn(){
+    if (!accessToken) return false
     //make sure the jwt is valid
     const response = await get("/users/decodejwt")
     return response.status == 200
+}
+
+async function pageRequireSignIn(){
+  if (!await isSignedIn()) location.href = "signIn.html"
+}
+
+async function pageRequireNotSignIn(){
+  if (await isSignedIn()) location.href = "index.html"
 }
 
 async function post(url, jsondata){

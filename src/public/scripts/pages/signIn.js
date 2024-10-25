@@ -1,3 +1,4 @@
+pageRequireNotSignIn()
 //show/hide the error message
 //state: "show" / "hide"
 function errorMessage(state){
