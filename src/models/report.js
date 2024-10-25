@@ -2,69 +2,100 @@ const sql = require("mssql");
 const dbConfig = require("../database/dbConfig");
 
 class Report {
-    constructor(companyName, date, totalEnergyMWH, co2EmissionsTons, sustainabilityGoals) {
+    constructor(companyName, date, totalEnergyKWH, co2EmissionsTons, sustainabilityGoals, radioEquipmentEnergy, coolingEnergy, backupEnergy, miscEnergy, dataCenterId) {
         this.companyName = companyName;
         this.date = date;
-        this.totalEnergyMWH = totalEnergyMWH;
+        this.totalEnergyKWH = totalEnergyKWH;
         this.co2EmissionsTons = co2EmissionsTons;
         this.sustainabilityGoals = sustainabilityGoals;
+        this.radioEquipmentEnergy = radioEquipmentEnergy;
+        this.coolingEnergy = coolingEnergy;
+        this.backupEnergy = backupEnergy;
+        this.miscEnergy = miscEnergy;
+        this.dataCenterId = dataCenterId;
     }
 
-    static async getAllReport(){
+    static async getAllReport() {
         try {
             const connection = await sql.connect(dbConfig);
             const query = `
-                SELECT c.name AS companyName, 
-                ec.date, 
-                ec.total_energy_kwh AS totalEnergyKWH, 
-                ce.co2_emissions_tons AS co2EmissionsTons,
-                sg.goal_name, sg.target_value, sg.current_value, sg.target_year, sg.progress 
-                FROM companies c 
-                INNER JOIN cell_tower_energy_consumption ec ON c.id = ec.company_id 
-                INNER JOIN data_center_carbon_emissions ce ON c.id = ce.company_id 
-                AND ec.date = ce.date 
-                INNER JOIN company_sustainability_goals sg ON c.id = sg.company_id
-                WHERE ec.total_energy_kwh IS NOT NULL
+                SELECT 
+                    c.name AS companyName, 
+                    CTec.date, 
+                    MAX(CTec.total_energy_kwh) AS totalEnergyKWH, 
+                    MAX(CTec.radio_equipment_energy_kwh) AS radioEquipmentEnergy,
+                    MAX(CTec.cooling_energy_kwh) AS coolingEnergy,
+                    MAX(CTec.backup_power_energy_kwh) AS backupEnergy,
+                    MAX(CTec.misc_energy_kwh) AS miscEnergy,
+                    NULL AS co2EmissionsTons, -- Set CO2 emissions to NULL for cell towers
+                    MAX(sg.goal_name) AS goal_name, 
+                    MAX(sg.target_value) AS target_value, 
+                    MAX(sg.current_value) AS current_value, 
+                    MAX(sg.target_year) AS target_year, 
+                    MAX(sg.progress) AS progress,
+                    NULL AS dataCenterId
+                FROM companies c
+                INNER JOIN cell_tower_energy_consumption CTec ON c.id = CTec.company_id
+                LEFT JOIN company_sustainability_goals sg ON c.id = sg.company_id
+                GROUP BY c.name, CTec.date
 
                 UNION ALL
 
-                SELECT c.name AS companyName, 
-                    dc.date, 
-                    dc.total_energy_mwh * 1000 AS totalEnergyKWH, -- Convert MWh to kWh
-                    ce.co2_emissions_tons AS co2EmissionsTons,
-                    sg.goal_name, sg.target_value, sg.current_value, sg.target_year, sg.progress 
-                FROM companies c 
-                INNER JOIN data_center_energy_consumption dc ON c.id = dc.company_id 
-                INNER JOIN data_center_carbon_emissions ce 
-                ON c.id = ce.company_id 
-                AND dc.date = ce.date
-                INNER JOIN company_sustainability_goals sg ON c.id = sg.company_id
-                WHERE dc.total_energy_mwh IS NOT NULL
-                ORDER BY ec.date;
-
+                SELECT 
+                    c.name AS companyName, 
+                    DCec.date, 
+                    MAX(DCec.total_energy_mwh * 1000) AS totalEnergyKWH, 
+                    MAX(DCec.it_energy_mwh) AS radioEquipmentEnergy,
+                    MAX(DCec.cooling_energy_mwh) AS coolingEnergy,
+                    MAX(DCec.backup_power_energy_mwh) AS backupEnergy,
+                    MAX(DCec.lighting_energy_mwh) AS miscEnergy,
+                    MAX(DCce.co2_emissions_tons) AS co2EmissionsTons, -- Only for data centers
+                    MAX(sg.goal_name) AS goal_name, 
+                    MAX(sg.target_value) AS target_value, 
+                    MAX(sg.current_value) AS current_value, 
+                    MAX(sg.target_year) AS target_year, 
+                    MAX(sg.progress) AS progress,
+                    dct.id AS dataCenterId
+                FROM companies c
+                INNER JOIN data_centers dct ON c.id = dct.company_id
+                INNER JOIN data_center_energy_consumption DCec ON dct.id = DCec.data_center_id
+                LEFT JOIN data_center_carbon_emissions DCce ON dct.id = DCce.data_center_id AND DCec.date = DCce.date
+                LEFT JOIN company_sustainability_goals sg ON c.id = sg.company_id
+                GROUP BY c.name, DCec.date, dct.id
+                ORDER BY date;
             `;
+
             const result = await connection.query(query);
+
             const reports = result.recordset.map((row) => {
-                return new Report(row.companyName, row.date, row.totalEnergyMWH, row.co2EmissionsTons, 
+                return new Report(
+                    row.companyName, 
+                    row.date, 
+                    row.totalEnergyKWH, 
+                    row.co2EmissionsTons, 
                     [{
                         goalName: row.goal_name,
                         targetValue: row.target_value,
                         currentValue: row.current_value,
                         targetYear: row.target_year,
                         progress: row.progress
-                    }] // Sustainability goals in an array
-                )
+                    }],
+                    row.radioEquipmentEnergy,
+                    row.coolingEnergy,
+                    row.backupEnergy,
+                    row.miscEnergy,
+                    row.dataCenterId || null 
+                );
             });
 
             return reports;
 
-
         } catch (error) {
             console.error("Error fetching reports:", error);
+            throw error;
         } finally {
             await sql.close();
         }
-
     }
 }
 
