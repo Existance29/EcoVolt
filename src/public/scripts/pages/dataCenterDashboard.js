@@ -5,13 +5,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const year = today.getFullYear(); // Extract only the year
     document.getElementById('current-date').textContent = year; // Display only the year
 
-    // temp storage of company id ***********************************************************************************************************************************************************************
+    // Temp storage of company id
     sessionStorage.setItem('company_id', 1);
 
     // Retrieve company ID from session storage
     const companyId = getCompanyId()
 
-    // Fetch carbon emissions data (ensure backend includes data_center_name in the response)
+    // Fetch carbon emissions and renewable energy data (ensure backend includes renewable_energy_percentage in the response)
     fetch(`/Dashboard/Data-Center/carbon-emissions/${companyId}/${year}`)
         .then(response => response.json())
         .then(data => {
@@ -22,36 +22,67 @@ document.addEventListener("DOMContentLoaded", function() {
                 const dataCenterNames = data.map(item => item.data_center_name);
                 // Map the carbon emissions data
                 const carbonEmissionsData = data.map(item => item.co2_emissions_tons);
+                // Map the renewable energy percentage data
+                const renewableEnergyData = data.map(item => item.renewable_energy_percentage);
 
                 // Get the chart context
                 const ctx = document.getElementById('carbonEmissionsChart').getContext('2d');
 
-                // Bar Chart Option with Data Center Names on the X-axis
+                // Bar Chart with Carbon Emissions and Renewable Energy Data
                 const carbonEmissionsChart = new Chart(ctx, {
                     type: 'bar', // Bar chart type
                     data: {
                         labels: dataCenterNames, // Use data center names for X-axis labels
-                        datasets: [{
-                            label: 'Carbon Emissions (tons)',
-                            data: carbonEmissionsData,
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)', // Bars color
-                            borderColor: 'rgba(75, 192, 192, 1)', // Borders around bars
-                            borderWidth: 1
-                        }]
+                        datasets: [
+                            {
+                                label: 'Carbon Emissions (tons)',
+                                data: carbonEmissionsData,
+                                backgroundColor: 'rgba(75, 192, 192, 0.6)', // Bars color for Carbon Emissions
+                                borderColor: 'rgba(75, 192, 192, 1)', // Borders around bars
+                                borderWidth: 1,
+                                yAxisID: 'y1', // Associate with first Y-axis (Carbon Emissions)
+                            },
+                            {
+                                label: 'Renewable Energy (%)',
+                                data: renewableEnergyData,
+                                backgroundColor: 'rgba(153, 102, 255, 0.6)', // Bars color for Renewable Energy
+                                borderColor: 'rgba(153, 102, 255, 1)', // Borders around bars
+                                borderWidth: 1,
+                                yAxisID: 'y2', // Associate with second Y-axis (Renewable Energy)
+                            }
+                        ]
                     },
                     options: {
                         responsive: true,
                         scales: {
-                            y: {
-                                beginAtZero: true // Ensure Y-axis starts at 0
+                            y1: {
+                                beginAtZero: true,
+                                type: 'linear',
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Carbon Emissions (tons)'
+                                }
+                            },
+                            y2: {
+                                beginAtZero: true,
+                                type: 'linear',
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Renewable Energy (%)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false // Prevent grid lines from overlapping
+                                }
                             }
                         }
                     }
                 });
 
             } else {
-                alert("No carbon emissions data found.");
+                alert("No carbon emissions or renewable energy data found.");
             }
         })
-        .catch(error => console.error("Error fetching carbon emissions data:", error));
+        .catch(error => console.error("Error fetching carbon emissions and renewable energy data:", error));
 });
