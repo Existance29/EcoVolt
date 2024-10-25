@@ -1,24 +1,25 @@
 pageRequireNotSignIn()
-//sign up
+//show/hide the error message
+//state: "show" / "hide"
+function errorMessage(state){
+    //iterate through all error elements and show them
+    Array.from(document.getElementsByClassName("field-error")).forEach(x => x.style.opacity = state == "show" ? "1" : "0")
+}
+
+//sign in
 document.getElementById("submit-btn").addEventListener("click", async (event) => {
-    signUpData = {
-        "name": document.getElementById("name").value,
+    signInData = {
         "email": document.getElementById("email").value,
         "password": document.getElementById("password").value
     }
-    const response = await post("users/signup", signUpData)
-    const body = await response.json()
-    if (response.status == 400 && "message" in body){
-        //iterate through all errors, display the error message
-        body.errors.forEach(x => {
-            const errorEle = document.getElementById(`${x[0]}-error`) //get the error messasge element associated with the error
-            errorEle.innerText = x[1].replaceAll("_"," ").replaceAll('"','') //do a bit of formatting to make the message more readable
-            errorEle.style.opacity = "1"
-            
-        });
+    const response = await post("users/signin", signInData)
+    if (response.status == 404){
+        //display the error message
+        errorMessage("show")
         return
     }
-
+    const body = await response.json()
+    //TODO: wrap this in a function and share it with signUp.js
     //save login info
     const rememberMe = document.getElementById("remember-me").checked
     const storageObj = rememberMe ? localStorage : sessionStorage
@@ -35,6 +36,6 @@ for (let i = 0; i < inputs.length; i++){
     if (element.type != "text" && element.type != "password") continue
 
     element.addEventListener("input", (event) => {
-        document.getElementById(`${event.target.id}-error`).style.opacity = "0"
+        errorMessage("hide")
     })
 }

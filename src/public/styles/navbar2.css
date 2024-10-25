@@ -1,0 +1,91 @@
+.navbar{
+    display: flex; 
+    justify-content: center;
+    width: 100vw; 
+    margin-top: 1rem; 
+    position: fixed; 
+    height: 4.3rem; 
+    top: 0;
+    padding: 0 23%;
+}
+
+.content{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+}
+
+.white-bg .content{
+    background-image: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+    border: 1px solid #FFFFFF;
+    border-radius: 15px;
+    box-shadow: 0px 7px 23px 0px rgba(0, 0, 0, 0.05);
+}
+
+.light .nav-item{
+    --text-color: #FFFFFF;
+}
+
+.dark .nav-item{
+    --text-color: #2D3748;
+}
+
+.nav-item{
+    --text-size: 0.7rem;
+    color: var(--text-color);
+    font-size: var(--text-size);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: 2rem;
+}
+
+.navbar a{
+    color: unset;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.icon{
+    width: calc(var(--text-size) * 1.1);
+    height: calc(var(--text-size) * 1.1);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+
+.light .dashboard-icon{
+    background-image: url("../assets/navbar2/light/dashboard-icon.png");
+}
+
+.dark .dashboard-icon{
+    background-image: url("../assets/navbar2/dark/dashboard-icon.png");
+}
+
+.light .profile-icon{
+    background-image: url("../assets/navbar2/light/profile-icon.png");
+}
+
+.dark .profile-icon{
+    background-image: url("../assets/navbar2/dark/profile-icon.png");
+}
+
+.light .report-icon{
+    background-image: url("../assets/navbar2/light/report-icon.png");
+}
+
+.dark .report-icon{
+    background-image: url("../assets/navbar2/dark/report-icon.png");
+}
+
+.light .dashboard-icon{
+    background-image: url("../assets/navbar2/light/dashboard-icon.png");
+}
+
+.dark .blog-icon{
+    background-image: url("../assets/navbar2/dark/blog-icon.png");
+}
+
+.light .blog-icon{
+    background-image: url("../assets/navbar2/light/blog-icon.png");
+}
