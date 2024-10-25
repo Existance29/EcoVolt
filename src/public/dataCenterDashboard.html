@@ -35,25 +35,50 @@
                 <a href="dataCenterDashboard.html" class="active">Data Center</a>
                 <a href="cellTowerDashboard.html">Cell Tower</a>
                 <a href="#">Filter Analysis</a>
-            </nav>
-
-            <!-- Dashboard Content -->
-            <div class="dashboard-container">
-                <h1>Carbon Emissions Dashboard</h1>
-                <div class="dashboard-header">
-                    <h2><span id="company-name"></span></h2>
-                    <h3>FY<span id="current-date"></span></h3> <!-- This is where the year will be displayed -->
+            </nav>     
+                
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1>Carbon Emissions Dashboard</h1>
+                    <h2>Singapore Telecommunications Limited</h2>
+                    <h2>2024</h2>
                 </div>
-
-                <!-- Carbon Emissions Chart -->
-                <div class="chart-container">
-                    <canvas id="carbonEmissionsChart"></canvas>
+                <div class="year-filter">
+                    <label for="yearDropdown">Select Year:</label>
+                    <select id="yearDropdown">
+                        <option value="" disabled>Select Year</option>
+                    </select>
                 </div>
             </div>
+            
+
+
+        <!-- Carbon Emissions Chart -->
+        <div class="chart-container">
+            <canvas id="carbonEmissionsChart"></canvas>
+        </div>
+
+            <!-- Flex container for filter and chart -->
+            <div class="flex-container">
+                <!-- Data Center Dropdown -->
+                <div class="data-center-filter">
+                    <label for="dataCenterDropdown">Select Data Center:</label>
+                    <select id="dataCenterDropdown">
+                        <option value="" disabled>Select Data Center</option>
+                    </select>
+                </div>
+
+                <!-- Energy Consumption Chart -->
+                <div class="chart-container">
+                    <canvas id="energyConsumptionChart"></canvas>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./scripts/api.js"></script>
     <script src="./scripts/utils.js"></script>
     <script src="./scripts/pages/dataCenterDashboard.js"></script>
 </body>
