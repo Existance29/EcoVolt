@@ -105,6 +105,67 @@ CREATE TABLE company_sustainability_goals (
     progress DECIMAL(4, 2),
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
+
+
+-- Create table for activity feed
+CREATE TABLE activity_feed (
+    post_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL, 
+	company_id INT NOT NULL, 
+	data_center_id INT NULL, 
+	context TEXT, 
+	media_url VARCHAR(255),
+	carbon_emission DECIMAL(10, 2),
+	energy_consumption DECIMAl(10, 2),
+	activity_type VARCHAR(50),
+	location VARCHAR(100),
+	date DATE NOT NULL,                
+	time DATETIME NOT NULL, 
+	likes_count INT DEFAULT 0, 
+	dislike_count INT DEFAULT 0,
+	comments_count INT DEFAULT 0, 
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (company_id) REFERENCES companies(id),
+	FOREIGN KEY (data_center_id) REFERENCES data_centers(id),
+);
+
+-- Create table for comments
+CREATE TABLE comments (
+	comment_id INT IDENTITY(1, 1) PRIMARY KEY,
+	post_id INT NOT NULL,
+	user_id INT NOT NULL, 
+	company_id INT NOT NULL,
+	comment_text TEXT,
+	date DATE NOT NULL,                
+	time DATETIME NOT NULL, 
+	FOREIGN KEY (post_id) REFERENCES activity_feed(post_id),
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	FOREIGN KEY (company_id) REFERENCES companies(id),
+);
+
+-- Create table for likes
+CREATE TABLE likes (
+	like_id INT IDENTITY(1, 1) PRIMARY KEY,
+	post_id INT NOT NULL,
+	user_id INT NOT NULL,
+	date DATE NOT NULL,                
+	time DATETIME NOT NULL, 
+	FOREIGN KEY (post_id) REFERENCES activity_feed(post_id),
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	UNIQUE (post_id, user_id)
+);
+
+-- Create table for dislikes
+CREATE TABLE dislikes (
+	dislike_id INT IDENTITY(1, 1) PRIMARY KEY,
+	post_id INT NOT NULL,
+	user_id INT NOT NULL,
+	date DATE NOT NULL,                
+	time DATETIME NOT NULL, 
+	FOREIGN KEY (post_id) REFERENCES activity_feed(post_id),
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	UNIQUE (post_id, user_id)
+);
 `;
 
 const insertData = `
@@ -236,7 +297,44 @@ VALUES
     (4, 'PUE Improvement', 1.35, 1.57, 2025, 0.86),
     (4, 'Renewable Energy Usage', 20.00, 11.00, 2025, 0.55),
     (4, 'Water Usage Reduction (WUE)', 1.05, 1.47, 2025, 0.71);
-`;
+
+    
+-- Insert sample data into activity_feed table
+INSERT INTO activity_feed (user_id, company_id, data_center_id, context, media_url, carbon_emission, energy_consumption, activity_type, location, date, time) 
+VALUES 
+(3, 1, 1, 'Installed solar panels at the data center', NULL, 120.50, 300.75, 'Energy Optimization', 'New York, USA', '2024-08-23', '09:00:00'),
+(4, 4, 2, 'Achieved carbon neutrality for Q3', NULL, 0.00, 500.00, 'Carbon Neutral', 'San Francisco, USA', '2024-09-14', '18:00:00'),
+(5, 3, NULL, 'Switched to 100% renewable energy', NUll, 0.00, 0.00, 'Sustainability', 'Austin, USA', '2024-09-14', '18:00:00'),
+(5, 4, 3, 'Reduced energy consumption by 15%', NULL, 85.50, 200.20, 'Energy Conservation', 'Seattle, USA', '2024-08-23', '09:00:00'),
+(4, 2, NULL, 'Hosted a clean energy summit', NULL, 300.00, 1000.00, 'Event', 'Chicago, USA', '2024-08-23', '09:00:00');
+
+-- Insert sample data into comments table
+INSERT INTO comments (user_id, post_id, company_id, comment_text, date, time) 
+VALUES 
+(3, 1, 3, 'Proud to be part of this!', '2024-10-12', '10:00:00'),
+(3, 5, 2, 'Amazing work!', '2024-10-10', '14:00:00'),
+(4, 4, 1, 'We need more projects like this!', '2024-10-12', '10:00:00'),
+(5, 3, 4, 'Such a wonderful event!', '2024-09-14', '18:00:00');
+
+-- Insert sample data into likes table
+INSERT INTO likes (post_id, user_id, date, time) 
+VALUES 
+(1, 6, '2024-09-14', '18:00:00'),
+(2, 3, '2024-10-10', '14:00:00'),
+(3, 4, '2024-09-14', '18:00:00'),
+(4, 5, '2024-10-12', '10:00:00'),
+(5, 4, '2024-10-10', '14:00:00');
+
+ -- Insert sample data into dislike table
+ INSERT INTO dislikes (post_id, user_id, date, time) 
+VALUES 
+(1, 3, '2024-10-12', '10:00:00'),
+(2, 4, '2024-10-10', '14:00:00'),
+(3, 7, '2024-10-12', '10:00:00'),
+(4, 4, '2024-08-10', '19:00:00'),
+(5, 5, '2024-10-10', '05:00:00');
+
+    `;
 
 async function seedDatabase() {
   try {
