@@ -38,7 +38,7 @@ class dataCenterDashboard {
             request.input('company_id', company_id);
             request.input('year', year);
             const result = await request.query(sqlQuery);
-            console.log(result);
+            // console.log(result);
             if(result.recordset.length === 0) {
                 return null;
             }
