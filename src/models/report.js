@@ -22,37 +22,46 @@ class Report {
                 SELECT 
                     c.name AS companyName, 
                     CTec.date, 
-                    CTec.total_energy_kwh AS totalEnergyKWH, 
-                    CTec.radio_equipment_energy_kwh AS radioEquipmentEnergy,
-                    CTec.cooling_energy_kwh AS coolingEnergy,
-                    CTec.backup_power_energy_kwh AS backupEnergy,
-                    CTec.misc_energy_kwh AS miscEnergy,
-                    DCce.co2_emissions_tons AS co2EmissionsTons,
-                    sg.goal_name, sg.target_value, sg.current_value, sg.target_year, sg.progress,
+                    MAX(CTec.total_energy_kwh) AS totalEnergyKWH, 
+                    MAX(CTec.radio_equipment_energy_kwh) AS radioEquipmentEnergy,
+                    MAX(CTec.cooling_energy_kwh) AS coolingEnergy,
+                    MAX(CTec.backup_power_energy_kwh) AS backupEnergy,
+                    MAX(CTec.misc_energy_kwh) AS miscEnergy,
+                    NULL AS co2EmissionsTons, -- Set CO2 emissions to NULL for cell towers
+                    MAX(sg.goal_name) AS goal_name, 
+                    MAX(sg.target_value) AS target_value, 
+                    MAX(sg.current_value) AS current_value, 
+                    MAX(sg.target_year) AS target_year, 
+                    MAX(sg.progress) AS progress,
                     NULL AS dataCenterId
                 FROM companies c
                 INNER JOIN cell_tower_energy_consumption CTec ON c.id = CTec.company_id
-                LEFT JOIN data_center_carbon_emissions DCce ON CTec.company_id = DCce.data_center_id AND CTec.date = DCce.date
                 LEFT JOIN company_sustainability_goals sg ON c.id = sg.company_id
+                GROUP BY c.name, CTec.date
 
                 UNION ALL
 
                 SELECT 
                     c.name AS companyName, 
                     DCec.date, 
-                    DCec.total_energy_mwh * 1000 AS totalEnergyKWH, 
-                    DCec.it_energy_mwh AS radioEquipmentEnergy,
-                    DCec.cooling_energy_mwh AS coolingEnergy,
-                    DCec.backup_power_energy_mwh AS backupEnergy,
-                    DCec.lighting_energy_mwh AS miscEnergy,
-                    DCce.co2_emissions_tons AS co2EmissionsTons,
-                    sg.goal_name, sg.target_value, sg.current_value, sg.target_year, sg.progress,
+                    MAX(DCec.total_energy_mwh * 1000) AS totalEnergyKWH, 
+                    MAX(DCec.it_energy_mwh) AS radioEquipmentEnergy,
+                    MAX(DCec.cooling_energy_mwh) AS coolingEnergy,
+                    MAX(DCec.backup_power_energy_mwh) AS backupEnergy,
+                    MAX(DCec.lighting_energy_mwh) AS miscEnergy,
+                    MAX(DCce.co2_emissions_tons) AS co2EmissionsTons, -- Only for data centers
+                    MAX(sg.goal_name) AS goal_name, 
+                    MAX(sg.target_value) AS target_value, 
+                    MAX(sg.current_value) AS current_value, 
+                    MAX(sg.target_year) AS target_year, 
+                    MAX(sg.progress) AS progress,
                     dct.id AS dataCenterId
                 FROM companies c
                 INNER JOIN data_centers dct ON c.id = dct.company_id
                 INNER JOIN data_center_energy_consumption DCec ON dct.id = DCec.data_center_id
                 LEFT JOIN data_center_carbon_emissions DCce ON dct.id = DCce.data_center_id AND DCec.date = DCce.date
                 LEFT JOIN company_sustainability_goals sg ON c.id = sg.company_id
+                GROUP BY c.name, DCec.date, dct.id
                 ORDER BY date;
             `;
 
