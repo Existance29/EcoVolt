@@ -34,7 +34,7 @@ label{
 form .field{
     display: flex;
     flex-direction: column;
-    margin-top: 18rem;
+    margin-top: 1.125rem;
 }
 
 .text-input{
