@@ -178,19 +178,6 @@ VALUES
     ('SIMBA Telecom Pte Ltd', 'SIMBA', 'simba.sg'),
     ('StarHub Limited', 'StarHub', 'starhub.com');
 
--- Insert data into users table second to create valid user_ids
-INSERT INTO users (name, email, password, company_id)
-VALUES
-    ('Alice Johnson', 'alice.johnson@singtel.com', 'password123', 1),
-    ('Bob Smith', 'bob.smith@m1.com.sg', 'password456', 2),
-    ('Charlie Lee', 'charlie.lee@simba.sg', 'password789', 3),
-    ('Diana Chen', 'diana.chen@starhub.com', 'password321', 4),
-    ('Evan Taylor', 'evan.taylor@singtel.com', 'password654', 1),
-    ('Fiona Brown', 'fiona.brown@m1.com.sg', 'password987', 2),
-    ('George White', 'george.white@simba.sg', 'password159', 3),
-    ('Hannah Green', 'hannah.green@starhub.com', 'password753', 4);
-
-
 -- Insert sample data into data_centers table
 INSERT INTO data_centers (company_id, data_center_name)
 VALUES
