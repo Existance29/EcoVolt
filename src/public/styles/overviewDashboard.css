@@ -185,3 +185,23 @@ body {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Enhance shadow on hover */
     background-color: #ffffff; /* Clean white background */
 }
+
+.generate-report-section {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.generate-report-btn {
+    padding: 12px 25px;
+    background-color: #4FD1C5;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.generate-report-btn:hover {
+    background-color: #38b2ac;
+}
