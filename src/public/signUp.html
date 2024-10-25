@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="styles/signUp.css">
+    <!-- Linking to external stylesheets for icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Afacad' rel='stylesheet'>
+    <title>EcoVolt | Sign Up</title>
+    <link rel="icon" type="image/x-icon" href="Images/MemoryLogo.png">
+</head>
+<body>
+    <!-- navbar but not actually-->
+    </main>
+        <img src="assets/signUp/bg-banner.png" class="bg-banner">
+        <!--actual content-->
+        <div style="display: flex; flex-direction: column; align-items: center; padding-top: 15vh;">
+            <h1 style="color: #FFFFFF; font-size: 2rem;" class="inter-bold">Welcome!</h1>
+            <div style="color: #FFFFFF; font-size: 0.875rem; margin-top: 0.9375rem;" class="inter-regular">Start monitoring your energy usage today!</div>
+            <div class="signup-container">
+                <div style="color: #2D3748; font-size: 1.125rem; margin-top: 2.1875rem;" class="inter-bold">Sign Up</div>
+                <form>
+                    <div class="field">
+                        <label for="name" class="open-sans-regular">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your full name" class="open-sans-regular text-input">
+                        <div class="field-error inter-medium" id = "name-error">Error message</div>
+                    </div>
+                    <div class="field">
+                        <label for="email" class="open-sans-regular">Company Email</label>
+                        <input type="text" id="email" name="email" placeholder="Your company email" class="open-sans-regular text-input">
+                        <div class="field-error inter-medium" id = "email-error">Error message</div>
+                    </div>
+                    <div class="field">
+                        <label for="password" class="open-sans-regular">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Your password" class="open-sans-regular text-input">
+                        <div class="field-error inter-medium" id = "password-error">Error message</div>
+                    </div>
+                    <div style="display: flex; gap: 1.125rem; font-size: 0.75rem; margin-top: 0.9rem;" class="open-sans-regular">
+                        <label class="switch">
+                            <input type="checkbox" id = "remember-me">
+                            <span class="slider round"></span>
+                        </label>
+                        Remember Me
+                    </div>
+                    <button class="inter-bold" id = "submit-btn">Sign Up</button>
+                    <div style="font-size: 0.875rem; color: #A0AEC0; width: 100%; text-align: center; margin-top: 1.25rem;" class="open-sans-regular">Already have an account? <a style="color: #4FD1C5;" href="signIn.html" class="inter-bold">Sign in</a></div>
+                </form>
+            </div>
+        </div>
+        
+    </main>
+    <!--Footer-->
+    <!-- Linking js to html -->
+    <script src="scripts/common.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/pages/signUp.js"></script>
+</body>
+</html>

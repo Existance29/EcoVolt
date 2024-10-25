@@ -1,170 +1,198 @@
 /* Global styling */
-/* HI THIS IS FOR NAV BAR */
-
 body {
-  background-color: #f1f1f1; /* Set background color for the entire page */
-  min-height: 100vh; /* Set a minimum height of 100% of the viewport height */
+  min-height: 100vh;
 }
 
 /* Resetting default styles and setting font */
 * {
-  margin: 0; /* Reset margin to zero for all elements */
-  padding: 0; /* Reset padding to zero for all elements */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
-  font-family: 'Afacad';
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Header styling */
-header {
-  width: 100%; /* Set the width to 100% */
-  height: atuo;
-  background-color: #1b2b40; /* Set background color for the header */
+button {
+  all: unset;
+  cursor: pointer;
 }
 
-/* Navbar styling */
-header .navbar {
-  position: fixed; /* Fixed position to stay at the top */
-  top: 0; /* Align to the top of the page */
-  width: 100%; /* Set the width to 100% */
+/* Responsive font sizes */
+@media (min-width: 2000px) {
+  html {
+      font-size: 18px; /* Larger screens */
+  }
+}
+
+@media (max-width: 2000px) {
+  html {
+      font-size: 16px; /* Default font size */
+  }
+}
+
+@media (max-width: 1200px) {
+  html {
+      font-size: 15px; /* Slightly smaller on medium screens */
+  }
+}
+
+@media (max-width: 900px) {
+  html {
+      font-size: 14px; /* Smaller on smaller screens */
+  }
+}
+
+@media (max-width: 700px) {
+  html {
+      font-size: 13px; /* For smaller mobile screens */
+  }
+}
+
+@media (max-width: 560px) {
+  html {
+      font-size: 12px; /* Minimum font size */
+  }
+}
+
+
+/*Font inter*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+.inter-bold {
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.inter-semibold {
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.inter-medium {
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.inter-regular {
+    font-family: 'Inter', sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+}
+
+/*Font time open sans*/
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+.open-sans-bold {
+  font-family: 'Open Sans', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.open-sans-semibold {
+  font-family: 'Open Sans', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.open-sans-medium {
+  font-family: 'Open Sans', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.open-sans-regular {
+  font-family: 'Open Sans', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+
+
+
+/* Tabs Navigation on dashboard page */
+.tabs {
   display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.tabs a {
+  text-decoration: none;
+  color: #555;
+  padding: 10px;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.tabs a:hover,
+.tabs a.active {
+  color: #4FD1C5;
+  border-bottom: 3px solid #4FD1C5;
+}
+
+/* Sidebar on dashboard page */
+.sidebar {
+  width: 250px;
+  background-color: #ffffff;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  height: 130px;
-  background-color: #1b2b40; /* Use the color scheme */
-  color: black; /* Adjust text color if needed */
-  padding: 0 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a shadow for better visibility */
-  z-index: 1000; /* Ensure it stays on top of other elements */
+  z-index: 1000; /* Ensure the sidebar stays on top */
 }
 
-/* Global Logo styling */
-.navbar .logo {
-  color: #d9aa52; /* Default color */
-  font-weight: bold;
-  font-size: 30px; /* Set font size for the logo */
-  text-decoration: none; /* Remove underline from the logo text */
+.logo h2 {
+  margin: 0;
+  font-size: 1.5em;
+  color: #4FD1C5;
+  font-weight: 600;
 }
 
-.navbar .logo span {
-  color: #d9aa52; /* Default color for the span within the logo */
-}
-
-/* Global Menu links styling */
-.navbar .menu-links {
-  display: flex; /* Use flexbox for layout of menu links */
-  list-style: none; /* Remove default list styles */
-  gap: 30px; /* Set the gap between menu links */
-}
-
-.navbar .menu-links li a {
-  font-size: 15px;
-  color: #d9aa52; /* Default color for menu links */
-  text-decoration: none; /* Remove underline from menu links */
-  transition: 0.2s ease; /* Add a smooth transition effect */
-}
-
-.navbar .menu-links li a:hover {
-  color: #9a9c84; /* Change color on hover */
-}
-
-/* Auth links styling */
-.auth-links {
+.nav-menu {
   display: flex;
-  gap: 15px;
+  flex-direction: column;
 }
 
-.auth-links a {
-  font-size: 15px;
-  color: #d9aa52; /* Default color for auth links */
-  text-decoration: none; /* Remove underline from auth links */
-  transition: 0.2s ease; /* Add a smooth transition effect */
-  border: 2px solid #d9aa52; /* Add border color */
-  border-radius: 5px; /* Add border radius */
-  padding: 8px 12px; /* Add padding for better appearance */
+.nav-menu a {
+  text-decoration: none;
+  color: #555;
+  padding: 20px 0;
+  font-weight: 600;
+  transition: 0.3s ease;
 }
 
-.auth-links a:hover {
-  color: #9a9c84; /* Change color on hover */
-  border-color: #9a9c84; /* Change border color on hover */
+.nav-menu a:hover,
+.nav-menu a.active {
+  color: #4FD1C5;
 }
 
-/* Mobile menu and hamburger button styling */
-#close-menu-btn {
-  position: absolute; /* Set the position to absolute for the close menu button */
-  right: 20px; /* Set the right position for the close menu button */
-  top: 20px; /* Set the top position for the close menu button */
-  cursor: pointer; /* Set cursor to pointer for the close menu button */
-  display: none; /* Initially hide the close menu button */
+/* Help Box placed at the bottom of sidebar */
+.help-box {
+  background: #e6f7f5;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  color: #333;
+  font-size: 0.9em;
 }
 
-#hamburger-btn {
-  color: #CD8D7A; /* Set text color for the hamburger button */
-  cursor: pointer; /* Set cursor to pointer for the hamburger button */
-  display: none; /* Initially hide the hamburger button */
+/* Ensure content does not hide behind the sidebar */
+.main-content {
+  margin-left: 270px; /* Leave space for the fixed sidebar */
+  padding: 20px;
+  transition: margin-left 0.3s ease; /* Smooth transition in case of responsive adjustments */
 }
-
-#navbar-signup {
-  background-color: #d9aa52;
-  color: #1b2b40;
-}
-
-  /* footer */
-
-  /* New footer trying out */
-  .footer {
-    margin-top: 30px;
-    background: #1b2b40;
-    padding: 30px 0px;
-    font-family: 'Play', sans-serif;
-    text-align: center;
-    justify-content: initial !important;
-  }
-  
-  .footer .row {
-    width: 100%;
-    margin: 1% 0%;
-    padding: 0.6% 0%;
-    color: #d9aa52;
-    font-size: 0.8em;
-  }
-  
-  .footer .row a {
-    text-decoration: none;
-    color: #d9aa52;
-    transition: 0.5s;
-  }
-  
-  .footer .row a:hover {
-    color: #fff;
-  }
-  
-  .footer .row ul {
-    width: 100%;
-  }
-  
-  .footer .row ul li {
-    display: inline-block;
-    margin: 0px 30px;
-  }
-  
-  .footer .row a i {
-    font-size: 2em;
-    margin: 0% 1%;
-  }
-  
-  @media (max-width: 600px) {
-    .footer {
-        text-align: left;
-        padding: 5%;
-    }
-  
-    .footer .row ul li {
-        display: block;
-        margin: 10px 0px;
-        text-align: left;
-    }
-  
-    .footer .row a i {
-        margin: 0% 3%;
-    }
-  }
