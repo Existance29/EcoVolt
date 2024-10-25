@@ -24,7 +24,6 @@ class userController{
             //hash the password and replace the password field with the new hashed password
             newUser.password = userController.hashPassword(newUser.password)
             newUser.company_id = (await Company.getCompanyByEmailDomain(newUser.email.slice(newUser.email.indexOf('@')+1))).id
-            console.log(newUser)
             const createdUser = await User.createUser(newUser)
             //create user successful, display it as json
             res.status(201).json(userController.generateAccessToken(createdUser));
