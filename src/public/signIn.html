@@ -17,10 +17,32 @@
 <body>
     <!-- navbar -->
     <main>
-        <div style="margin-left: 30%;">
-            <div style="display: flex; flex-direction: column; align-items: center;">
+        <div style="margin-left: 23%; margin-top: 25vh;">
+            <div style="display: flex; flex-direction: column; align-items: center; text-align: center;">
                 <h1 style="color: #4FD1C5; font-size: 2rem;" class="inter-bold">Welcome Back</h1>
+                <h2 style="color: #A0AEC0; font-size: 0.875rem; margin-top: 0.4rem;" class="inter-bold">Enter your email and password to sign<br>in</h2>
             </div>
+            <form style="width: 125%; margin-top: 2rem;">
+                <div class="field">
+                    <label for="email" class="open-sans-regular">Email</label>
+                    <input type="text" id="email" name="email" placeholder="Your email" class="open-sans-regular text-input">
+                    <div class="field-error inter-medium">Email or password is incorrect</div>
+                </div>
+                <div class="field">
+                    <label for="password" class="open-sans-regular">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Your password" class="open-sans-regular text-input">
+                    <div class="field-error inter-medium">Email or password is incorrect</div>
+                </div>
+                <div style="display: flex; gap: 1.125rem; font-size: 0.75rem; margin-top: 0.9rem;" class="open-sans-regular">
+                    <label class="switch">
+                        <input type="checkbox" id = "remember-me">
+                        <span class="slider round"></span>
+                    </label>
+                    Remember Me
+                </div>
+                <button class="inter-bold" id = "submit-btn">Sign In</button>
+                    <div style="font-size: 0.875rem; color: #A0AEC0; width: 100%; text-align: center; margin-top: 1.25rem;" class="open-sans-regular">Don't have an account? <a style="color: #4FD1C5;" href="signUp.html" class="inter-bold">Sign up</a></div>
+            </form>
         </div>
         <img src="assets/signIn/large-side-img.png" style="width: 40%;">
     </main>
