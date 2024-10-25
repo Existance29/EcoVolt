@@ -53,6 +53,9 @@ class userController{
             res.status(500).send("Error logging in")
         }
     } 
+    static async decodeJWT(req, res){
+        res.status(200).json(req.user)
+    }
 
 }
 
