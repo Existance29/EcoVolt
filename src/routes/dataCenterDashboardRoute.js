@@ -2,7 +2,7 @@ const dataCenterDashboardController = require('../controllers/dataCenterDashboar
 
 const dataCenterDashboardRoute = (app) => {   
     // DC page
-    app.get('/Dashboard/Data-Center/carbon-emissions/:company_id/:date', dataCenterDashboardController.getAllCarbonEmissionsData);
+    app.get('/Dashboard/Data-Center/carbon-emissions/:company_id/:year', dataCenterDashboardController.getAllCarbonEmissionsData);
 
     // overview page
     app.get('/Dashboard/sustainability-goals/:company_id', dataCenterDashboardController.getAllSustainabilityGoalsData);

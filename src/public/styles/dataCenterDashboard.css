@@ -15,6 +15,10 @@ h1, h2 {
     color: #333;
 }
 
+h2 {
+    font-size: 12px;
+}
+
 .dashboard-header {
     display: flex;
     justify-content: space-between;
