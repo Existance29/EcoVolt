@@ -30,25 +30,25 @@ button {
 
 @media (max-width: 1200px) {
   html {
-      font-size: 15px; /* Slightly smaller on medium screens */
+      font-size: 14px; /* Slightly smaller on medium screens */
   }
 }
 
 @media (max-width: 900px) {
   html {
-      font-size: 14px; /* Smaller on smaller screens */
+      font-size: 12px; /* Smaller on smaller screens */
   }
 }
 
 @media (max-width: 700px) {
   html {
-      font-size: 13px; /* For smaller mobile screens */
+      font-size: 11px; /* For smaller mobile screens */
   }
 }
 
 @media (max-width: 560px) {
   html {
-      font-size: 12px; /* Minimum font size */
+      font-size: 10px; /* Minimum font size */
   }
 }
 

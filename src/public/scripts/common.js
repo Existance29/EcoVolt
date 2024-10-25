@@ -1,5 +1,6 @@
 $(document).ready(function() {
-    $("nav").load("commonHTML/navBar.html");
+    $("#nav1").load("commonHTML/navBar.html");
+    $("#nav2").load("commonHTML/navBar2.html");
     $("footer").load("commonHTML/footer.html");
 });
 
