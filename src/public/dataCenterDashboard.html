@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Emissions Dashboard</title>
+    <link rel="stylesheet" href="./styles/dataCenterDashboard.css">
+    <link rel="stylesheet" href="./styles/common.css">
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>EcoVolt</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="dataCenterDashboard.html" class="active">Dashboard</a>
+                <a href="#">Report</a>
+                <a href="#">Blog</a>
+                <a href="#">Profile</a>
+                <a href="#">Sign In</a>
+                <a href="#">Sign Up</a>
+            </nav>
+            <div class="help-box">
+                <p>Need help? <br> Please reach out to us</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Tabs Navigation -->
+            <nav class="tabs">
+                <a href="overviewDashboard.html">Overview</a>
+                <a href="dataCenterDashboard.html" class="active">Data Center</a>
+                <a href="cellTowerDashboard.html">Cell Tower</a>
+                <a href="#">Filter Analysis</a>
+            </nav>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-container">
+                <h1>Carbon Emissions Dashboard</h1>
+                <div class="dashboard-header">
+                    <h2><span id="company-name"></span></h2>
+                    <h3>FY<span id="current-date"></span></h3> <!-- This is where the year will be displayed -->
+                </div>
+
+                <!-- Carbon Emissions Chart -->
+                <div class="chart-container">
+                    <canvas id="carbonEmissionsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./scripts/utils.js"></script>
+    <script src="./scripts/pages/dataCenterDashboard.js"></script>
+</body>
+</html>

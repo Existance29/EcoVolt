@@ -24,7 +24,6 @@ class userController{
             //hash the password and replace the password field with the new hashed password
             newUser.password = userController.hashPassword(newUser.password)
             newUser.company_id = (await Company.getCompanyByEmailDomain(newUser.email.slice(newUser.email.indexOf('@')+1))).id
-            console.log(newUser)
             const createdUser = await User.createUser(newUser)
             //create user successful, display it as json
             res.status(201).json(userController.generateAccessToken(createdUser));
@@ -33,6 +32,27 @@ class userController{
             res.status(500).send("Error creating user")
         }
     }
+
+    static async signInUser(req, res, next){ 
+        const email = req.body.email
+        const password = req.body.password
+        try {
+            //check if email exists
+            const user = await User.getUserByEmail(email)
+            if (!user) {
+            return res.status(404).send("Incorrect login details")
+            }
+            //verify password
+            if (!bcrypt.compareSync(password,user.password)){
+            return res.status(404).send("Incorrect login details")
+            }
+            //generate jwt token
+            res.json(userController.generateAccessToken(user));
+        } catch (error) {
+            console.error(error)
+            res.status(500).send("Error logging in")
+        }
+    } 
 
 }
 
