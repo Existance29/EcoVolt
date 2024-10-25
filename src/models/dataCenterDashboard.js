@@ -33,7 +33,7 @@ class dataCenterDashboard {
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
-                SELECT emissions.co2_emissions_tons, centers.data_center_name, companies.name AS company_name
+                SELECT emissions.co2_emissions_tons, emissions.renewable_energy_percentage, centers.data_center_name, companies.name AS company_name
                 FROM data_center_carbon_emissions AS emissions
                 INNER JOIN data_centers AS centers ON emissions.data_center_id = centers.id
                 INNER JOIN companies ON centers.company_id = companies.id
