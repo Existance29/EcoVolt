@@ -1,7 +1,6 @@
 {
   "name": "src",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
@@ -14,6 +13,8 @@
   "dependencies": {
     "body-parser": "^1.20.3",
     "express": "^4.21.1",
+    "joi": "^17.13.3",
     "mssql": "^11.0.1"
-  }
+  },
+  "description": ""
 }
