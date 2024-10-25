@@ -21,30 +21,30 @@
 }
 
 form{
-    margin-top: 16rem;
-    margin-bottom: 20rem;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
     width: 100%;
 }
 
 label{
-    font-size: 14rem;
+    font-size: 0.875rem;
     color: #2D3748;
 }
 
 form .field{
     display: flex;
     flex-direction: column;
-    margin-top: 23rem;
+    margin-top: 18rem;
 }
 
 .text-input{
-    margin-top: 9rem;
+    margin-top: 0.5625rem;
     border-radius: 15px;
-    height: 45rem;
+    height: 2.8125rem;
     border: 1px solid #E2E8F0;
-    margin-left: -5rem;
-    font-size: 14rem;
-    padding-left: 15rem;
+    margin-left: -0.3125rem;
+    font-size: 0.875rem;
+    padding-left: 0.9375rem;
 }
 
 input:focus {
@@ -57,14 +57,14 @@ input:focus {
 }
 
 button{
-    font-size: 11rem;
+    font-size: 0.6975rem;
     color: #FFFFFF;
     width: 100%;
     text-align: center;
     background-color: #4FD1C5;
     border-radius: 12px;
-    margin-top: 27rem;
-    height: 44rem;
+    margin-top: 1.6875rem;
+    height: 2.75rem;
 }
 
 a{
@@ -72,12 +72,19 @@ a{
     cursor: pointer;
 }
 
+.field-error{
+  margin-top: 5                                                                                                                                                     rem;
+  color: red;
+  font-size: 0.875rem;
+  display: none;
+}
+
 /*Custom switch*/
 /* The switch - the box around the slider */
 .switch {
     /*Customise things here*/
-    --switch-width: 36rem;
-    --switch-height: 18.5rem;
+    --switch-width: 2.25rem;
+    --switch-height: 1.15625rem;
     --switch-off-bg-color: #ccc;
     --switch-on-bg-color: #4FD1C5;
     --switch-color: #FFFFFF;
