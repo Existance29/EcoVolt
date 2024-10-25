@@ -1,156 +1,102 @@
 /* HI THIS IS FOR NAV BAR */
-
-/* Header styling */
+/* General Navbar Styling */
 header {
-    width: 100%; /* Set the width to 100% */
-    height: atuo;
-    background-color: #1b2b40; /* Set background color for the header */
-  }
-  
-  /* Navbar styling */
-  header .navbar {
-    position: fixed; /* Fixed position to stay at the top */
-    top: 0; /* Align to the top of the page */
-    width: 100%; /* Set the width to 100% */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 130px;
-    background-color: #1b2b40; /* Use the color scheme */
-    color: black; /* Adjust text color if needed */
-    padding: 0 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a shadow for better visibility */
-    z-index: 1000; /* Ensure it stays on top of other elements */
-  }
-  
-  /* Global Logo styling */
-  .navbar .logo {
-    color: #d9aa52; /* Default color */
-    font-weight: bold;
-    font-size: 30px; /* Set font size for the logo */
-    text-decoration: none; /* Remove underline from the logo text */
-  }
-  
-  .navbar .logo span {
-    color: #d9aa52; /* Default color for the span within the logo */
-  }
-  
-  /* Global Menu links styling */
+  width: 100%;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 80px;
+  padding: 0 20px;
+}
+
+.navbar .logo {
+  font-size: 24px;
+  color: #4FD1C5;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.navbar .menu-links {
+  display: flex;
+  gap: 30px;
+  list-style: none;
+}
+
+.navbar .menu-links li a {
+  color: #4FD1C5;
+  text-decoration: none;
+  font-size: 15px;
+  transition: color 0.2s ease;
+}
+
+.navbar .menu-links li a:hover {
+  color: #9a9c84;
+}
+
+.auth-links {
+  display: flex;
+  gap: 15px;
+}
+
+.auth-links a {
+  color: #4FD1C5;
+  text-decoration: none;
+  padding: 8px 15px;
+  border: 2px solid #4FD1C5;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.auth-links a:hover {
+  color: #9a9c84;
+  border-color: #9a9c84;
+}
+
+#navbar-signup {
+  background-color: #4FD1C5;
+  color: white;
+}
+
+#hamburger-btn {
+  display: none;
+  font-size: 30px;
+  color: #4FD1C5;
+  cursor: pointer;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
   .navbar .menu-links {
-    display: flex; /* Use flexbox for layout of menu links */
-    list-style: none; /* Remove default list styles */
-    gap: 30px; /* Set the gap between menu links */
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 80px;
+      left: 0;
+      background-color: whitesmoke;
+      width: 100%;
+      padding: 20px 0;
+      transition: all 0.3s ease;
   }
-  
-  .navbar .menu-links li a {
-    font-size: 15px;
-    color: #d9aa52; /* Default color for menu links */
-    text-decoration: none; /* Remove underline from menu links */
-    transition: 0.2s ease; /* Add a smooth transition effect */
+
+  .navbar .menu-links.active {
+      display: flex;
   }
-  
-  .navbar .menu-links li a:hover {
-    color: #9a9c84; /* Change color on hover */
-  }
-  
-  /* Auth links styling */
-  .auth-links {
-    display: flex;
-    gap: 15px;
-  }
-  
-  .auth-links a {
-    font-size: 15px;
-    color: #d9aa52; /* Default color for auth links */
-    text-decoration: none; /* Remove underline from auth links */
-    transition: 0.2s ease; /* Add a smooth transition effect */
-    border: 2px solid #d9aa52; /* Add border color */
-    border-radius: 5px; /* Add border radius */
-    padding: 8px 12px; /* Add padding for better appearance */
-  }
-  
-  .auth-links a:hover {
-    color: #9a9c84; /* Change color on hover */
-    border-color: #9a9c84; /* Change border color on hover */
-  }
-  
-  /* Mobile menu and hamburger button styling */
-  #close-menu-btn {
-    position: absolute; /* Set the position to absolute for the close menu button */
-    right: 20px; /* Set the right position for the close menu button */
-    top: 20px; /* Set the top position for the close menu button */
-    cursor: pointer; /* Set cursor to pointer for the close menu button */
-    display: none; /* Initially hide the close menu button */
-  }
-  
-  #hamburger-btn {
-    color: #CD8D7A; /* Set text color for the hamburger button */
-    cursor: pointer; /* Set cursor to pointer for the hamburger button */
-    display: none; /* Initially hide the hamburger button */
-  }
-  
-  #navbar-signup {
-    background-color: #d9aa52;
-    color: #1b2b40;
-  }
-  
-    /* footer */
-  
-    /* New footer trying out */
-    .footer {
-      margin-top: 30px;
-      background: #1b2b40;
-      padding: 30px 0px;
-      font-family: 'Play', sans-serif;
+
+  .navbar .menu-links li {
+      margin: 10px 0;
       text-align: center;
-      justify-content: initial !important;
-    }
+  }
+
+  #hamburger-btn {
+      display: block;
+  }
+}
+
+  
     
-    .footer-row {
-      width: 100%;
-      margin: 1% 0%;
-      padding: 0.6% 0%;
-      color: #d9aa52;
-      font-size: 0.8em;
-    }
-    
-    .footer-row a {
-      text-decoration: none;
-      color: #d9aa52;
-      transition: 0.5s;
-    }
-    
-    .footer-row a:hover {
-      color: #fff;
-    }
-    
-    .footer-row ul {
-      width: 100%;
-    }
-    
-    .footer-row ul li {
-      display: inline-block;
-      margin: 0px 30px;
-    }
-    
-    .footer-row a i {
-      font-size: 2em;
-      margin: 0% 1%;
-    }
-    
-    @media (max-width: 600px) {
-      .footer {
-          text-align: left;
-          padding: 5%;
-      }
-    
-      .footer-row ul li {
-          display: block;
-          margin: 10px 0px;
-          text-align: left;
-      }
-    
-      .footer-row a i {
-          margin: 0% 3%;
-      }
-    }
