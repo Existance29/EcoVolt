@@ -1,9 +1,9 @@
 .navbar{
     display: flex; 
     justify-content: center;
-    width: 100vw; 
+    width: 100%; 
     margin-top: 1rem; 
-    position: fixed; 
+    position: absolute; 
     height: 4.3rem; 
     top: 0;
     padding: 0 23%;
