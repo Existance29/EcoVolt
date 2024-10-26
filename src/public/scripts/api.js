@@ -15,7 +15,7 @@ async function pageRequireSignIn(){
 }
 
 async function pageRequireNotSignIn(){
-  if (await isSignedIn()) location.href = "index.html"
+  if (await isSignedIn()) location.href = "overviewDashboard.html"
 }
 
 async function post(url, jsondata){
