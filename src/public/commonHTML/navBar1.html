@@ -49,7 +49,7 @@
 <script>
   async function navBarLoad(){
     if (await isSignedIn()){
-      document.getElementById("signed-out-options").style.display = "none"
+      document.getElementById("signed-out-options").setAttribute('style', 'display:none !important')
     }
   }
   navBarLoad()
