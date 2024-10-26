@@ -28,37 +28,54 @@
         </aside>
 
         <!-- Main Content Area -->
-        <div class="main-content">
+        <main class="main-content">
+            <!-- Header Section -->
+            <header class="header">
+                <div class="breadcrumbs">
+                    <p>Pages / Dashboard</p>
+                    <h1>Overview</h1>
+                </div>
+                <div class="search-signin">
+                    <input type="text" placeholder="Search" aria-label="Search">
+                    <button>Sign In</button>
+                </div>
+            </header>
+
             <!-- Tabs Navigation -->
-            <nav class="tabs">
+            <nav class="tabs" aria-label="Dashboard Tabs">
                 <a href="overviewDashboard.html">Overview</a>
                 <a href="dataCenterDashboard.html" class="active">Data Center</a>
                 <a href="cellTowerDashboard.html">Cell Tower</a>
-                <a href="#">Filter Analysis</a>
-            </nav>     
+                <a href="#" aria-label="Filter Analysis">Filter Analysis</a>
+                <div class="year-filter">
+                    <label for="yearDropdown">Select Year:</label>
+                    <select id="yearDropdown" aria-label="Select Year">
+                        <option value="" disabled>Select Year</option>
+                    </select>
+                </div>
+            </nav> 
                 
+            <!-- Dashboard Header with Month Filter -->
             <div class="dashboard-header">
                 <div class="header-left">
                     <h1>Carbon Emissions Dashboard</h1>
                     <h2>Singapore Telecommunications Limited</h2>
                     <h2>2024</h2>
                 </div>
-                <div class="year-filter">
-                    <label for="yearDropdown">Select Year:</label>
-                    <select id="yearDropdown">
-                        <option value="" disabled>Select Year</option>
+                <div class="month-filter">
+                    <label for="monthDropdown">Select Month:</label>
+                    <select id="monthDropdown">
+                        <option value="" disabled selected>Select Month</option>
                     </select>
-                </div>
+                </div>                
             </div>
-            
 
+            <!-- Carbon Emissions Chart -->
+            <div class="chart-container">
+                <canvas id="carbonEmissionsChart" aria-label="Carbon Emissions Chart"></canvas>
+            </div>
 
-        <!-- Carbon Emissions Chart -->
-        <div class="chart-container">
-            <canvas id="carbonEmissionsChart"></canvas>
-        </div>
-
-            <!-- Flex container for filter and chart -->
+            <!-- Flex container for energy consumption and data center selection -->
             <div class="flex-container">
                 <!-- Data Center Dropdown -->
                 <div class="data-center-filter">
@@ -70,14 +87,24 @@
 
                 <!-- Energy Consumption Chart -->
                 <div class="chart-container">
-                    <canvas id="energyConsumptionChart"></canvas>
+                    <canvas id="energyConsumptionChart" aria-label="Energy Consumption Chart"></canvas>
+                </div>
+
+                <div class="Separator-Text">
+                    <h1>Efficiency Chart Past 3 Months</h2>
+                </div>
+
+                <!-- Efficiency Chart -->
+                <div class="chart-container">
+                    <canvas id="efficiencyChart" aria-label="Efficiency Chart"></canvas>
                 </div>
             </div>
-
-        </div>
+        </main>
     </div>
 
+    <!-- JavaScript Files -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="./scripts/api.js"></script>
     <script src="./scripts/utils.js"></script>
     <script src="./scripts/pages/dataCenterDashboard.js"></script>
