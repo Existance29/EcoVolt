@@ -1,16 +1,14 @@
 // Global variable to store selected data center ID
 let selectedDataCenterId = null;
+let dataCenterDropdown = null; // Moved to global scope
 
 // Ensure the DOM is fully loaded before running the script
 document.addEventListener("DOMContentLoaded", async function() {
-
     await pageRequireSignIn();
     const companyId = getCompanyId();
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonth = String(today.getMonth() + 1).padStart(2, '0'); // Current month as "01", "02", etc.
-
-    let dataCenterDropdown = null; 
 
     // Fetch the available years and months and populate the dropdowns
     async function fetchAvailableYearsAndMonths() {
@@ -50,25 +48,25 @@ document.addEventListener("DOMContentLoaded", async function() {
             if (uniqueYears.includes(currentYear)) yearDropdown.value = currentYear;
             if (uniqueMonths.includes(parseInt(currentMonth))) monthDropdown.value = currentMonth;
 
-            // Load data for the selected/default year and month
-            loadDataForSelectedYearAndMonth();
+            // Load data for the selected year and month, and set the first data center if not already selected
+            await loadDataForSelectedYearAndMonth(!selectedDataCenterId);
         } catch (error) {
             console.error("Error fetching available years and months:", error);
         }
     }
 
-    // Load data for selected year and month
-    async function loadDataForSelectedYearAndMonth() {
+    // Load data for selected year and month, set default data center if required
+    async function loadDataForSelectedYearAndMonth(setDefaultDataCenter = false) {
         const selectedYear = document.getElementById('yearDropdown').value || currentYear;
         const selectedMonth = document.getElementById('monthDropdown').value || currentMonth;
 
+        // Always load energy consumption data for the selected month and year
+        await loadEnergyConsumptionData(selectedYear, selectedMonth, setDefaultDataCenter);
+
+        console.log("Filters applied - Year:", selectedYear, "Month:", selectedMonth, "Data Center:", selectedDataCenterId);
+        
         loadCarbonEmissionsData(selectedYear, selectedMonth);
-        loadEnergyConsumptionData(selectedYear, selectedMonth);
-        if (selectedDataCenterId) {
-            loadEfficiencyMetricsData(selectedYear, selectedMonth);
-        } else {
-            console.warn("No data center selected for efficiency metrics.");
-        }
+        loadEfficiencyData(selectedYear, selectedMonth);
     }
 
     // Fetch carbon emissions and renewable energy data for the selected year and month
@@ -87,12 +85,10 @@ document.addEventListener("DOMContentLoaded", async function() {
                 if (chartCanvas) {
                     const ctx = chartCanvas.getContext('2d');
     
-                    // Check if window.carbonEmissionsChart is defined and is a Chart instance
                     if (window.carbonEmissionsChart instanceof Chart) {
                         window.carbonEmissionsChart.destroy();
                     }
     
-                    // Create a new Chart instance
                     window.carbonEmissionsChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
@@ -136,10 +132,9 @@ document.addEventListener("DOMContentLoaded", async function() {
             console.error("Error fetching carbon emissions data:", error);
         }
     }
-    
 
-    // Fetch energy consumption data for the selected year and month and populate dropdowns
-    async function loadEnergyConsumptionData(year, month) {
+    // Fetch energy consumption data and assign the first data center as default if setDefault is true
+    async function loadEnergyConsumptionData(year, month, setDefault = false) {
         console.log('Loading Energy Consumption Data for year:', year, 'month:', month);
         try {
             const response = await get(`/Dashboard/Data-Center/energy-consumption/${companyId}/${year}/${month}`);
@@ -147,13 +142,15 @@ document.addEventListener("DOMContentLoaded", async function() {
             console.log('Energy Consumption Data:', data);
 
             if (data && data.length > 0) {
-                dataCenterDropdown = document.getElementById('dataCenterDropdown');
-                availableDataCenters = data;
                 if (!dataCenterDropdown) {
-                    console.error("Dropdown element with ID 'dataCenterDropdown' not found.");
-                    return;
+                    dataCenterDropdown = document.getElementById('dataCenterDropdown');
+                    if (!dataCenterDropdown) {
+                        console.error("Dropdown element with ID 'dataCenterDropdown' not found.");
+                        return;
+                    }
                 }
 
+                // Clear the dropdown and repopulate it
                 dataCenterDropdown.innerHTML = '<option value="" disabled>Select Data Center</option>';
                 data.forEach(item => {
                     const option = document.createElement('option');
@@ -162,20 +159,30 @@ document.addEventListener("DOMContentLoaded", async function() {
                     dataCenterDropdown.appendChild(option);
                 });
 
-                if (data.length > 0) {
-                    dataCenterDropdown.selectedIndex = 1;
-                    selectedDataCenterId = data[0].data_center_id; // Set default to first data center
-                    loadEnergyConsumptionPieChart(data[0]);
+                // Set initial selected data center if required
+                if (setDefault && data.length > 0) {
+                    selectedDataCenterId = data[0].data_center_id; // Assign the first data center as default
+                    dataCenterDropdown.value = selectedDataCenterId;
+                    console.log("Initial Data Center set to:", selectedDataCenterId);
+                } else {
+                    dataCenterDropdown.value = selectedDataCenterId;
                 }
 
-                dataCenterDropdown.addEventListener('change', function () {
-                    selectedDataCenterId = this.value; // Update global variable
-                    const selectedDataCenter = data.find(item => item.data_center_id == selectedDataCenterId);
-                    if (selectedDataCenter) {
-                        loadEnergyConsumptionPieChart(selectedDataCenter);
-                    }
-                    loadDataForSelectedYearAndMonth(); // Reload data for the selected data center
-                });
+                const selectedDataCenter = data.find(item => item.data_center_id == selectedDataCenterId);
+                if (selectedDataCenter) loadEnergyConsumptionPieChart(selectedDataCenter);
+
+                // Add the 'change' event listener if it's not already added
+                if (!dataCenterDropdown.hasAttribute("listener")) {
+                    dataCenterDropdown.addEventListener('change', function () {
+                        selectedDataCenterId = this.value; // Update global variable
+                        const selectedDataCenter = data.find(item => item.data_center_id == selectedDataCenterId);
+                        if (selectedDataCenter) {
+                            loadEnergyConsumptionPieChart(selectedDataCenter);
+                        }
+                        loadDataForSelectedYearAndMonth(); // Reload data for the selected data center
+                    });
+                    dataCenterDropdown.setAttribute("listener", "true"); // Mark as having an event listener
+                }
             } else {
                 alert('No energy consumption data found for the selected year and month.');
             }
@@ -229,169 +236,123 @@ document.addEventListener("DOMContentLoaded", async function() {
         });
     }
 
+    // Load efficiency data (PUE, WUE, CUE) for the selected year, month, and data center
+    async function loadEfficiencyData(year, selectedMonth) {
+        const monthDropdown = document.getElementById('monthDropdown');
+        const availableMonths = Array.from(monthDropdown.options)
+            .filter(option => option.value)
+            .map(option => option.value);
 
-// Efficiency function to load efficiency metrics data for a selected year, month, and data center
-async function loadEfficiencyMetricsData(year, month) {
-    console.log('Loading Efficiency Metrics for year:', year, 'month:', month, 'data center:', selectedDataCenterId);
-    const selectedDate = new Date(year, month - 1); // Adjust month to be zero-indexed
-    let datesToFetch = [];
+        const selectedMonthIndex = availableMonths.indexOf(selectedMonth);
+        let monthsToShow;
 
-    // Try to get three consecutive months of data, starting from the selected month
-    for (let i = 0; i < 3; i++) {
-        const monthToFetch = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + i);
-        datesToFetch.push({
-            year: monthToFetch.getFullYear(),
-            month: String(monthToFetch.getMonth() + 1).padStart(2, '0')
+        if (selectedMonthIndex === 0) {
+            monthsToShow = availableMonths.slice(0, 3);
+        } else if (selectedMonthIndex === availableMonths.length - 1) {
+            monthsToShow = availableMonths.slice(-3);
+        } else {
+            monthsToShow = availableMonths.slice(selectedMonthIndex - 1, selectedMonthIndex + 2);
+        }
+
+        console.log("Months to display on chart:", monthsToShow);
+
+        const efficiencyDataPromises = monthsToShow.map(async m => {
+            try {
+                const response = await get(`/Dashboard/Data-Center/energy-consumption/${companyId}/${year}/${m}`);
+                const monthData = await response.json();
+                const entry = monthData.find(item => item.date.includes(`-${m}-`));
+                const date = `${year}-${m}-01`; // Use the first day of each month for consistency
+                return entry
+                    ? { pue: entry.pue, wue: entry.wue, cue: entry.cue, date }
+                    : { pue: null, wue: null, cue: null, date };
+            } catch (error) {
+                console.error(`Error fetching data for month ${m}:`, error);
+                return { pue: null, wue: null, cue: null, date: `${year}-${m}-01` };
+            }
         });
-    }
 
-    // Fetch data for the next two months first; if not available, look for previous months
-    const data = await fetchThreeMonthsOfData(datesToFetch, selectedDate, selectedDataCenterId);
+        const efficiencyData = await Promise.all(efficiencyDataPromises);
+        console.log("Filtered Efficiency Data for Chart with Dates:", efficiencyData);
 
-    if (data.length < 1) {
-        alert('Not enough data available for the selected month and the surrounding months.');
-        return;
-    }
+        const chartCanvas = document.getElementById('efficiencyChart');
+        const ctx = chartCanvas.getContext('2d');
 
-    // Prepare the data for the chart
-    const dates = [];
-    const pueValues = [];
-    const wueValues = [];
-    const cueValues = [];
+        if (window.efficiencyChart instanceof Chart) {
+            window.efficiencyChart.destroy();
+        }
 
-    data.forEach(monthData => {
-        monthData.forEach(item => {
-            dates.push(item.date);
-            pueValues.push(item.pue || null);
-            wueValues.push(item.wue || null);
-            cueValues.push(item.cue || null);
-        });
-    });
-
-    // Plot the data on the efficiency chart
-    const ctx = document.getElementById('efficiencyChart').getContext('2d');
-    if (window.efficiencyLineChart) window.efficiencyLineChart.destroy();
-
-    window.efficiencyLineChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: dates,
-            datasets: [
-                {
-                    label: 'PUE (Power Usage Effectiveness)',
-                    data: pueValues,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                    fill: false,
-                    tension: 0.1
-                },
-                {
-                    label: 'WUE (Water Usage Effectiveness)',
-                    data: wueValues,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                    fill: false,
-                    tension: 0.1
-                },
-                {
-                    label: 'CUE (Carbon Usage Effectiveness)',
-                    data: cueValues,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
-                    fill: false,
-                    tension: 0.1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'top' },
-                title: { display: true, text: 'Efficiency Metrics (PUE, WUE, CUE) over Time' }
+        window.efficiencyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: efficiencyData.map(d => d.date),
+                datasets: [
+                    {
+                        label: 'PUE',
+                        data: efficiencyData.map(d => d.pue),
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'WUE',
+                        data: efficiencyData.map(d => d.wue),
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        fill: false,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'CUE',
+                        data: efficiencyData.map(d => d.cue),
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        fill: false,
+                        tension: 0.1
+                    }
+                ]
             },
-            scales: {
-                x: {
-                    type: 'time',
-                    time: { unit: 'day' },
-                    title: { display: true, text: 'Date' }
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Efficiency Metrics (PUE, WUE, CUE) - Past 3 Months' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return value === null ? 'No data available' : `${context.dataset.label}: ${value}`;
+                            }
+                        }
+                    }
                 },
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: 'Efficiency Metrics' }
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'month',
+                            displayFormats: {
+                                month: 'MMM yyyy' // Display in "MMM YYYY" format
+                            }
+                        }
+                    },
+                    y: { beginAtZero: true }
                 }
             }
-        }
-    });
-}
-
-// Helper function to fetch three months of data, prioritizing the selected month and two forward months
-async function fetchThreeMonthsOfData(datesToFetch, selectedDate, dataCenterId) {
-    const data = [];
-
-    // Attempt to fetch for the selected and next two months first
-    for (let i = 0; i < datesToFetch.length; i++) {
-        const { year, month } = datesToFetch[i];
-        try {
-            const response = await get(`/Dashboard/Data-Center/energy-consumption/${dataCenterId}/${year}/${month}`);
-            
-            if (response.ok) {
-                const monthData = await response.json();
-                if (monthData && monthData.length > 0) {
-                    data.push(monthData);
-                }
-            } else {
-                console.warn(`Data for ${year}-${month} not found for Data Center ${dataCenterId}.`);
-            }
-
-            // If we have 3 months of data, stop fetching
-            if (data.length === 3) return data;
-
-        } catch (error) {
-            console.error(`Error fetching data for ${year}-${month}:`, error);
-        }
+        });
     }
 
-    // If not enough data is found, look backwards
-    for (let i = 1; data.length < 3; i++) {
-        const monthToFetch = new Date(selectedDate.getFullYear(), selectedDate.getMonth() - i);
-        const year = monthToFetch.getFullYear();
-        const month = String(monthToFetch.getMonth() + 1).padStart(2, '0');
-        
-        try {
-            const response = await get(`/Dashboard/Data-Center/energy-consumption/${dataCenterId}/${year}/${month}`);
-            
-            if (response.ok) {
-                const monthData = await response.json();
-                if (monthData && monthData.length > 0) {
-                    data.unshift(monthData); // Add to the start of the data array
-                }
-            } else {
-                console.warn(`Data for ${year}-${month} not found for Data Center ${dataCenterId}.`);
-            }
-        } catch (error) {
-            console.error(`Error fetching data for ${year}-${month}:`, error);
-        }
+    const yearDropdown = document.getElementById('yearDropdown');
+    const monthDropdown = document.getElementById('monthDropdown');
+
+    if (yearDropdown) {
+        yearDropdown.addEventListener('change', () => loadDataForSelectedYearAndMonth(false));
+    } else {
+        console.error("Element with ID 'yearDropdown' not found.");
     }
 
-    return data;
-}
+    if (monthDropdown) {
+        monthDropdown.addEventListener('change', () => loadDataForSelectedYearAndMonth(false));
+    } else {
+        console.error("Element with ID 'monthDropdown' not found.");
+    }
 
-
-const yearDropdown = document.getElementById('yearDropdown');
-const monthDropdown = document.getElementById('monthDropdown');
-
-if (yearDropdown) {
-    yearDropdown.addEventListener('change', loadDataForSelectedYearAndMonth);
-} else {
-    console.error("Element with ID 'yearDropdown' not found.");
-}
-
-if (monthDropdown) {
-    monthDropdown.addEventListener('change', loadDataForSelectedYearAndMonth);
-} else {
-    console.error("Element with ID 'monthDropdown' not found.");
-}
-
-// Call the function to fetch the available years when the page loads
-fetchAvailableYearsAndMonths();
+    fetchAvailableYearsAndMonths();
 });
