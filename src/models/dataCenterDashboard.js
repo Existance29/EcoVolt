@@ -28,14 +28,14 @@ class dataCenterDashboard {
         this.sustainability_goals = sustainability_goals;
         }
 
-    static async getAllYear() { // Get the years that exist in the database so that it populates the filter dropdown dynamically
+    static async getAllMonthAndYear() { // Get the years that exist in the database so that it populates the filter dropdown dynamically
         let connection;
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
-                SELECT DISTINCT YEAR(date) AS year
+                SELECT DISTINCT YEAR(date) AS year, MONTH(date) AS month
                 FROM data_center_energy_consumption
-                ORDER BY year;
+                ORDER BY year, month;
             `; // If there is energy consumotion, then there is carbon emission. hence selecting from only one table
             const request = connection.request();
             const result = await request.query(sqlQuery);
@@ -52,7 +52,7 @@ class dataCenterDashboard {
         }
     }
         
-    static async getAllCarbonEmissionsData(company_id, year) {
+    static async getAllCarbonEmissionsData(company_id, year, month) {
         let connection;
         try {
             connection = await sql.connect(dbConfig);
@@ -63,11 +63,13 @@ class dataCenterDashboard {
                 INNER JOIN companies ON centers.company_id = companies.id
                 WHERE companies.id = @company_id
                 AND YEAR(emissions.date) = @year
+                AND MONTH(emissions.date) = @month
             `; // retrieiving data from data_center_carbon_emissions where company_id = company_id
 
             const request = connection.request();
             request.input('company_id', company_id);
             request.input('year', year);
+            request.input('month', month);
             const result = await request.query(sqlQuery);
             // console.log(result);
             if(result.recordset.length === 0) {
@@ -83,7 +85,56 @@ class dataCenterDashboard {
         }
     }
 
-    static async getAllSustainabilityGoalsData(company_id) {
+    static async getAllEnergyConsumptionData(company_id, year, month) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+            const sqlQuery = `
+                SELECT energy.*, centers.data_center_name, companies.name AS company_name
+                FROM data_center_energy_consumption AS energy
+                INNER JOIN data_centers AS centers ON energy.data_center_id = centers.id
+                INNER JOIN companies ON centers.company_id = companies.id
+                WHERE companies.id = @company_id
+                AND YEAR(energy.date) = @year
+                AND MONTH(energy.date) = @month
+            `; // retrieiving data from data_center_energy_consumption where company_id = company_id
+            const request = connection.request();
+            request.input('company_id', company_id);
+            request.input('year', year);
+            request.input('month', month);
+            const result = await request.query(sqlQuery);
+            if(result.recordset.length === 0) {
+                return null;
+            }
+            return result.recordset;
+        } catch (error) {
+            throw new Error("Error retrieving Energy Consumption Data");
+        } finally {
+            if (connection) {
+                await connection.close();
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        static async getAllSustainabilityGoalsData(company_id) {
         let connection;
         try {
             connection = await sql.connect(dbConfig);
@@ -108,38 +159,6 @@ class dataCenterDashboard {
             }
         }
     }
-
-    static async getAllEnergyConsumptionData(company_id, year) {
-        let connection;
-        try {
-            connection = await sql.connect(dbConfig);
-            const sqlQuery = `
-                SELECT energy.*, centers.data_center_name, companies.name AS company_name
-                FROM data_center_energy_consumption AS energy
-                INNER JOIN data_centers AS centers ON energy.data_center_id = centers.id
-                INNER JOIN companies ON centers.company_id = companies.id
-                WHERE companies.id = @company_id
-                AND YEAR(energy.date) = @year
-            `; // retrieiving data from data_center_energy_consumption where company_id = company_id
-            const request = connection.request();
-            request.input('company_id', company_id);
-            request.input('year', year);
-            const result = await request.query(sqlQuery);
-            if(result.recordset.length === 0) {
-                return null;
-            }
-            return result.recordset;
-        } catch (error) {
-            throw new Error("Error retrieving Energy Consumption Data");
-        } finally {
-            if (connection) {
-                await connection.close();
-            }
-        }
-    }
-
-
-
 }
 
 module.exports = dataCenterDashboard;
