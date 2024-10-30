@@ -41,65 +41,47 @@
                 </div>
             </header>
 
+
             <!-- Tabs Navigation -->
             <nav class="tabs" aria-label="Dashboard Tabs">
                 <a href="overviewDashboard.html">Overview</a>
                 <a href="dataCenterDashboard.html" class="active">Data Center</a>
                 <a href="cellTowerDashboard.html">Cell Tower</a>
-                <a href="#" aria-label="Filter Analysis">Filter Analysis</a>
-                <div class="year-filter">
-                    <label for="yearDropdown">Select Year:</label>
-                    <select id="yearDropdown" aria-label="Select Year">
-                        <option value="" disabled>Select Year</option>
-                    </select>
-                </div>
-            </nav> 
-                
-            <!-- Dashboard Header with Month Filter -->
-            <div class="dashboard-header">
-                <div class="header-left">
-                    <h1>Carbon Emissions Dashboard</h1>
-                    <h2>Singapore Telecommunications Limited</h2>
-                    <h2>2024</h2>
-                </div>
-                <div class="month-filter">
-                    <label for="monthDropdown">Select Month:</label>
-                    <select id="monthDropdown">
-                        <option value="" disabled selected>Select Month</option>
-                    </select>
-                </div>                
-            </div>
 
-            <!-- Carbon Emissions Chart -->
+                <div class="right-aligned">
+                    <div class="date-picker">
+                        <label for="datePicker">Select Date:</label>
+                        <input type="date" id="datePicker" aria-label="Select Date">
+                    </div>
+                    
+                    <div class="data-center-filter">
+                        <label for="dataCenterDropdown">Select Data Center:</label>
+                        <select id="dataCenterDropdown">
+                            <option value="" disabled>Select Data Center</option>
+                        </select>
+                    </div>
+                </div>
+            </nav>
+
+
+
             <div class="chart-container">
-                <canvas id="carbonEmissionsChart" aria-label="Carbon Emissions Chart"></canvas>
+                <h2>Energy Consumption Breakdown</h2>
+            
+                <!-- Custom Legend at the Top -->
+                <div id="customLegend" class="chart-legend"></div>
+            
+                <!-- Donut Chart Canvas -->
+                <canvas id="energyConsumptionDonut"></canvas>
+            
+                <!-- Data Center Selection Options -->
+                <div id="dataCenterOptions" class="data-center-options" style="display: flex;"></div>
             </div>
+            
+            
+            
+            
 
-            <!-- Flex container for energy consumption and data center selection -->
-            <div class="flex-container">
-                <!-- Data Center Dropdown -->
-                <div class="data-center-filter">
-                    <label for="dataCenterDropdown">Select Data Center:</label>
-                    <select id="dataCenterDropdown">
-                        <option value="" disabled>Select Data Center</option>
-                    </select>
-                </div>
-
-                <!-- Energy Consumption Chart -->
-                <div class="chart-container">
-                    <canvas id="energyConsumptionChart" aria-label="Energy Consumption Chart"></canvas>
-                </div>
-
-                <div class="Separator-Text">
-                    <h1>Efficiency Chart Past 3 Months</h2>
-                </div>
-
-                <!-- Efficiency Chart -->
-                <div class="chart-container">
-                    <canvas id="efficiencyChart" aria-label="Efficiency Chart"></canvas>
-                </div>
-            </div>
-        </main>
     </div>
 
     <!-- JavaScript Files -->

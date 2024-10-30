@@ -65,28 +65,160 @@ canvas {
     align-items: center;
   }
   
-  .year-filter {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-  }
-  
-  .year-filter label {
-    margin-right: 5px;
-    font-weight: 600;
-  }
-  
-  /* Adjusting the Select Dropdown styling */
-  .year-filter select {
-    padding: 5px 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1em;
-    outline: none;
-    transition: border-color 0.3s ease;
-  }
-  
-  .year-filter select:focus {
-    border-color: #4FD1C5;
-  }
-  
+
+/* Right-Aligned Container */
+.right-aligned {
+  display: flex;
+  margin-left: auto; /* Pushes date picker and data center to the right */
+  gap: 20px;
+  align-items: center; /* Align items vertically */
+}
+
+/* Styling for Date Picker and Data Center Filter */
+.date-picker,
+.data-center-filter {
+  display: flex;
+  flex-direction: column;
+  max-width: 200px; /* Consistent max width */
+  font-family: Arial, sans-serif;
+  align-items: flex-start; /* Align labels and inputs */
+}
+
+.date-picker label,
+.data-center-filter label {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+  font-size: 14px;
+  display: block;
+}
+
+.date-picker input[type="date"],
+.data-center-filter select {
+  width: 100%; /* Full width to align both inputs */
+  padding: 10px;
+  font-size: 16px;
+  color: #333;
+  background-color: #f9f9f9;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  cursor: pointer;
+}
+
+.date-picker input[type="date"]:hover,
+.data-center-filter select:hover {
+  border-color: #777;
+}
+
+.date-picker input[type="date"]:focus,
+.data-center-filter select:focus {
+  border-color: #4A90E2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+}
+
+
+
+
+
+
+
+
+
+
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align content to the left */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.chart-container {
+  text-align: center;
+  margin: 20px 0;
+  max-width: 300px; /* adjust as needed */
+  padding: 20px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.data-center-options {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping to fit buttons neatly */
+  justify-content: center; /* Center align buttons within the container */
+  gap: 5px;
+  margin-top: 10px;
+  max-width: 300px; /* Same width as the chart-container for alignment */
+}
+
+
+#energyConsumptionDonut {
+  width: 100%;
+  max-width: 250px; /* Smaller max-width for the canvas */
+  height: 250px; /* Adjust height to match */
+  margin: 0 auto;
+}
+
+.data-center-options button {
+  padding: 3px 8px; /* Decrease padding for smaller buttons */
+  font-size: 12px; /* Decrease font size */
+  margin: 3px; /* Decrease margin to reduce space between buttons */
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.data-center-options button.selected {
+  background-color: #4FD1C5;
+  color: white;
+}
+
+
+.data-center-button {
+  background-color: #e0e0e0; /* Default background */
+  color: #333; /* Default text color */
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.data-center-button.selected-button {
+  background-color: #4FD1C5; /* Highlight color when selected */
+  color: #fff; /* Text color for contrast */
+}
+
+
+
+
+
+.chart-legend {
+  display: grid;
+  grid-template-columns: repeat(2, auto); /* Two columns */
+  gap: 10px 20px; /* Adjust spacing between legend items */
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 10px; /* Space between legend and chart */
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+}
+
+.legend-color {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+}
