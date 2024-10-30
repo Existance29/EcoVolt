@@ -165,6 +165,7 @@ canvas {
   max-width: 300px;
 }
 
+/* Default button styling */
 .data-center-options button {
   padding: 5px 10px;
   font-size: 12px;
@@ -177,10 +178,13 @@ canvas {
   transition: background-color 0.3s ease;
 }
 
-.data-center-options button.selected {
+/* Selected button styling */
+.data-center-options button.selected-button {
   background-color: #4FD1C5;
   color: white;
 }
+
+
 
 /* Legend Styling */
 .chart-legend {
