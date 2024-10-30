@@ -30,6 +30,9 @@ label {
     font-weight: bold;
 }
 
+.subtitle {
+    margin: 20px;
+}
 /* Post styles */
 .posts {
     max-width: 800px;
