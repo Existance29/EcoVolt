@@ -202,6 +202,99 @@ const getAllCarbonEmissionByCompanyIdAndDate = async (req, res) => {
 };
 
 
+const getAllSumOfCarbonEmissionByCompanyId = async (req, res) => {
+    const companyId = parseInt(req.params.company_id);
+    // Check if companyId is provided
+    if (!companyId) {
+        return res.status(400).send("companyId is required.");
+    }
+    try {
+        const data = await dataCenterDashboard.getAllSumOfCarbonEmissionByCompanyId(companyId);
+        
+        if (!data) {
+            return res.status(404).send("No carbon emission data found for this company.");
+        }
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Failed to retrieve total carbon emission data: Internal Server Error.");
+    }
+};
+
+
+const getAllSumOfCarbonEmissionByCompanyIdAndDate = async (req, res) => {
+    const company_id = parseInt(req.params.company_id);
+    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format    
+    // Check if company_id is provided
+    if (!company_id) {
+        return res.status(400).send("company_id is required.");
+    }
+    // Check if date is provided and valid
+    if (!date) {
+        return res.status(400).send("date (in YYYY-MM-DD format) is required.");
+    }
+    try {
+        // Call the model function to fetch data by company_id and date
+        const data = await dataCenterDashboard.getAllSumOfCarbonEmissionByCompanyIdAndDate(company_id, date);
+        
+        if (!data) {
+            return res.status(404).send("No carbon emission data found for this company on the specified date.");
+        }
+        res.status(200).json(data);
+    } catch (error) {
+        console.error("Error fetching carbon emission data:", error.message);
+        res.status(500).send("Failed to retrieve carbon emission data: Internal Server Error.");
+    }
+};
+
+
+const getAllSumOfCarbonEmissionByCompanyIdAndDataCenter = async (req, res) => {
+    const company_id = parseInt(req.params.company_id);
+    const data_center_id = parseInt(req.params.data_center_id);
+
+    if (!company_id || !data_center_id) {
+        return res.status(400).send("company_id and data_center_id are required.");
+    }
+
+    try {
+        const data = await dataCenterDashboard.getAllSumOfCarbonEmissionByCompanyIdAndDataCenter(company_id, data_center_id);
+        
+        if (!data) {
+            return res.status(404).send("No carbon emission data found for the specified company and data center.");
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Failed to retrieve carbon emission data: Internal Server Error.");
+    }
+};
+
+const getAllSumOfCarbonEmissionByCompanyIdAndDataCenterAndDate = async (req, res) => {
+    const { company_id, data_center_id } = req.params;
+    const date = req.query.date; // Retrieve date from query parameters
+
+    console.log("hi");
+
+    // Validate inputs
+    if (!company_id || !data_center_id || !date) {
+        return res.status(400).send("company_id, data_center_id, and date are required.");
+    }
+
+    try {
+        // Fetch data from the model
+        const data = await dataCenterDashboard.getAllSumOfCarbonEmissionByCompanyIdAndDataCenterAndDate(company_id, data_center_id, date);
+        console.log(data);
+        if (!data) {
+            return res.status(404).send("No data found for this company, data center, and date.");
+        }
+        res.status(200).json(data);
+    } catch (error) {
+        console.error("Error fetching emissions data:", error);
+        res.status(500).send("Internal Server Error.");
+    }
+};
+
 
 
 
@@ -247,6 +340,12 @@ module.exports = {
     // getAllCarbonEmissionByDataCenterAndDate, // if specified date and data center
     getAllCarbonEmissionByCompanyIdAndDate, // if user selects date and all data center
 
+
+
+    getAllSumOfCarbonEmissionByCompanyId,
+    getAllSumOfCarbonEmissionByCompanyIdAndDate,
+    getAllSumOfCarbonEmissionByCompanyIdAndDataCenter,
+    getAllSumOfCarbonEmissionByCompanyIdAndDataCenterAndDate,
 
 
     getAllSustainabilityGoalsData

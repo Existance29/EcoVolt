@@ -208,3 +208,11 @@ canvas {
   height: 12px;
   margin-right: 8px;
 }
+
+
+.chart-container div {
+  font-size: 20px;
+  color: #333;
+  text-align: center;
+  margin-top: 10px;
+}
