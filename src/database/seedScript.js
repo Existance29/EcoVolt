@@ -185,9 +185,11 @@ VALUES
     ('Jane Smith', 'jsmith@m1.com.sg', 'password123', 2),
     ('Alice Tan', 'alice.tan@simba.sg', 'password123', 3),
     ('Bob Lee', 'bob.lee@starhub.com', 'password123', 4),
-    ('Catherine Tan', 'catherine.tan@simba.sg', 'password123', 3),
-    ('Cadence Lim', 'cadence.Lim@singtel.sg', 'password123', 1),
-    ('Dominic Lee', 'dominic.lee@starhub.com', 'password123', 2);
+    ('Apple Lim', 'apple.lim@singtel.com', 'password123', 1),
+    ('Benedict Soh', 'bsoh@m1.com.sg', 'password123', 2),
+    ('cadence Tan', 'cadence.tan@simba.sg', 'password123', 3),
+    ('dominic Lee', 'dominic.lee@starhub.com', 'password123', 4);
+
 
 -- Insert sample data into data_centers table
 INSERT INTO data_centers (company_id, data_center_name)
