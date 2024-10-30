@@ -178,6 +178,17 @@ VALUES
     ('SIMBA Telecom Pte Ltd', 'SIMBA', 'simba.sg'),
     ('StarHub Limited', 'StarHub', 'starhub.com');
 
+-- Insert sample data into users table
+INSERT INTO users (name, email, password, company_id)
+VALUES
+    ('John Doe', 'jdoe@singtel.com', 'password123', 1),
+    ('Jane Smith', 'jsmith@m1.com.sg', 'password123', 2),
+    ('Alice Tan', 'alice.tan@simba.sg', 'password123', 3),
+    ('Bob Lee', 'bob.lee@starhub.com', 'password123', 4),
+    ('Catherine Tan', 'catherine.tan@simba.sg', 'password123', 3),
+    ('Cadence Lim', 'cadence.Lim@singtel.sg', 'password123', 1),
+    ('Dominic Lee', 'dominic.lee@starhub.com', 'password123', 2);
+
 -- Insert sample data into data_centers table
 INSERT INTO data_centers (company_id, data_center_name)
 VALUES
