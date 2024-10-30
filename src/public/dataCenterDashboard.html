@@ -46,64 +46,70 @@
                 <a href="overviewDashboard.html">Overview</a>
                 <a href="dataCenterDashboard.html" class="active">Data Center</a>
                 <a href="cellTowerDashboard.html">Cell Tower</a>
-                <a href="#" aria-label="Filter Analysis">Filter Analysis</a>
-                <div class="year-filter">
-                    <label for="yearDropdown">Select Year:</label>
-                    <select id="yearDropdown" aria-label="Select Year">
-                        <option value="" disabled>Select Year</option>
-                    </select>
+
+                <div class="right-aligned">
+                    <div class="date-picker">
+                        <label for="datePicker">Select Date:</label>
+                        <input type="date" id="datePicker" aria-label="Select Date">
+                    </div>
+                    
+                    <div class="data-center-filter">
+                        <label for="dataCenterDropdown">Select Data Center:</label>
+                        <select id="dataCenterDropdown">
+                            <option value="" disabled>Select Data Center</option>
+                        </select>
+                    </div>
                 </div>
-            </nav> 
-                
-            <!-- Dashboard Header with Month Filter -->
-            <div class="dashboard-header">
-                <div class="header-left">
-                    <h1>Carbon Emissions Dashboard</h1>
-                    <h2>Singapore Telecommunications Limited</h2>
-                    <h2>2024</h2>
+            </nav>
+
+            <!-- Main Chart Row -->
+            <!-- Main Chart Row -->
+            <div class="chart-row">
+                <!-- Energy Consumption Breakdown -->
+                <div class="chart-container energy-consumption-container">
+                    <h2>Energy Consumption Breakdown</h2>
+                    <div id="customLegend" class="chart-legend"></div>
+                    <canvas id="energyConsumptionDonut"></canvas>
+                    <div id="dataCenterOptions" class="data-center-options" style="display: flex;"></div>
                 </div>
-                <div class="month-filter">
-                    <label for="monthDropdown">Select Month:</label>
-                    <select id="monthDropdown">
-                        <option value="" disabled selected>Select Month</option>
-                    </select>
-                </div>                
+
+                <!-- Stacked Container for Gauge, Placeholder, and Line Charts -->
+                <div class="stacked-chart-container">
+                    <!-- Row for Gauge and Placeholder Charts -->
+                    <div class="gauge-placeholder-row">
+                        <!-- Gauge Chart for Carbon Emission vs Renewable Energy -->
+                        <div class="chart-container gauge-chart-container">
+                            <h2>Carbon Emission vs Renewable Energy</h2>
+                            <canvas id="carbonVsRenewableGauge"></canvas>
+                        </div>
+                        
+                        <!-- Placeholder Chart -->
+                        <div class="chart-container placeholder-chart-container">
+                            <h2>Placeholder</h2>
+                            <canvas id="placeholder"></canvas>
+                        </div>
+
+                        <!-- Placeholder Chart -->
+                        <div class="chart-container placeholder-chart-container">
+                            <h2>Placeholder</h2>
+                            <canvas id="placeholder"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Carbon Emission Overview Line Chart -->
+                    <div class="chart-container carbon-emission-chart-container">
+                        <h2>Carbon Emission Overview</h2>
+                        <canvas id="carbonEmissionChart"></canvas>
+                    </div>
+                </div>
             </div>
 
-            <!-- Carbon Emissions Chart -->
-            <div class="chart-container">
-                <canvas id="carbonEmissionsChart" aria-label="Carbon Emissions Chart"></canvas>
-            </div>
-
-            <!-- Flex container for energy consumption and data center selection -->
-            <div class="flex-container">
-                <!-- Data Center Dropdown -->
-                <div class="data-center-filter">
-                    <label for="dataCenterDropdown">Select Data Center:</label>
-                    <select id="dataCenterDropdown">
-                        <option value="" disabled>Select Data Center</option>
-                    </select>
-                </div>
-
-                <!-- Energy Consumption Chart -->
-                <div class="chart-container">
-                    <canvas id="energyConsumptionChart" aria-label="Energy Consumption Chart"></canvas>
-                </div>
-
-                <div class="Separator-Text">
-                    <h1>Efficiency Chart Past 3 Months</h2>
-                </div>
-
-                <!-- Efficiency Chart -->
-                <div class="chart-container">
-                    <canvas id="efficiencyChart" aria-label="Efficiency Chart"></canvas>
-                </div>
-            </div>
         </main>
     </div>
 
     <!-- JavaScript Files -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="./scripts/api.js"></script>
     <script src="./scripts/utils.js"></script>

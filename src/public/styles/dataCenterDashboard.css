@@ -1,92 +1,206 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
 }
 
 .dashboard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 h1, h2 {
-    color: #333;
+  color: #333;
 }
 
 h2 {
-    font-size: 12px;
+  font-size: 14px;
 }
 
 .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-row {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  padding: 0 20px;
 }
 
 .chart-container {
-    margin: 20px 0;
-    background: white;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
+/* Specific adjustments for individual chart containers */
+.energy-consumption-container {
+  flex: 0 0 30%; /* Narrower width for Energy Consumption */
+  max-width: 300px;
+}
+
+.stacked-chart-container {
+  flex: 1; /* Wider stacked container */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Row for Gauge and Placeholder Charts */
+.gauge-placeholder-row {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+/* Gauge and Placeholder Chart Containers */
+.gauge-chart-container, .placeholder-chart-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 250px;
+  height: 150px;
+}
+
+#carbonEmissionChart {
+  width: 100%; /* Allow carbon emission chart to fill the width */
+  height: 350px; /* Taller carbon emission chart */
+}
+
+/* General chart canvas styling */
 canvas {
-    width: 100%;
-    height: 400px;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Tabs Navigation */
 .tabs {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 30px;
-    border-bottom: 2px solid #f0f0f0;
-    align-items: center;
-  }
-  
-  .tabs a {
-    text-decoration: none;
-    color: #555;
-    padding: 10px;
-    font-weight: 600;
-    transition: color 0.3s ease, border-bottom 0.3s ease;
-  }
-  
-  .tabs a:hover, .tabs a.active {
-    color: #4FD1C5;
-    border-bottom: 3px solid #4FD1C5;
-  }
-  
-  /* Align year filter to the right of the tabs */
-  .tabs {
-    display: flex;
-    align-items: center;
-  }
-  
-  .year-filter {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-  }
-  
-  .year-filter label {
-    margin-right: 5px;
-    font-weight: 600;
-  }
-  
-  /* Adjusting the Select Dropdown styling */
-  .year-filter select {
-    padding: 5px 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1em;
-    outline: none;
-    transition: border-color 0.3s ease;
-  }
-  
-  .year-filter select:focus {
-    border-color: #4FD1C5;
-  }
-  
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #f0f0f0;
+  align-items: center;
+}
+
+.tabs a {
+  text-decoration: none;
+  color: #555;
+  padding: 10px;
+  font-weight: 600;
+  transition: color 0.3s ease, border-bottom 0.3s ease;
+}
+
+.tabs a:hover, .tabs a.active {
+  color: #4FD1C5;
+  border-bottom: 3px solid #4FD1C5;
+}
+
+/* Right-Aligned Container */
+.right-aligned {
+  display: flex;
+  margin-left: auto;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Styling for Date Picker and Data Center Filter */
+.date-picker, .data-center-filter {
+  display: flex;
+  flex-direction: column;
+  max-width: 200px;
+  font-family: Arial, sans-serif;
+  align-items: flex-start;
+}
+
+.date-picker label, .data-center-filter label {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+  font-size: 14px;
+  display: block;
+}
+
+.date-picker input[type="date"], .data-center-filter select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  color: #333;
+  background-color: #f9f9f9;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  cursor: pointer;
+}
+
+.date-picker input[type="date"]:hover, .data-center-filter select:hover {
+  border-color: #777;
+}
+
+.date-picker input[type="date"]:focus, .data-center-filter select:focus {
+  border-color: #4A90E2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+}
+
+/* Options Container Styling */
+.data-center-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 10px;
+  max-width: 300px;
+}
+
+.data-center-options button {
+  padding: 5px 10px;
+  font-size: 12px;
+  margin: 3px;
+  background-color: #e0e0e0;
+  color: #333;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.data-center-options button.selected {
+  background-color: #4FD1C5;
+  color: white;
+}
+
+/* Legend Styling */
+.chart-legend {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 5px 10px;
+  justify-content: center;
+  margin: 5px 0;
+  font-size: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+}
+
+.legend-color {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+}
