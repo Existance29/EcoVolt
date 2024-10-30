@@ -104,23 +104,72 @@ function renderDonutChart(data) {
     }
     
     // Create new chart
+    const totalMWh = chartData.datasets[0].data.reduce((sum, value) => sum + value, 0);
+
     energyConsumptionChart = new Chart(ctx, {
         type: 'doughnut',
         data: chartData,
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            cutout: '50%',
+            cutout: '65%',
+            elements: {
+                arc: {
+                    borderWidth: 6,       // Increase for more spacing between segments
+                    borderColor: '#ffffff', // Set to background color for a clean gap effect
+                    borderAlign: 'center', // Center the border to create even gaps
+                    borderRadius: 6
+                }
+            },
             plugins: {
-                legend: { display: false }, // Disable default legend
+                legend: { display: false },
                 tooltip: {
                     callbacks: {
                         label: (tooltipItem) => `${tooltipItem.label}: ${tooltipItem.raw} MWh`
                     }
+                },
+                datalabels: {
+                    // color: '#000000',
+                    font: {
+                    //     weight: 'bold',
+                        size: 7
+                    },
+                    formatter: (value) => {
+                        let displayValue = value > 1000 ? `${Math.round(value / 1000)}K MWh` : `${value} MWh`;
+                        return displayValue.length > 7 ? `${displayValue.slice(0, 7)}…` : displayValue;
+                    },
+                    anchor: 'center',
+                    align: 'center',
+                    padding: 5,
+                    clamp: true,
+                    rotation: 0,
+                    clip: false
                 }
             }
-        }
+        },
+        plugins: [
+            ChartDataLabels,
+            {
+                id: 'centerText',
+                beforeDraw: function(chart) {
+                    const { width, height, ctx } = chart;
+                    ctx.restore();
+                    const fontSize = (height / 160).toFixed(2); // Adjust font size based on chart height
+                    ctx.font = `${fontSize}em sans-serif`;
+                    ctx.textBaseline = "middle";
+    
+                    const text = `${totalMWh} MWh`;
+                    const textX = Math.round((width - ctx.measureText(text).width) / 2);
+                    const textY = height / 2;
+    
+                    ctx.fillStyle = "#333"; // Color for the central text
+                    ctx.fillText(text, textX, textY);
+                    ctx.save();
+                }
+            }
+        ]
     });
+    
     
     // Custom Legend Rendering
     const legendContainer = document.getElementById('customLegend');
