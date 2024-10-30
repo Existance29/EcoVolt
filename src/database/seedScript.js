@@ -113,7 +113,7 @@ CREATE TABLE activity_feed (
     user_id INT NOT NULL, 
 	company_id INT NOT NULL, 
 	data_center_id INT NULL, 
-	context TEXT, 
+	context VARCHAR(500), 
 	media_url VARCHAR(255),
 	carbon_emission DECIMAL(10, 2),
 	energy_consumption DECIMAl(10, 2),
