@@ -46,21 +46,29 @@ async function loadDataCenterOptions() {
     }
 }
 
-// Update the updateChartData function to call renderCarbonVsRenewableGauge
 async function updateChartData(dataCenterId) {
     console.log(`Updating chart data for selected data center: ${dataCenterId}`);
     const selectedDate = document.getElementById('datePicker') ? document.getElementById('datePicker').value : '';
+    
+    // Get the dataCenterOptions element
+    const dataCenterOptions = document.getElementById('dataCenterOptions');
 
     if (dataCenterId === 'all') {
+        // Show data center options if "All Data Centers" is selected
+        dataCenterOptions.style.display = 'flex';
+        
         if (selectedDate) {
             await fetchTotalCarbonEmissionAndRenewableEnergyByDate(selectedDate);
         } else {
             await fetchTotalCarbonEmissionAndRenewableEnergy();
         }
         const chartData = await fetchEnergyConsumptionByCompanyId(selectedDate);
-        renderDataCenterOptions();
+        renderDataCenterOptions(); // Ensure the data center options are rendered
         renderDonutChart(chartData, dataCenterId);
     } else {
+        // Hide data center options for specific data center selection
+        dataCenterOptions.style.display = 'none';
+        
         if (selectedDate) {
             await fetchTotalCarbonEmissionAndRenewableEnergyByDataCenterAndDate(company_id, dataCenterId, selectedDate);
         } else {
@@ -73,6 +81,7 @@ async function updateChartData(dataCenterId) {
     // Call renderCarbonVsRenewableGauge with the current data center and date filter
     await renderCarbonVsRenewableGauge(dataCenterId, selectedDate);
 }
+
 
 
 
