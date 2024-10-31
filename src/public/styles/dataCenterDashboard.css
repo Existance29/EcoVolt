@@ -40,27 +40,24 @@ h2 {
   box-sizing: border-box;
 }
 
-/* Specific adjustments for individual chart containers */
 .energy-consumption-container {
-  flex: 0 0 30%; /* Narrower width for Energy Consumption */
+  flex: 0 0 30%;
   max-width: 300px;
 }
 
 .stacked-chart-container {
-  flex: 1; /* Wider stacked container */
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* Row for Gauge and Placeholder Charts */
 .gauge-placeholder-row {
   display: flex;
   gap: 20px;
   justify-content: space-between;
 }
 
-/* Gauge and Placeholder Chart Containers */
 .gauge-chart-container, .placeholder-chart-container {
   flex: 1;
   display: flex;
@@ -76,11 +73,10 @@ h2 {
 }
 
 #carbonEmissionChart {
-  width: 100%; /* Allow carbon emission chart to fill the width */
-  height: 350px; /* Taller carbon emission chart */
+  width: 100%;
+  height: 350px;
 }
 
-/* General chart canvas styling */
 canvas {
   width: 100%;
   max-width: 100%;
@@ -108,7 +104,6 @@ canvas {
   border-bottom: 3px solid #4FD1C5;
 }
 
-/* Right-Aligned Container */
 .right-aligned {
   display: flex;
   margin-left: auto;
@@ -116,7 +111,6 @@ canvas {
   align-items: center;
 }
 
-/* Styling for Date Picker and Data Center Filter */
 .date-picker, .data-center-filter {
   display: flex;
   flex-direction: column;
@@ -155,7 +149,6 @@ canvas {
   box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
 }
 
-/* Options Container Styling */
 .data-center-options {
   display: flex;
   flex-wrap: wrap;
@@ -165,7 +158,6 @@ canvas {
   max-width: 300px;
 }
 
-/* Default button styling */
 .data-center-options button {
   padding: 5px 10px;
   font-size: 12px;
@@ -178,15 +170,11 @@ canvas {
   transition: background-color 0.3s ease;
 }
 
-/* Selected button styling */
 .data-center-options button.selected-button {
   background-color: #4FD1C5;
   color: white;
 }
 
-
-
-/* Legend Styling */
 .chart-legend {
   display: grid;
   grid-template-columns: repeat(2, auto);
@@ -207,4 +195,23 @@ canvas {
   width: 12px;
   height: 12px;
   margin-right: 8px;
+}
+
+.chart-container div {
+  font-size: 20px;
+  color: #333;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Styling for No Data Message */
+.no-data-message {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  color: #000000;
+  background-color: #f4f4f9;
+  text-align: center;
+  padding: 50px;
 }
