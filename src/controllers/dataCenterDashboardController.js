@@ -79,10 +79,7 @@ const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
     }
 
     try {
-        const parsedDate = new Date(date);
-        const month = parsedDate.getMonth() + 1;
-        const year = parsedDate.getFullYear();
-        const data = await dataCenterDashboard.getEnergyConsumptionByDataCenterIdAndDate(dataCenterId, month, year);
+        const data = await dataCenterDashboard.getEnergyConsumptionByDataCenterIdAndDate(dataCenterId, date);
         
         if (!data) {
             return res.status(404).send("No energy consumption data found for this data center on the specified date.");
@@ -105,13 +102,8 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
     }
 
     try {
-        const parsedDate = new Date(date);
-        const month = parsedDate.getMonth() + 1;
-        const year = parsedDate.getFullYear();
-
-        const data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndDate(company_id, month, year);
+        const data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndDate(company_id, date);
         if (!data) {
-            console.log("No energy consumption data found for company ID:", company_id, "on date:", date);
             return res.status(404).send("No energy consumption data found for this company on the specified date.");
         }
         res.status(200).json(data);
@@ -184,13 +176,8 @@ const getAllCarbonEmissionByCompanyIdAndDate = async (req, res) => {
     }
 
     try {
-        // Parse the date parameter
-        const parsedDate = new Date(date);
-        const month = parsedDate.getMonth() + 1; // getMonth() returns 0-11, so add 1
-        const year = parsedDate.getFullYear();
-
         // Call the model function to fetch data by companyId, month, and year
-        const data = await dataCenterDashboard.getAllCarbonEmissionByCompanyIdAndDate(companyId, month, year);
+        const data = await dataCenterDashboard.getAllCarbonEmissionByCompanyIdAndDate(companyId, date);
         if (!data) {
             return res.status(404).send("No carbon emission data found for this company on the specified date.");
         }
@@ -273,14 +260,10 @@ const getAllSumOfCarbonEmissionByCompanyIdAndDataCenter = async (req, res) => {
 const getAllSumOfCarbonEmissionByCompanyIdAndDataCenterAndDate = async (req, res) => {
     const { company_id, data_center_id } = req.params;
     const date = req.query.date; // Retrieve date from query parameters
-
-    console.log("hi");
-
     // Validate inputs
     if (!company_id || !data_center_id || !date) {
         return res.status(400).send("company_id, data_center_id, and date are required.");
     }
-
     try {
         // Fetch data from the model
         const data = await dataCenterDashboard.getAllSumOfCarbonEmissionByCompanyIdAndDataCenterAndDate(company_id, data_center_id, date);

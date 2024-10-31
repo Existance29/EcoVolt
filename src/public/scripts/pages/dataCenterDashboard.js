@@ -80,6 +80,9 @@ async function updateChartData(dataCenterId) {
 
     // Call renderCarbonVsRenewableGauge with the current data center and date filter
     await renderCarbonVsRenewableGauge(dataCenterId, selectedDate);
+    
+    // Render the line chart immediately after updating data
+    renderCarbonEmissionChart();
 }
 
 
@@ -345,28 +348,29 @@ async function renderCarbonEmissionChart() {
     let carbonData;
 
     if (selectedDataCenter === 'all') {
+        // Fetch carbon emissions for all data centers
         carbonData = await fetchCarbonEmissionsByCompanyId();
     } else {
+        // Fetch carbon emissions for the specific data center
         carbonData = await fetchCarbonEmissionsByDataCenterId(selectedDataCenter);
     }
 
     // Check if a date filter has been applied
     const datePicker = document.getElementById('datePicker');
-    let selectedDate = datePicker ? datePicker.value : null;
+    let selectedDate = datePicker && datePicker.value ? new Date(datePicker.value) : null;
 
     if (selectedDate) {
-        const parsedDate = new Date(selectedDate);
-        const selectedYear = parsedDate.getFullYear();
-        const selectedMonth = parsedDate.getMonth();
-
-        // Filter the data to include only entries from the selected month and year onwards
+        // Filter the data to include only entries from the selected date onward
         carbonData = carbonData.filter((entry) => {
             const entryDate = new Date(entry.date);
-            return (
-                entryDate.getFullYear() > selectedYear ||
-                (entryDate.getFullYear() === selectedYear && entryDate.getMonth() >= selectedMonth)
-            );
+            return entryDate >= selectedDate;
         });
+    }
+
+    // If no data is available after filtering, provide a default message or set empty arrays
+    if (!carbonData || carbonData.length === 0) {
+        console.warn("No carbon emission data available for the selected filters.");
+        carbonData = [{ date: selectedDate || new Date(), co2_emissions_tons: 0 }];
     }
 
     // Aggregate data by month and calculate emissions
@@ -392,7 +396,7 @@ async function renderCarbonEmissionChart() {
         carbonEmissionChart.destroy();
     }
 
-    // Create new chart instance
+    // Create new chart instance with conditional x-axis configuration
     carbonEmissionChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -412,20 +416,24 @@ async function renderCarbonEmissionChart() {
                     title: {
                         display: true,
                         text: 'Date (Month-Year)'
-                    }
+                    },
+                    min: selectedDate ? labels[0] : undefined, // Start x-axis at selected date if chosen
                 },
                 y: {
                     title: {
                         display: true,
                         text: 'Carbon Emissions (tons)'
                     },
-                    min: Math.min(...emissions) - 1000,
-                    max: Math.max(...emissions) + 1000,
+                    min: emissions.length ? Math.min(...emissions) - 1000 : 0,
+                    max: emissions.length ? Math.max(...emissions) + 1000 : 1000,
                 }
             }
         }
     });
 }
+
+
+
 
 
 // Render gauge chart for Carbon vs Renewable Energy
@@ -659,7 +667,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const selectedDate = datePicker.value;
             console.log("Date selected:", selectedDate);
 
-            await updateChartData(selectedDataCenter); // Update all charts including gauge with new date selection
+            // Update all charts including gauge and line chart with the new date selection
+            await updateChartData(selectedDataCenter);
+            renderCarbonEmissionChart(); // Ensure the line chart updates immediately after date selection
         });
     }
 });

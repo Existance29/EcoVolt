@@ -121,7 +121,7 @@ class dataCenterDashboard {
         }
     }
     
-    static async getAllEnergyConsumptionByCompanyIdAndDate(company_id, month, year) {
+    static async getAllEnergyConsumptionByCompanyIdAndDate(company_id, date) {
         let connection;
         try {
             connection = await sql.connect(dbConfig);
@@ -129,13 +129,12 @@ class dataCenterDashboard {
                 SELECT e.* FROM data_center_energy_consumption AS e
                 INNER JOIN data_centers AS d ON e.data_center_id = d.id
                 WHERE d.company_id = @company_id
-                AND MONTH(e.date) = @month
-                AND YEAR(e.date) = @year
+                AND CONVERT(date, e.date) = @date
             `;
             const request = connection.request();
             request.input('company_id', company_id);
-            request.input('month', month);
-            request.input('year', year);
+            request.input('date', sql.Date, date); // For exact date filtering
+
             const result = await request.query(sqlQuery);
             return result.recordset.length > 0 ? result.recordset : null;
         } catch (error) {
@@ -146,20 +145,18 @@ class dataCenterDashboard {
     }
     
 
-    static async getEnergyConsumptionByDataCenterIdAndDate(dataCenterId, month, year) {
+    static async getEnergyConsumptionByDataCenterIdAndDate(dataCenterId, date) {
         let connection;
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
                 SELECT * FROM data_center_energy_consumption
                 WHERE data_center_id = @dataCenterId 
-                AND MONTH(date) = @month 
-                AND YEAR(date) = @year
+                AND CONVERT(date, date) = @date
             `;
             const request = connection.request();
             request.input('dataCenterId', dataCenterId);
-            request.input('month', month);
-            request.input('year', year);
+            request.input('date', date);
             const result = await request.query(sqlQuery);
             return result.recordset.length > 0 ? result.recordset : null;
         } catch (error) {
@@ -226,7 +223,7 @@ class dataCenterDashboard {
     }
 
     // Retrieves all carbon emissions within a specific date range
-    static async getAllCarbonEmissionByCompanyIdAndDate(company_id, start_date, end_date) {
+    static async getAllCarbonEmissionByCompanyIdAndDate(company_id, date) {
         let connection;
         try {
             connection = await sql.connect(dbConfig);
@@ -234,12 +231,11 @@ class dataCenterDashboard {
             SELECT * FROM data_center_carbon_emissions
             INNER JOIN data_centers ON data_center_carbon_emissions.data_center_id = data_centers.id
             WHERE data_centers.company_id = @company_id 
-            AND emission_date BETWEEN @start_date AND @end_date
+            AND CONVERT(date, emission_date) = @date
             `;
             const request = connection.request();
             request.input('company_id', company_id);
-            request.input('start_date', start_date);
-            request.input('end_date', end_date);
+            request.input('date', date);
             const result = await request.query(sqlQuery);
             return result.recordset.length > 0 ? result.recordset : null;
         } catch (error) {
@@ -288,14 +284,7 @@ class dataCenterDashboard {
     static async getAllSumOfCarbonEmissionByCompanyIdAndDate(company_id, date) {
         let connection;
         try {
-            connection = await sql.connect(dbConfig);
-    
-            // Parse the date to extract month and year
-            const parsedDate = new Date(date);
-            const month = parsedDate.getMonth() + 1; // JavaScript months are 0-based, SQL months are 1-based
-            const year = parsedDate.getFullYear();
-    
-            // SQL query to sum up carbon emissions and renewable energy values by company and date
+            connection = await sql.connect(dbConfig);    
             const sqlQuery = `
             SELECT 
                 SUM(co2_emissions_tons) AS total_co2_emissions,
@@ -304,14 +293,11 @@ class dataCenterDashboard {
             INNER JOIN data_centers 
             ON data_center_carbon_emissions.data_center_id = data_centers.id
             WHERE data_centers.company_id = @company_id
-            AND MONTH(data_center_carbon_emissions.date) = @month
-            AND YEAR(data_center_carbon_emissions.date) = @year;
+            AND data_center_carbon_emissions.date = @date
         `;
             const request = connection.request();
             request.input('company_id', company_id); // Specify data type explicitly
-            request.input('month', month); // Pass the month to SQL
-            request.input('year', year); // Pass the year to SQL
-    
+            request.input('date', date); 
             const result = await request.query(sqlQuery);
             
             if (result.recordset.length === 0) {
@@ -379,9 +365,9 @@ class dataCenterDashboard {
                 AND data_centers.id = @data_center_id
             `;
             const request = connection.request();
-            request.input('company_id', sql.Int, company_id);
-            request.input('data_center_id', sql.Int, data_center_id);
-            request.input('date', sql.Date, date);
+            request.input('company_id', company_id);
+            request.input('data_center_id', data_center_id);
+            request.input('date', date);
             
             const result = await request.query(sqlQuery);
             return result.recordset[0];
