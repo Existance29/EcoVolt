@@ -284,7 +284,6 @@ const getAllSumOfCarbonEmissionByCompanyIdAndDataCenterAndDate = async (req, res
     try {
         // Fetch data from the model
         const data = await dataCenterDashboard.getAllSumOfCarbonEmissionByCompanyIdAndDataCenterAndDate(company_id, data_center_id, date);
-        console.log(data);
         if (!data) {
             return res.status(404).send("No data found for this company, data center, and date.");
         }
