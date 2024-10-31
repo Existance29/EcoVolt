@@ -360,10 +360,17 @@ async function renderCarbonEmissionChart() {
     let selectedDate = datePicker && datePicker.value ? new Date(datePicker.value) : null;
 
     if (selectedDate) {
-        // Filter the data to include only entries from the selected date onward
+        // Get the month and year of the selected date
+        const selectedMonth = selectedDate.getMonth();
+        const selectedYear = selectedDate.getFullYear();
+
+        // Filter the data to include entries within the selected month
         carbonData = carbonData.filter((entry) => {
             const entryDate = new Date(entry.date);
-            return entryDate >= selectedDate;
+            return (
+                entryDate.getFullYear() === selectedYear &&
+                entryDate.getMonth() === selectedMonth
+            );
         });
     }
 
@@ -373,21 +380,20 @@ async function renderCarbonEmissionChart() {
         carbonData = [{ date: selectedDate || new Date(), co2_emissions_tons: 0 }];
     }
 
-    // Aggregate data by month and calculate emissions
-    const monthlyEmissions = carbonData.reduce((acc, entry) => {
-        const date = new Date(entry.date);
-        const monthYear = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
+    // Aggregate data by date within the selected month and calculate emissions
+    const dailyEmissions = carbonData.reduce((acc, entry) => {
+        const date = new Date(entry.date).toLocaleDateString("en-US", { day: '2-digit', month: 'short' });
 
-        if (!acc[monthYear]) {
-            acc[monthYear] = 0;
+        if (!acc[date]) {
+            acc[date] = 0;
         }
-        acc[monthYear] += entry.co2_emissions_tons;
+        acc[date] += entry.co2_emissions_tons;
         return acc;
     }, {});
 
     // Prepare data for the chart
-    const labels = Object.keys(monthlyEmissions);
-    const emissions = Object.values(monthlyEmissions);
+    const labels = Object.keys(dailyEmissions);
+    const emissions = Object.values(dailyEmissions);
 
     const ctx = document.getElementById('carbonEmissionChart').getContext('2d');
 
@@ -396,7 +402,7 @@ async function renderCarbonEmissionChart() {
         carbonEmissionChart.destroy();
     }
 
-    // Create new chart instance with conditional x-axis configuration
+    // Create new chart instance
     carbonEmissionChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -415,9 +421,8 @@ async function renderCarbonEmissionChart() {
                 x: {
                     title: {
                         display: true,
-                        text: 'Date (Month-Year)'
-                    },
-                    min: selectedDate ? labels[0] : undefined, // Start x-axis at selected date if chosen
+                        text: 'Date (Day of Month)'
+                    }
                 },
                 y: {
                     title: {
@@ -431,6 +436,7 @@ async function renderCarbonEmissionChart() {
         }
     });
 }
+
 
 
 
