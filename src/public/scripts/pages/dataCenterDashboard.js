@@ -644,32 +644,91 @@ async function fetchTotalCarbonEmissionAndRenewableEnergyByDataCenterAndDate(com
 
 
 
+async function fetchAvailableDates() {
+    const company_id = sessionStorage.getItem('company_id'); // Ensure company_id is available from sessionStorage
 
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/AvailableDates/${company_id}`);
+        
+        if (!response.ok) {
+            throw new Error("Error fetching available dates");
+        }
 
+        const dates = await response.json();
+        
+        // Convert each date object to 'YYYY-MM-DD' format for comparison
+        return dates.map(dateObj => {
+            const date = new Date(dateObj.date);
+            return date.toISOString().split('T')[0]; // Format date to 'YYYY-MM-DD'
+        });
+    } catch (error) {
+        console.error("Error fetching available dates:", error);
+        return [];
+    }
+}
 
+// Function to toggle the visibility of charts and "No Data" message
+function toggleNoDataMessage(show) {
+    const chartRow = document.getElementById('chartRow');
+    let noDataMessage = document.querySelector('.no-data-message');
 
-
-
-
-
+    if (show) {
+        chartRow.style.display = 'none';
+        if (!noDataMessage) {
+            noDataMessage = document.createElement('p');
+            noDataMessage.textContent = "No Data Recorded on this date";
+            noDataMessage.classList.add('no-data-message');
+            document.querySelector('.main-content').appendChild(noDataMessage);
+        }
+        noDataMessage.style.display = 'flex';
+    } else {
+        chartRow.style.display = 'flex';
+        if (noDataMessage) {
+            noDataMessage.style.display = 'none';
+        }
+    }
+}
 
 // Initialize dropdown, date picker, and charts on page load
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("Page loaded. Initializing data center options and default chart...");
-    await loadDataCenterOptions(); // Load dropdown options
-    await updateChartData(selectedDataCenter); // Set initial chart and data based on default selection
-    renderCarbonEmissionChart(); // Render initial carbon emissions chart
+    await loadDataCenterOptions();
+    await updateChartData(selectedDataCenter);
+    renderCarbonEmissionChart();
 
-    // Event listener for date selection
+    const availableDates = await fetchAvailableDates();
+
     const datePicker = document.getElementById('datePicker');
+    const noDataMessage = document.getElementById('noDataMessage');
+    const chartContainerWrapper = document.getElementById('chartContainerWrapper');
+
     if (datePicker) {
         datePicker.addEventListener('change', async () => {
             const selectedDate = datePicker.value;
             console.log("Date selected:", selectedDate);
 
-            // Update all charts including gauge and line chart with the new date selection
+            if (!selectedDate || availableDates.includes(selectedDate)) {
+                chartContainerWrapper.style.display = 'block';
+                noDataMessage.style.display = 'none';
+                await updateChartData(selectedDataCenter);
+                renderCarbonEmissionChart();
+            } else {
+                chartContainerWrapper.style.display = 'none';
+                noDataMessage.style.display = 'block';
+            }
+        });
+    }
+
+    const dataCenterDropdown = document.getElementById('dataCenterDropdown');
+    if (dataCenterDropdown) {
+        dataCenterDropdown.addEventListener('change', async () => {
+            if (dataCenterDropdown.value === 'all' && !datePicker.value) {
+                chartContainerWrapper.style.display = 'block';
+                noDataMessage.style.display = 'none';
+            }
             await updateChartData(selectedDataCenter);
-            renderCarbonEmissionChart(); // Ensure the line chart updates immediately after date selection
+            renderCarbonEmissionChart();
         });
     }
 });
+

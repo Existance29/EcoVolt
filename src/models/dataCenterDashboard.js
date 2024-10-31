@@ -54,23 +54,27 @@ class dataCenterDashboard {
         
         
 
-    static async getAllMonthAndYear() { // Get the years that exist in the database so that it populates the filter dropdown dynamically
+    static async getAllDate(company_id) { // Get the years that exist in the database so that it populates the filter dropdown dynamically
         let connection;
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
-                SELECT DISTINCT YEAR(date) AS year, MONTH(date) AS month
-                FROM data_center_energy_consumption
-                ORDER BY year, month;
+            SELECT DISTINCT date, YEAR(date) AS year, MONTH(date) AS month
+            FROM data_center_energy_consumption INNER JOIN data_centers
+			ON data_center_energy_consumption.data_center_id = data_centers.id
+			INNER JOIN companies ON companies.id = data_centers.company_id
+			WHERE companies.id =@company_id
+            ORDER BY year, month
             `; // If there is energy consumotion, then there is carbon emission. hence selecting from only one table
             const request = connection.request();
+            request.input('company_id', company_id);
             const result = await request.query(sqlQuery);
             if(result.recordset.length === 0) {
                 return null;
             }
             return result.recordset;
         } catch (error) {
-            throw new Error("Error retrieving Year");
+            throw new Error("Error retrieving Date");
         } finally {
             if (connection) {
                 await connection.close();

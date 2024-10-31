@@ -4,7 +4,7 @@ const dataCenterDashboardRoute = (app) => {
     // DC page
 
     app.get('/Dashboard/Data-Center/:company_id', dataCenterDashboardController.getAllDataCenter);
-    app.get('/Dashboard/Data-Center/years-months', dataCenterDashboardController.getAllMonthAndYear); //todo: require company id
+    app.get('/Dashboard/Data-Center/AvailableDates/:company_id', dataCenterDashboardController.getAllDate); //todo: require company id
 
     
     app.get('/Dashboard/Data-Center/EnergyConsumption/company/:company_id', dataCenterDashboardController.getAllEnergyConsumptionByCompanyId);

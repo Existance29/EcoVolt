@@ -18,9 +18,10 @@ const getAllDataCenter = async (req, res) => {
 }
 
 
-const getAllMonthAndYear = async (req, res) => {
+const getAllDate = async (req, res) => {
+    const company_id = parseInt(req.params.company_id); // convert string to integer
     try {
-        const data = await dataCenterDashboard.getAllMonthAndYear();
+        const data = await dataCenterDashboard.getAllDate(company_id);
         if (!data) {
             return res.status(404).send('Month or year not found.');
         }
@@ -309,7 +310,7 @@ const getAllSustainabilityGoalsData = async (req, res) => {
 
 module.exports = {
     getAllDataCenter,
-    getAllMonthAndYear,
+    getAllDate,
 
     getAllEnergyConsumptionByCompanyId, // if never apply any filter = will view all data center of all times
     getAllEnergyConsumptionByDataCenterId, // if user apply data center filter but no date
