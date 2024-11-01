@@ -1,12 +1,15 @@
 //import
 const express = require("express");
 const app = express()
+const cors = require('cors');
 const port = process.env.PORT || 3000
 const dbConfig = require("./database/dbConfig")
 const sql = require("mssql")
 const route = require("./routes/routes")
 // const route = require("./routes/routes")
 const bodyParser = require("body-parser");
+
+app.use(cors());
 
 //load frontend
 const staticMiddleware = express.static("public")
