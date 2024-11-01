@@ -1,5 +1,5 @@
 pageRequireSignIn();
-const company_id = sessionStorage.getItem('company_id');
+const company_id = getCompanyId();
 
 // Global variables
 let selectedDataCenter = 'all'; // Default to "all" data centers

@@ -23,6 +23,12 @@ module.exports = {
 ```
 You can change the content of the file to match your settings or set up the sql server to match its content
 
+### .env setup
+Create src/.env with the following content: <br>
+```js
+ACCESS_TOKEN_SECRET=any-string-here
+```
+
 ### Database setup
 run ``npm run seed`` <br />
 You can also rerun this command to reset the database to its seeded form <br />
