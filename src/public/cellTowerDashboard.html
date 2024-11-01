@@ -58,17 +58,26 @@
             </div>
 
             <!-- Main Chart Content -->
-             <div>
+             <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                 <div style="display: flex; width: 100%; justify-content: space-between; flex-wrap: wrap;">
                     <div class="main-stat-container">
                         <div class="stat">
-                            <div class="inter-bold stat-value">Off-grid</div>
+                            <div class="inter-bold stat-value">Off-Grid</div>
                             <div class="inter-medium stat-name">Cell Tower Type</div>
                         </div>
                     </div>
                     <div class="main-stat-container">
                         <div class="stat">
-                            <div class="inter-bold stat-value">12,000 MWh</div>
+                            <div class="inter-bold stat-value">68,196 Tons</div>
+                            <div class="inter-medium stat-name">Total Carbon Emissions</div>
+                        </div>
+                        <div class="inter-semibold change-container positive">
+                            +8%
+                        </div>
+                    </div>
+                    <div class="main-stat-container">
+                        <div class="stat">
+                            <div class="inter-bold stat-value">120,003 MWh</div>
                             <div class="inter-medium stat-name">Total Energy Consumption</div>
                         </div>
                         <div class="inter-semibold change-container negative">
@@ -77,21 +86,19 @@
                     </div>
                     <div class="main-stat-container">
                         <div class="stat">
-                            <div class="inter-bold stat-value">68,196 Tons</div>
-                            <div class="inter-medium stat-name">Total Carbon Emission</div>
+                            <div class="inter-bold stat-value">30%</div>
+                            <div class="inter-medium stat-name">Renewable Energy Share</div>
                         </div>
-                        <div class="inter-semibold change-container negative">
-                            -8%
-                        </div>
+                            <div class="inter-semibold change-container neutral">
+                                +0%
+                            </div>
                     </div>
-                    <div class="main-stat-container">
-                        <div class="stat">
-                            <div class="inter-bold stat-value">68,196 Tons</div>
-                            <div class="inter-medium stat-name">Total Carbon Emission</div>
-                        </div>
-                        <div class="inter-semibold change-container positive">
-                            -8%
-                        </div>
+                </div>
+                
+                <div style="background: white; padding: 1.8rem 1.9rem; border-radius: 15px; color: #464549; font-size: 1.05rem;" class="inter-semibold">
+                    <div class="inter-bold" style="margin-bottom: 1rem;">Carbon Emissions</div>
+                    <div style="width: 100%; max-height: 35vh;">
+                        <canvas id="honeyPerMinChart"></canvas>
                     </div>
                 </div>
              </div>
@@ -100,11 +107,10 @@
 
     <!-- JavaScript Files -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="./scripts/api.js"></script>
     <script src="./scripts/utils.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="./scripts/common.js"></script>
+    <script src="./scripts/pages/cellTowerDashboard.js"></script>
 </body>
 </html>
