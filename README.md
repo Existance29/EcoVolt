@@ -26,7 +26,7 @@ You can change the content of the file to match your settings or set up the sql 
 ### .env setup
 Create src/.env with the following content: <br>
 ```js
-ACCESS_TOKEN_SECRET="any-string-here"
+ACCESS_TOKEN_SECRET=any-string-here
 ```
 
 ### Database setup
