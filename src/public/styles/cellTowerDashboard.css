@@ -19,67 +19,8 @@ body {
     font-size: 14px;
   }
   
-  .dashboard-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .chart-row {
-    display: flex;
-    gap: 20px;
-    justify-content: space-between;
-    padding: 0 20px;
-  }
-  
-  .chart-container {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-  }
-  
-  .energy-consumption-container {
-    flex: 0 0 30%;
-    max-width: 300px;
-  }
-  
-  .stacked-chart-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .gauge-placeholder-row {
-    display: flex;
-    gap: 20px;
-    justify-content: space-between;
-  }
-  
-  .gauge-chart-container, .placeholder-chart-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 250px;
-    height: 150px;
-  }
-  
-  #carbonEmissionChart {
-    width: 100%;
-    height: 350px;
-  }
-  
   canvas {
     width: 100%;
-    max-width: 100%;
   }
   
   /* Tabs Navigation */
@@ -165,16 +106,17 @@ body {
 
 .main-stat-container{
     background-color: white; 
-    border-radius: 15px; 
-    padding: 1.2rem 1.4rem; 
+    border-radius: 10px; 
+    padding: 1.3rem 1.1rem; 
+    flex-grow: 1;
     display: flex; 
     align-items: center;
     box-shadow: 0px 3.5px 5.5px 0px rgba(0, 0, 0, 0.05);
 }
 
-.main-stat-container:not(:has(.change-container)){
-    padding: 1.2rem 2.1rem;
-}
+/* .main-stat-container:not(:has(.change-container)){
+    padding: 0.9rem 1.6rem;
+} */
 
 .main-stat-container .stat{
     white-space: nowrap;
@@ -182,26 +124,32 @@ body {
 
 .main-stat-container .stat-value{
     color: #464549; 
-    font-size: 1rem;
+    font-size: 1.05rem;
 }
 
 .main-stat-container .stat-name{
     color: #CAC9CA; 
-    font-size: 0.9rem; 
-    margin-top: 0.6rem;
+    font-size: 0.86rem; 
+    margin-top: 0.8rem;
+}
+
+.main-stat-container img{
+  filter: invert(72%) sepia(99%) saturate(265%) hue-rotate(116deg) brightness(86%) contrast(89%);
+  height: 2.2rem;
+  margin-bottom: 0.7rem;
 }
 
 
 .main-stat-container .change-container{
-    border-radius: 15px; 
+    border-radius: 10px; 
     aspect-ratio: 1; 
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    font-size: 0.83rem;
+    font-size: 0.78rem;
     height: 100%;
-    padding: 0.67rem;
-    margin-left: 3.5rem; 
+    padding: 0.6rem;
+    margin-left: auto;
 }
 
 .main-stat-container .change-container.negative{
@@ -219,4 +167,39 @@ body {
     color: #C2C2C2;
 }
 
+.graph-container{
+  background: white; 
+  padding: 1.3rem 1.6rem; 
+  border-radius: 10px; 
+  color: #464549; 
+  font-size: 0.97rem;
+}
+
+.pie-chart-labels-container{
+  font-size: 0.9rem;
+  margin-left: 2rem;
+  margin-bottom: 1rem;
+  white-space: nowrap;
+}
+
+.pie-chart-labels-container .label-color{
+  margin-right: 0.7rem;
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.pie-chart-labels-container .label-name{
+  color: #8A8A8A;
+  padding-right: 1rem;
+}
+
+td {
+  vertical-align: top;
+}
+
+.pie-chart-labels-container .td-container {
+  display: flex; 
+  align-items: center; 
+  height: 100%;
+}
   
