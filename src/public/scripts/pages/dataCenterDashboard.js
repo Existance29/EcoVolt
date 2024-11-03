@@ -51,11 +51,11 @@ async function updateChartData(dataCenterId) {
     const selectedDate = document.getElementById('datePicker') ? document.getElementById('datePicker').value : '';
     
     // Get the dataCenterOptions element
-    const dataCenterOptions = document.getElementById('dataCenterOptions');
+    // const dataCenterOptions = document.getElementById('dataCenterOptions');
 
     if (dataCenterId === 'all') {
         // Show data center options if "All Data Centers" is selected
-        dataCenterOptions.style.display = 'flex';
+        // dataCenterOptions.style.display = 'flex';
         
         if (selectedDate) {
             await fetchTotalCarbonEmissionAndRenewableEnergyByDate(selectedDate);
@@ -63,11 +63,11 @@ async function updateChartData(dataCenterId) {
             await fetchTotalCarbonEmissionAndRenewableEnergy();
         }
         const chartData = await fetchEnergyConsumptionByCompanyId(selectedDate);
-        renderDataCenterOptions(); // Ensure the data center options are rendered
+        // renderDataCenterOptions(); // Ensure the data center options are rendered
         renderDonutChart(chartData, dataCenterId);
     } else {
         // Hide data center options for specific data center selection
-        dataCenterOptions.style.display = 'none';
+        // dataCenterOptions.style.display = 'none';
         
         if (selectedDate) {
             await fetchTotalCarbonEmissionAndRenewableEnergyByDataCenterAndDate(company_id, dataCenterId, selectedDate);
@@ -268,44 +268,44 @@ function renderDonutChart(data, dataCenterId) {
     console.log("Donut chart rendered with data:", data);
 }
 
-function renderDataCenterOptions() {
-    const optionsContainer = document.getElementById('dataCenterOptions');
-    optionsContainer.innerHTML = ''; // Clear existing options if in "All Data Centers" mode
-    console.log("Rendering data center options...");
+// function renderDataCenterOptions() {
+//     const optionsContainer = document.getElementById('dataCenterOptions');
+//     optionsContainer.innerHTML = ''; // Clear existing options if in "All Data Centers" mode
+//     console.log("Rendering data center options...");
 
-    fetch(`/Dashboard/Data-Center/${company_id}`).then(response => response.json()).then(dataCenters => {
-        dataCenters.forEach(dc => {
-            const button = document.createElement('button');
-            button.textContent = dc.data_center_name;
-            button.classList.add('data-center-button'); // Add a base class for styling
-            console.log(`Created button for: ${dc.data_center_name}`);
+//     fetch(`/Dashboard/Data-Center/${company_id}`).then(response => response.json()).then(dataCenters => {
+//         dataCenters.forEach(dc => {
+//             const button = document.createElement('button');
+//             button.textContent = dc.data_center_name;
+//             button.classList.add('data-center-button'); // Add a base class for styling
+//             console.log(`Created button for: ${dc.data_center_name}`);
 
-            // Event listener for toggling selection
-            button.addEventListener('click', async () => {
-                // Toggle selected state
-                if (button.classList.contains('selected-button')) {
-                    button.classList.remove('selected-button');
-                    selectedDataCenter = 'all';
-                    updateChartData(selectedDataCenter);
-                    console.log(`Data center unselected, showing all data centers.`);
-                } else {
-                    document.querySelectorAll('.data-center-button').forEach(btn => {
-                        btn.classList.remove('selected-button');
-                    });
-                    button.classList.add('selected-button');
-                    selectedDataCenter = dc.id.toString();
-                    console.log(`Data center button clicked, selectedDataCenter is now: ${selectedDataCenter}`);
+//             // Event listener for toggling selection
+//             button.addEventListener('click', async () => {
+//                 // Toggle selected state
+//                 if (button.classList.contains('selected-button')) {
+//                     button.classList.remove('selected-button');
+//                     selectedDataCenter = 'all';
+//                     updateChartData(selectedDataCenter);
+//                     console.log(`Data center unselected, showing all data centers.`);
+//                 } else {
+//                     document.querySelectorAll('.data-center-button').forEach(btn => {
+//                         btn.classList.remove('selected-button');
+//                     });
+//                     button.classList.add('selected-button');
+//                     selectedDataCenter = dc.id.toString();
+//                     console.log(`Data center button clicked, selectedDataCenter is now: ${selectedDataCenter}`);
                     
-                    const data = await fetchEnergyConsumptionByDataCenterId(selectedDataCenter, document.getElementById('datePicker') ? document.getElementById('datePicker').value : '');
-                    renderDonutChart(data, selectedDataCenter);
-                }
-            });
+//                     const data = await fetchEnergyConsumptionByDataCenterId(selectedDataCenter, document.getElementById('datePicker') ? document.getElementById('datePicker').value : '');
+//                     renderDonutChart(data, selectedDataCenter);
+//                 }
+//             });
 
-            optionsContainer.appendChild(button);
-        });
-        console.log("Data center options rendered.");
-    }).catch(error => console.error('Error fetching data centers:', error));
-}
+//             optionsContainer.appendChild(button);
+//         });
+//         console.log("Data center options rendered.");
+//     }).catch(error => console.error('Error fetching data centers:', error));
+// }
 
 // Fetch carbon emissions for all data centers
 async function fetchCarbonEmissionsByCompanyId() {
