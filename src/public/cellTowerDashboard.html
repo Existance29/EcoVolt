@@ -92,31 +92,22 @@
                     </div>
                 </div>
                 
-                <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
+                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; width: calc(100% - 63% - 1rem);">
                     <div class="inter-semibold graph-container" style="flex: 1 1 0; height: 0;">
                         <div class="inter-bold" style="margin-bottom: 1.2rem;">Energy Consumption Breakdown</div>
-                        <div style="display: flex; height: 100%;">
+                        <div style="display: flex; height: 100%; flex-wrap: wrap;">
                             <div style="max-height: 75%; aspect-ratio: 1; max-width: 35%;">
                                 <canvas id="energyBreakdownChart"></canvas>
                             </div>
-                            <table class="pie-chart-labels-container">
-                                <tr class="container"> 
-                                    <td>
-                                        <div class="td-container">
-                                            <div class="label-color" style="background-color: antiquewhite;"></div>
-                                            <div class="label-name inter-medium">Label:</div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="td-container">value (40%)</div>
-                                    </td>
-                                </tr>
-                                
-                            </table>
+                            <div class="pie-chart-labels-container">
+                            </div>
                         </div>
                     </div>
                     <div class="inter-semibold graph-container" style="flex: 1 1 0; height: 0;">
-                        <div class="inter-bold" style="margin-bottom: 1.2rem;">Energy Consumption Breakdown</div>
+                        <div class="inter-bold" style="margin-bottom: 1.2rem;">Renewable Energy Contribution</div>
+                        <div class="chart-container">
+                            <div class="chart inter-medium" id="renewable-energy-contribution-chart"></div>
+                        </div>
                     </div>
                 </div>
              </div>
@@ -125,6 +116,7 @@
 
     <!-- JavaScript Files -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./scripts/easyPieChart.js"></script>
     <script src="./scripts/api.js"></script>
     <script src="./scripts/utils.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

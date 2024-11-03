@@ -176,10 +176,14 @@ body {
 }
 
 .pie-chart-labels-container{
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   margin-left: 2rem;
   margin-bottom: 1rem;
   white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
 }
 
 .pie-chart-labels-container .label-color{
@@ -193,13 +197,30 @@ body {
   padding-right: 1rem;
 }
 
-td {
-  vertical-align: top;
-}
-
 .pie-chart-labels-container .td-container {
   display: flex; 
   align-items: center; 
   height: 100%;
+}
+
+.chart-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chart {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.chart canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
   

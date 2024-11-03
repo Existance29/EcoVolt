@@ -85,6 +85,21 @@ function renderDoughnutChart(element, labels, data, colors){
             cutout: "65%"
         }
     })
+
+    //render the labels for the pie chart
+    const dataSum = data.reduce((a, b) => a + b, 0)
+    const labelElement = element.parentNode.parentNode.childNodes[3]
+    let htmlOut = ""
+    for (let i = 0; i < labels.length; i++){
+        htmlOut += `
+            <div style="display: flex;"> 
+                <div class="label-color" style="background-color: ${colors[i]};"></div>
+                <div class="label-name inter-medium">${labels[i]}:</div>
+                <div class="td-container">${data[i]} (${Math.round(data[i]/dataSum*100)}%)</div>
+            </div>
+        `
+    }
+    labelElement.innerHTML = htmlOut
 }
 
 renderLineChart(document.getElementById('carbonEmissionChart'), honeyPerMin, hourArray, "#4FD1C5")
@@ -92,4 +107,23 @@ renderLineChart(document.getElementById('carbonEmissionChart'), honeyPerMin, hou
 const energyBreakdownColors = ["#263332","#485251","#4FD1C5","#95D1CB","#5BA79F"]
 const energyBreakdownLabels = ["Gathering", "Converting", "Bug Runs", "Misc"]
 const energyBreakdownData = [1,2,3,4]
-renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownColors, energyBreakdownData, energyBreakdownColors)
+renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors)
+
+const chartSize = 100
+const renewableEnergyContributionChart = document.getElementById("renewable-energy-contribution-chart")
+const perc = 50.2
+renewableEnergyContributionChart.dataset.percent = perc
+renewableEnergyContributionChart.innerText = `${Math.round(perc)}%`
+
+new EasyPieChart(renewableEnergyContributionChart, {
+    scaleLength: false,
+    animate: false,
+    lineCap: "square",
+    lineWidth: 7,
+    size: chartSize,
+    barColor: "#4FD1C5",
+    trackColor: `#4FD1C580`
+});
+
+renewableEnergyContributionChart.style.height = `${chartSize}px`
+renewableEnergyContributionChart.style.width = `${chartSize}px`
