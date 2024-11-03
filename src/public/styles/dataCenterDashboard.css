@@ -13,10 +13,13 @@ body {
 
 h1, h2 {
   color: #333;
+  font-weight: bold;
+  text-align: left;
 }
 
 h2 {
-  font-size: 14px;
+  font-size: 16px;
+  margin-bottom: 10px;
 }
 
 .dashboard-header {
@@ -25,76 +28,116 @@ h2 {
   align-items: center;
 }
 
+/* Main Container and Layout */
+.chart-container-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Top Row Layout */
 .chart-row {
   display: flex;
   gap: 20px;
-  justify-content: space-between;
-  padding: 0 20px;
 }
 
+/* Left Stack for Smaller Charts */
+.left-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 0 0 30%;
+}
+
+/* Chart Container Styling */
 .chart-container {
   background: white;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
+  text-align: center;
 }
 
-.energy-consumption-container {
-  flex: 0 0 30%;
-  max-width: 300px;
+/* General styling for small charts */
+.small-chart {
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
 }
 
-.stacked-chart-container {
+/* Shorter height for "Against Industry" chart */
+.short-chart {
+  height: 120px; /* Adjust height as needed */
+}
+
+/* Taller height for "CO2 vs Renewable Energy" chart */
+.tall-chart {
+  height: 260px; /* Adjust height as needed */
+}
+
+
+.carbon-emission-chart-container {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  height: 400px;
 }
 
-.gauge-placeholder-row {
+/* Bottom Row for Breakdown Section */
+.breakdown-row {
   display: flex;
   gap: 20px;
   justify-content: space-between;
 }
 
-.gauge-chart-container, .placeholder-chart-container {
+.breakdown-chart {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
+  padding: 15px;
+  height: 180px;
   background: white;
-  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 250px;
-  height: 150px;
+  text-align: left;
 }
 
-#carbonEmissionChart {
+#carbonEmissionChart, #againstIndustryChart, #co2VsRenewableChart {
   width: 100%;
-  height: 350px;
+  height: 100%;
 }
 
-canvas {
-  width: 100%;
-  max-width: 100%;
+/* Legend and Text Styling */
+p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #333;
 }
+
+strong {
+  color: #4FD1C5;
+  font-size: 16px;
+}
+
+
+
+
+
+
+
+
 
 /* Tabs Navigation */
 .tabs {
   display: flex;
+  justify-content: space-between;
+  align-items: center; /* Align items to center vertically */
   gap: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 10px; /* Reduce margin to bring the tabs closer to the filter */
   border-bottom: 2px solid #f0f0f0;
-  align-items: center;
 }
 
 .tabs a {
   text-decoration: none;
   color: #555;
-  padding: 10px;
+  padding: 5px 10px; /* Reduced padding for better alignment */
   font-weight: 600;
   transition: color 0.3s ease, border-bottom 0.3s ease;
 }
@@ -104,114 +147,70 @@ canvas {
   border-bottom: 3px solid #4FD1C5;
 }
 
+/* Right-Aligned Filter Section */
 .right-aligned {
   display: flex;
-  margin-left: auto;
   gap: 20px;
-  align-items: center;
+  align-items: center; /* Aligns items vertically with tabs text */
+  margin-left: auto; /* Pushes this section to the right */
 }
 
+/* Date Picker and Data Center Selector Styling */
 .date-picker, .data-center-filter {
   display: flex;
   flex-direction: column;
-  max-width: 200px;
-  font-family: Arial, sans-serif;
-  align-items: flex-start;
+  max-width: 160px;
+  align-items: flex-start; /* Align label and input together */
 }
 
 .date-picker label, .data-center-filter label {
   font-weight: bold;
   color: #333;
-  margin-bottom: 5px;
-  font-size: 14px;
-  display: block;
+  font-size: 13px;
+  margin-bottom: 2px; /* Smaller margin to bring input closer to label */
 }
 
+/* Compact Input Styling */
 .date-picker input[type="date"], .data-center-filter select {
   width: 100%;
-  padding: 10px;
-  font-size: 16px;
+  padding: 6px 10px; /* Smaller padding for compact styling */
+  font-size: 14px;
   color: #333;
-  background-color: #f9f9f9;
-  border: 2px solid #ddd;
+  background: linear-gradient(145deg, #ffffff, #f9f9f9);
+  border: 1px solid #ddd;
   border-radius: 8px;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  appearance: none;
   cursor: pointer;
 }
 
+/* Hover and Focus Effects */
 .date-picker input[type="date"]:hover, .data-center-filter select:hover {
-  border-color: #777;
+  border-color: #4FD1C5;
+  box-shadow: 0 4px 6px rgba(79, 209, 197, 0.2);
 }
 
 .date-picker input[type="date"]:focus, .data-center-filter select:focus {
-  border-color: #4A90E2;
-  box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+  border-color: #4FD1C5;
+  box-shadow: 0 4px 8px rgba(79, 209, 197, 0.3);
 }
 
-.data-center-options {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 5px;
-  margin-top: 10px;
-  max-width: 300px;
+/* Custom Arrow Icon for Select Field */
+.data-center-filter select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234FD1C5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  padding-right: 30px;
 }
 
-.data-center-options button {
-  padding: 5px 10px;
-  font-size: 12px;
-  margin: 3px;
-  background-color: #e0e0e0;
-  color: #333;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.data-center-options button.selected-button {
-  background-color: #4FD1C5;
-  color: white;
-}
-
-.chart-legend {
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 5px 10px;
-  justify-content: center;
-  margin: 5px 0;
-  font-size: 10px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  font-size: 10px;
-}
-
-.legend-color {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  margin-right: 8px;
-}
-
-.chart-container div {
-  font-size: 20px;
-  color: #333;
-  text-align: center;
-  margin-top: 10px;
-}
-
-/* Styling for No Data Message */
-.no-data-message {
-  display: none;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  color: #000000;
-  background-color: #f4f4f9;
-  text-align: center;
-  padding: 50px;
+/* Icon for Date Picker */
+.date-picker input[type="date"] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234FD1C5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  padding-right: 30px;
 }
