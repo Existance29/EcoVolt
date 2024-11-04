@@ -85,27 +85,29 @@ function renderDoughnutChart(element, labels, data, colors){
             cutout: "65%"
         }
     })
-
     //render the labels for the pie chart
     const dataSum = data.reduce((a, b) => a + b, 0)
     const labelElement = element.parentNode.parentNode.childNodes[3]
-    let htmlOut = ""
+    const [labelColumn, valueColumn] = labelElement.children
+    labelColumn.innerHTML = ""
+    valueColumn.innerHTML = ""
     for (let i = 0; i < labels.length; i++){
-        htmlOut += `
+        labelColumn.innerHTML += `
             <div style="display: flex;"> 
                 <div class="label-color" style="background-color: ${colors[i]};"></div>
-                <div class="label-name inter-medium">${labels[i]}:</div>
-                <div class="td-container">${data[i]} (${Math.round(data[i]/dataSum*100)}%)</div>
+                <div class="label-name inter-semibold">${labels[i]}:</div>
             </div>
         `
+
+        valueColumn.innerHTML += `<div class="label-value inter-medium">${data[i]} (${Math.round(data[i]/dataSum*100)}%)</div>`
+
     }
-    labelElement.innerHTML = htmlOut
 }
 
 renderLineChart(document.getElementById('carbonEmissionChart'), honeyPerMin, hourArray, "#4FD1C5")
 
 const energyBreakdownColors = ["#263332","#485251","#4FD1C5","#95D1CB","#5BA79F"]
-const energyBreakdownLabels = ["Gathering", "Converting", "Bug Runs", "Misc"]
+const energyBreakdownLabels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"]
 const energyBreakdownData = [1,2,3,4]
 renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors)
 
@@ -122,7 +124,7 @@ new EasyPieChart(renewableEnergyContributionChart, {
     lineWidth: 7,
     size: chartSize,
     barColor: "#4FD1C5",
-    trackColor: `#4FD1C580`
+    trackColor: `#CAC9CA80`
 });
 
 renewableEnergyContributionChart.style.height = `${chartSize}px`

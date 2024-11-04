@@ -181,9 +181,9 @@ body {
   margin-bottom: 1rem;
   white-space: nowrap;
   display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.8rem;
   margin-top: 0.6rem;
+  flex-wrap: nowrap;
 }
 
 .pie-chart-labels-container .label-color{
@@ -193,17 +193,21 @@ body {
 }
 
 .pie-chart-labels-container .label-name{
-  color: #8A8A8A;
   padding-right: 1rem;
 }
 
-.pie-chart-labels-container .td-container {
-  display: flex; 
-  align-items: center; 
-  height: 100%;
+.pie-chart-labels-container .label-value {
+  color: #8A8A8A;
+}
+
+.pie-chart-labels-container .column{
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .chart-container{
+  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
