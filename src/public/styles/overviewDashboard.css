@@ -23,44 +23,6 @@ body {
     overflow-y: auto;
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-}
-
-.breadcrumbs {
-    color: #999;
-}
-
-.header h1 {
-    margin: 5px 0 0 0;
-    color: #333;
-    font-size: 1.5em;
-}
-
-.search-signin {
-    display: flex;
-    align-items: center;
-}
-
-.search-signin input {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    margin-right: 10px;
-}
-
-.search-signin button {
-    background: #4FD1C5;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
 /* Overview Cards */
 .overview {
     display: flex;
