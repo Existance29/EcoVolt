@@ -173,6 +173,7 @@ body {
   border-radius: 10px; 
   color: #464549; 
   font-size: 0.97rem;
+  box-shadow: 0px 3.5px 5.5px 0px rgba(0, 0, 0, 0.05);
 }
 
 .pie-chart-labels-container{
