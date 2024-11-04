@@ -77,7 +77,7 @@
             <div class="chart-container small-chart tall-chart">
                 <h2>CO2 vs Renewable Energy</h2>
                 <canvas id="co2VsRenewableChart"></canvas>
-            </div>
+            </div>            
         </div>        
 
         <!-- Right Large Line Graph -->
@@ -90,13 +90,32 @@
     <!-- Bottom Row: Breakdown Section -->
     <div class="breakdown-row">
         <div class="chart-container breakdown-chart">
-            <h2>Co2 Breakdown</h2>
+            <h2>CO2 Breakdown</h2>
             <div id="co2-breakdown-content">
-                <p>Overall Change Against Benchmark: <strong>+3%</strong></p>
-                <p>Last Period: <strong>176,874 kg CO₂e</strong></p>
-                <p>This Period: <strong>168,866 kg CO₂e</strong></p>
+                <div class="change-indicator">
+                    <span id="change-percentage" class="change-percentage">0%</span>
+                    <span> = </span>
+                    <span class="equivalent-text">Equivalent to <span id="equivalent-cars">0</span> cars off the road per year</span>
+                </div>
+                <div class="period-comparison">
+                    <div class="last-period">
+                        <span>Last Period <span id="last-period-change">0%</span></span>
+                        <div class="icon-container">
+                            <img src="footprint-icon.png" alt="Footprint Icon" class="icon gray-icon" />
+                        </div>
+                        <div class="co2-amount" id="last-period-co2">0 kg CO₂e</div>
+                    </div>
+                    <div class="this-period">
+                        <span>This Period</span>
+                        <div class="icon-container">
+                            <img src="footprint-icon.png" alt="Footprint Icon" class="icon green-icon" />
+                        </div>
+                        <div class="co2-amount" id="this-period-co2">0 kg CO₂e</div>
+                    </div>
+                </div>
             </div>
         </div>
+        
         <div class="chart-container breakdown-chart">
             <h2>Energy Consumption Breakdown</h2>
             <div id="energy-consumption-content">
@@ -116,7 +135,8 @@
 
     <!-- JavaScript Files -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="./scripts/api.js"></script>
     <script src="./scripts/utils.js"></script>

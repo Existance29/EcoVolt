@@ -16,7 +16,7 @@ const dataCenterDashboardRoute = (app) => {
     app.get('/Dashboard/Data-Center/CarbonEmission/company/:company_id', dataCenterDashboardController.getAllCarbonEmissionByCompanyId);
     app.get('/Dashboard/Data-Center/CarbonEmission/data-center/:data_center_id', dataCenterDashboardController.getAllCarbonEmissionByDataCenterId);
     app.get('/Dashboard/Data-Center/CarbonEmission/company/:company_id/date', dataCenterDashboardController.getAllCarbonEmissionByCompanyIdAndDate);
-    // app.get('/Dashboard/Data-Center/CarbonEmission/data-center/:data_center_id/date', dataCenterDashboardController.getAllCarbonEmissionByDataCenterAndDate);
+    app.get('/Dashboard/Data-Center/CarbonEmission/data-center/:data_center_id/date', dataCenterDashboardController.getAllCarbonEmissionByDataCenterAndDate);
 
 
     app.get('/Dashboard/Data-Center/CarbonEmissionRenewableEnergyValue/company/:company_id', dataCenterDashboardController.getAllSumOfCarbonEmissionByCompanyId);

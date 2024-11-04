@@ -168,10 +168,10 @@ const getAllCarbonEmissionByDataCenterId = async (req, res) => {
 // };
 
 const getAllCarbonEmissionByCompanyIdAndDate = async (req, res) => {
-    const companyId = parseInt(req.params.companyId);
+    const companyId = parseInt(req.params.company_id);
     const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
 
-    // Check if companyId and date are provided
+        // Check if companyId and date are provided
     if (!companyId || !date) {
         return res.status(400).send("companyId and date (in YYYY-MM-DD format) are required.");
     }
@@ -189,6 +189,28 @@ const getAllCarbonEmissionByCompanyIdAndDate = async (req, res) => {
     }
 };
 
+const getAllCarbonEmissionByDataCenterAndDate = async (req, res) => {
+    const data_center_id = parseInt(req.params.data_center_id);
+    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+    console.log(data_center_id, " HI ", date);
+    // Check if companyId and date are provided
+    if (!data_center_id || !date) {
+        return res.status(400).send("data_center_id and date (in YYYY-MM-DD format) are required.");
+    }
+
+    try {
+        // Call the model function to fetch data by companyId, month, and year
+        const data = await dataCenterDashboard.getAllCarbonEmissionByDataCenterAndDate(data_center_id, date);
+        if (!data) {
+            return res.status(404).send("No carbon emission data found for this company on the specified date.");
+        }
+        console.log(data);
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Failed to retrieve carbon emission data: Internal Server Error.");
+    }
+};
 
 const getAllSumOfCarbonEmissionByCompanyId = async (req, res) => {
     const companyId = parseInt(req.params.company_id);
@@ -320,8 +342,8 @@ module.exports = {
 
     getAllCarbonEmissionByCompanyId, // if all data center and no date
     getAllCarbonEmissionByDataCenterId, // if specified data center and no date
-    // getAllCarbonEmissionByDataCenterAndDate, // if specified date and data center
     getAllCarbonEmissionByCompanyIdAndDate, // if user selects date and all data center
+    getAllCarbonEmissionByDataCenterAndDate,
 
 
 
