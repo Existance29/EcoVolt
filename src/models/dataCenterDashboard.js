@@ -286,8 +286,13 @@ static async getTotalEnergyConsumptionByCompanyIdAndDate(company_id, startDate, 
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
-                SELECT * FROM data_center_energy_consumption
-                WHERE data_center_id = @data_center_id
+            SELECT 
+                AVG(it_energy_mwh) AS it_energy_mwh,
+                AVG(cooling_energy_mwh) AS cooling_energy_mwh,
+                AVG(backup_power_energy_mwh) AS backup_power_energy_mwh,
+                AVG(lighting_energy_mwh) AS lighting_energy_mwh
+            FROM data_center_energy_consumption
+            WHERE data_center_id = @data_center_id
             `;
             const request = connection.request();
             request.input('data_center_id', sql.Int, data_center_id);
@@ -305,10 +310,15 @@ static async getTotalEnergyConsumptionByCompanyIdAndDate(company_id, startDate, 
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
-                SELECT e.* FROM data_center_energy_consumption AS e
-                INNER JOIN data_centers AS d ON e.data_center_id = d.id
-                WHERE d.company_id = @company_id
-                AND CONVERT(date, e.date) BETWEEN @startDate AND @endDate
+            SELECT 
+                AVG(e.it_energy_mwh) AS it_energy_mwh,
+                AVG(e.cooling_energy_mwh) AS cooling_energy_mwh,
+                AVG(e.backup_power_energy_mwh) AS backup_power_energy_mwh,
+                AVG(e.lighting_energy_mwh) AS lighting_energy_mwh
+            FROM data_center_energy_consumption AS e
+            INNER JOIN data_centers AS d ON e.data_center_id = d.id
+            WHERE d.company_id = @company_id
+            AND CONVERT(date, e.date) BETWEEN @startDate AND @endDate
             `;
             const request = connection.request();
             request.input('company_id', company_id);
@@ -644,6 +654,38 @@ static async getTotalCarbonEmissionByDataCenterIdAndDate(data_center_id, startDa
             if (connection) await connection.close();
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// static async getRenewableEnergyContributionByCompanyId() {
+//     let connection;
+//     try{
+//         connection = await sql.connect(dbConfig);
+//         const sqlQuery = `
+        
+//         `;
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
 
 
 
