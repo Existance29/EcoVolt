@@ -1,0 +1,55 @@
+<!--main header-->
+<div class="breadcrumbs">
+    <p>Pages / Dashboard</p>
+    <h1>Overview</h1>
+</div>
+<div class="search-signin">
+    <input type="text" placeholder="Search">
+    <button>Sign In</button>
+</div>
+<style>
+    .mainHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .breadcrumbs {
+        color: #999;
+    }
+
+    .mainHeader h1 {
+        margin: 5px 0 0 0;
+        color: #333;
+        font-size: 1.5em;
+    }
+
+    .search-signin {
+        display: flex;
+        align-items: center;
+    }
+
+    .search-signin input {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        margin-right: 10px;
+    }
+
+    .search-signin button {
+        background: #4FD1C5;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+<script>
+    const header = document.querySelector(".mainHeader")
+    const headerTitle = header.dataset.title
+    const breadCrumb = header.dataset.breadcrumb
+    document.querySelector(".mainHeader .breadcrumbs p").innerText = breadCrumb
+    document.querySelector(".mainHeader .breadcrumbs h1").innerText = headerTitle
+</script>
