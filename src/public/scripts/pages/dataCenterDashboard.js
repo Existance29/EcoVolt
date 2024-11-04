@@ -7,7 +7,7 @@ const dataCenterDropdown = document.getElementById("dataCenterDropdown");
 
 // Initialize chart instances
 let carbonEmissionChart;
-let co2VsRenewableChart;
+let energyBreakdownChart;
 
 // Event listeners to handle changes in the date or data center dropdown
 datePicker.addEventListener("change", fetchData);
@@ -58,18 +58,33 @@ async function fetchData() {
     console.log("fetchData called with:", { selectedDate, selectedDataCenter });
 
     if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
+        // No date, fetch totals for all data centers under the company
         await fetchAllCarbonEmissionByCompanyId();
+        await fetchTotalCarbonEmissionByCompanyId();
+        await fetchTotalEnergyConsumptionByCompanyId(); // Fetch energy consumption for the company
+        await fetchEnergyConsumptionBreakdownByCompanyId(); // Fetch energy breakdown for the company
     } else if (!selectedDate && selectedDataCenter !== "all") {
+        // No date, fetch totals for a specific data center
         await fetchAllCarbonEmissionByDataCenterId(selectedDataCenter);
+        await fetchTotalCarbonEmissionByDataCenterId(selectedDataCenter);
+        await fetchTotalEnergyConsumptionByDataCenterId(selectedDataCenter); // Fetch energy consumption for the data center
+        await fetchEnergyConsumptionBreakdownByDataCenterId(selectedDataCenter); // Fetch energy breakdown for the data center
     } else if (selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
+        // With date, fetch totals for the company by date
         await fetchAllCarbonEmissionByCompanyIdAndDate(selectedDate);
+        await fetchTotalCarbonEmissionByCompanyIdAndDate();
+        await fetchTotalEnergyConsumptionByCompanyIdAndDate(); // Fetch energy consumption for the company by date
+        await fetchEnergyConsumptionBreakdownByCompanyIdAndDate(selectedDate); // Fetch energy breakdown for the company by date
     } else if (selectedDate && selectedDataCenter !== "all") {
+        // With date, fetch totals for a specific data center by date
         await fetchAllCarbonEmissionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
+        await fetchTotalCarbonEmissionByDataCenterIdAndDate(selectedDataCenter);
+        await fetchTotalEnergyConsumptionByDataCenterIdAndDate(selectedDataCenter); // Fetch energy consumption for the data center by date
+        await fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(selectedDataCenter, selectedDate); // Fetch energy breakdown for the data center by date
     }
-
-    // Fetch CO2 vs Renewable data for gauge chart
-    await fetchCo2VsRenewableData(selectedDate, selectedDataCenter);
 }
+
+
 
 
 
@@ -150,6 +165,7 @@ async function fetchAllCarbonEmissionByDataCenterIdAndDate(data_center_id, date)
         console.error("Error fetching carbon emission data for specific data center by date:", error);
     }
 }
+
 function renderChart(data) {
     console.log("Rendering chart with data:", data);
 
@@ -232,170 +248,286 @@ function renderChart(data) {
 
 
 
-// Function to fetch and display CO2 vs Renewable Energy data for the gauge chart
-async function fetchCo2VsRenewableData(selectedDate, selectedDataCenter) {
+// Function to fetch total carbon emissions for the company
+async function fetchTotalCarbonEmissionByCompanyId() {
     try {
-        let url;
-        if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
-            url = `/Dashboard/Data-Center/CarbonEmissionRenewableEnergyValue/company/${company_id}`;
-        } else if (!selectedDate && selectedDataCenter !== "all") {
-            url = `/Dashboard/Data-Center/CarbonEmissionRenewableEnergyValue/company/${company_id}/${selectedDataCenter}`;
-        } else if (selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
-            url = `/Dashboard/Data-Center/CarbonEmissionRenewableEnergyValue/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`;
-        } else if (selectedDate && selectedDataCenter !== "all") {
-            url = `/Dashboard/Data-Center/CarbonEmissionRenewableEnergyValue/company/${company_id}/${selectedDataCenter}/date?date=${encodeURIComponent(selectedDate)}`;
-        }
-
-        const response = await fetch(url);
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/company/${company_id}`);
         const data = await response.json();
-        console.log("Data received for CO2 vs Renewable Energy gauge chart:", data);
-
-        renderGaugeChart(data);
+        console.log("Total Carbon Emission data for company:", data);
+        
+        // Update the total emissions display in the stat-value element
+        document.getElementById("totalCarbonEmissions").textContent = `${data.total_co2_emissions} Tons`;
+        
     } catch (error) {
-        console.error("Error fetching CO2 vs Renewable Energy data:", error);
+        console.error("Error fetching total carbon emission data for company:", error);
     }
 }
-// Function to render the gauge chart for CO2 vs Renewable Energy
-function renderGaugeChart(data) {
-    console.log("Rendering gauge chart with data:", data);
 
-    const totalCO2 = data.total_co2_emissions || 0;
-    const renewableEnergy = data.total_renewable_energy_value || 0;
-    const total = totalCO2 + renewableEnergy;
+// Function to fetch total carbon emissions for a specific data center
+async function fetchTotalCarbonEmissionByDataCenterId(data_center_id) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}`);
+        const data = await response.json();
+        console.log("Total Carbon Emission data for data center:", data);
+        
+        // Update the total emissions display in the stat-value element
+        document.getElementById("totalCarbonEmissions").textContent = `${data.total_co2_emissions} Tons`;
+        
+    } catch (error) {
+        console.error("Error fetching total carbon emission data for data center:", error);
+    }
+}
 
-    const renewablePercentage = total > 0 ? (renewableEnergy / total) * 100 : 0;
+// Function to fetch total carbon emissions for the company using the selected date
+async function fetchTotalCarbonEmissionByCompanyIdAndDate() {
+    const selectedDate = datePicker.value; // Get the selected date from the date picker
 
-    const ctx = document.getElementById("co2VsRenewableChart").getContext("2d");
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        const data = await response.json();
+        console.log("Total Carbon Emission data for company by date:", data);
 
-    if (co2VsRenewableChart) {
-        co2VsRenewableChart.destroy();
+        // Update the total emissions display in the stat-value element
+        document.getElementById("totalCarbonEmissions").textContent = `${data.total_co2_emissions} Tons`;
+        
+    } catch (error) {
+        console.error("Error fetching total carbon emission data for company by date:", error);
+    }
+}
+
+// Function to fetch total carbon emissions for a specific data center using the selected date
+async function fetchTotalCarbonEmissionByDataCenterIdAndDate(data_center_id) {
+    const selectedDate = datePicker.value; // Get the selected date from the date picker
+
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        const data = await response.json();
+        console.log("Total Carbon Emission data for data center by date:", data);
+
+        // Update the total emissions display in the stat-value element
+        document.getElementById("totalCarbonEmissions").textContent = `${data.total_co2_emissions} Tons`;
+        
+    } catch (error) {
+        console.error("Error fetching total carbon emission data for data center by date:", error);
+    }
+}
+
+
+
+
+
+
+
+
+// Function to fetch total energy consumption for the company
+async function fetchTotalEnergyConsumptionByCompanyId() {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/${company_id}`);
+        const data = await response.json();
+        console.log("Total Energy Consumption data for company:", data);
+        
+        // Update the total energy consumption display in the stat-value element
+        document.getElementById("totalEnergyConsumption").textContent = `${data.total_energy_consumption} MWh`;
+    } catch (error) {
+        console.error("Error fetching total energy consumption data for company:", error);
+    }
+}
+
+// Function to fetch total energy consumption for a specific data center
+async function fetchTotalEnergyConsumptionByDataCenterId(data_center_id) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}`);
+        const data = await response.json();
+        console.log("Total Energy Consumption data for data center:", data);
+        
+        // Update the total energy consumption display in the stat-value element
+        document.getElementById("totalEnergyConsumption").textContent = `${data.total_energy_consumption} MWh`;
+    } catch (error) {
+        console.error("Error fetching total energy consumption data for data center:", error);
+    }
+}
+
+// Function to fetch total energy consumption for the company using the selected date
+async function fetchTotalEnergyConsumptionByCompanyIdAndDate() {
+    const selectedDate = datePicker.value; // Get the selected date from the date picker
+
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        const data = await response.json();
+        console.log("Total Energy Consumption data for company by date:", data);
+
+        // Update the total energy consumption display in the stat-value element
+        document.getElementById("totalEnergyConsumption").textContent = `${data.total_energy_consumption} MWh`;
+    } catch (error) {
+        console.error("Error fetching total energy consumption data for company by date:", error);
+    }
+}
+// Function to fetch total energy consumption for a specific data center using the selected date
+async function fetchTotalEnergyConsumptionByDataCenterIdAndDate(data_center_id) {
+    const selectedDate = datePicker.value; // Get the selected date from the date picker
+
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        const data = await response.json();
+        console.log("Total Energy Consumption data for data center by date:", data);
+
+        // Update the total energy consumption display in the stat-value element
+        document.getElementById("totalEnergyConsumption").textContent = `${data.total_energy_consumption} MWh`;
+    } catch (error) {
+        console.error("Error fetching total energy consumption data for data center by date:", error);
+    }
+}
+
+
+
+
+
+
+
+
+// Function to fetch energy consumption breakdown for the company
+async function fetchEnergyConsumptionBreakdownByCompanyId() {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}`);
+        const data = await response.json();
+        console.log("Energy Breakdown data for company:", data);
+        renderEnergyBreakdownChart(data); // Render the doughnut chart with the fetched data
+    } catch (error) {
+        console.error("Error fetching energy breakdown data for company:", error);
+    }
+}
+
+// Function to fetch energy consumption breakdown for a specific data center
+async function fetchEnergyConsumptionBreakdownByDataCenterId(data_center_id) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${data_center_id}`);
+        const data = await response.json();
+        console.log("Energy Breakdown data for data center:", data);
+        renderEnergyBreakdownChart(data);
+    } catch (error) {
+        console.error("Error fetching energy breakdown data for data center:", error);
+    }
+}
+
+// Function to fetch energy consumption breakdown for the company using the selected date
+async function fetchEnergyConsumptionBreakdownByCompanyIdAndDate(date) {
+    const formattedDate = new Date(date).toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}/date?date=${encodeURIComponent(formattedDate)}`);
+        const data = await response.json();
+        console.log("Energy Breakdown data for company by date:", data);
+        renderEnergyBreakdownChart(data);
+    } catch (error) {
+        console.error("Error fetching energy breakdown data for company by date:", error);
+    }
+}
+
+// Function to fetch energy consumption breakdown for a specific data center using the selected date
+async function fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(data_center_id, date) {
+    const formattedDate = new Date(date).toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${data_center_id}/date?date=${encodeURIComponent(formattedDate)}`);
+        const data = await response.json();
+        console.log("Energy Breakdown data for data center by date:", data);
+        renderEnergyBreakdownChart(data);
+    } catch (error) {
+        console.error("Error fetching energy breakdown data for data center by date:", error);
+    }
+}
+
+
+// Function to render the energy breakdown chart
+function renderEnergyBreakdownChart(data) {
+    console.log("Rendering energy breakdown chart with data:", data);
+
+    const energyData = data[0];
+    if (!energyData) {
+        console.warn("No energy data available for breakdown chart.");
+        return;
     }
 
-    co2VsRenewableChart = new Chart(ctx, {
+    const labels = ["Backup Power", "Cooling", "IT Equipment", "Lighting"];
+    const values = [
+        energyData.backup_power_energy_mwh,
+        energyData.cooling_energy_mwh,
+        energyData.it_energy_mwh,
+        energyData.lighting_energy_mwh
+    ];
+
+    const total = values.reduce((acc, val) => acc + val, 0);
+
+    const ctx = document.getElementById("energyBreakdownChart").getContext("2d");
+
+    // Destroy previous chart instance if it exists
+    if (window.energyBreakdownChart && typeof window.energyBreakdownChart.destroy === "function") {
+        window.energyBreakdownChart.destroy();
+    }
+
+    // Create a new doughnut chart with Chart.js
+    window.energyBreakdownChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Renewable Energy', 'CO2 Emissions'],
+            labels: labels,
             datasets: [{
-                data: [renewablePercentage, 100 - renewablePercentage],
-                backgroundColor: ['#4FD1C5', '#F56565'],
-                borderWidth: 2,
-                borderColor: '#ffffff'
+                label: 'Energy Consumption (MWh)',
+                data: values,
+                backgroundColor: [
+                    '#2F3E46',  // Dark grey
+                    '#4E5D63',  // Grey
+                    '#38B2AC',  // Teal
+                    '#A8DADC'   // Light teal
+                ],
+                borderColor: '#ffffff',
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false, // Ensures it fills the container
-            cutout: '75%',
-            rotation: -90,
-            circumference: 180,
-            layout: {
-                padding: 0
-            },
+            maintainAspectRatio: true,
             plugins: {
-                legend: {
-                    display: true,
-                    position: 'right',
-                    labels: {
-                        boxWidth: 15,
-                        padding: 5,
-                        font: {
-                            size: 12
-                        },
-                        generateLabels: (chart) => {
-                            const data = chart.data.datasets[0].data;
-                            return [
-                                {
-                                    text: [`Renewable Energy`, `${renewableEnergy.toFixed(2)} tons`],
-                                    fillStyle: '#4FD1C5',
-                                },
-                                {
-                                    text: [`CO2 Emissions`, `${totalCO2.toFixed(2)} tons`],
-                                    fillStyle: '#F56565',
-                                }
-                            ];
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} MWh (${percentage}%)`;
                         }
                     }
-                },
-                tooltip: {
-                    enabled: false
                 }
-            }
+            },
+            layout: { padding: 10 }
         }
+    });
+
+    // Custom Legend Rendering
+    const legendContainer = document.querySelector(".pie-chart-labels-container");
+    legendContainer.innerHTML = '';
+    labels.forEach((label, index) => {
+        const color = window.energyBreakdownChart.data.datasets[0].backgroundColor[index];
+        const value = values[index];
+        const percentage = ((value / total) * 100).toFixed(1);
+
+        const legendItem = document.createElement("div");
+        legendItem.classList.add("legend-item");
+        legendItem.innerHTML = `
+            <span class="label-color" style="background-color: ${color}; width: 14px; height: 14px; display: inline-block; margin-right: 8px;"></span>
+            <span class="label-name">${label}:</span>
+            <span class="label-value">${value} MWh (${percentage}%)</span>
+        `;
+        legendContainer.appendChild(legendItem);
     });
 }
 
-
-
-// Function to fetch CO2 Breakdown data
-// Fetch and update CO2 Breakdown data
-async function fetchCO2Breakdown() {
-    try {
-        let url = `/Dashboard/Data-Center/CarbonEmission/company/${company_id}`; // Replace this as needed
-
-        // Fetch the data
-        const response = await fetch(url);
-        const data = await response.json();
-        
-        if (data.length >= 2) { // Ensure we have data for at least two periods
-            displayCO2Breakdown(data);
-        } else {
-            console.error("Insufficient data for CO2 Breakdown.");
-        }
-    } catch (error) {
-        console.error('Error fetching CO2 Breakdown:', error);
-    }
-}
-
-// Display the CO2 Breakdown in the HTML
-function displayCO2Breakdown(data) {
-    // Assuming the most recent data is at the end of the array
-    const thisPeriod = data[data.length - 1].co2_emissions_tons;
-    const lastPeriod = data[data.length - 2].co2_emissions_tons;
-    const changePercentage = ((lastPeriod - thisPeriod) / lastPeriod * 100).toFixed(2);
-    const equivalentCars = Math.round(changePercentage / 3); // Adjust this factor as needed for conversion
-
-    // Update elements in the HTML
-    document.getElementById('change-percentage').textContent = `${changePercentage > 0 ? '↓' : '↑'}${Math.abs(changePercentage)}%`;
-    document.getElementById('equivalent-cars').textContent = equivalentCars;
-    document.getElementById('last-period-co2').textContent = `${lastPeriod.toLocaleString()} kg CO₂e`;
-    document.getElementById('this-period-co2').textContent = `${thisPeriod.toLocaleString()} kg CO₂e`;
-    document.getElementById('last-period-change').textContent = `${changePercentage}%`;
-
-    // Update styles based on positive or negative change
-    document.getElementById('change-percentage').className = changePercentage > 0 ? 'increase' : 'decrease';
-    document.getElementById('last-period-change').className = changePercentage > 0 ? 'increase' : 'decrease';
-}
-
-// Load CO2 breakdown data on page load
-document.addEventListener('DOMContentLoaded', fetchCO2Breakdown);
-
-
-// Function to update the CO2 Breakdown section
-function updateCO2Breakdown(data) {
-    const lastPeriodCO2 = data.lastPeriodCO2 || 0;
-    const thisPeriodCO2 = data.thisPeriodCO2 || 0;
-
-    // Calculate percentage change
-    const changePercentage = lastPeriodCO2 > 0 ? ((thisPeriodCO2 - lastPeriodCO2) / lastPeriodCO2) * 100 : 0;
-    const equivalentCars = Math.round((lastPeriodCO2 - thisPeriodCO2) / 4170); // Example conversion rate
-
-    // Update the DOM elements with the fetched data
-    document.getElementById('change-percentage').textContent = `${changePercentage > 0 ? '↓' : '↑'}${Math.abs(changePercentage).toFixed(2)}%`;
-    document.getElementById('equivalent-cars').textContent = equivalentCars;
-    document.getElementById('last-period-change').textContent = `${changePercentage.toFixed(2)}%`;
-    document.getElementById('last-period-co2').textContent = `${lastPeriodCO2.toLocaleString()} kg CO₂e`;
-    document.getElementById('this-period-co2').textContent = `${thisPeriodCO2.toLocaleString()} kg CO₂e`;
-
-    // Set colors based on increase or decrease
-    document.getElementById('change-percentage').classList.toggle('positive', changePercentage > 0);
-    document.getElementById('change-percentage').classList.toggle('negative', changePercentage < 0);
-}
 
 
 // Load data centers and chart on page load
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM fully loaded, initializing data center options...");
     await loadDataCenterOptions(); // Load data centers when the page loads
-    fetchData(); // Call fetchData to load the initial chart data based on filters
-    fetchCO2Breakdown(); // Load the CO2 breakdown data
+    fetchData(); 
 });
+
+
+

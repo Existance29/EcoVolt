@@ -30,16 +30,7 @@
         <!-- Main Content Area -->
         <main class="main-content">
             <!-- Header Section -->
-            <header class="header">
-                <div class="breadcrumbs">
-                    <p>Dashboard / Data Center </p>
-                    <!-- <h1>Data Center</h1> -->
-                </div>
-                <!-- <div class="search-signin">
-                    <input type="text" placeholder="Search" aria-label="Search">
-                    <button>Sign In</button>
-                </div> -->
-            </header>
+            <header class="mainHeader" data-title="Cell Tower" data-breadcrumb="Pages / Dashboard"></header>
 
             <!-- Tabs Navigation -->
             <nav class="tabs" aria-label="Dashboard Tabs">
@@ -65,78 +56,72 @@
                 <p>No Data Recorded on this Date</p>
             </div>
 
-<!-- Main Chart Content -->
-<div class="chart-container-wrapper" id="chartContainerWrapper">
-    <div class="chart-row">
-        <!-- Left Column Stack: Against Industry & CO2 vs Renewable Energy -->
-        <div class="left-stack">
-            <div class="chart-container small-chart short-chart">
-                <h2>Against Industry</h2>
-                <canvas id="againstIndustryChart"></canvas>
-            </div>
-            <div class="chart-container small-chart tall-chart">
-                <h2>CO2 vs Renewable Energy</h2>
-                <canvas id="co2VsRenewableChart"></canvas>
-            </div>            
-        </div>        
-
-        <!-- Right Large Line Graph -->
-        <div class="chart-container carbon-emission-chart-container">
-            <h2>Carbon Emission Overview</h2>
-            <canvas id="carbonEmissionChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Bottom Row: Breakdown Section -->
-    <div class="breakdown-row">
-        <div class="chart-container breakdown-chart">
-            <h2>CO2 Breakdown</h2>
-            <div id="co2-breakdown-content">
-                <div class="change-indicator">
-                    <span id="change-percentage" class="change-percentage">0%</span>
-                    <span> = </span>
-                    <span class="equivalent-text">Equivalent to <span id="equivalent-cars">0</span> cars off the road per year</span>
-                </div>
-                <div class="period-comparison">
-                    <div class="last-period">
-                        <span>Last Period <span id="last-period-change">0%</span></span>
-                        <div class="icon-container">
-                            <img src="footprint-icon.png" alt="Footprint Icon" class="icon gray-icon" />
+            <!-- Main Chart Content -->
+            <div style="display: flex; gap: 1rem; max-height: 70vh; height: 70vh;">
+                <div style="display: flex; flex-direction: column; gap: 1rem; width: 63%; flex-grow: 2;">
+                    <div style="display: flex; width: 100%; gap: 1.1rem; flex-wrap: wrap;">
+                        <div class="main-stat-container">
+                            <div class="stat">
+                                <img src="assets/dashboard/cell-tower.png" alt="Cell Tower Icon">
+                                <div class="inter-bold stat-value">Off-Grid</div>
+                                <div class="inter-medium stat-name">Cell Tower Type</div>
+                            </div>
                         </div>
-                        <div class="co2-amount" id="last-period-co2">0 kg CO₂e</div>
+                        <div class="main-stat-container">
+                            <div class="stat">
+                                <img src="assets/dashboard/carbon-emission.png" alt="Carbon Emission Icon">
+                                <div id="totalCarbonEmissions" class="inter-bold stat-value">0 Tons</div> <!-- This will be updated dynamically -->
+                                <div class="inter-medium stat-name">Total Carbon Emissions</div>
+                            </div>
+                        </div>                        
+                        <div class="main-stat-container">
+                            <div class="stat">
+                                <img src="assets/dashboard/energy-consumption.png" alt="Energy Consumption Icon">
+                                <div class="inter-bold stat-value" id="totalEnergyConsumption">0 MWh</div>
+                                <div class="inter-medium stat-name">Total Energy Consumption</div>
+                            </div>
+                        </div>
+                                              
                     </div>
-                    <div class="this-period">
-                        <span>This Period</span>
-                        <div class="icon-container">
-                            <img src="footprint-icon.png" alt="Footprint Icon" class="icon green-icon" />
+
+                    <div class="inter-semibold graph-container" style="flex-grow: 1; display: flex; flex-direction: column;">
+                        <div class="chart-container carbon-emission-chart-container">
+                            <h2>Carbon Emission Overview</h2>
+                            <canvas id="carbonEmissionChart"></canvas>
                         </div>
-                        <div class="co2-amount" id="this-period-co2">0 kg CO₂e</div>
                     </div>
                 </div>
+                
+                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; width: 37%;">
+                    <div class="inter-semibold graph-container">
+                        <div class="inter-bold" style="margin-bottom: 1.2rem;">Energy Consumption Breakdown</div>
+                        <div style="display: flex; height: 100%; flex-wrap: wrap;">
+                            <div style="max-height: 75%; aspect-ratio: 1; max-width: 35%;">
+                                <canvas id="energyBreakdownChart"></canvas>
+                            </div>
+                            <div class="pie-chart-labels-container">
+                                <div class="column"></div>
+                                <div class="column"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="inter-semibold graph-container carbon-emission-chart-container" style="flex-grow: 1; display: flex; flex-direction: column;">
+                        <h2>Carbon Emission Overview</h2>
+                        <div style="position: relative; height: 100%; max-height: 400px;">
+                            <canvas id="carbonEmissionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                </div>
             </div>
-        </div>
-        
-        <div class="chart-container breakdown-chart">
-            <h2>Energy Consumption Breakdown</h2>
-            <div id="energy-consumption-content">
-                <p>Per Employee</p>
-                <p>Benchmark: <strong>226.08 kg CO₂e</strong></p>
-                <p>This Period: <strong>12.79%</strong></p>
-            </div>
-        </div>
-        <div class="chart-container breakdown-chart">
-            <h2>Total Carbon in Energy</h2>
-            <div id="total-carbon-content">
-                <p>Loading...</p>
-            </div>
-        </div>
+        </main>
     </div>
-</div>
 
     <!-- JavaScript Files -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="./scripts/api.js"></script>
     <script src="./scripts/utils.js"></script>

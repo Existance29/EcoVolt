@@ -83,6 +83,178 @@ class dataCenterDashboard {
     }
        
 
+    // In dataCenterDashboard.js (or wherever your model functions are defined)
+static async getLastDate(companyId) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+            SELECT MAX(date) AS lastDate
+            FROM data_center_carbon_emissions
+            INNER JOIN data_centers ON data_center_carbon_emissions.data_center_id = data_centers.id
+            WHERE data_centers.company_id = @company_id
+        `;
+        const request = connection.request();
+        request.input('company_id', companyId);
+        const result = await request.query(sqlQuery);
+        return result.recordset[0]?.lastDate || null;
+    } catch (error) {
+        throw new Error("Error retrieving the last date");
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+
+// In dataCenterDashboard.js (model file)
+static async getLastDateByDataCenter(data_center_id) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+            SELECT MAX(date) AS lastDate
+            FROM data_center_carbon_emissions
+            WHERE data_center_id = @data_center_id
+        `;
+        const request = connection.request();
+        request.input('data_center_id', data_center_id);
+        const result = await request.query(sqlQuery);
+        return result.recordset[0]?.lastDate || null;
+    } catch (error) {
+        console.error("Error retrieving last date for data center:", error.message);
+        throw new Error("Error retrieving last date for data center");
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+
+
+
+static async getTotalEnergyConsumptionByCompanyId(company_id) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+            SELECT SUM(total_energy_mwh) AS total_energy_consumption 
+            FROM data_center_energy_consumption
+            WHERE data_center_id IN (SELECT id FROM data_centers WHERE company_id = @company_id);
+        `;
+        const request = connection.request();
+        request.input('company_id', sql.Int, company_id); // Ensure correct SQL type
+        const result = await request.query(sqlQuery);
+
+        if (result.recordset.length === 0) {
+            return null; // No data found
+        }
+
+        return result.recordset[0].total_energy_consumption; // Return the aggregated energy consumption
+    } catch (error) {
+        console.error("Error in getTotalEnergyConsumptionByCompanyId:", error.message);
+        throw new Error("Error retrieving total Energy Consumption data by company ID");
+    } finally {
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
+
+
+static async getTotalEnergyConsumptionByDataCenterId(dataCenterId) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+            SELECT SUM(total_energy_mwh) AS total_energy_consumption 
+            FROM data_center_energy_consumption
+            WHERE data_center_id = @dataCenterId;
+        `;
+        const request = connection.request();
+        request.input('dataCenterId', sql.Int, dataCenterId); // Ensure the correct SQL type
+        const result = await request.query(sqlQuery);
+
+        // Check if the result is empty
+        if (result.recordset.length === 0 || result.recordset[0].total_energy_consumption === null) {
+            console.warn("No energy consumption data found for data center ID:", dataCenterId);
+            return null; // No data found
+        }
+
+        return result.recordset[0].total_energy_consumption; // Return the aggregated energy consumption
+    } catch (error) {
+        console.error("Error in getTotalEnergyConsumptionByDataCenterId:", error.message);
+        throw new Error("Error retrieving total Energy Consumption data by data center ID");
+    } finally {
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
+
+static async getTotalEnergyConsumptionByDataCenterIdAndDate(dataCenterId, startDate, endDate) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+            SELECT SUM(total_energy_mwh) AS total_energy_consumption 
+            FROM data_center_energy_consumption
+            WHERE data_center_id = @dataCenterId
+            AND CONVERT(date, date) BETWEEN @startDate AND @endDate;
+        `;
+        const request = connection.request();
+        request.input('dataCenterId', sql.Int, dataCenterId);
+        request.input('startDate', sql.Date, startDate);
+        request.input('endDate', sql.Date, endDate);
+
+        const result = await request.query(sqlQuery);
+
+        if (result.recordset.length === 0 || result.recordset[0].total_energy_consumption === null) {
+            return null;
+        }
+        return result.recordset[0].total_energy_consumption;
+    } catch (error) {
+        console.error("Error in getTotalEnergyConsumptionByDataCenterIdAndDate:", error.message);
+        throw new Error("Error retrieving total energy consumption data by data center ID and date range");
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+
+static async getTotalEnergyConsumptionByCompanyIdAndDate(company_id, startDate, endDate) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+            SELECT SUM(total_energy_mwh) AS total_energy_consumption
+            FROM data_center_energy_consumption AS e
+            INNER JOIN data_centers AS d ON e.data_center_id = d.id
+            WHERE d.company_id = @company_id
+            AND CONVERT(date, e.date) BETWEEN @startDate AND @endDate;
+        `;
+        const request = connection.request();
+        request.input('company_id', sql.Int, company_id);
+        request.input('startDate', sql.Date, startDate);
+        request.input('endDate', sql.Date, endDate);
+
+        const result = await request.query(sqlQuery);
+
+        if (result.recordset.length === 0 || result.recordset[0].total_energy_consumption === null) {
+            return null;
+        }
+        return result.recordset[0].total_energy_consumption;
+    } catch (error) {
+        console.error("Error in getTotalEnergyConsumptionByCompanyIdAndDate:", error.message);
+        throw new Error("Error retrieving total energy consumption data by company ID and date range");
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+
+
+
+
+
 
 
 
@@ -91,8 +263,11 @@ class dataCenterDashboard {
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
-                SELECT dcec.* FROM data_center_energy_consumption AS dcec
-                INNER JOIN data_centers AS dc ON dcec.data_center_id = dc.id
+				SELECT SUM(it_energy_mwh) AS it_energy_mwh, 
+                SUM(cooling_energy_mwh) AS cooling_energy_mwh, 
+                SUM(backup_power_energy_mwh) AS backup_power_energy_mwh, 
+                SUM(lighting_energy_mwh) AS lighting_energy_mwh FROM data_center_energy_consumption
+				INNER JOIN data_centers AS dc ON data_center_energy_consumption.data_center_id = dc.id
                 WHERE dc.company_id = @company_id
             `;
             const request = connection.request();
@@ -125,7 +300,7 @@ class dataCenterDashboard {
         }
     }
     
-    static async getAllEnergyConsumptionByCompanyIdAndDate(company_id, date) {
+    static async getAllEnergyConsumptionByCompanyIdAndDate(company_id, startDate, endDate) {
         let connection;
         try {
             connection = await sql.connect(dbConfig);
@@ -133,12 +308,13 @@ class dataCenterDashboard {
                 SELECT e.* FROM data_center_energy_consumption AS e
                 INNER JOIN data_centers AS d ON e.data_center_id = d.id
                 WHERE d.company_id = @company_id
-                AND CONVERT(date, e.date) = @date
+                AND CONVERT(date, e.date) BETWEEN @startDate AND @endDate
             `;
             const request = connection.request();
             request.input('company_id', company_id);
-            request.input('date', sql.Date, date); // For exact date filtering
-
+            request.input('startDate', sql.Date, startDate); // For date range filtering
+            request.input('endDate', sql.Date, endDate); // For date range filtering
+    
             const result = await request.query(sqlQuery);
             return result.recordset.length > 0 ? result.recordset : null;
         } catch (error) {
@@ -148,19 +324,22 @@ class dataCenterDashboard {
         }
     }
     
+    
 
-    static async getEnergyConsumptionByDataCenterIdAndDate(dataCenterId, date) {
+    static async getEnergyConsumptionByDataCenterIdAndDate(dataCenterId, startDate, endDate) {
         let connection;
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
                 SELECT * FROM data_center_energy_consumption
                 WHERE data_center_id = @dataCenterId 
-                AND CONVERT(date, date) = @date
+                AND CONVERT(date, date) BETWEEN @startDate AND @endDate
             `;
             const request = connection.request();
             request.input('dataCenterId', dataCenterId);
-            request.input('date', date);
+            request.input('startDate', sql.Date, startDate); // For date range filtering
+            request.input('endDate', sql.Date, endDate); // For date range filtering
+    
             const result = await request.query(sqlQuery);
             return result.recordset.length > 0 ? result.recordset : null;
         } catch (error) {
@@ -172,6 +351,171 @@ class dataCenterDashboard {
     
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Retrieves total carbon emissions for a specific company
+static async getTotalCarbonEmissionByCompanyId(company_id) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            SUM(co2_emissions_tons) AS total_co2_emissions
+        FROM 
+            data_center_carbon_emissions
+        WHERE 
+            data_center_id IN (SELECT id FROM data_centers WHERE company_id = @company_id);
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        const result = await request.query(sqlQuery);
+        
+        if (result.recordset.length === 0) {
+            return null;
+        }
+        
+        return result.recordset[0].total_co2_emissions; // Return the total CO2 emissions
+    } catch (error) {
+        throw new Error("Error retrieving total Carbon Emission data by company ID");
+    } finally {
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
+// Retrieves total carbon emissions for a specific data center
+static async getTotalCarbonEmissionByDataCenterId(data_center_id) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            SUM(co2_emissions_tons) AS total_co2_emissions
+        FROM 
+            data_center_carbon_emissions
+        WHERE 
+            data_center_id = @data_center_id;
+        `;
+        const request = connection.request();
+        request.input('data_center_id', data_center_id);
+        const result = await request.query(sqlQuery);
+        
+        if (result.recordset.length === 0) {
+            return null;
+        }
+        
+        return result.recordset[0].total_co2_emissions; // Return the total CO2 emissions
+    } catch (error) {
+        throw new Error("Error retrieving total Carbon Emission data by data center ID");
+    } finally {
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
+
+// Retrieves total carbon emissions for a specific company within a date range
+static async getTotalCarbonEmissionByCompanyIdAndDate(company_id, startDate, endDate) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            SUM(co2_emissions_tons) AS total_co2_emissions
+        FROM 
+            data_center_carbon_emissions
+        WHERE 
+            data_center_id IN (SELECT id FROM data_centers WHERE company_id = @company_id)
+            AND CONVERT(date, date) BETWEEN @startDate AND @endDate;
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        request.input('startDate', startDate);
+        request.input('endDate', endDate);
+        const result = await request.query(sqlQuery);
+        
+        if (result.recordset.length === 0) {
+            return null;
+        }
+        
+        return result.recordset[0].total_co2_emissions; // Return the total CO2 emissions
+    } catch (error) {
+        throw new Error("Error retrieving total Carbon Emission data by company and date range");
+    } finally {
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
+
+    
+// Retrieves total carbon emissions for a specific data center within a date range
+static async getTotalCarbonEmissionByDataCenterIdAndDate(data_center_id, startDate, endDate) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            SUM(co2_emissions_tons) AS total_co2_emissions
+        FROM 
+            data_center_carbon_emissions
+        WHERE 
+            data_center_id = @data_center_id
+            AND CONVERT(date, date) BETWEEN @startDate AND @endDate;
+        `;
+        const request = connection.request();
+        request.input('data_center_id', data_center_id);
+        request.input('startDate', startDate);
+        request.input('endDate', endDate);
+        const result = await request.query(sqlQuery);
+        
+        if (result.recordset.length === 0) {
+            return null;
+        }
+        
+        return result.recordset[0].total_co2_emissions; // Return the total CO2 emissions
+    } catch (error) {
+        throw new Error("Error retrieving total Carbon Emission data by data center and date range");
+    } finally {
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // line chart, need group them by date
     static async getAllCarbonEmissionByCompanyId(company_id) {
         let connection;
         try {
@@ -206,17 +550,23 @@ class dataCenterDashboard {
         }
     }
 
-
-
     static async getAllCarbonEmissionByDataCenterId(data_center_id) {
         let connection;
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
-            SELECT * FROM data_center_carbon_emissions 
-            INNER JOIN data_centers ON 
-            data_center_carbon_emissions.data_center_id = data_centers.id
-            WHERE data_centers.id = @data_center_id
+            SELECT 
+                date,
+                SUM(co2_emissions_tons) AS co2_emissions_tons,
+                AVG(renewable_energy_percentage) AS renewable_energy_percentage
+            FROM 
+                data_center_carbon_emissions
+            WHERE 
+                data_center_id = @data_center_id
+            GROUP BY 
+                date
+            ORDER BY 
+                date;
             `;
             const request = connection.request();
             request.input('data_center_id', data_center_id);
@@ -234,214 +584,69 @@ class dataCenterDashboard {
         }
     }
 
-    // Retrieves all carbon emissions within a specific date range
-    static async getAllCarbonEmissionByCompanyIdAndDate(company_id, date) {
+    // Retrieves all carbon emissions within a specific date range by company ID
+    static async getAllCarbonEmissionByCompanyIdAndDate(company_id, startDate, endDate) {
         let connection;
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
-            SELECT * FROM data_center_carbon_emissions
+            SELECT 
+                CONVERT(date, date) AS date,
+                SUM(data_center_carbon_emissions.co2_emissions_tons) AS co2_emissions_tons, 
+                AVG(data_center_carbon_emissions.renewable_energy_percentage) AS renewable_energy_percentage,
+                data_centers.company_id
+            FROM data_center_carbon_emissions
             INNER JOIN data_centers ON data_center_carbon_emissions.data_center_id = data_centers.id
             WHERE data_centers.company_id = @company_id 
-            AND CONVERT(date, date) = @date
+            AND CONVERT(date, date) BETWEEN @startDate AND @endDate
+            GROUP BY CONVERT(date, date), data_centers.company_id
+            ORDER BY date;
             `;
             const request = connection.request();
             request.input('company_id', company_id);
-            request.input('date', date);
+            request.input('startDate', startDate);
+            request.input('endDate', endDate);
             const result = await request.query(sqlQuery);
             return result.recordset.length > 0 ? result.recordset : null;
         } catch (error) {
-            throw new Error("Error retrieving Carbon Emission data by company and date");
+            throw new Error("Error retrieving Carbon Emission data by company and date range");
         } finally {
             if (connection) await connection.close();
         }
     }
 
-    static async getAllCarbonEmissionByDataCenterAndDate(data_center_id, date) {
+    // Retrieves all carbon emissions within a specific date range by data center ID
+    static async getAllCarbonEmissionByDataCenterAndDate(data_center_id, startDate, endDate) {
         let connection;
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
-            SELECT * FROM data_center_carbon_emissions
-            INNER JOIN data_centers ON data_center_carbon_emissions.data_center_id = data_centers.id
-            WHERE data_center_carbon_emissions.data_center_id = @data_center_id
-            AND CONVERT(date, date) >= @date
+            SELECT 
+                CONVERT(date, date) AS date,
+                SUM(data_center_carbon_emissions.co2_emissions_tons) AS co2_emissions_tons,
+                AVG(data_center_carbon_emissions.renewable_energy_percentage) AS renewable_energy_percentage
+            FROM data_center_carbon_emissions
+            WHERE data_center_id = @data_center_id
+            AND CONVERT(date, date) BETWEEN @startDate AND @endDate
+            GROUP BY CONVERT(date, date)
             ORDER BY date;
             `;
             const request = connection.request();
             request.input('data_center_id', data_center_id);
-            request.input('date', date);
+            request.input('startDate', startDate);
+            request.input('endDate', endDate);
             const result = await request.query(sqlQuery);
             return result.recordset.length > 0 ? result.recordset : null;
         } catch (error) {
-            console.error("Error retrieving carbon emission data by data center and date:", error.message);
-            throw new Error("Error retrieving Carbon Emission data by data center and date");
+            console.error("Error retrieving carbon emission data by data center and date range:", error.message);
+            throw new Error("Error retrieving Carbon Emission data by data center and date range");
         } finally {
             if (connection) await connection.close();
         }
     }
-    
 
 
 
-
-    static async getAllSumOfCarbonEmissionByCompanyId(company_id) {
-        let connection;
-        try {
-            connection = await sql.connect(dbConfig);
-            const sqlQuery = `
-                SELECT 
-                    SUM(data_center_carbon_emissions.co2_emissions_tons) AS total_co2_emissions,
-                    SUM((data_center_carbon_emissions.renewable_energy_percentage / 100) * data_center_carbon_emissions.co2_emissions_tons) AS total_renewable_energy_value
-                FROM data_center_carbon_emissions 
-                INNER JOIN data_centers 
-                ON data_center_carbon_emissions.data_center_id = data_centers.id
-                WHERE data_centers.company_id = @company_id;
-            `;
-            const request = connection.request();
-            request.input('company_id', sql.Int, company_id); // Specify data type explicitly
-            const result = await request.query(sqlQuery);
-            
-            if (result.recordset.length === 0) {
-                return null;
-            }
-            
-            return result.recordset[0]; // Return the first row, which has the totals
-        } catch (error) {
-            console.error("Error retrieving total Carbon Emission data:", error);
-            throw new Error("Error retrieving total Carbon Emission data");
-        } finally { 
-            if (connection) {
-                await connection.close();
-            }
-        }
-    }
-    
-
-    static async getAllSumOfCarbonEmissionByCompanyIdAndDate(company_id, date) {
-        let connection;
-        try {
-            connection = await sql.connect(dbConfig);    
-            const sqlQuery = `
-            SELECT 
-                SUM(co2_emissions_tons) AS total_co2_emissions,
-                SUM((renewable_energy_percentage / 100) * co2_emissions_tons) AS total_renewable_energy_value
-            FROM data_center_carbon_emissions 
-            INNER JOIN data_centers 
-            ON data_center_carbon_emissions.data_center_id = data_centers.id
-            WHERE data_centers.company_id = @company_id
-            AND data_center_carbon_emissions.date = @date
-        `;
-            const request = connection.request();
-            request.input('company_id', company_id); // Specify data type explicitly
-            request.input('date', date); 
-            const result = await request.query(sqlQuery);
-            
-            if (result.recordset.length === 0) {
-                return null;
-            }
-            
-            return result.recordset[0]; // Return the first row, which has the totals
-        } catch (error) {
-            console.error("Error retrieving total Carbon Emission data:", error);
-            throw new Error("Error retrieving total Carbon Emission data");
-        } finally { 
-            if (connection) {
-                await connection.close();
-            }
-        }
-    }
-
-    static async getAllSumOfCarbonEmissionByCompanyIdAndDataCenter(company_id, data_center_id) {
-        let connection;
-        try {
-            connection = await sql.connect(dbConfig);
-            const sqlQuery = `
-                SELECT 
-                    SUM(co2_emissions_tons) AS total_co2_emissions,
-                    SUM(co2_emissions_tons * (renewable_energy_percentage / 100)) AS total_renewable_energy_value
-                FROM data_center_carbon_emissions
-                WHERE data_center_id = @data_center_id
-            `;
-            
-            const request = connection.request();
-            request.input('company_id', sql.Int, company_id);  // Add company_id if needed in the table joins
-            request.input('data_center_id', sql.Int, data_center_id);
-            
-            const result = await request.query(sqlQuery);
-            
-            if (result.recordset.length === 0) {
-                return null;
-            }
-            
-            return result.recordset[0];
-        } catch (error) {
-            console.error("Error retrieving total Carbon Emission data:", error);
-            throw new Error("Error retrieving total Carbon Emission data");
-        } finally { 
-            if (connection) {
-                await connection.close();
-            }
-        }
-    }
-    
-
-    static async getAllSumOfCarbonEmissionByCompanyIdAndDataCenterAndDate(company_id, data_center_id, date) {
-        let connection;
-        try {
-            connection = await sql.connect(dbConfig);
-            const sqlQuery = `
-                SELECT 
-                    SUM(co2_emissions_tons) AS total_co2_emissions,
-                    SUM((renewable_energy_percentage / 100) * co2_emissions_tons) AS total_renewable_energy_value
-                FROM data_center_carbon_emissions 
-                INNER JOIN data_centers 
-                ON data_center_carbon_emissions.data_center_id = data_centers.id
-                WHERE data_centers.company_id = @company_id
-                AND data_center_carbon_emissions.date = @date
-                AND data_centers.id = @data_center_id
-            `;
-            const request = connection.request();
-            request.input('company_id', company_id);
-            request.input('data_center_id', data_center_id);
-            request.input('date', date);
-            
-            const result = await request.query(sqlQuery);
-            return result.recordset[0];
-        } catch (error) {
-            console.error("Error retrieving emissions data:", error);
-            throw new Error("Failed to fetch emissions data");
-        } finally {
-            if (connection) await connection.close();
-        }
-    }
-    
-
-
-
-
-    // Retrieves all carbon emissions for a specific data center within a specific date range
-    // static async getAllCarbonEmissionByDateAndDataCenter(data_center_id, start_date, end_date) {
-    //     let connection;
-    //     try {
-    //         connection = await sql.connect(dbConfig);
-    //         const sqlQuery = `
-    //         SELECT * FROM data_center_carbon_emissions
-    //         WHERE data_center_id = @data_center_id 
-    //         AND emission_date BETWEEN @start_date AND @end_date
-    //         `;
-    //         const request = connection.request();
-    //         request.input('data_center_id', data_center_id);
-    //         request.input('start_date', start_date);
-    //         request.input('end_date', end_date);
-    //         const result = await request.query(sqlQuery);
-    //         return result.recordset.length > 0 ? result.recordset : null;
-    //     } catch (error) {
-    //         throw new Error("Error retrieving Carbon Emission data by data center and date");
-    //     } finally {
-    //         if (connection) await connection.close();
-    //     }
-    // }
 
 
 
