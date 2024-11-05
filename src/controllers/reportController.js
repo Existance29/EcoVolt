@@ -1,72 +1,36 @@
+const OpenAI = require('openai');
 const Report = require('../models/report');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 const moment = require('moment');
+require('dotenv').config(); // Load environment variables
 
+const openai = new OpenAI(process.env.OPENAI_API_KEY);
+const reportFilePath = path.join(__dirname, '..', 'reports', 'Singtel_Report.pdf');
+let lastGeneratedTimestamp = null;
+let reportBuffer = null;
+
+// Function to draw a table in the PDF
 function drawTable(doc, headers, rows, options = {}) {
-    const {
-        startX = 50, // X-coordinate start position
-        startY = doc.y, // Y-coordinate start position
-        headerHeight = 25, // Larger height for the header row
-        rowHeight = 15, // Normal row height
-        colWidths = [80, 90, 90, 90, 90, 90], 
-        fontSize = 8, 
-        rowsPerPage = 25, 
-    } = options;
+    const { startX = 50, startY = doc.y, headerHeight = 25, rowHeight = 15, colWidths = [80, 90, 90, 90, 90, 90], fontSize = 8 } = options;
     const cellPadding = 3;
-
     doc.fontSize(fontSize);
-
-    // Adjust column widths to avoid overlap issues
-    const adjustedColWidths = [...colWidths];
-    if (headers.length > colWidths.length) {
-        const defaultWidth = 70;
-        while (adjustedColWidths.length < headers.length) {
-            adjustedColWidths.push(defaultWidth);
-        }
-    }
-
-    // Draw headers with increased height
     headers.forEach((header, index) => {
-        const xPos = startX + adjustedColWidths.slice(0, index).reduce((a, b) => a + b, 0);
-        const yPos = startY;
-        const colWidth = adjustedColWidths[index];
-
-        if (!isNaN(xPos) && !isNaN(yPos) && !isNaN(colWidth) && !isNaN(headerHeight)) {
-            doc
-                .rect(xPos, yPos, colWidth, headerHeight)  // Increased height for header
-                .stroke()
-                .text(header || 'N/A', xPos + cellPadding, yPos + cellPadding, {
-                    width: colWidth - 2 * cellPadding,
-                    align: 'left',  // Align header to the left
-                });
-        }
+        const xPos = startX + colWidths.slice(0, index).reduce((a, b) => a + b, 0);
+        doc.rect(xPos, startY, colWidths[index], headerHeight).stroke().text(header, xPos + cellPadding, startY + cellPadding, { width: colWidths[index] - 2 * cellPadding, align: 'left' });
     });
-
-    // Draw rows immediately after the headers, without extra gap
     rows.forEach((row, rowIndex) => {
         row.forEach((cell, cellIndex) => {
-            const x = startX + adjustedColWidths.slice(0, cellIndex).reduce((a, b) => a + b, 0);
-            const y = startY + headerHeight + rowIndex * rowHeight; // Corrected row position to remove gap
-            const colWidth = adjustedColWidths[cellIndex];
-            const cellValue = (cell !== undefined && cell !== null) ? cell : 'N/A';
-
-            if (!isNaN(x) && !isNaN(y) && !isNaN(colWidth) && !isNaN(rowHeight)) {
-                doc
-                    .rect(x, y, colWidth, rowHeight)
-                    .stroke()
-                    .text(cellValue, x + cellPadding, y + cellPadding, {
-                        width: colWidth - 2 * cellPadding,
-                        align: 'left',  // Align rows to the left as well
-                    });
-            }
+            const xPos = startX + colWidths.slice(0, cellIndex).reduce((a, b) => a + b, 0);
+            const yPos = startY + headerHeight + rowIndex * rowHeight;
+            doc.rect(xPos, yPos, colWidths[cellIndex], rowHeight).stroke().text(cell ?? 'N/A', xPos + cellPadding, yPos + cellPadding, { width: colWidths[cellIndex] - 2 * cellPadding, align: 'left' });
         });
     });
 }
 
-// Get all reports and respond as JSON
+// Function to get all reports and respond as JSON
 const getAllReport = async (req, res) => {
     try {
         const reports = await Report.getAllReport();
@@ -77,145 +41,202 @@ const getAllReport = async (req, res) => {
     }
 };
 
-// Function to generate PDF report
-const generateReportPDF = async (req, res) => {
-    try {
-        const reports = await Report.getAllReport();
+// Function to generate recommendations using OpenAI API
+async function generateAIRecommendations(data, category) {
+    const prompt = `Based on the following data for Singtel:
+    - Total Energy Consumption: ${data.totalEnergy} MWh
+    - Total CO2 Emissions: ${data.co2Emissions} Tons
+    - Current Progress: ${data.currentProgress}%
+    
+    Provide two specific recommendations for ${category} with actionable steps.`;
 
-        const singtelReports = reports.filter(report => report.companyName === 'Singapore Telecommunications Limited');
-        if (singtelReports.length === 0) {
-            throw new Error('No report data available for Singtel');
+    try {
+        const response = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 150,
+            temperature: 0.7
+        });
+
+        return response.choices[0].message.content;
+    } catch (error) {
+        console.error(`Error fetching ${category} recommendations:`, error);
+        throw error;
+    }
+}
+
+// Function to get all recommendations and combine them
+async function getAllAIRecommendations(data) {
+    const categories = [
+        "Energy Efficiency Improvements",
+        "CO2 Emission Reduction Strategies",
+        "Renewable Energy Investments",
+        "Sustainable Cooling Technologies",
+        "Monitoring and Reporting Practices"
+    ];
+
+    const recommendations = await Promise.all(
+        categories.map(category => generateAIRecommendations(data, category))
+    );
+
+    return recommendations.join("\n\n");
+}
+
+// Function to generate the PDF report
+async function createPDFReport(reports) {
+    const singtelReports = reports.filter(report => report.companyName === 'Singapore Telecommunications Limited');
+
+    // Prepare summary data
+    const months = [];
+    const monthlyEnergy = [];
+    const monthlyCO2 = [];
+    let totalEnergy = 0;
+    let totalCO2 = 0;
+
+    singtelReports.forEach(report => {
+        const month = moment(report.date).format('MMM YYYY');
+        const monthIndex = months.indexOf(month);
+
+        if (monthIndex === -1) {
+            months.push(month);
+            monthlyEnergy.push(report.totalEnergyKWH || 0);
+            monthlyCO2.push(report.co2EmissionsTons || 0);
+        } else {
+            monthlyEnergy[monthIndex] += (report.totalEnergyKWH || 0);
+            monthlyCO2[monthIndex] += (report.co2EmissionsTons || 0);
         }
 
-        const months = [];
-        const monthlyEnergy = [];
-        const monthlyCO2 = [];
-        let totalEnergy = 0;
-        let totalCO2 = 0;
+        totalEnergy += report.totalEnergyKWH || 0;
+        totalCO2 += report.co2EmissionsTons || 0;
+    });
 
-        singtelReports.forEach(report => {
-            const month = moment(report.date).format('MMM YYYY');
-            const monthIndex = months.indexOf(month);
+    // Generate AI recommendations and conclusion
+    const recommendations = await getAllAIRecommendations({
+        totalEnergy: totalEnergy,
+        co2Emissions: totalCO2,
+        currentProgress: (totalCO2 / (totalEnergy * 0.2)) * 100
+    });
 
-            if (monthIndex === -1) {
-                months.push(month);
-                monthlyEnergy.push(report.totalEnergyKWH || 0);
-                monthlyCO2.push(report.co2EmissionsTons || 0);
-            } else {
-                monthlyEnergy[monthIndex] += (report.totalEnergyKWH || 0);
-                monthlyCO2[monthIndex] += (report.co2EmissionsTons || 0);
-            }
+    const conclusionPrompt = `Given the total energy consumption of ${totalEnergy} MWh and CO2 emissions of ${totalCO2} tons, provide a conclusion on Singtel’s sustainability progress and suggest predictive actions for further reducing emissions.`;
+    const conclusionResponse = await openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [{ role: "user", content: conclusionPrompt }],
+        max_tokens: 150,
+        temperature: 0.7
+    });
+    const conclusion = conclusionResponse.choices[0].message.content;
 
-            totalEnergy += report.totalEnergyKWH || 0;
-            totalCO2 += report.co2EmissionsTons || 0;
-        });
-
-        const chartCanvas = new ChartJSNodeCanvas({ width: 1200, height: 800 });
-        const energyChartData = {
-            labels: months,
-            datasets: [
-                {
-                    label: 'Total Energy (kWh)',
-                    data: monthlyEnergy,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    yAxisID: 'y1',
-                },
-                {
-                    label: 'CO2 Emissions (tons)',
-                    data: monthlyCO2,
-                    backgroundColor: 'rgba(153, 102, 255, 0.6)',
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 1,
-                    yAxisID: 'y2',
-                },
-            ],
-        };
-
-        const chartImage = await chartCanvas.renderToBuffer({
-            type: 'bar',
-            data: energyChartData,
-            options: {
-                scales: {
-                    y1: { type: 'linear', position: 'left', title: { display: true, text: 'Total Energy (kWh)' } },
-                    y2: { type: 'linear', position: 'right', title: { display: true, text: 'CO2 Emissions (tons)' }, grid: { drawOnChartArea: false } },
-                },
+    // Generate chart with distinct colors
+    const chartCanvas = new ChartJSNodeCanvas({ width: 1200, height: 800 });
+    const energyChartData = {
+        labels: months,
+        datasets: [
+            {
+                label: 'Total Energy (kWh)',
+                data: monthlyEnergy,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                yAxisID: 'y1',
             },
-        });
+            {
+                label: 'CO2 Emissions (tons)',
+                data: monthlyCO2,
+                backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1,
+                yAxisID: 'y2',
+            },
+        ],
+    };
 
-        // Create PDF document
-        const doc = new PDFDocument({ autoFirstPage: false });
-        const filePath = path.join(__dirname, '..', 'reports', 'Singtel_Report.pdf');
-        const writeStream = fs.createWriteStream(filePath);
-        doc.pipe(writeStream);
+    const chartImage = await chartCanvas.renderToBuffer({
+        type: 'bar',
+        data: energyChartData,
+        options: {
+            scales: {
+                y1: { type: 'linear', position: 'left', title: { display: true, text: 'Total Energy (kWh)' } },
+                y2: { type: 'linear', position: 'right', title: { display: true, text: 'CO2 Emissions (tons)' }, grid: { drawOnChartArea: false } },
+            },
+        },
+    });
 
-        // 1. Add the First Page with Executive Summary
-        doc.addPage();
-        doc.fontSize(20).text('Singtel Sustainability Report 2024', { align: 'center' });
-        doc.moveDown();
-        doc.fontSize(16).text('Executive Summary', { align: 'left' });
-        doc.fontSize(12).text(`In 2024, Singtel's energy consumption reached a total of ${totalEnergy.toLocaleString()} kWh, while carbon emissions amounted to ${totalCO2.toFixed(2)} tons. This report provides an overview of Singtel’s energy use and environmental impact, highlighting key trends in consumption and emissions.`);
-        doc.moveDown(2);
+    // Create PDF document in memory
+    const doc = new PDFDocument({ autoFirstPage: false });
+    const chunks = [];
+    doc.on('data', (chunk) => chunks.push(chunk));
+    doc.on('end', () => {
+        reportBuffer = Buffer.concat(chunks);
+        lastGeneratedTimestamp = new Date();
+    });
 
-        // 2. Data Overview (Bar Chart)
-        doc.fontSize(16).text('Data Overview', { align: 'left' });
-        doc.image(chartImage, { fit: [500, 300], align: 'center', valign: 'center' });
-        doc.moveDown(2);
+    // First Page: Executive Summary
+    doc.addPage();
+    doc.fontSize(20).text('Singtel Sustainability Report 2024', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(16).text('Executive Summary', { align: 'left' });
+    doc.fontSize(12).text(`In 2024, Singtel's energy consumption reached a total of ${totalEnergy.toLocaleString()} kWh, while carbon emissions amounted to ${totalCO2.toFixed(2)} tons. This report provides an overview of Singtel’s energy use and environmental impact, highlighting key trends in consumption and emissions.`);
+    doc.moveDown(2);
 
-        // 3. Data Insights Title
-        doc.addPage();
-        doc.fontSize(16).text('Data Insights', { align: 'left' });
-        doc.moveDown();
+    // Data Overview (Bar Chart)
+    doc.fontSize(16).text('Data Overview', { align: 'left' });
+    doc.image(chartImage, { fit: [500, 300], align: 'center', valign: 'center' });
+    doc.moveDown(2);
 
-        // 4. Data Insights Table (Cell Towers)
-        doc.fontSize(14).text('Cell Tower Energy Consumption Data', { align: 'left' });
-        const cellTowerHeaders = ['Date', 'Radio Equipment Energy (kWh)', 'Cooling Energy (kWh)', 'Backup Power Energy (kWh)', 'Misc Energy (kWh)', 'CO2 Emissions (tons)'];
-        const cellTowerData = singtelReports.filter(report => report.totalEnergyKWH < 1000000).map(report => [
-            moment(report.date).format('MMM YYYY'),
-            (report.radioEquipmentEnergy != null) ? report.radioEquipmentEnergy.toFixed(2) : 'N/A',
-            (report.coolingEnergy != null) ? report.coolingEnergy.toFixed(2) : 'N/A',
-            (report.backupEnergy != null) ? report.backupEnergy.toFixed(2) : 'N/A',
-            (report.miscEnergy != null) ? report.miscEnergy.toFixed(2) : 'N/A',
-            (report.co2EmissionsTons != null) ? report.co2EmissionsTons.toFixed(2) : 'N/A',
-        ]);
+    // Data Insights Table
+    doc.addPage();
+    doc.fontSize(16).text('Data Insights', { align: 'left' });
+    doc.moveDown();
 
-        drawTable(doc, cellTowerHeaders, cellTowerData, { rowHeight: 12, colWidths: [70, 70, 70, 70, 70, 90], fontSize: 8 });
+    // Energy Consumption Data Table
+    const tableHeaders = ['Date', 'Radio Equipment Energy (kWh)', 'Cooling Energy (kWh)', 'Backup Power Energy (kWh)', 'Misc Energy (kWh)', 'CO2 Emissions (tons)'];
+    const tableData = singtelReports.map(report => [
+        moment(report.date).format('MMM YYYY'),
+        report.radioEquipmentEnergy ? report.radioEquipmentEnergy.toFixed(2) : 'N/A',
+        report.coolingEnergy ? report.coolingEnergy.toFixed(2) : 'N/A',
+        report.backupEnergy ? report.backupEnergy.toFixed(2) : 'N/A',
+        report.miscEnergy ? report.miscEnergy.toFixed(2) : 'N/A',
+        report.co2EmissionsTons ? report.co2EmissionsTons.toFixed(2) : 'N/A',
+    ]);
 
-        doc.moveDown(3);
+    drawTable(doc, tableHeaders, tableData, { rowHeight: 12, colWidths: [70, 70, 70, 70, 70, 90], fontSize: 8 });
 
-        // 5. Data Insights Table (Data Centers)
-        doc.fontSize(14).text('Data Center Energy Consumption Data', { align: 'left' , indent: -335 });
-        const dataCenterHeaders = ['Date', 'Data Center ID', 'IT Energy (kWh)', 'Cooling Energy (kWh)', 'Backup Power Energy (kWh)', 'Lighting Energy (kWh)', 'CO2 Emissions (tons)'];
-        const dataCenterData = singtelReports.filter(report => report.totalEnergyKWH >= 1000000).map(report => [
-            moment(report.date).format('MMM YYYY'),
-            report.dataCenterId || 'Singtel DC-1',
-            (report.radioEquipmentEnergy != null) ? report.radioEquipmentEnergy.toFixed(2) : 'N/A',
-            (report.coolingEnergy != null) ? report.coolingEnergy.toFixed(2) : 'N/A',
-            (report.backupEnergy != null) ? report.backupEnergy.toFixed(2) : 'N/A',
-            (report.miscEnergy != null) ? report.miscEnergy.toFixed(2) : 'N/A',
-            (report.co2EmissionsTons != null) ? report.co2EmissionsTons.toFixed(2) : 'N/A',
-        ]);
+    // Recommendations Section
+    doc.addPage();
+    doc.fontSize(16).text('Recommendations', { align: 'left' });
+    doc.fontSize(12).text(recommendations);
+    doc.moveDown();
 
-        drawTable(doc, dataCenterHeaders, dataCenterData, { rowHeight: 12, colWidths: [70, 70, 70, 70, 70, 90], fontSize: 8 });
+    // Conclusion Section
+    doc.fontSize(16).text('Conclusion', { align: 'left' });
+    doc.fontSize(12).text(conclusion);
 
-        // 6. Recommendations Section
-        doc.addPage(); 
-        doc.fontSize(16).text('Recommendations', { align: 'left'});
-        doc.fontSize(12).text(`To reduce energy consumption and carbon emissions, Singtel should consider increasing investments in renewable energy sources, improving energy efficiency in data centers, and implementing sustainable cooling technologies.`);
-        doc.moveDown();
+    // Finalize PDF
+    doc.end();
+}
 
-        // 7. Conclusion Section
-        doc.fontSize(16).text('Conclusion', { align: 'left' });
-        doc.fontSize(12).text(`Singtel’s energy consumption and carbon emissions remain significant, but there are several opportunities for improvement. By investing in renewable energy and improving energy efficiency, Singtel can reduce its environmental footprint while continuing to grow.`);
+// Check if the report is up-to-date (within the last 1 hour), then serve it
+const generateReportPDF = async (req, res) => {
+    const currentTime = new Date();
+    const oneHour = 60 * 60 * 1000;
 
-        // Finalize PDF
-        doc.end();
+    if (reportBuffer && lastGeneratedTimestamp && currentTime - lastGeneratedTimestamp < oneHour) {
+        console.log("Serving report from memory (cached).");
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="Singtel_Report.pdf"');
+        return res.send(reportBuffer);
+    }
 
-        writeStream.on('finish', () => {
-            res.download(filePath);
-        });
+    console.log("Generating a new report.");
+    try {
+        // Fetch all reports and generate a new PDF if the cached report is outdated
+        const reports = await Report.getAllReport();
+        await createPDFReport(reports);
 
+        // Serve the newly generated report
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="Singtel_Report.pdf"');
+        res.send(reportBuffer);
     } catch (error) {
         console.error('Error generating report:', error);
         res.status(500).json({ error: 'Failed to generate report' });
