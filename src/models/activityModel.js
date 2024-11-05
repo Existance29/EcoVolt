@@ -59,6 +59,145 @@ class Posts {
             }
         }
 
+        static async isLiked(post_id, user_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `SELECT COUNT(*) AS likes_count FROM likes WHERE post_id = @post_id AND user_id = @user_id;`;
+
+                const request = connection.request();
+                request.input("post_id", post_id);
+                request.input("user_id", user_id);
+
+                const result = await request.query(query);
+                connection.close();
+
+                return result.recordset[0].likes_count > 0;
+            } catch (error) {
+                console.error("Error checking if post is liked by user: ", error);
+                return false;
+            }
+        }
+
+        static async addLike(post_id, user_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `INSERT INTO likes (post_id, user_id, date, time) VALUES (@post_id, @user_id, GETDATE(), GETDATE());`;
+
+                const request = connection.request();
+                request.input("post_id", post_id);
+                request.input("user_id", user_id);
+                
+                const result = await request.query(query);
+                console.log("Like added: ", result);
+
+                connection.close();
+            } catch (error) {
+                console.error("Error adding likes: ", error);
+            }  
+        }
+
+        static async removeLike(post_id, user_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `DELETE FROM likes WHERE post_id = @post_id AND user_id = @user_id;`;
+
+                const request = connection.request();
+                request.input("post_id", post_id);
+                request.input("user_id", user_id);
+                
+                const result = await request.query(query);
+                console.log("Like removed: ", result);
+
+                connection.close();
+            } catch (error) {
+                console.error("Error removing likes: ", error);
+            }
+        }
+
+        static async getLikeCount(post_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `SELECT COUNT(*) AS likes_count FROM likes WHERE post_id = @post_id;`;
+                
+                const request = connection.request();
+                request.input("post_id", post_id);
+                const result = await request.query(query);
+                connection.close();
+                return result.recordset[0].likes_count;
+            } catch (error) {
+                console.error("Error getting like count", error);
+            }
+        }
+
+        static async isDisliked(post_id, user_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `SELECT COUNT(*) AS dislikes_count FROM dislikes WHERE post_id = @post_id AND user_id = @user_id;`;
+
+                const request = connection.request();
+                request.input("post_id", post_id);
+                request.input("user_id", user_id);
+
+                const result = await request.query(query);
+                connection.close();
+
+                return result.recordset[0].dislikes_count > 0;
+            } catch (error) {
+                console.error("Error checking if post is disliked by user: ", error);
+                return false;
+            }
+        }
+
+        static async addDislike(post_id, user_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `INSERT INTO dislikes (post_id, user_id, date, time) VALUES (@post_id, @user_id, GETDATE(), GETDATE());`;
+
+                const request = connection.request();
+                request.input("post_id", post_id);
+                request.input("user_id", user_id);
+                
+                const result = await request.query(query);
+                console.log("Dislike added: ", result);
+
+                connection.close();
+            } catch (error) {
+                console.error("Error adding dislikes: ", error);
+            }  
+        }
+
+        static async removeDislike(post_id, user_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `DELETE FROM dislikes WHERE post_id = @post_id AND user_id = @user_id;`;
+
+                const request = connection.request();
+                request.input("post_id", post_id);
+                request.input("user_id", user_id);
+                
+                const result = await request.query(query);
+                console.log("Dislike removed: ", result);
+
+                connection.close();
+            } catch (error) {
+                console.error("Error removing dislikes: ", error);
+            }
+        }
+
+        static async getDislikeCount(post_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `SELECT COUNT(*) AS dislikes_count FROM dislikes WHERE post_id = @post_id;`;
+                
+                const request = connection.request();
+                request.input("post_id", post_id);
+                const result = await request.query(query);
+                connection.close();
+                return result.recordset[0].dislikes_count;
+            } catch (error) {
+                console.error("Error getting dislike count", error);
+            }
+        }
 }
 
 module.exports = Posts;
