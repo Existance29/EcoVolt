@@ -1,0 +1,120 @@
+/* Reset some default styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif; /* Default font */
+}
+
+/* Full height for the layout */
+.layout-container {
+    height: 100vh; /* Full viewport height */
+    display: flex; /* Use flexbox for layout */
+}
+
+/* Sidebar styles */
+.sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed; /* Keep sidebar fixed */
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 1000; /* Ensure the sidebar stays on top */
+}
+
+.logo h2 {
+    margin: 0;
+    font-size: 1.5em;
+    color: #4FD1C5;
+    font-weight: 600;
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: #555;
+    padding: 20px 0;
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+    color: #4FD1C5;
+}
+
+/* Main content styles */
+.main-content {
+    margin-left: 270px; /* Leave space for the fixed sidebar */
+    padding: 20px;
+    flex: 1; /* Allow main content to grow */
+    overflow: auto; /* Allow scrolling if content overflows */
+}
+
+/* Report container styling */
+.report-container {
+    width: 100%;
+    height: calc(100vh - 150px); /* Full height minus header and button space */
+    position: relative;
+    overflow: hidden; /* Hide any overflow */
+    border: 1px solid #ddd; /* Optional border for visual separation */
+    border-radius: 10px; /* Optional rounded corners */
+    background-color: #fff; /* Background color for contrast */
+}
+
+/* Iframe styles */
+#reportFrame {
+    width: 100%;
+    height: 100%; /* Fill the entire container */
+    border: none; /* Remove default border */
+}
+
+/* Download button styling */
+.download-container {
+    margin-top: 20px;
+    text-align: center; /* Center the button */
+}
+
+.download-btn {
+    padding: 10px 20px;
+    background-color: #4FD1C5; /* Button color */
+    color: white; /* Text color */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px; /* Font size */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.download-btn:hover {
+    background-color: #3BAF9B; /* Darker shade on hover */
+}
+
+/* Responsive styles */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 200px; /* Adjust sidebar width for smaller screens */
+    }
+
+    .main-content {
+        margin-left: 220px; /* Adjust margin for smaller screens */
+    }
+}
+
+@media (max-width: 600px) {
+    .sidebar {
+        display: none; /* Hide sidebar on very small screens */
+    }
+
+    .main-content {
+        margin-left: 0; /* Full width for main content */
+        padding: 10px; /* Adjust padding */
+    }
+}

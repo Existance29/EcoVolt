@@ -95,7 +95,7 @@ function renderDoughnutChart(element, labels, data, colors){
         labelColumn.innerHTML += `
             <div style="display: flex;"> 
                 <div class="label-color" style="background-color: ${colors[i]};"></div>
-                <div class="label-name inter-semibold">${labels[i]}:</div>
+                <div class="label-name inter-semibold">${labels[i]}</div>
             </div>
         `
 
