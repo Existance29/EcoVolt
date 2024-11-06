@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./styles/overviewDashboard.css">
+    <link rel="stylesheet" href="./styles/profile.css">
+    <link rel="stylesheet" href="./styles/common.css">
+    <title>EcoVolt | Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <img src="assets/logo.png" alt="EcoVolt Logo">
+                <h2>EcoVolt</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="overviewDashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="report.html"><i class="fas fa-file-alt"></i> Report</a>
+                <a href="activityFeed.html"><i class="fas fa-blog"></i> Activity Feed</a>
+                <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+                <a href="signIn.html"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+                <a href="signUp.html"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </nav>
+            <div class="help-box">
+                <p>Need help? <br> Please reach out to us</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="mainHeader" data-title="Profile" data-breadcrumb="Pages / Profile">
+                <h1>My Profile</h1>
+            </header>
+            
+            <!-- Profile Section -->
+            <section class="profile-section">
+                <div class="profile-container">
+                    <!-- Profile Header -->
+                    <div class="profile-header">
+                        <h2>Account Details</h2>
+                    </div>
+                    <!-- User Info Section -->
+                    <div class="user-info">
+                        <img src="assets/profile/defaultprofilepic.jpg" alt="User Photo">
+                        <div>
+                            <h3>Username</h3>
+                            <p>Team Manager</p>
+                            <p>Company, Team leader</p>
+                        </div>
+                        <button class="edit-btn">Edit <i class="fas fa-edit"></i></button>
+                    </div>
+
+                    <!-- Personal Information Section -->
+                    <div class="profile-section">
+                        <h4>Personal Information</h4>
+                        <button class="edit-btn">Edit <i class="fas fa-edit"></i></button>
+                        <div class="info-group">
+                            <div>
+                                <label>First Name</label>
+                                <p>Username</p>
+                            </div>
+                            <div>
+                                <label>Last Name</label>
+                                <p>Surname</p>
+                            </div>
+                        </div>
+                        <div class="info-group">
+                            <div>
+                                <label>Email Address</label>
+                                <p>username@singtel.com</p>
+                            </div>
+                            <div>
+                                <label>Phone</label>
+                                <p>+65 91234567</p>
+                            </div>
+                        </div>
+                        <div class="info-group">
+                            <div>
+                                <label>Bio</label>
+                                <p>Team Manager</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address Section -->
+                    <div class="profile-section">
+                        <h4>Address</h4>
+                        <button class="edit-btn">Edit <i class="fas fa-edit"></i></button>
+                        <div class="info-group">
+                            <div>
+                                <label>Country</label>
+                                <p>Singapore</p>
+                            </div>
+                            <div>
+                                <label>City/State</label>
+                                <p>Singapore</p>
+                            </div>
+                        </div>
+                        <div class="info-group">
+                            <div>
+                                <label>Postal Code</label>
+                                <p>691093</p>
+                            </div>
+                            <div>
+                                <label>AccountID</label>
+                                <p>AS45645756</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="./scripts/pages/overviewDashboard.js"></script>
+    <script src="./scripts/generateReport.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="./scripts/common.js"></script>
+</body>
+</html>

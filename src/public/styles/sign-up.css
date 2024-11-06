@@ -1,0 +1,8 @@
+.bg-banner{
+    --h-spacing: 1%;
+    width: calc(100% - var(--h-spacing) * 2); 
+    position: absolute; 
+    left: var(--h-spacing); 
+    top: 1.25%; 
+    z-index: -99;
+}
