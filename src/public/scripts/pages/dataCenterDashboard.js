@@ -5,11 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const dateDisplay = document.getElementById("dateDisplay");
     const datePicker = document.getElementById("datePicker");
 
-    // Show the date picker when the display is clicked
-    dateDisplay.addEventListener("click", () => {
-        datePicker.click(); // Programmatically trigger the date picker
-    });
-
     // Update the display when a date is selected
     datePicker.addEventListener("input", () => {
         if (datePicker.value) {
