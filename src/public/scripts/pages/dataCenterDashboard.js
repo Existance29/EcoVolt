@@ -4,7 +4,6 @@ const company_id = getCompanyId(); // Replace with actual company ID
 
 
 const datePicker = document.getElementById("datePicker");
-datePicker.textContent = "All Time";
 const dataCenterDropdown = document.getElementById("dataCenterDropdown");
 
 // Initialize chart instances
