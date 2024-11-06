@@ -52,44 +52,6 @@ canvas {
   align-items: center;
 }
 
-.date-picker, .data-center-filter {
-  display: flex;
-  flex-direction: column;
-  max-width: 200px;
-  font-family: Arial, sans-serif;
-  align-items: flex-start;
-}
-
-.date-picker label, .data-center-filter label {
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 5px;
-  font-size: 14px;
-  display: block;
-}
-
-.date-picker input[type="date"], .data-center-filter select {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  color: #333;
-  background-color: #f9f9f9;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  transition: border-color 0.3s ease;
-  cursor: pointer;
-}
-
-.date-picker input[type="date"]:hover, .data-center-filter select:hover {
-  border-color: #777;
-}
-
-.date-picker input[type="date"]:focus, .data-center-filter select:focus {
-  border-color: #4A90E2;
-  box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
-}
-
 /* Styling for No Data Message */
 .no-data-message {
   display: none;
@@ -369,28 +331,65 @@ left: 0;
 }
 
 
-.date-display {
+
+
+
+
+
+
+
+
+
+
+
+/* Container for Date Picker and Data Center Filter with consistent width */
+.date-picker, .data-center-filter {
+  width: 200px;
+  position: relative;
+  display: inline-block;
+  vertical-align: top; /* Align both elements */
+  margin-right: 10px; /* Space between the two filters */
+}
+
+/* Styling for Date Display and Data Center Dropdown */
+.date-display, .data-center-filter select {
   width: 100%;
-  height: 100%;
-  padding: 5px 10px;
+  padding: 8px 10px;
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 4px;
   text-align: center;
   color: #888;
-  cursor: pointer;
-  position: relative;
   background-color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  appearance: none; /* Removes default dropdown arrow styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
-/* Add a calendar icon as a pseudo-element */
-.date-display::after {
-  content: '\25BC'; /* Unicode for a down arrow */
+/* Move the actual input field off-screen */
+#datePicker {
+  position: absolute;
+  left: -9999px; /* Move the input far off-screen */
+}
+
+/* Custom down arrow for Date Display and Data Center Dropdown */
+.date-display::after, .data-center-filter::after {
+  content: '\25BC'; /* Unicode for down arrow */
   position: absolute;
   right: 10px;
-  top: 50%;
+  top: 70%; /* Adjusted top value to move arrow lower */
   transform: translateY(-50%);
   color: #888;
   pointer-events: none;
   font-size: 12px;
+}
+
+
+/* Remove the default arrow for the select dropdown */
+.data-center-filter select {
+  appearance: none;
+  -webkit-appearance: none; /* For Safari */
+  -moz-appearance: none; /* For Firefox */
 }

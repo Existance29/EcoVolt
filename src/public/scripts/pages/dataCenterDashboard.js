@@ -2,24 +2,19 @@
 const company_id = getCompanyId(); // Replace with actual company ID
 
 document.addEventListener("DOMContentLoaded", () => {
-    const datePicker = document.getElementById("datePicker");
     const dateDisplay = document.getElementById("dateDisplay");
+    const datePicker = document.getElementById("datePicker");
 
-    // Open date picker when date display div is clicked
+    // Show the date picker when the display is clicked
     dateDisplay.addEventListener("click", () => {
-        datePicker.focus();
-        datePicker.showPicker(); // For browsers that support this method
+        datePicker.click(); // Programmatically trigger the date picker
     });
 
-    // Update the display text after a date is selected
+    // Update the display when a date is selected
     datePicker.addEventListener("input", () => {
         if (datePicker.value) {
-            // Create a Date object from the selected year and month
             const [year, month] = datePicker.value.split("-");
-            const date = new Date(year, month - 1); // month - 1 because months are 0-indexed
-
-            // Format the date as "Month Year" (e.g., "October 2024")
-            const formattedDate = date.toLocaleDateString("en-US", {
+            const formattedDate = new Date(year, month - 1).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long"
             });
@@ -29,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
 
 
 
