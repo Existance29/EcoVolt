@@ -38,10 +38,12 @@
                 <a href="dataCenterDashboard.html" class="active">Data Center</a>
                 <a href="cellTowerDashboard.html">Cell Tower</a>
                 <div class="right-aligned">
-                    <div class="date-picker">
-                        <label for="datePicker">Select Date:</label>
-                        <input type="date" id="datePicker" aria-label="Select Date">
+                    <div class="date-picker" style="position: relative; display: inline-block; width: 200px;">
+                        <label for="datePicker">Select Month and Year:</label>
+                        <div id="dateDisplay" class="date-display">All Time</div>
+                        <input type="month" id="datePicker" aria-label="Select Month and Year" style="width: 100%; opacity: 0; position: absolute; left: 0; top: 0; cursor: pointer;">
                     </div>
+                    
                     <div class="data-center-filter">
                         <label for="dataCenterDropdown">Select Data Center:</label>
                         <select id="dataCenterDropdown">

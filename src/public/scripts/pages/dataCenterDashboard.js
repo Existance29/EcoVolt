@@ -1,8 +1,37 @@
 // Set your company ID (replace with the actual ID)
 const company_id = getCompanyId(); // Replace with actual company ID
 
-// Elements from the page for filters
-const datePicker = document.getElementById("datePicker");
+document.addEventListener("DOMContentLoaded", () => {
+    const datePicker = document.getElementById("datePicker");
+    const dateDisplay = document.getElementById("dateDisplay");
+
+    // Open date picker when date display div is clicked
+    dateDisplay.addEventListener("click", () => {
+        datePicker.focus();
+        datePicker.showPicker(); // For browsers that support this method
+    });
+
+    // Update the display text after a date is selected
+    datePicker.addEventListener("input", () => {
+        if (datePicker.value) {
+            // Create a Date object from the selected year and month
+            const [year, month] = datePicker.value.split("-");
+            const date = new Date(year, month - 1); // month - 1 because months are 0-indexed
+
+            // Format the date as "Month Year" (e.g., "October 2024")
+            const formattedDate = date.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long"
+            });
+            dateDisplay.textContent = formattedDate;
+        } else {
+            dateDisplay.textContent = "All Time";
+        }
+    });
+});
+
+
+
 const dataCenterDropdown = document.getElementById("dataCenterDropdown");
 
 // Initialize chart instances
