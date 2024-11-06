@@ -39,9 +39,10 @@
                 <a href="cellTowerDashboard.html">Cell Tower</a>
                 <div class="right-aligned">
                     <div class="date-picker">
-                        <label for="datePicker">Select Date:</label>
-                        <input type="date" id="datePicker" aria-label="Select Date">
-                    </div>
+                        <label for="dateDisplay" class="date-display">Select Date:</label>
+                        <input type="month" id="datePicker" aria-label="Select Month and Year">
+                    </div>             
+                    
                     <div class="data-center-filter">
                         <label for="dataCenterDropdown">Select Data Center:</label>
                         <select id="dataCenterDropdown">
@@ -70,7 +71,7 @@
                         </div>
                         <div class="main-stat-container">
                             <div class="stat">
-                                <img src="assets/dashboard/cell-tower.png" alt="Cell Tower Icon">
+                                <img src="assets/dashboard/renewable-energy.png" alt="Cell Tower Icon">
                                 <div id="totalRenewableEnergy" class="inter-bold stat-value">0 MWh</div>
                                 <div class="inter-medium stat-name">Total Renewable Energy</div>
                             </div>

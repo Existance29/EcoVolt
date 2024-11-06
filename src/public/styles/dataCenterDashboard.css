@@ -52,44 +52,6 @@ canvas {
   align-items: center;
 }
 
-.date-picker, .data-center-filter {
-  display: flex;
-  flex-direction: column;
-  max-width: 200px;
-  font-family: Arial, sans-serif;
-  align-items: flex-start;
-}
-
-.date-picker label, .data-center-filter label {
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 5px;
-  font-size: 14px;
-  display: block;
-}
-
-.date-picker input[type="date"], .data-center-filter select {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  color: #333;
-  background-color: #f9f9f9;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  outline: none;
-  transition: border-color 0.3s ease;
-  cursor: pointer;
-}
-
-.date-picker input[type="date"]:hover, .data-center-filter select:hover {
-  border-color: #777;
-}
-
-.date-picker input[type="date"]:focus, .data-center-filter select:focus {
-  border-color: #4A90E2;
-  box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
-}
-
 /* Styling for No Data Message */
 .no-data-message {
   display: none;
@@ -367,3 +329,7 @@ left: 0;
   background-color: #4e5d63;
   color: white;
 }
+
+
+
+

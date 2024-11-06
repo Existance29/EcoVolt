@@ -1,7 +1,8 @@
 // Set your company ID (replace with the actual ID)
 const company_id = getCompanyId(); // Replace with actual company ID
 
-// Elements from the page for filters
+
+
 const datePicker = document.getElementById("datePicker");
 const dataCenterDropdown = document.getElementById("dataCenterDropdown");
 
