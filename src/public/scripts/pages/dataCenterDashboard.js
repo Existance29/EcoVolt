@@ -13,6 +13,37 @@ let energyBreakdownChart;
 datePicker.addEventListener("change", fetchData);
 dataCenterDropdown.addEventListener("change", fetchData);
 
+// Elements for the metric buttons
+const pueButton = document.getElementById("pueButton");
+const cueButton = document.getElementById("cueButton");
+const wueButton = document.getElementById("wueButton");
+
+// Function to set the active button
+function setActiveButton(button) {
+    // Remove the active class from all buttons
+    pueButton.classList.remove("active");
+    cueButton.classList.remove("active");
+    wueButton.classList.remove("active");
+
+    // Add the active class to the clicked button
+    button.classList.add("active");
+}
+
+// Event listeners for metric buttons
+pueButton.addEventListener("click", () => {
+    fetchMetricData("PUE");
+    setActiveButton(pueButton);
+});
+cueButton.addEventListener("click", () => {
+    fetchMetricData("CUE");
+    setActiveButton(cueButton);
+});
+wueButton.addEventListener("click", () => {
+    fetchMetricData("WUE");
+    setActiveButton(wueButton);
+});
+
+
 // Function to load data centers into the dropdown
 async function loadDataCenterOptions() {
     console.log("Starting to load data centers...");
@@ -63,25 +94,32 @@ async function fetchData() {
         await fetchTotalCarbonEmissionByCompanyId();
         await fetchTotalEnergyConsumptionByCompanyId(); // Fetch energy consumption for the company
         await fetchEnergyConsumptionBreakdownByCompanyId(); // Fetch energy breakdown for the company
+        await fetchTotalRenewableEnergyByCompanyId(); // Fetch total renewable energy for the company
     } else if (!selectedDate && selectedDataCenter !== "all") {
         // No date, fetch totals for a specific data center
         await fetchAllCarbonEmissionByDataCenterId(selectedDataCenter);
         await fetchTotalCarbonEmissionByDataCenterId(selectedDataCenter);
         await fetchTotalEnergyConsumptionByDataCenterId(selectedDataCenter); // Fetch energy consumption for the data center
         await fetchEnergyConsumptionBreakdownByDataCenterId(selectedDataCenter); // Fetch energy breakdown for the data center
+        await fetchTotalRenewableEnergyByDataCenterId(selectedDataCenter); // Fetch total renewable energy for the specific data center
     } else if (selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
         // With date, fetch totals for the company by date
         await fetchAllCarbonEmissionByCompanyIdAndDate(selectedDate);
         await fetchTotalCarbonEmissionByCompanyIdAndDate();
         await fetchTotalEnergyConsumptionByCompanyIdAndDate(); // Fetch energy consumption for the company by date
         await fetchEnergyConsumptionBreakdownByCompanyIdAndDate(selectedDate); // Fetch energy breakdown for the company by date
+        await fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate); // Fetch total renewable energy for the company by date
     } else if (selectedDate && selectedDataCenter !== "all") {
         // With date, fetch totals for a specific data center by date
         await fetchAllCarbonEmissionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
         await fetchTotalCarbonEmissionByDataCenterIdAndDate(selectedDataCenter);
         await fetchTotalEnergyConsumptionByDataCenterIdAndDate(selectedDataCenter); // Fetch energy consumption for the data center by date
         await fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(selectedDataCenter, selectedDate); // Fetch energy breakdown for the data center by date
+        await fetchTotalRenewableEnergyByDataCenterIdAndDate(selectedDataCenter, selectedDate); // Fetch total renewable energy for the data center by date
     }
+        // Fetch metric data for the selected metric button
+        const activeMetric = document.querySelector(".button-container .active").innerText;
+        fetchMetricData(activeMetric); // Ensure the gauge chart updates based on the active metric
 }
 
 
@@ -436,7 +474,6 @@ async function fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(data_center_
 }
 
 
-// Function to render the energy breakdown chart
 function renderEnergyBreakdownChart(data) {
     console.log("Rendering energy breakdown chart with data:", data);
 
@@ -446,19 +483,19 @@ function renderEnergyBreakdownChart(data) {
         return;
     }
 
-    const labels = ["Backup Power", "Cooling", "IT Equipment", "Lighting"];
+    const labels = ['Backup Power', 'Cooling', 'IT Equipment', 'Lighting'];
     const values = [
         energyData.backup_power_energy_mwh,
         energyData.cooling_energy_mwh,
         energyData.it_energy_mwh,
         energyData.lighting_energy_mwh
     ];
-
-    const total = values.reduce((acc, val) => acc + val, 0);
+    const colors = ['#2F3E46', '#4E5D63', '#38B2AC', '#A8DADC']; // Colors for each section
+    const total = values.reduce((acc, val) => acc + val, 0); // Calculate the total for percentage
 
     const ctx = document.getElementById("energyBreakdownChart").getContext("2d");
 
-    // Destroy previous chart instance if it exists
+    // Check if the chart already exists before attempting to destroy
     if (window.energyBreakdownChart && typeof window.energyBreakdownChart.destroy === "function") {
         window.energyBreakdownChart.destroy();
     }
@@ -471,12 +508,7 @@ function renderEnergyBreakdownChart(data) {
             datasets: [{
                 label: 'Energy Consumption (MWh)',
                 data: values,
-                backgroundColor: [
-                    '#2F3E46',  // Dark grey
-                    '#4E5D63',  // Grey
-                    '#38B2AC',  // Teal
-                    '#A8DADC'   // Light teal
-                ],
+                backgroundColor: colors,
                 borderColor: '#ffffff',
                 borderWidth: 2
             }]
@@ -501,24 +533,235 @@ function renderEnergyBreakdownChart(data) {
         }
     });
 
-    // Custom Legend Rendering
+    // Generate dynamic labels for the right-side legend
     const legendContainer = document.querySelector(".pie-chart-labels-container");
-    legendContainer.innerHTML = '';
+    legendContainer.innerHTML = ''; // Clear any existing labels
+
     labels.forEach((label, index) => {
-        const color = window.energyBreakdownChart.data.datasets[0].backgroundColor[index];
+        const color = colors[index];
         const value = values[index];
         const percentage = ((value / total) * 100).toFixed(1);
 
+        // Create a legend item
         const legendItem = document.createElement("div");
         legendItem.classList.add("legend-item");
         legendItem.innerHTML = `
-            <span class="label-color" style="background-color: ${color}; width: 14px; height: 14px; display: inline-block; margin-right: 8px;"></span>
-            <span class="label-name">${label}:</span>
-            <span class="label-value">${value} MWh (${percentage}%)</span>
-        `;
+        <span class="label-color" style="background-color: ${color}; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></span>
+        <span class="label-name" style="font-weight: bold;">${label}:</span>
+        <span class="label-value" style="font-weight: normal;">${value} MWh (${percentage}%)</span>
+    `;
+     
+
+        // Append the legend item to the container
         legendContainer.appendChild(legendItem);
     });
 }
+
+
+
+
+
+
+
+// Function to fetch and display total renewable energy for the company
+async function fetchTotalRenewableEnergyByCompanyId() {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/company/${company_id}`);
+        const data = await response.json();
+        console.log("Total Renewable Energy data for company:", data);
+        
+        // Update the "Total Renewable Energy" display
+        document.getElementById("totalRenewableEnergy").textContent = `${data.total_renewable_energy} MWh`;
+        
+    } catch (error) {
+        console.error("Error fetching total renewable energy data for company:", error);
+    }
+}
+
+// Function to fetch and display total renewable energy for a specific data center
+async function fetchTotalRenewableEnergyByDataCenterId(data_center_id) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/data-center/${data_center_id}`);
+        const data = await response.json();
+        console.log("Total Renewable Energy data for data center:", data);
+        
+        // Update the "Total Renewable Energy" display
+        document.getElementById("totalRenewableEnergy").textContent = `${data.total_renewable_energy} MWh`;
+        
+    } catch (error) {
+        console.error("Error fetching total renewable energy data for data center:", error);
+    }
+}
+
+// Function to fetch and display total renewable energy for the company with date
+async function fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate) {
+    const formattedDate = new Date(selectedDate).toISOString().split('T')[0];
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/company/${company_id}/date?date=${encodeURIComponent(formattedDate)}`);
+        const data = await response.json();
+        console.log("Total Renewable Energy data for company by date:", data);
+
+        // Update the "Total Renewable Energy" display
+        document.getElementById("totalRenewableEnergy").textContent = `${data.total_renewable_energy} MWh`;
+        
+    } catch (error) {
+        console.error("Error fetching total renewable energy data for company by date:", error);
+    }
+}
+
+// Function to fetch and display total renewable energy for a specific data center with date
+async function fetchTotalRenewableEnergyByDataCenterIdAndDate(data_center_id, selectedDate) {
+    const formattedDate = new Date(selectedDate).toISOString().split('T')[0];
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/data-center/${data_center_id}/date?date=${encodeURIComponent(formattedDate)}`);
+        const data = await response.json();
+        console.log("Total Renewable Energy data for data center by date:", data);
+
+        // Update the "Total Renewable Energy" display
+        document.getElementById("totalRenewableEnergy").textContent = `${data.total_renewable_energy} MWh`;
+        
+    } catch (error) {
+        console.error("Error fetching total renewable energy data for data center by date:", error);
+    }
+}
+
+
+
+
+
+async function fetchMetricData(metric) {
+    const selectedDataCenter = dataCenterDropdown.value;
+    const selectedDate = datePicker.value;
+    let response;
+
+    try {
+        // Determine the endpoint based on filters
+        if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
+            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}`);
+        } else if (!selectedDate && selectedDataCenter !== "all") {
+            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${selectedDataCenter}`);
+        } else if (selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
+            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        } else if (selectedDate && selectedDataCenter !== "all") {
+            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${selectedDataCenter}/date?date=${encodeURIComponent(selectedDate)}`);
+        }
+
+        const data = await response.json();
+        console.log(`Data fetched for ${metric}:`, data);
+
+        // Access the first object in the array to find the metric value
+        if (Array.isArray(data) && data.length > 0 && data[0][`${metric.toLowerCase()}_avg`] !== undefined) {
+            const metricValue = data[0][`${metric.toLowerCase()}_avg`];
+            console.log(`Rendering gauge chart for ${metric} with value:`, metricValue);
+            renderGaugeChart(metricValue, metric); // Render the gauge chart with the metric value
+        } else {
+            console.warn(`No ${metric} data found or missing ${metric.toLowerCase()}_avg field`);
+        }
+    } catch (error) {
+        console.error(`Error fetching ${metric} data:`, error);
+    }
+}
+
+
+
+
+
+
+function renderGaugeChart(value, label) {
+    const targetValues = { PUE: 1, CUE: 0.5, WUE: 1.0 };
+    const target = targetValues[label];
+    const maxValue = target * 2;
+
+    // Set canvas dimensions for better clarity
+    const canvas = document.getElementById("gaugeChart");
+    const pixelRatio = window.devicePixelRatio || 1;
+    canvas.width = 200 * pixelRatio;
+    canvas.height = 200 * pixelRatio;
+    canvas.style.width = '200px';
+    canvas.style.height = '200px';
+
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawing
+    ctx.scale(pixelRatio, pixelRatio);
+
+    const centerX = canvas.width / (2 * pixelRatio);
+    const centerY = canvas.height / (2 * pixelRatio) + 10;
+    const radius = 70;
+
+    // Draw green section
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, Math.PI, Math.PI + (0.5 * Math.PI));
+    ctx.lineWidth = 20;
+    ctx.strokeStyle = "#4FD1C5";
+    ctx.stroke();
+
+    // Draw red section
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, Math.PI + (0.5 * Math.PI), 2 * Math.PI);
+    ctx.strokeStyle = "#FF6B6B";
+    ctx.stroke();
+
+    // Needle calculations and drawing
+    const needleAngle = Math.PI + (value / maxValue) * Math.PI;
+    const needleLength = radius - 10;
+
+    // Draw needle shaft
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(
+        centerX + needleLength * Math.cos(needleAngle),
+        centerY + needleLength * Math.sin(needleAngle)
+    );
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#333";
+    ctx.stroke();
+
+    // Draw needle head (arrow)
+    const headLength = 10;
+    const headWidth = 4;
+    const headAngle1 = needleAngle - 0.15;
+    const headAngle2 = needleAngle + 0.15;
+
+    ctx.beginPath();
+    ctx.moveTo(
+        centerX + needleLength * Math.cos(needleAngle),
+        centerY + needleLength * Math.sin(needleAngle)
+    );
+    ctx.lineTo(
+        centerX + (needleLength - headLength) * Math.cos(headAngle1),
+        centerY + (needleLength - headLength) * Math.sin(headAngle1)
+    );
+    ctx.lineTo(
+        centerX + (needleLength - headLength) * Math.cos(headAngle2),
+        centerY + (needleLength - headLength) * Math.sin(headAngle2)
+    );
+    ctx.closePath();
+    ctx.fillStyle = "#333";
+    ctx.fill();
+
+    // Needle base circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = "#333";
+    ctx.fill();
+
+    // Labels
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "#333";
+    ctx.textAlign = "center";
+    ctx.fillText("0", centerX - radius - 10, centerY + 15);
+    ctx.fillText(target.toFixed(2), centerX, centerY - radius + 25);
+    ctx.fillText(maxValue.toFixed(2), centerX + radius + 10, centerY + 15);
+
+    // Value label below
+    ctx.font = "bold 14px Arial";
+    ctx.fillText(`${label}: ${value.toFixed(2)}`, centerX, centerY + 45);
+}
+
+
+
+
+
 
 
 
@@ -526,8 +769,7 @@ function renderEnergyBreakdownChart(data) {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM fully loaded, initializing data center options...");
     await loadDataCenterOptions(); // Load data centers when the page loads
+    fetchMetricData("PUE");
+    pueButton.classList.add("active");
     fetchData(); 
 });
-
-
-

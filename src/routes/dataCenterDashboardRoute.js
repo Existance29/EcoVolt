@@ -28,7 +28,11 @@ const dataCenterDashboardRoute = (app) => {
     app.get('/Dashboard/Data-Center/CarbonEmission/data-center/:data_center_id/date', dataCenterDashboardController.getAllCarbonEmissionByDataCenterAndDate);
 
 
-
+    app.get('/Dashboard/Data-Center/RenewableEnergy/Total/company/:company_id', dataCenterDashboardController.getTotalRenewableEnergyByCompanyId);
+    app.get('/Dashboard/Data-Center/RenewableEnergy/Total/data-center/:data_center_id', dataCenterDashboardController.getTotalRenewableEnergyByDataCenterId);
+    app.get('/Dashboard/Data-Center/RenewableEnergy/Total/data-center/:data_center_id/date', dataCenterDashboardController.getTotalRenewableEnergyByDataCenterIdAndDate);
+    app.get('/Dashboard/Data-Center/RenewableEnergy/Total/company/:company_id/date', dataCenterDashboardController.getTotalRenewableEnergyByCompanyIdAndDate);
+    
 
     // overview page
     app.get('/Dashboard/sustainability-goals/:company_id', dataCenterDashboardController.getAllSustainabilityGoalsData);

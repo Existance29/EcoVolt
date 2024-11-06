@@ -196,6 +196,7 @@ const getAllEnergyConsumptionByDataCenterId = async (req, res) => {
     const dataCenterId = parseInt(req.params.dataCenterId);
     try {
         const data = await dataCenterDashboard.getAllEnergyConsumptionByDataCenterId(dataCenterId);
+        // console.log(data);
         if (!data) {
             return res.status(404).send("Energy Consumption Data not found.");
         }
@@ -237,7 +238,7 @@ const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
 
         // Call the model function to fetch data within the computed date range
         const data = await dataCenterDashboard.getEnergyConsumptionByDataCenterIdAndDate(dataCenterId, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
-
+        // console.log(data);
         if (!data) {
             return res.status(404).send("No energy consumption data found for this data center in the specified date range.");
         }
@@ -556,6 +557,138 @@ const getAllCarbonEmissionByDataCenterAndDate = async (req, res) => {
 
 
 
+// Controller function to get total renewable energy contribution by company ID
+const getTotalRenewableEnergyByCompanyId = async (req, res) => {
+    const company_id = parseInt(req.params.company_id);
+
+    if (!company_id) {
+        return res.status(400).send("company_id is required.");
+    }
+
+    try {
+        const totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByCompanyId(company_id);
+
+        if (totalRenewableEnergy === null) {
+            return res.status(404).send("No renewable energy data found for this company.");
+        }
+
+        res.status(200).json({ total_renewable_energy: totalRenewableEnergy });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Failed to retrieve total renewable energy contribution: Internal Server Error.");
+    }
+};
+const getTotalRenewableEnergyByDataCenterId = async (req, res) => {
+    const data_center_id = parseInt(req.params.data_center_id);
+
+    if (!data_center_id) {
+        return res.status(400).send("data_center_id is required.");
+    }
+
+    try {
+        const totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByDataCenterId(data_center_id);
+
+        if (totalRenewableEnergy === null) {
+            return res.status(404).send("No renewable energy data found for this data center.");
+        }
+
+        res.status(200).json({ total_renewable_energy: totalRenewableEnergy });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Failed to retrieve total renewable energy contribution: Internal Server Error.");
+    }
+};
+
+
+const getTotalRenewableEnergyByDataCenterIdAndDate = async (req, res) => {
+    const data_center_id = parseInt(req.params.data_center_id);
+    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+
+    if (!data_center_id || !date) {
+        return res.status(400).send("data_center_id and date (in YYYY-MM-DD format) are required.");
+    }
+
+    try {
+        // Retrieve the latest date in the database for comparison
+        const lastDate = await dataCenterDashboard.getLastDateByDataCenter(data_center_id);
+        const providedDate = new Date(date);
+        const lastDateInDb = new Date(lastDate);
+
+        let startDate, endDate;
+
+        // Determine the date range based on whether the provided date is the last date in the database
+        if (providedDate.getTime() === lastDateInDb.getTime()) {
+            startDate = new Date(providedDate);
+            startDate.setMonth(startDate.getMonth() - 1);
+            endDate = providedDate;
+        } else {
+            startDate = providedDate;
+            endDate = new Date(providedDate);
+            endDate.setMonth(endDate.getMonth() + 1);
+        }
+
+        // Call the model function with computed date range
+        const totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByDataCenterIdAndDate(
+            data_center_id,
+            startDate.toISOString().split('T')[0],
+            endDate.toISOString().split('T')[0]
+        );
+
+        if (totalRenewableEnergy === null) {
+            return res.status(404).send("No renewable energy data found for this data center in the specified date range.");
+        }
+
+        res.status(200).json({ total_renewable_energy: totalRenewableEnergy });
+    } catch (error) {
+        console.error("Error in getTotalRenewableEnergyByDataCenterIdAndDate:", error);
+        res.status(500).send("Failed to retrieve total renewable energy contribution: Internal Server Error.");
+    }
+};
+
+const getTotalRenewableEnergyByCompanyIdAndDate = async (req, res) => {
+    const company_id = parseInt(req.params.company_id);
+    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+
+    if (!company_id || !date) {
+        return res.status(400).send("company_id and date (in YYYY-MM-DD format) are required.");
+    }
+
+    try {
+        // Retrieve the latest date in the database for comparison
+        const lastDate = await dataCenterDashboard.getLastDate(company_id);
+        const providedDate = new Date(date);
+        const lastDateInDb = new Date(lastDate);
+
+        let startDate, endDate;
+
+        // Determine the date range based on whether the provided date is the last date in the database
+        if (providedDate.getTime() === lastDateInDb.getTime()) {
+            startDate = new Date(providedDate);
+            startDate.setMonth(startDate.getMonth() - 1);
+            endDate = providedDate;
+        } else {
+            startDate = providedDate;
+            endDate = new Date(providedDate);
+            endDate.setMonth(endDate.getMonth() + 1);
+        }
+
+        // Call the model function with computed date range
+        const totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByCompanyIdAndDate(
+            company_id,
+            startDate.toISOString().split('T')[0],
+            endDate.toISOString().split('T')[0]
+        );
+
+        if (totalRenewableEnergy === null) {
+            return res.status(404).send("No renewable energy data found for this company in the specified date range.");
+        }
+
+        res.status(200).json({ total_renewable_energy: totalRenewableEnergy });
+    } catch (error) {
+        console.error("Error in getTotalRenewableEnergyByCompanyIdAndDate:", error);
+        res.status(500).send("Failed to retrieve total renewable energy contribution: Internal Server Error.");
+    }
+};
 
 
 
@@ -605,6 +738,10 @@ module.exports = {
     getAllCarbonEmissionByDataCenterAndDate,
 
 
+    getTotalRenewableEnergyByCompanyId,
+    getTotalRenewableEnergyByDataCenterId,
+    getTotalRenewableEnergyByDataCenterIdAndDate,
+    getTotalRenewableEnergyByCompanyIdAndDate,
 
     getAllSustainabilityGoalsData
 }

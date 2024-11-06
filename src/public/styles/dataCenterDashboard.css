@@ -108,7 +108,7 @@ canvas {
   background-color: white; 
   border-radius: 10px; 
   padding: 1.3rem 1.1rem; 
-  flex-grow: 1;
+  flex-grow: 3;
   display: flex; 
   align-items: center;
   box-shadow: 0px 3.5px 5.5px 0px rgba(0, 0, 0, 0.05);
@@ -175,36 +175,6 @@ color: #464549;
 font-size: 0.97rem;
 }
 
-.pie-chart-labels-container{
-font-size: 0.8rem;
-margin-left: 2rem;
-margin-bottom: 1rem;
-white-space: nowrap;
-display: flex;
-gap: 0.8rem;
-margin-top: 0.6rem;
-flex-wrap: nowrap;
-}
-
-.pie-chart-labels-container .label-color{
-margin-right: 0.7rem;
-width: 0.9rem;
-height: 0.9rem;
-}
-
-.pie-chart-labels-container .label-name{
-padding-right: 1rem;
-}
-
-.pie-chart-labels-container .label-value {
-color: #8A8A8A;
-}
-
-.pie-chart-labels-container .column{
-display: flex;
-flex-direction: column;
-gap: 0.6rem;
-}
 
 .chart-container{
 margin-top: 1.5rem;
@@ -229,8 +199,10 @@ left: 0;
 }
 
 .carbon-emission-chart-container {
-  height: 100%;
-  max-height: 190px; /* You can adjust this max-height to fit your layout */
+  width: 100%; /* Set to 100% width of the parent */
+  max-width: 600px; /* Adjust this to control the max width */
+  height: 320px; /* Increase the height */
+  margin: 0 auto; /* Center it within the container */
 }
 
 .carbon-emission-chart-container canvas {
@@ -239,39 +211,67 @@ left: 0;
 }
 
 
+
+
+.energy-breakdown-container {
+  display: flex;
+  justify-content: center; /* Center the canvas */
+  align-items: center;
+  margin: 0 auto; /* Center within the container */
+  width: 100%; /* Set to full width */
+  padding: 10px;
+}
+
+.energy-breakdown-container canvas {
+  width: 100px !important; /* Set a defined width */
+  height: 100px !important; /* Set a defined height */
+}
+
 .pie-chart-labels-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-start;
-  justify-content: center;
-  margin-left: 1.5rem;
+  align-items: center; /* Center the entire legend below the chart */
+  gap: 8px;
+  font-size: 12px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.pie-chart-labels-container .label-color {
-  width: 14px;
-  height: 14px;
-  display: inline-block;
-  border-radius: 3px;
-  margin-right: 8px;
-}
-
-.pie-chart-labels-container .legend-item {
+.legend-item {
   display: flex;
   align-items: center;
-  font-size: 14px;
-  color: #333;
+  gap: 8px;
+  width: 100%;
+  max-width: 250px; /* Control width of each legend item */
+  justify-content: space-between; /* Distribute space between color box, label, and value */
 }
 
-.pie-chart-labels-container .label-name {
+.label-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0; /* Prevents the color box from resizing */
+}
+
+.label-name {
   font-weight: bold;
-  margin-right: 8px;
+  flex-grow: 1; /* Allows the label to grow and take up available space */
+  text-align: left;
 }
 
-.pie-chart-labels-container .label-value {
-  color: #666;
-  font-size: 12px;
+.label-value {
+  color: #8A8A8A;
+  font-size: 11px;
+  font-weight: normal;
+  flex-shrink: 0; /* Prevents the value from resizing */
+  text-align: right;
 }
+
+
+
+
+
+
 
 
 .main-content {
@@ -286,15 +286,6 @@ left: 0;
   gap: 1rem;
 }
 
-.energy-breakdown-container {
-  display: flex;
-  flex-direction: column;
-  width: 65%; /* Adjust width to make it span horizontally */
-  padding: 1.6rem;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0px 3.5px 5.5px 0px rgba(0, 0, 0, 0.05);
-}
 
 .carbon-overview-container {
   width: 35%;
@@ -302,4 +293,77 @@ left: 0;
   background: white;
   border-radius: 10px;
   box-shadow: 0px 3.5px 5.5px 0px rgba(0, 0, 0, 0.05);
+}
+
+.totals-row {
+  display: flex;
+  gap: 1rem; /* Adjust the space between each item */
+  margin-bottom: 1.5rem; /* Add some space below the row */
+}
+
+/* Container for stat boxes */
+.main-stats-row {
+  display: flex;
+  flex-wrap: nowrap; /* Prevents wrapping into multiple rows */
+  gap: 1rem; /* Adjust spacing between items as needed */
+}
+
+/* Ensures all main-stat-container items have consistent sizing */
+.main-stats-row .main-stat-container {
+  flex: 1 1 0; /* Ensures each item takes equal space in the row */
+  min-width: 0; /* Prevents overflow issues */
+  max-width: 25%; /* Adjust width for the desired number of columns */
+}
+
+
+
+.gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* Center elements horizontally */
+  justify-content: center;  /* Center elements vertically */
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: left;  /* Center text inside */
+  max-height: 250px;
+}
+
+#gaugeChart {
+  width: 180px;
+  height: 155px;
+  margin: 0 auto;  /* Center the canvas */
+  display: block;
+}
+
+.gauge-container h2 {
+  align-self: flex-start;       /* Align the title to the left */
+  margin-top: 40px; /* Moves the title down by adding space above */
+}
+
+.button-container button {
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 20px; /* Moves the title down by adding space above */
+  color: #4e5d63;
+  background-color: #f4f4f9;
+  border: 2px solid #4e5d63;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.button-container button:hover {
+  background-color: #4e5d63;
+  color: white;
+}
+
+.button-container button.active {
+  background-color: #4e5d63;
+  color: white;
 }
