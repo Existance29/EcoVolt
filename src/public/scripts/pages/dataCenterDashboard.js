@@ -1,28 +1,10 @@
 // Set your company ID (replace with the actual ID)
 const company_id = getCompanyId(); // Replace with actual company ID
 
-document.addEventListener("DOMContentLoaded", () => {
-    const dateDisplay = document.getElementById("dateDisplay");
-    const datePicker = document.getElementById("datePicker");
-
-    // Update the display when a date is selected
-    datePicker.addEventListener("input", () => {
-        if (datePicker.value) {
-            const [year, month] = datePicker.value.split("-");
-            const formattedDate = new Date(year, month - 1).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long"
-            });
-            dateDisplay.textContent = formattedDate;
-        } else {
-            dateDisplay.textContent = "All Time";
-        }
-    });
-});
 
 
-
-
+const datePicker = document.getElementById("datePicker");
+datePicker.textContent = "All Time";
 const dataCenterDropdown = document.getElementById("dataCenterDropdown");
 
 // Initialize chart instances
