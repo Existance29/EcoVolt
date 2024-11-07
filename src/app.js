@@ -9,6 +9,8 @@ const sql = require("mssql")
 const route = require("./routes/routes")
 // const route = require("./routes/routes")
 const bodyParser = require("body-parser");
+const overviewDashboardRoute = require("./routes/overviewRoutes");
+
 
 app.use(cors());
 
@@ -30,6 +32,9 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 //setup routes
 route(app);
+
+//overviewdashboard route
+overviewDashboardRoute(app);
 
 app.listen(port, async () => {
   try {
