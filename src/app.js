@@ -1,5 +1,6 @@
 //import
 const express = require("express");
+const session = require("express-session");  // Import session
 const app = express()
 const cors = require('cors');
 const port = process.env.PORT || 3000
@@ -16,6 +17,14 @@ app.use(cors());
 //load frontend
 const staticMiddleware = express.static("public")
 app.use(staticMiddleware)
+
+// Use session middleware before setting up routes
+app.use(session({
+    secret: 'secret-key', // Replace with a secure key
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Change to true if using HTTPS
+}));
 
 //use parse middlewares
 app.use(bodyParser.json())
