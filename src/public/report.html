@@ -4,20 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Singtel Sustainability Report</title>
-    <link rel="stylesheet" href="./styles/common.css">
-    <link rel="stylesheet" href="./styles/report.css">
-    <link rel="stylesheet" href="./styles/dataCenterDashboard.css"> <!-- Reuse existing styles -->
+    <link rel="stylesheet" href="styles/report.css">
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="styles/dataCenterDashboard.css">
+    
+    <!-- Include html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Include jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> <!-- Ensure this is here -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div class="layout-container">
-        <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="logo">
                 <h2>EcoVolt</h2>
             </div>
             <nav class="nav-menu">
                 <a href="dataCenterDashboard.html">Dashboard</a>
-                <a href="reportView.html" class="active">Report</a>
+                <a href="report.html" class="active">Report</a>
                 <a href="#">Blog</a>
                 <a href="#">Profile</a>
                 <a href="#">Sign In</a>
@@ -28,24 +34,57 @@
             </div>
         </aside>
 
-        <!-- Main Content Area -->
         <main class="main-content">
-            <header class="mainHeader" data-title="Singtel Sustainability Report" data-breadcrumb="Pages / Report">
+            <header class="mainHeader">
                 <h1>Singtel Sustainability Report 2024</h1>
             </header>
 
-            <div class="report-container">
-                <iframe id="reportFrame" style="width: 100%; height: 100%; border: none;"></iframe>
-            </div>
+            <div id="reportContent" class="report-content">
+                <section class="report-section">
+                    <h2>Executive Summary</h2>
+                    <p id="executiveSummary"></p>
+                </section>
 
-            <div class="download-container">
-                <button id="downloadReportBtn" class="download-btn">Download Report as PDF</button>
+                <section class="report-section">
+                    <h2>Data Overview</h2>
+                    <div id="chart-container">
+                        <canvas id="dataChart" width="800" height="400"></canvas>
+                    </div>
+                </section>
+
+                <section class="report-section">
+                    <h2>Data Insights</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Radio Equipment Energy (kWh)</th>
+                                <th>Cooling Energy (kWh)</th>
+                                <th>Backup Power Energy (kWh)</th>
+                                <th>Misc Energy (kWh)</th>
+                                <th>CO2 Emissions (tons)</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </section>
+
+                <section class="report-section">
+                    <h2>Recommendations</h2>
+                    <div class="recommendations"></div>
+                </section>
+
+                <section class="report-section">
+                    <h2>Conclusion</h2>
+                    <p id="conclusion"></p>
+                </section>
             </div>
         </main>
+        <button id="generateReportBtn" class="generate-btn">Generate Report</button>
+        <p id="statusMessage"></p>
     </div>
 
-    <!-- JavaScript Files -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="./scripts/generateReport.js"></script>
+    <script src="scripts/generateReport.js"></script> <!-- Custom script should be last -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
