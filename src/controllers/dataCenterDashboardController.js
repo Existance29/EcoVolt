@@ -50,7 +50,7 @@ const getLastDateByDataCenter = async (req, res) => {
 
 
 
-
+// ---------------------------------------------------------------------------------------------------
 const getTotalEnergyConsumptionByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
 
@@ -94,38 +94,35 @@ const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
     const date = req.query.date;
 
     if (!dataCenterId || !date) {
-        return res.status(400).send("dataCenterId and date (in YYYY-MM-DD format) are required.");
+        return res.status(400).send("dataCenterId and date (in YYYY-MM or YYYY format) are required.");
     }
 
     try {
-        const lastDate = await dataCenterDashboard.getLastDateByDataCenter(dataCenterId);
-        const providedDate = new Date(date);
-        const lastDateInDb = new Date(lastDate);
+        let totalEnergyConsumption;
+        const [year, month] = date.split('-');
 
-        let startDate, endDate;
-
-        if (providedDate.getTime() === lastDateInDb.getTime()) {
-            startDate = new Date(providedDate);
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate = providedDate;
+        if (month) {
+            // If month is provided, get monthly total energy consumption
+            totalEnergyConsumption = await dataCenterDashboard.getTotalEnergyConsumptionByDataCenterIdAndYearMonth(
+                dataCenterId,
+                parseInt(year),
+                parseInt(month)
+            );
         } else {
-            startDate = providedDate;
-            endDate = new Date(providedDate);
-            endDate.setMonth(endDate.getMonth() + 1);
+            // If only year is provided, get yearly total energy consumption
+            totalEnergyConsumption = await dataCenterDashboard.getTotalEnergyConsumptionByDataCenterIdAndYear(
+                dataCenterId,
+                parseInt(year)
+            );
         }
-
-        const totalEnergyConsumption = await dataCenterDashboard.getTotalEnergyConsumptionByDataCenterIdAndDate(
-            dataCenterId,
-            startDate.toISOString().split('T')[0],
-            endDate.toISOString().split('T')[0]
-        );
 
         if (totalEnergyConsumption === null) {
             return res.status(404).send("No energy consumption data found for this data center in the specified date range.");
         }
+
         res.status(200).json({ total_energy_consumption: totalEnergyConsumption });
     } catch (error) {
-        console.error(error);
+        console.error("Error in getTotalEnergyConsumptionByDataCenterIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve total energy consumption data: Internal Server Error.");
     }
 };
@@ -135,47 +132,45 @@ const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
     const date = req.query.date;
 
     if (!company_id || !date) {
-        return res.status(400).send("company_id and date (in YYYY-MM-DD format) are required.");
+        return res.status(400).send("company_id and date (in YYYY-MM or YYYY format) are required.");
     }
 
     try {
-        const lastDate = await dataCenterDashboard.getLastDate(company_id);
-        const providedDate = new Date(date);
-        const lastDateInDb = new Date(lastDate);
+        let totalEnergyConsumption;
+        const [year, month] = date.split('-');
 
-        let startDate, endDate;
-
-        if (providedDate.getTime() === lastDateInDb.getTime()) {
-            startDate = new Date(providedDate);
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate = providedDate;
+        if (month) {
+            // If month is provided, get monthly total energy consumption
+            totalEnergyConsumption = await dataCenterDashboard.getTotalEnergyConsumptionByCompanyIdAndYearAndMonth(
+                company_id,
+                parseInt(year),
+                parseInt(month)
+            );
         } else {
-            startDate = providedDate;
-            endDate = new Date(providedDate);
-            endDate.setMonth(endDate.getMonth() + 1);
+            // If only year is provided, get yearly total energy consumption
+            totalEnergyConsumption = await dataCenterDashboard.getTotalEnergyConsumptionByCompanyIdAndYear(
+                company_id,
+                parseInt(year)
+            );
         }
-
-        const totalEnergyConsumption = await dataCenterDashboard.getTotalEnergyConsumptionByCompanyIdAndDate(
-            company_id,
-            startDate.toISOString().split('T')[0],
-            endDate.toISOString().split('T')[0]
-        );
 
         if (totalEnergyConsumption === null) {
             return res.status(404).send("No energy consumption data found for this company in the specified date range.");
         }
+
         res.status(200).json({ total_energy_consumption: totalEnergyConsumption });
     } catch (error) {
-        console.error(error);
+        console.error("Error in getTotalEnergyConsumptionByCompanyIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve total energy consumption data: Internal Server Error.");
     }
 };
+// ---------------------------------------------------------------------------------------------------
 
 
 
 
 
-
+// ---------------------------------------------------------------------------------------------------
 // purpose: if user selects ALL DATA CENTER, it shows all the production and usage from the start til the end
 const getAllEnergyConsumptionByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
@@ -209,88 +204,81 @@ const getAllEnergyConsumptionByDataCenterId = async (req, res) => {
 
 const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
     const dataCenterId = parseInt(req.params.dataCenterId);
-    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+    const date = req.query.date;
 
     if (!dataCenterId || !date) {
-        return res.status(400).send("dataCenterId and date (in YYYY-MM-DD format) are required.");
+        return res.status(400).send("dataCenterId and date (in YYYY-MM or YYYY format) are required.");
     }
 
     try {
-        // Retrieve the latest date in the database for comparison
-        const lastDate = await dataCenterDashboard.getLastDateByDataCenter(dataCenterId);
-        const providedDate = new Date(date);
-        const lastDateInDb = new Date(lastDate);
+        let data;
+        const [year, month] = date.split('-');
 
-        let startDate, endDate;
-
-        // Check if the provided date matches the last date in the database
-        if (providedDate.getTime() === lastDateInDb.getTime()) {
-            // If it's the last date, get the same day of the previous month
-            startDate = new Date(providedDate);
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate = providedDate;
+        if (month) {
+            // Call model function for specific year and month data
+            data = await dataCenterDashboard.getEnergyConsumptionByDataCenterIdAndYearMonth(
+                dataCenterId,
+                parseInt(year),
+                parseInt(month)
+            );
         } else {
-            // Otherwise, get the date range from the provided date to one month later
-            startDate = providedDate;
-            endDate = new Date(providedDate);
-            endDate.setMonth(endDate.getMonth() + 1);
+            // Call model function for specific year data
+            data = await dataCenterDashboard.getEnergyConsumptionByDataCenterIdAndYear(
+                dataCenterId,
+                parseInt(year)
+            );
         }
 
-        // Call the model function to fetch data within the computed date range
-        const data = await dataCenterDashboard.getEnergyConsumptionByDataCenterIdAndDate(dataCenterId, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
-        // console.log(data);
         if (!data) {
             return res.status(404).send("No energy consumption data found for this data center in the specified date range.");
         }
+
         res.status(200).json(data);
     } catch (error) {
-        console.error("Error in getAllEnergyConsumptionByDataCenterIdAndDate:", error);
+        console.error("Error in getAllEnergyConsumptionByDataCenterIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve energy consumption data: Internal Server Error.");
     }
 };
 
 const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
-    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+    const date = req.query.date;
 
     if (!company_id || !date) {
         console.log("Missing company_id or date parameters.");
-        return res.status(400).send("company_id and date (in YYYY-MM-DD format) are required.");
+        return res.status(400).send("company_id and date (in YYYY-MM or YYYY format) are required.");
     }
 
     try {
-        // Retrieve the latest date in the database for comparison
-        const lastDate = await dataCenterDashboard.getLastDate(company_id);
-        const providedDate = new Date(date);
-        const lastDateInDb = new Date(lastDate);
+        let data;
+        const [year, month] = date.split('-');
 
-        let startDate, endDate;
-
-        // Check if the provided date matches the last date in the database
-        if (providedDate.getTime() === lastDateInDb.getTime()) {
-            // If it's the last date, get the same day of the previous month
-            startDate = new Date(providedDate);
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate = providedDate;
+        if (month) {
+            // If month is provided, fetch data for the specified year and month
+            data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndYearMonth(
+                company_id,
+                parseInt(year),
+                parseInt(month)
+            );
         } else {
-            // Otherwise, get the date range from the provided date to one month later
-            startDate = providedDate;
-            endDate = new Date(providedDate);
-            endDate.setMonth(endDate.getMonth() + 1);
+            // If only the year is provided, fetch data for the specified year
+            data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndYear(
+                company_id,
+                parseInt(year)
+            );
         }
-
-        // Call the model function to fetch data within the computed date range
-        const data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndDate(company_id, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
 
         if (!data) {
             return res.status(404).send("No energy consumption data found for this company in the specified date range.");
         }
+
         res.status(200).json(data);
     } catch (error) {
-        console.error("Error in getAllEnergyConsumptionByCompanyIdAndDate:", error);
+        console.error("Error in getAllEnergyConsumptionByCompanyIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve energy consumption data: Internal Server Error.");
     }
 };
+// ---------------------------------------------------------------------------------------------------
 
 
 
@@ -303,9 +291,7 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
 
 
 
-
-
-
+// ---------------------------------------------------------------------------------------------------
 const getTotalCarbonEmissionByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
     try {
@@ -319,8 +305,6 @@ const getTotalCarbonEmissionByCompanyId = async (req, res) => {
         res.status(500).send("Failed to retrieve total Carbon Emission data: Internal Server Error.");
     }
 };
-
-
 
 const getTotalCarbonEmissionByDataCenterId = async (req, res) => {
     const data_center_id = parseInt(req.params.data_center_id);
@@ -336,94 +320,82 @@ const getTotalCarbonEmissionByDataCenterId = async (req, res) => {
     }
 };
 
-
-
-
 const getTotalCarbonEmissionByCompanyIdAndDate = async (req, res) => {
     const companyId = parseInt(req.params.company_id);
-    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+    const date = req.query.date;
 
     if (!companyId || !date) {
-        return res.status(400).send("companyId and date (in YYYY-MM-DD format) are required.");
+        return res.status(400).send("companyId and date (in YYYY-MM or YYYY format) are required.");
     }
 
     try {
-        // Retrieve the latest date in the database for comparison
-        const lastDate = await dataCenterDashboard.getLastDate(companyId);
-        const providedDate = new Date(date);
-        const lastDateInDb = new Date(lastDate);
+        let totalCO2Emissions;
+        const [year, month] = date.split('-');
 
-        let startDate, endDate;
-
-        // Check if the provided date matches the last date in the database
-        if (providedDate.getTime() === lastDateInDb.getTime()) {
-            // If it's the last date, get the same day of the previous month
-            startDate = new Date(providedDate);
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate = providedDate;
+        if (month) {
+            // If month is provided, get data by year and month
+            totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByCompanyIdAndYearMonth(
+                companyId,
+                parseInt(year),
+                parseInt(month)
+            );
         } else {
-            // Otherwise, get the date range from the provided date to one month later
-            startDate = providedDate;
-            endDate = new Date(providedDate);
-            endDate.setMonth(endDate.getMonth() + 1);
+            // If only year is provided, get data by year
+            totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByCompanyIdAndYear(
+                companyId,
+                parseInt(year)
+            );
         }
-
-        // Call the model function to fetch total emissions within the computed date range
-        const totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByCompanyIdAndDate(companyId, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
 
         if (totalCO2Emissions === null) {
             return res.status(404).send("No Carbon Emission data found for this company in the specified date range.");
         }
+
         res.status(200).json({ total_co2_emissions: totalCO2Emissions });
     } catch (error) {
-        console.error(error);
+        console.error("Error in getTotalCarbonEmissionByCompanyIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve total Carbon Emission data: Internal Server Error.");
     }
 };
 
-
-
 const getTotalCarbonEmissionByDataCenterIdAndDate = async (req, res) => {
     const data_center_id = parseInt(req.params.data_center_id);
-    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+    const date = req.query.date;
 
     if (!data_center_id || !date) {
-        return res.status(400).send("data_center_id and date (in YYYY-MM-DD format) are required.");
+        return res.status(400).send("data_center_id and date (in YYYY-MM or YYYY format) are required.");
     }
 
     try {
-        // Retrieve the latest date in the database for comparison
-        const lastDate = await dataCenterDashboard.getLastDateByDataCenter(data_center_id);
-        const providedDate = new Date(date);
-        const lastDateInDb = new Date(lastDate);
+        let totalCO2Emissions;
+        const [year, month] = date.split('-');
 
-        let startDate, endDate;
-
-        // Check if the provided date matches the last date in the database
-        if (providedDate.getTime() === lastDateInDb.getTime()) {
-            // If it's the last date, get the same day of the previous month
-            startDate = new Date(providedDate);
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate = providedDate;
+        if (month) {
+            // If month is provided, get data by year and month
+            totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByDataCenterIdAndYearMonth(
+                data_center_id,
+                parseInt(year),
+                parseInt(month)
+            );
         } else {
-            // Otherwise, get the date range from the provided date to one month later
-            startDate = providedDate;
-            endDate = new Date(providedDate);
-            endDate.setMonth(endDate.getMonth() + 1);
+            // If only year is provided, get data by year
+            totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByDataCenterIdAndYear(
+                data_center_id,
+                parseInt(year)
+            );
         }
-
-        // Call the model function to fetch total emissions within the computed date range
-        const totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByDataCenterIdAndDate(data_center_id, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
 
         if (totalCO2Emissions === null) {
             return res.status(404).send("No Carbon Emission data found for this data center in the specified date range.");
         }
+
         res.status(200).json({ total_co2_emissions: totalCO2Emissions });
     } catch (error) {
-        console.error(error);
+        console.error("Error in getTotalCarbonEmissionByDataCenterIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve total Carbon Emission data: Internal Server Error.");
     }
 };
+// ---------------------------------------------------------------------------------------------------
 
 
 
@@ -434,10 +406,7 @@ const getTotalCarbonEmissionByDataCenterIdAndDate = async (req, res) => {
 
 
 
-
-
-
-
+// ---------------------------------------------------------------------------------------------------
 const getAllCarbonEmissionByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
     try {
@@ -451,8 +420,6 @@ const getAllCarbonEmissionByCompanyId = async (req, res) => {
         res.status(500).send("Failed to retrieve Carbon Emission data: Internal Server Error.");
     }
 };
-
-
 
 const getAllCarbonEmissionByDataCenterId = async (req, res) => {
     const data_center_id = parseInt(req.params.data_center_id);
@@ -470,93 +437,87 @@ const getAllCarbonEmissionByDataCenterId = async (req, res) => {
 
 const getAllCarbonEmissionByCompanyIdAndDate = async (req, res) => {
     const companyId = parseInt(req.params.company_id);
-    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+    const date = req.query.date;
 
     if (!companyId || !date) {
-        return res.status(400).send("companyId and date (in YYYY-MM-DD format) are required.");
+        return res.status(400).send("companyId and date (in YYYY-MM or YYYY format) are required.");
     }
 
     try {
-        // Retrieve the latest date in the database for comparison
-        const lastDate = await dataCenterDashboard.getLastDate(companyId);
+        let data;
+        const [year, month] = date.split('-');
 
-        // Parse the provided date and last date for comparison
-        const providedDate = new Date(date);
-        const lastDateInDb = new Date(lastDate);
-
-        let startDate, endDate;
-        
-        // Check if the provided date matches the last date in the database
-        if (providedDate.getTime() === lastDateInDb.getTime()) {
-            // If it's the last date, get the same day of the previous month
-            startDate = new Date(providedDate);
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate = providedDate;
+        if (month) {
+            // Call model function for data by year and month
+            data = await dataCenterDashboard.getAllCarbonEmissionByCompanyIdAndYearMonth(
+                companyId,
+                parseInt(year),
+                parseInt(month)
+            );
         } else {
-            // Otherwise, get the date range from the provided date to one month later
-            startDate = providedDate;
-            endDate = new Date(providedDate);
-            endDate.setMonth(endDate.getMonth() + 1);
+            // Call model function for data by year only
+            data = await dataCenterDashboard.getAllCarbonEmissionByCompanyIdAndYear(
+                companyId,
+                parseInt(year)
+            );
         }
-
-        // Call the model function to fetch data within the computed date range
-        const data = await dataCenterDashboard.getAllCarbonEmissionByCompanyIdAndDate(companyId, startDate, endDate);
 
         if (!data) {
             return res.status(404).send("No carbon emission data found for this company in the specified date range.");
         }
+
         res.status(200).json(data);
     } catch (error) {
-        console.error(error);
+        console.error("Error in getAllCarbonEmissionByCompanyIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve carbon emission data: Internal Server Error.");
     }
 };
 
 const getAllCarbonEmissionByDataCenterAndDate = async (req, res) => {
     const dataCenterId = parseInt(req.params.data_center_id);
-    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+    const date = req.query.date;
 
     if (!dataCenterId || !date) {
-        return res.status(400).send("data_center_id and date (in YYYY-MM-DD format) are required.");
+        return res.status(400).send("data_center_id and date (in YYYY-MM or YYYY format) are required.");
     }
 
     try {
-        // Retrieve the latest date in the database for comparison
-        const lastDate = await dataCenterDashboard.getLastDateByDataCenter(dataCenterId);
+        let data;
+        const [year, month] = date.split('-');
 
-        const providedDate = new Date(date);
-        const lastDateInDb = new Date(lastDate);
-
-        let startDate, endDate;
-
-        if (providedDate.getTime() === lastDateInDb.getTime()) {
-            startDate = new Date(providedDate);
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate = providedDate;
+        if (month) {
+            // Call model function for data by year and month
+            data = await dataCenterDashboard.getAllCarbonEmissionByDataCenterAndYearMonth(
+                dataCenterId,
+                parseInt(year),
+                parseInt(month)
+            );
         } else {
-            startDate = providedDate;
-            endDate = new Date(providedDate);
-            endDate.setMonth(endDate.getMonth() + 1);
+            // Call model function for data by year only
+            data = await dataCenterDashboard.getAllCarbonEmissionByDataCenterAndYear(
+                dataCenterId,
+                parseInt(year)
+            );
         }
-
-        const data = await dataCenterDashboard.getAllCarbonEmissionByDataCenterAndDate(dataCenterId, startDate, endDate);
 
         if (!data) {
             return res.status(404).send("No carbon emission data found for this data center in the specified date range.");
         }
+
         res.status(200).json(data);
     } catch (error) {
-        console.error(error);
+        console.error("Error in getAllCarbonEmissionByDataCenterAndDate:", error.message);
         res.status(500).send("Failed to retrieve carbon emission data: Internal Server Error.");
     }
 };
+// ---------------------------------------------------------------------------------------------------
 
 
 
 
 
 
-
+// ---------------------------------------------------------------------------------------------------
 // Controller function to get total renewable energy contribution by company ID
 const getTotalRenewableEnergyByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
@@ -599,40 +560,32 @@ const getTotalRenewableEnergyByDataCenterId = async (req, res) => {
     }
 };
 
-
 const getTotalRenewableEnergyByDataCenterIdAndDate = async (req, res) => {
     const data_center_id = parseInt(req.params.data_center_id);
-    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+    const date = req.query.date;
 
     if (!data_center_id || !date) {
-        return res.status(400).send("data_center_id and date (in YYYY-MM-DD format) are required.");
+        return res.status(400).send("data_center_id and date (in YYYY-MM or YYYY format) are required.");
     }
 
     try {
-        // Retrieve the latest date in the database for comparison
-        const lastDate = await dataCenterDashboard.getLastDateByDataCenter(data_center_id);
-        const providedDate = new Date(date);
-        const lastDateInDb = new Date(lastDate);
+        let totalRenewableEnergy;
+        const [year, month] = date.split('-');
 
-        let startDate, endDate;
-
-        // Determine the date range based on whether the provided date is the last date in the database
-        if (providedDate.getTime() === lastDateInDb.getTime()) {
-            startDate = new Date(providedDate);
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate = providedDate;
+        if (month) {
+            // If month is provided, get data by year and month
+            totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByDataCenterIdAndYearMonth(
+                data_center_id,
+                parseInt(year),
+                parseInt(month)
+            );
         } else {
-            startDate = providedDate;
-            endDate = new Date(providedDate);
-            endDate.setMonth(endDate.getMonth() + 1);
+            // If only year is provided, get data by year
+            totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByDataCenterIdAndYear(
+                data_center_id,
+                parseInt(year)
+            );
         }
-
-        // Call the model function with computed date range
-        const totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByDataCenterIdAndDate(
-            data_center_id,
-            startDate.toISOString().split('T')[0],
-            endDate.toISOString().split('T')[0]
-        );
 
         if (totalRenewableEnergy === null) {
             return res.status(404).send("No renewable energy data found for this data center in the specified date range.");
@@ -640,44 +593,37 @@ const getTotalRenewableEnergyByDataCenterIdAndDate = async (req, res) => {
 
         res.status(200).json({ total_renewable_energy: totalRenewableEnergy });
     } catch (error) {
-        console.error("Error in getTotalRenewableEnergyByDataCenterIdAndDate:", error);
+        console.error("Error in getTotalRenewableEnergyByDataCenterIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve total renewable energy contribution: Internal Server Error.");
     }
 };
 
 const getTotalRenewableEnergyByCompanyIdAndDate = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
-    const date = req.query.date; // Expecting date in 'YYYY-MM-DD' format
+    const date = req.query.date;
 
     if (!company_id || !date) {
-        return res.status(400).send("company_id and date (in YYYY-MM-DD format) are required.");
+        return res.status(400).send("company_id and date (in YYYY-MM or YYYY format) are required.");
     }
 
     try {
-        // Retrieve the latest date in the database for comparison
-        const lastDate = await dataCenterDashboard.getLastDate(company_id);
-        const providedDate = new Date(date);
-        const lastDateInDb = new Date(lastDate);
+        let totalRenewableEnergy;
+        const [year, month] = date.split('-');
 
-        let startDate, endDate;
-
-        // Determine the date range based on whether the provided date is the last date in the database
-        if (providedDate.getTime() === lastDateInDb.getTime()) {
-            startDate = new Date(providedDate);
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate = providedDate;
+        if (month) {
+            // If month is provided, call model function for year and month
+            totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByCompanyIdAndYearMonth(
+                company_id,
+                parseInt(year),
+                parseInt(month)
+            );
         } else {
-            startDate = providedDate;
-            endDate = new Date(providedDate);
-            endDate.setMonth(endDate.getMonth() + 1);
+            // If only year is provided, call model function for year only
+            totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByCompanyIdAndYear(
+                company_id,
+                parseInt(year)
+            );
         }
-
-        // Call the model function with computed date range
-        const totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByCompanyIdAndDate(
-            company_id,
-            startDate.toISOString().split('T')[0],
-            endDate.toISOString().split('T')[0]
-        );
 
         if (totalRenewableEnergy === null) {
             return res.status(404).send("No renewable energy data found for this company in the specified date range.");
@@ -685,11 +631,11 @@ const getTotalRenewableEnergyByCompanyIdAndDate = async (req, res) => {
 
         res.status(200).json({ total_renewable_energy: totalRenewableEnergy });
     } catch (error) {
-        console.error("Error in getTotalRenewableEnergyByCompanyIdAndDate:", error);
+        console.error("Error in getTotalRenewableEnergyByCompanyIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve total renewable energy contribution: Internal Server Error.");
     }
 };
-
+// ---------------------------------------------------------------------------------------------------
 
 
 
