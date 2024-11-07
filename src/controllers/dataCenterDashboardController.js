@@ -291,7 +291,7 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
 
 
 
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 const getTotalCarbonEmissionByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
     try {
@@ -346,11 +346,9 @@ const getTotalCarbonEmissionByCompanyIdAndDate = async (req, res) => {
                 parseInt(year)
             );
         }
-
         if (totalCO2Emissions === null) {
             return res.status(404).send("No Carbon Emission data found for this company in the specified date range.");
         }
-
         res.status(200).json({ total_co2_emissions: totalCO2Emissions });
     } catch (error) {
         console.error("Error in getTotalCarbonEmissionByCompanyIdAndDate:", error.message);
@@ -384,18 +382,16 @@ const getTotalCarbonEmissionByDataCenterIdAndDate = async (req, res) => {
                 parseInt(year)
             );
         }
-
         if (totalCO2Emissions === null) {
             return res.status(404).send("No Carbon Emission data found for this data center in the specified date range.");
         }
-
         res.status(200).json({ total_co2_emissions: totalCO2Emissions });
     } catch (error) {
         console.error("Error in getTotalCarbonEmissionByDataCenterIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve total Carbon Emission data: Internal Server Error.");
     }
 };
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 
 
 
