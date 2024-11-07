@@ -130,15 +130,28 @@
 
 
                     <!-- Metrics Gauge Chart -->
-                    <div class="inter-semibold gauge-container">
-                        <h2>Metrics Gauge Chart</h2>
+                    <div class="gauge-container">
+                        <div class="title-container">
+                            <h2>Metrics Gauge Chart</h2>
+                            <span class="info-icon" onclick="showTooltip()">💡</span>
+                        </div>
                         <div class="button-container">
                             <button id="pueButton">PUE</button>
                             <button id="cueButton">CUE</button>
                             <button id="wueButton">WUE</button>
                         </div>
-                        <canvas id="gaugeChart" width="400" height="200"></canvas>
+                        <canvas id="gaugeChart"></canvas>
+                        <div id="tooltipModal" class="tooltip-modal">
+                            <div class="tooltip-content">
+                                <span class="close" onclick="hideTooltip()">&times;</span>
+                                <h3>Metrics Information</h3>
+                                <p><strong>PUE (Power Usage Effectiveness):</strong> A measure of how efficiently a data center uses energy; ideally close to 1.</p>
+                                <p><strong>CUE (Carbon Usage Effectiveness):</strong> Represents the carbon emissions per unit of energy consumed.</p>
+                                <p><strong>WUE (Water Usage Effectiveness):</strong> Measures the amount of water used by a data center for cooling per unit of energy consumed.</p>
+                            </div>
+                        </div>                        
                     </div>
+                    
                     
                 </div>
             </div>
