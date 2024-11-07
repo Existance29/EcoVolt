@@ -50,7 +50,7 @@ const getLastDateByDataCenter = async (req, res) => {
 
 
 
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 const getTotalEnergyConsumptionByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
 
@@ -119,7 +119,6 @@ const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
         if (totalEnergyConsumption === null) {
             return res.status(404).send("No energy consumption data found for this data center in the specified date range.");
         }
-
         res.status(200).json({ total_energy_consumption: totalEnergyConsumption });
     } catch (error) {
         console.error("Error in getTotalEnergyConsumptionByDataCenterIdAndDate:", error.message);
@@ -157,20 +156,19 @@ const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
         if (totalEnergyConsumption === null) {
             return res.status(404).send("No energy consumption data found for this company in the specified date range.");
         }
-
         res.status(200).json({ total_energy_consumption: totalEnergyConsumption });
     } catch (error) {
         console.error("Error in getTotalEnergyConsumptionByCompanyIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve total energy consumption data: Internal Server Error.");
     }
 };
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 
 
 
 
 
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 // purpose: if user selects ALL DATA CENTER, it shows all the production and usage from the start til the end
 const getAllEnergyConsumptionByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
@@ -232,7 +230,6 @@ const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
         if (!data) {
             return res.status(404).send("No energy consumption data found for this data center in the specified date range.");
         }
-
         res.status(200).json(data);
     } catch (error) {
         console.error("Error in getAllEnergyConsumptionByDataCenterIdAndDate:", error.message);
@@ -271,14 +268,13 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
         if (!data) {
             return res.status(404).send("No energy consumption data found for this company in the specified date range.");
         }
-
         res.status(200).json(data);
     } catch (error) {
         console.error("Error in getAllEnergyConsumptionByCompanyIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve energy consumption data: Internal Server Error.");
     }
 };
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 
 
 
@@ -291,7 +287,7 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
 
 
 
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 const getTotalCarbonEmissionByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
     try {
@@ -346,11 +342,9 @@ const getTotalCarbonEmissionByCompanyIdAndDate = async (req, res) => {
                 parseInt(year)
             );
         }
-
         if (totalCO2Emissions === null) {
             return res.status(404).send("No Carbon Emission data found for this company in the specified date range.");
         }
-
         res.status(200).json({ total_co2_emissions: totalCO2Emissions });
     } catch (error) {
         console.error("Error in getTotalCarbonEmissionByCompanyIdAndDate:", error.message);
@@ -384,18 +378,16 @@ const getTotalCarbonEmissionByDataCenterIdAndDate = async (req, res) => {
                 parseInt(year)
             );
         }
-
         if (totalCO2Emissions === null) {
             return res.status(404).send("No Carbon Emission data found for this data center in the specified date range.");
         }
-
         res.status(200).json({ total_co2_emissions: totalCO2Emissions });
     } catch (error) {
         console.error("Error in getTotalCarbonEmissionByDataCenterIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve total Carbon Emission data: Internal Server Error.");
     }
 };
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 
 
 
@@ -406,7 +398,7 @@ const getTotalCarbonEmissionByDataCenterIdAndDate = async (req, res) => {
 
 
 
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 const getAllCarbonEmissionByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
     try {
@@ -465,7 +457,6 @@ const getAllCarbonEmissionByCompanyIdAndDate = async (req, res) => {
         if (!data) {
             return res.status(404).send("No carbon emission data found for this company in the specified date range.");
         }
-
         res.status(200).json(data);
     } catch (error) {
         console.error("Error in getAllCarbonEmissionByCompanyIdAndDate:", error.message);
@@ -503,21 +494,20 @@ const getAllCarbonEmissionByDataCenterAndDate = async (req, res) => {
         if (!data) {
             return res.status(404).send("No carbon emission data found for this data center in the specified date range.");
         }
-
         res.status(200).json(data);
     } catch (error) {
         console.error("Error in getAllCarbonEmissionByDataCenterAndDate:", error.message);
         res.status(500).send("Failed to retrieve carbon emission data: Internal Server Error.");
     }
 };
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 
 
 
 
 
 
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 // Controller function to get total renewable energy contribution by company ID
 const getTotalRenewableEnergyByCompanyId = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
@@ -539,6 +529,7 @@ const getTotalRenewableEnergyByCompanyId = async (req, res) => {
         res.status(500).send("Failed to retrieve total renewable energy contribution: Internal Server Error.");
     }
 };
+
 const getTotalRenewableEnergyByDataCenterId = async (req, res) => {
     const data_center_id = parseInt(req.params.data_center_id);
 
@@ -590,7 +581,6 @@ const getTotalRenewableEnergyByDataCenterIdAndDate = async (req, res) => {
         if (totalRenewableEnergy === null) {
             return res.status(404).send("No renewable energy data found for this data center in the specified date range.");
         }
-
         res.status(200).json({ total_renewable_energy: totalRenewableEnergy });
     } catch (error) {
         console.error("Error in getTotalRenewableEnergyByDataCenterIdAndDate:", error.message);
@@ -628,14 +618,13 @@ const getTotalRenewableEnergyByCompanyIdAndDate = async (req, res) => {
         if (totalRenewableEnergy === null) {
             return res.status(404).send("No renewable energy data found for this company in the specified date range.");
         }
-
         res.status(200).json({ total_renewable_energy: totalRenewableEnergy });
     } catch (error) {
         console.error("Error in getTotalRenewableEnergyByCompanyIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve total renewable energy contribution: Internal Server Error.");
     }
 };
-// ---------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------- fix
 
 
 

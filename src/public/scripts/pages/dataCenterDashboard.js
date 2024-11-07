@@ -93,7 +93,7 @@ async function fetchData() {
     console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
 
     // Combine month and year if both are selected
-    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
+    const selectedDate = selectedYear ? (selectedMonth ? `${selectedYear}-${selectedMonth}` : `${selectedYear}`) : null;
 
 
     if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
@@ -157,11 +157,56 @@ async function fetchAllCarbonEmissionByDataCenterId(data_center_id) {
         console.error("Error fetching carbon emission data for specific data center:", error);
     }
 }
-// Case 3: Fetch carbon emissions for all data centers under the company for a specific date
+// Function to determine which data to fetch based on the current filters
+async function fetchData() {
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    const selectedDataCenter = dataCenterDropdown.value;
+
+    console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
+
+    // Construct selectedDate based on available inputs
+    const selectedDate = selectedYear ? (selectedMonth ? `${selectedYear}-${selectedMonth}` : `${selectedYear}`) : null;
+
+    if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
+        // No date, fetch totals for all data centers under the company
+        await fetchAllCarbonEmissionByCompanyId();
+        await fetchTotalCarbonEmissionByCompanyId();
+        await fetchTotalEnergyConsumptionByCompanyId();
+        await fetchEnergyConsumptionBreakdownByCompanyId();
+        await fetchTotalRenewableEnergyByCompanyId();
+    } else if (!selectedDate && selectedDataCenter !== "all") {
+        // No date, fetch totals for a specific data center
+        await fetchAllCarbonEmissionByDataCenterId(selectedDataCenter);
+        await fetchTotalCarbonEmissionByDataCenterId(selectedDataCenter);
+        await fetchTotalEnergyConsumptionByDataCenterId(selectedDataCenter);
+        await fetchEnergyConsumptionBreakdownByDataCenterId(selectedDataCenter);
+        await fetchTotalRenewableEnergyByDataCenterId(selectedDataCenter);
+    } else if (selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
+        // With date, fetch totals for the company by date
+        await fetchAllCarbonEmissionByCompanyIdAndDate(selectedDate);
+        await fetchTotalCarbonEmissionByCompanyIdAndDate(selectedDate);
+        await fetchTotalEnergyConsumptionByCompanyIdAndDate(selectedDate);
+        await fetchEnergyConsumptionBreakdownByCompanyIdAndDate(selectedDate);
+        await fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate);
+    } else if (selectedDate && selectedDataCenter !== "all") {
+        // With date, fetch totals for a specific data center by date
+        await fetchAllCarbonEmissionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
+        await fetchTotalCarbonEmissionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
+        await fetchTotalEnergyConsumptionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
+        await fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(selectedDataCenter, selectedDate);
+        await fetchTotalRenewableEnergyByDataCenterIdAndDate(selectedDataCenter, selectedDate);
+    }
+
+    // Fetch metric data for the selected metric button
+    const activeMetric = document.querySelector(".button-container .active").innerText;
+    fetchMetricData(activeMetric); // Ensure the gauge chart updates based on the active metric
+}
+
+// Case 3: Fetch carbon emissions for all data centers under the company for a specific date - fix
 async function fetchAllCarbonEmissionByCompanyIdAndDate(date) {
     try {
-        const formattedDate = new Date(date).toISOString().split('T')[0]; // Format date as YYYY-MM-DD
-        const url = `/Dashboard/Data-Center/CarbonEmission/company/${company_id}/date?date=${encodeURIComponent(formattedDate)}`;
+        const url = `/Dashboard/Data-Center/CarbonEmission/company/${company_id}/date?date=${encodeURIComponent(date)}`;
         
         console.log("Request URL for company by date:", url);
         
@@ -169,55 +214,66 @@ async function fetchAllCarbonEmissionByCompanyIdAndDate(date) {
         if (!response.ok) {
             throw new Error(`Failed to fetch data. Status: ${response.status}`);
         }
-        let data = await response.json();
+        
+        const data = await response.json();
         console.log("Data received from fetchAllCarbonEmissionByCompanyIdAndDate:", data);
 
-        if (data.length === 1) {
-            const previousDay = new Date(new Date(date).setDate(new Date(date).getDate() - 1));
-            const prevDateFormatted = previousDay.toISOString().split('T')[0];
-            const prevResponse = await fetch(`/Dashboard/Data-Center/CarbonEmission/company/${company_id}/date?date=${encodeURIComponent(prevDateFormatted)}`);
-            if (prevResponse.ok) {
-                const prevData = await prevResponse.json();
-                console.log("Previous day's data:", prevData);
-                data = prevData.concat(data); // Combine previous day's data with the current day
-            }
+        if (data) {
+            renderChart(data);
+        } else {
+            console.warn("No data received for the specified date range.");
         }
-
-        renderChart(data);
     } catch (error) {
         console.error("Error fetching carbon emission data for company by date:", error);
     }
 }
-// Case 4: Fetch carbon emissions for a specific data center and date
+
+// Case 4: Fetch carbon emissions for a specific data center and date - fix
 async function fetchAllCarbonEmissionByDataCenterIdAndDate(data_center_id, date) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/data-center/${data_center_id}/date?date=${encodeURIComponent(date)}`);
-        let data = await response.json();
+        const url = `/Dashboard/Data-Center/CarbonEmission/data-center/${data_center_id}/date?date=${encodeURIComponent(date)}`;
+        
+        console.log("Request URL for data center by date:", url);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data. Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
         console.log("Data received from fetchAllCarbonEmissionByDataCenterIdAndDate:", data);
 
-        if (data.length === 1) {
-            const previousDay = new Date(new Date(date).setDate(new Date(date).getDate() - 1));
-            const prevDateFormatted = previousDay.toISOString().split('T')[0];
-            const prevResponse = await fetch(`/Dashboard/Data-Center/CarbonEmission/data-center/${data_center_id}/date?date=${encodeURIComponent(prevDateFormatted)}`);
-            if (prevResponse.ok) {
-                const prevData = await prevResponse.json();
-                console.log("Previous day's data:", prevData);
-                data = prevData.concat(data); // Combine previous day's data with the current day
-            }
+        if (data) {
+            renderChart(data);
+        } else {
+            console.warn("No data received for the specified date range.");
         }
-
-        renderChart(data);
     } catch (error) {
         console.error("Error fetching carbon emission data for specific data center by date:", error);
     }
 }
 
+
 function renderChart(data) {
     console.log("Rendering chart with data:", data);
 
-    // Process data to extract date and emissions
-    const labels = data.map(item => new Date(item.date).toLocaleDateString("en-US"));
-    const emissions = data.map(item => item.co2_emissions_tons);
+    // Step 1: Process data to group by month and year
+    const groupedData = data.reduce((acc, item) => {
+        const date = new Date(item.date);
+        const monthYear = date.toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
+
+        // If monthYear is not in accumulator, add it with initial value
+        if (!acc[monthYear]) {
+            acc[monthYear] = 0;
+        }
+        // Accumulate emissions for each month-year
+        acc[monthYear] += item.co2_emissions_tons;
+        return acc;
+    }, {});
+
+    // Step 2: Extract labels and emissions from grouped data
+    const labels = Object.keys(groupedData);
+    const emissions = Object.values(groupedData);
 
     // Check if we have any data to display
     if (!labels.length || !emissions.length) {
@@ -267,12 +323,12 @@ function renderChart(data) {
                 x: {
                     title: {
                         display: true,
-                        text: 'Date'
+                        text: 'Month-Year'
                     },
                     ticks: {
-                        autoSkip: true, // Automatically skip some labels to avoid clutter
-                        maxTicksLimit: 10, // Limit the number of ticks displayed
-                        padding: 10 // Add padding to ticks
+                        autoSkip: true,
+                        maxTicksLimit: 10,
+                        padding: 10
                     },
                     grid: {
                         display: true,
@@ -328,10 +384,24 @@ async function fetchTotalCarbonEmissionByDataCenterId(data_center_id) {
 async function fetchTotalCarbonEmissionByCompanyIdAndDate() {
     const selectedMonth = monthPicker.value;
     const selectedYear = yearPicker.value;
-    // Combine month and year if both are selected
-    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
+
+    // Construct selectedDate based on available inputs
+    let selectedDate;
+    if (selectedYear) {
+        selectedDate = selectedMonth ? `${selectedYear}-${selectedMonth}` : selectedYear;
+    } else {
+        // If neither year nor month is selected, return or handle the missing date scenario
+        console.error("Please select a year (and optionally a month) to fetch data.");
+        return;
+    }
+
     try {
         const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        if (!response.ok) {
+            console.error("Failed to fetch data. Server response:", response.statusText);
+            return;
+        }
+        
         const data = await response.json();
         console.log("Total Carbon Emission data for company by date:", data);
 
@@ -650,7 +720,7 @@ async function fetchMetricData(metric) {
     const selectedMonth = monthPicker.value;
     const selectedYear = yearPicker.value;
     // Combine month and year if both are selected
-    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;    let response;
+    const selectedDate = selectedYear ? (selectedMonth ? `${selectedYear}-${selectedMonth}` : `${selectedYear}`) : null;
 
     try {
         // Determine the endpoint based on filters
