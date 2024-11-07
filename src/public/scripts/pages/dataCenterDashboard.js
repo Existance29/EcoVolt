@@ -3,7 +3,8 @@ const company_id = getCompanyId(); // Replace with actual company ID
 
 
 
-const datePicker = document.getElementById("datePicker");
+const monthPicker = document.getElementById("monthPicker");
+const yearPicker = document.getElementById("yearPicker");
 const dataCenterDropdown = document.getElementById("dataCenterDropdown");
 
 // Initialize chart instances
@@ -11,7 +12,8 @@ let carbonEmissionChart;
 let energyBreakdownChart;
 
 // Event listeners to handle changes in the date or data center dropdown
-datePicker.addEventListener("change", fetchData);
+monthPicker.addEventListener("change", fetchData);
+yearPicker.addEventListener("change", fetchData);
 dataCenterDropdown.addEventListener("change", fetchData);
 
 // Elements for the metric buttons
@@ -84,10 +86,15 @@ async function loadDataCenterOptions() {
 
 // Function to determine which data to fetch based on the current filters
 async function fetchData() {
-    const selectedDate = datePicker.value;
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
     const selectedDataCenter = dataCenterDropdown.value;
 
-    console.log("fetchData called with:", { selectedDate, selectedDataCenter });
+    console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
+
+    // Combine month and year if both are selected
+    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
+
 
     if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
         // No date, fetch totals for all data centers under the company
@@ -319,8 +326,10 @@ async function fetchTotalCarbonEmissionByDataCenterId(data_center_id) {
 
 // Function to fetch total carbon emissions for the company using the selected date
 async function fetchTotalCarbonEmissionByCompanyIdAndDate() {
-    const selectedDate = datePicker.value; // Get the selected date from the date picker
-
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    // Combine month and year if both are selected
+    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
     try {
         const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
         const data = await response.json();
@@ -336,8 +345,10 @@ async function fetchTotalCarbonEmissionByCompanyIdAndDate() {
 
 // Function to fetch total carbon emissions for a specific data center using the selected date
 async function fetchTotalCarbonEmissionByDataCenterIdAndDate(data_center_id) {
-    const selectedDate = datePicker.value; // Get the selected date from the date picker
-
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    // Combine month and year if both are selected
+    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
     try {
         const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}/date?date=${encodeURIComponent(selectedDate)}`);
         const data = await response.json();
@@ -388,8 +399,10 @@ async function fetchTotalEnergyConsumptionByDataCenterId(data_center_id) {
 
 // Function to fetch total energy consumption for the company using the selected date
 async function fetchTotalEnergyConsumptionByCompanyIdAndDate() {
-    const selectedDate = datePicker.value; // Get the selected date from the date picker
-
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    // Combine month and year if both are selected
+    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
     try {
         const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
         const data = await response.json();
@@ -403,8 +416,10 @@ async function fetchTotalEnergyConsumptionByCompanyIdAndDate() {
 }
 // Function to fetch total energy consumption for a specific data center using the selected date
 async function fetchTotalEnergyConsumptionByDataCenterIdAndDate(data_center_id) {
-    const selectedDate = datePicker.value; // Get the selected date from the date picker
-
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    // Combine month and year if both are selected
+    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
     try {
         const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}/date?date=${encodeURIComponent(selectedDate)}`);
         const data = await response.json();
@@ -632,8 +647,10 @@ async function fetchTotalRenewableEnergyByDataCenterIdAndDate(data_center_id, se
 
 async function fetchMetricData(metric) {
     const selectedDataCenter = dataCenterDropdown.value;
-    const selectedDate = datePicker.value;
-    let response;
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    // Combine month and year if both are selected
+    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;    let response;
 
     try {
         // Determine the endpoint based on filters
