@@ -257,9 +257,23 @@ async function fetchAllCarbonEmissionByDataCenterIdAndDate(data_center_id, date)
 function renderChart(data) {
     console.log("Rendering chart with data:", data);
 
-    // Process data to extract date and emissions
-    const labels = data.map(item => new Date(item.date).toLocaleDateString("en-US"));
-    const emissions = data.map(item => item.co2_emissions_tons);
+    // Step 1: Process data to group by month and year
+    const groupedData = data.reduce((acc, item) => {
+        const date = new Date(item.date);
+        const monthYear = date.toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
+
+        // If monthYear is not in accumulator, add it with initial value
+        if (!acc[monthYear]) {
+            acc[monthYear] = 0;
+        }
+        // Accumulate emissions for each month-year
+        acc[monthYear] += item.co2_emissions_tons;
+        return acc;
+    }, {});
+
+    // Step 2: Extract labels and emissions from grouped data
+    const labels = Object.keys(groupedData);
+    const emissions = Object.values(groupedData);
 
     // Check if we have any data to display
     if (!labels.length || !emissions.length) {
@@ -309,12 +323,12 @@ function renderChart(data) {
                 x: {
                     title: {
                         display: true,
-                        text: 'Date'
+                        text: 'Month-Year'
                     },
                     ticks: {
-                        autoSkip: true, // Automatically skip some labels to avoid clutter
-                        maxTicksLimit: 10, // Limit the number of ticks displayed
-                        padding: 10 // Add padding to ticks
+                        autoSkip: true,
+                        maxTicksLimit: 10,
+                        padding: 10
                     },
                     grid: {
                         display: true,
