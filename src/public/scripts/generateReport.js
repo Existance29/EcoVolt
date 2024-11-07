@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Fetch report data on page load
     fetchReportData();
 
-    // Fetch report data, use force parameter for forced generation
     function fetchReportData(force = false) {
         const url = force ? '/reports/generate' : '/reports';
         statusMessage.innerText = "Loading report data...";
@@ -68,7 +67,6 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 document.getElementById('executiveSummary').innerText = `In 2024, Singtel's total energy consumption reached ${data.totalEnergy.toLocaleString()} kWh, with carbon emissions totaling ${data.totalCO2.toFixed(2)} tons.`;
-
                 populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
                 populateDataTable(data.reportData);
                 populateRecommendations(data.recommendations);
@@ -82,24 +80,31 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    // Generate PDF from main content
     generateReportBtn.addEventListener('click', function () {
         statusMessage.innerText = "Generating PDF report...";
 
-        // Select the main content to convert to PDF
-        const element = document.getElementById('reportContent'); // Only get the report content
+        // Temporarily replace chart canvas with an image to prevent layout change
+        const chartCanvas = document.getElementById('dataChart');
+        const chartContainer = document.getElementById('chart-container');
+        const chartImage = new Image();
+        chartImage.src = chartCanvas.toDataURL('image/png');
+        chartImage.style.width = chartCanvas.style.width;
+        chartImage.style.height = chartCanvas.style.height;
+        chartContainer.replaceChild(chartImage, chartCanvas);
 
-        // Options for html2pdf
+        // Generate the PDF using html2pdf
+        const element = document.getElementById('reportContent');
         const opt = {
-            margin: 0.5,  // Set margin to 0.5 inches
+            margin: 0,
             filename: 'Singtel_Report.pdf',
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 }, // Increase scale for better quality
+            html2canvas: { scale: 2 },
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
 
-        // Generate the PDF
         html2pdf().from(element).set(opt).save().then(() => {
+            // Restore original chart canvas after PDF is generated
+            chartContainer.replaceChild(chartCanvas, chartImage);
             statusMessage.innerText = "PDF report generated successfully.";
         }).catch(error => {
             console.error('Error generating PDF:', error);
@@ -107,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Populate chart
     function populateChart(labels, energyData, emissionsData) {
         if (reportChart) {
             reportChart.destroy();
@@ -164,21 +168,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Populate data table
     function populateDataTable(reportData) {
         dataTableBody.innerHTML = '';
         reportData.forEach(row => {
             const tableRow = document.createElement('tr');
-
-            // Format the date
             const formattedDate = new Date(row.date).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
-
             tableRow.innerHTML = `
-                <td>${formattedDate}</td> <!-- Use formatted date here -->
+                <td>${formattedDate}</td>
                 <td>${row.radioEquipmentEnergy || 'N/A'}</td>
                 <td>${row.coolingEnergy || 'N/A'}</td>
                 <td>${row.backupEnergy || 'N/A'}</td>
@@ -189,7 +189,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Populate recommendations
     function populateRecommendations(recommendations) {
         const recommendationsSection = document.querySelector('.recommendations');
         recommendationsSection.innerHTML = '';

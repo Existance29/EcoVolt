@@ -6,13 +6,11 @@ body, html {
     font-family: Arial, sans-serif;
 }
 
-/* Full height for the layout */
 .layout-container {
     height: 100vh;
     display: flex;
 }
 
-/* Sidebar styles */
 .sidebar {
     width: 250px;
     background-color: #ffffff;
@@ -44,42 +42,38 @@ body, html {
     color: #4FD1C5;
 }
 
-/* Main content styles */
 .main-content {
-    margin-left: 270px; /* Ensure it accounts for sidebar width */
+    margin-left: 270px;
     padding: 20px;
     overflow-y: auto;
-    flex: 1; /* Allow it to grow and fill available space */
+    flex: 1;
 }
 
-/* Report content styling */
 .report-content {
-    padding: 20px;
+    width: 800px;
+    margin: auto;
     background-color: #fff;
-    border: 1px solid #ddd; /* Border for normal view */
+    padding: 20px;
+    border: 1px solid #ddd;
     border-radius: 10px;
-    overflow-y: auto;
-    width: 100%; /* Full width */
 }
 
-/* Chart container styling */
 #chart-container {
     margin: 20px 0;
     width: 100%;
 }
 
-/* Data table styling */
 .data-table {
-    width: 100%; /* Make the table take the full width of the container */
+    width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
     font-size: 0.9em;
-    table-layout: auto; /* Allow the table to adjust column width automatically */
+    table-layout: auto;
 }
 
 .data-table th, .data-table td {
     border: 1px solid #ddd;
-    padding: 12px; /* Increased padding for better readability */
+    padding: 12px;
     text-align: center;
 }
 
@@ -88,16 +82,9 @@ body, html {
     font-weight: bold;
 }
 
-/* Specific adjustments for Date column */
 .data-table th:first-child,
 .data-table td:first-child {
-    width: 150px; /* Set a minimum width for the Date column */
-}
-
-/* Download button styling */
-.download-container {
-    text-align: center;
-    margin-top: 20px;
+    width: 150px;
 }
 
 .download-btn {
@@ -114,22 +101,3 @@ body, html {
     background-color: #3BAF9B;
 }
 
-/* Ensure text and images are well-sized for printing */
-@media print {
-    body, html {
-        margin: 0; /* Remove margin */
-        padding: 0; /* Remove padding */
-    }
-    
-    .report-content {
-        width: 100%; /* Ensure full width when printing */
-        border: none; /* Remove border for cleaner print */
-        border-radius: 0; /* Remove border radius for cleaner print */
-        padding: 0; /* Remove padding for cleaner print */
-    }
-    
-    .data-table th, .data-table td {
-        border: none; /* Remove border for print */
-        padding: 10px; /* More padding for print readability */
-    }
-}
