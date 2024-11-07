@@ -1,3 +1,19 @@
+function showTooltip() {
+    document.getElementById("tooltipModal").style.display = "block";
+}
+
+function hideTooltip() {
+    document.getElementById("tooltipModal").style.display = "none";
+}
+
+// Close the tooltip when clicking outside the modal content
+window.onclick = function(event) {
+    const modal = document.getElementById("tooltipModal");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+};
+
 // Set your company ID (replace with the actual ID)
 const company_id = getCompanyId(); // Replace with actual company ID
 
@@ -843,7 +859,7 @@ function renderGaugeChart(value, label) {
 
     // Value label below
     ctx.font = "bold 14px Arial";
-    ctx.fillText(`${label}: ${value.toFixed(2)}`, centerX, centerY + 45);
+    ctx.fillText(`${label}: ${value.toFixed(2)}`, centerX, centerY + 20);
 }
 
 
