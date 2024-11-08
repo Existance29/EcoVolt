@@ -16,7 +16,7 @@
             </div>
             <nav class="nav-menu">
                 <a href="dataCenterDashboard.html" class="active">Dashboard</a>
-                <a href="#">Report</a>
+                <a href="report.html">Report</a>
                 <a href="#">Blog</a>
                 <a href="#">Profile</a>
                 <a href="#">Sign In</a>
@@ -30,8 +30,7 @@
         <!-- Main Content Area -->
         <main class="main-content">
             <!-- Header Section -->
-            <header class="mainHeader" data-title="Data Center" data-breadcrumb="Pages / Dashboard">
-            </header>
+            <header class="mainHeader" data-title="Cell Tower" data-breadcrumb="Pages / Dashboard"></header>
 
             <!-- Tabs Navigation -->
             <nav class="tabs" aria-label="Dashboard Tabs">
@@ -40,9 +39,27 @@
                 <a href="cellTowerDashboard.html">Cell Tower</a>
                 <div class="right-aligned">
                     <div class="date-picker">
-                        <label for="datePicker">Select Date:</label>
-                        <input type="date" id="datePicker" aria-label="Select Date">
+                        <label for="monthPicker" class="date-display">Select Month:</label>
+                        <select id="monthPicker" aria-label="Select Month">
+                            <option value="">--Select Month--</option>
+                            <option value="01">January</option>
+                            <option value="02">February</option>
+                            <option value="03">March</option>
+                            <option value="04">April</option>
+                            <option value="05">May</option>
+                            <option value="06">June</option>
+                            <option value="07">July</option>
+                            <option value="08">August</option>
+                            <option value="09">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        
+                        <label for="yearPicker" class="date-display">Select Year:</label>
+                        <input type="number" id="yearPicker" aria-label="Select Year" min="2000" max="2100" placeholder="Year">
                     </div>
+                    
                     <div class="data-center-filter">
                         <label for="dataCenterDropdown">Select Data Center:</label>
                         <select id="dataCenterDropdown">
@@ -58,52 +75,98 @@
             </div>
 
             <!-- Main Chart Content -->
-            <div class="chart-container-wrapper" id="chartContainerWrapper">
-                <div class="chart-row">
-                    <!-- Energy Consumption Breakdown -->
-                    <div class="chart-container energy-consumption-container">
-                        <h2>Energy Consumption Breakdown</h2>
-                        <div id="customLegend" class="chart-legend"></div>
-                        <canvas id="energyConsumptionDonut"></canvas>
-                        <div id="dataCenterOptions" class="data-center-options" style="display: flex;"></div>
-                    </div>
-
-                    <!-- Stacked Container for Gauge, Placeholder, and Line Charts -->
-                    <div class="stacked-chart-container">
-                        <div class="gauge-placeholder-row">
-                            <div class="chart-container gauge-chart-container">
-                                <h2>Carbon Emission vs Renewable Energy</h2>
-                                <canvas id="carbonVsRenewableGauge"></canvas>
-                            </div>
-                            <div class="chart-container carbon-emission-value-chart-container">
-                                <h2>Carbon Emission Value</h2>
-                                <div id="carbon-emission-value-text">Loading...</div>
-                            </div>
-                            <div class="chart-container renewable-energy-value-chart-container">
-                                <h2>Renewable Energy Value</h2>
-                                <div id="renewable-energy-value-text">Loading...</div>
+            <div style="display: flex; gap: 1rem; max-height: 70vh; height: 70vh;">
+                <!-- Left Column with Carbon Emission Overview Chart -->
+                <div style="display: flex; flex-direction: column; gap: 1rem; width: 65%; flex-grow: 3;">
+                    <div style="display: flex; width: 100%; gap: 1.1rem; flex-wrap: wrap;">
+                        <div class="main-stat-container">
+                            <div class="stat">
+                                <img src="assets/dashboard/carbon-emission.png" alt="Carbon Emission Icon">
+                                <div id="totalCarbonEmissions" class="inter-bold stat-value">0 Tons</div>
+                                <div class="inter-medium stat-name">Total Carbon Emissions</div>
                             </div>
                         </div>
-
-                        <!-- Carbon Emission Overview Line Chart -->
+                        <div class="main-stat-container">
+                            <div class="stat">
+                                <img src="assets/dashboard/renewable-energy.png" alt="Cell Tower Icon">
+                                <div id="totalRenewableEnergy" class="inter-bold stat-value">0 MWh</div>
+                                <div class="inter-medium stat-name">Total Renewable Energy</div>
+                            </div>
+                        </div>
+                        <div class="main-stat-container">
+                            <div class="stat">
+                                <img src="assets/dashboard/energy-consumption.png" alt="Energy Consumption Icon">
+                                <div class="inter-bold stat-value" id="totalEnergyConsumption">0 MWh</div>
+                                <div class="inter-medium stat-name">Total Energy Consumption</div>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <!-- Carbon Emission Overview Chart Container -->
+                    <div class="inter-semibold graph-container" style="flex-grow: 1; display: flex; flex-direction: column;">
                         <div class="chart-container carbon-emission-chart-container">
                             <h2>Carbon Emission Overview</h2>
                             <canvas id="carbonEmissionChart"></canvas>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Right Column with Energy Consumption Breakdown and Metrics Gauge Charts -->
+                <div style="width: 35%; display: flex; flex-direction: column; gap: 1rem;">
+
+                    <div class="inter-semibold graph-container" style="padding: 0; margin: 0;">
+                        <h2 style="margin: 0.5rem; text-align: center;">Energy Consumption Breakdown</h2>
+                        <div class="energy-breakdown-container">
+                            <canvas id="energyBreakdownChart"></canvas>
+                        </div>
+                        <div class="pie-chart-labels-container"></div>
+                    </div>
+                    
+    
+                    
+
+
+
+
+
+                    <!-- Metrics Gauge Chart -->
+                    <div class="gauge-container">
+                        <div class="title-container">
+                            <h2>Metrics Gauge Chart</h2>
+                            <span class="info-icon" onclick="showTooltip()">💡</span>
+                        </div>
+                        <div class="button-container">
+                            <button id="pueButton">PUE</button>
+                            <button id="cueButton">CUE</button>
+                            <button id="wueButton">WUE</button>
+                        </div>
+                        <canvas id="gaugeChart"></canvas>
+                        <div id="tooltipModal" class="tooltip-modal">
+                            <div class="tooltip-content">
+                                <span class="close" onclick="hideTooltip()">&times;</span>
+                                <h3>Metrics Information</h3>
+                                <p><strong>PUE (Power Usage Effectiveness):</strong> A measure of how efficiently a data center uses energy; ideally close to 1.</p>
+                                <p><strong>CUE (Carbon Usage Effectiveness):</strong> Represents the carbon emissions per unit of energy consumed.</p>
+                                <p><strong>WUE (Water Usage Effectiveness):</strong> Measures the amount of water used by a data center for cooling per unit of energy consumed.</p>
+                            </div>
+                        </div>                        
+                    </div>
+                    
+                    
+                </div>
             </div>
+            
         </main>
     </div>
 
     <!-- JavaScript Files -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script src="./scripts/api.js"></script>
     <script src="./scripts/utils.js"></script>
     <script src="./scripts/pages/dataCenterDashboard.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="./scripts/common.js"></script>
 </body>
 </html>

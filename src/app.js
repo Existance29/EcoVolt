@@ -1,5 +1,6 @@
 //import
 const express = require("express");
+const session = require("express-session");  // Import session
 const app = express()
 const cors = require('cors');
 const port = process.env.PORT || 3000
@@ -8,6 +9,8 @@ const sql = require("mssql")
 const route = require("./routes/routes")
 // const route = require("./routes/routes")
 const bodyParser = require("body-parser");
+const overviewDashboardRoute = require("./routes/overviewRoutes");
+
 
 app.use(cors());
 
@@ -15,12 +18,23 @@ app.use(cors());
 const staticMiddleware = express.static("public")
 app.use(staticMiddleware)
 
+// Use session middleware before setting up routes
+app.use(session({
+    secret: 'secret-key', // Replace with a secure key
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Change to true if using HTTPS
+}));
+
 //use parse middlewares
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 //setup routes
 route(app);
+
+//overviewdashboard route
+overviewDashboardRoute(app);
 
 app.listen(port, async () => {
   try {
