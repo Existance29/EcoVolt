@@ -19,10 +19,10 @@ class cellTowerDashboard{
         }
         let queryStr = "SELECT * FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID"
         //check if the filter params exist and modify the sql statement accordingly
-        if (month){
+        if (month !== "all"){
             queryStr += " AND MONTH(date)=@month"
         } 
-        if (year){
+        if (year !== "all"){
             queryStr += " AND YEAR(date)=@year"
         } 
         if (cellTowerID){
@@ -35,8 +35,4 @@ class cellTowerDashboard{
     }
 }
 
-async function test() {
-    console.log(await cellTowerDashboard.getCellTowerConsumptionData(1, 1, 8, 2024))   
-}
-test()
 module.exports = cellTowerDashboard
