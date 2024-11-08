@@ -25,7 +25,7 @@ class cellTowerDashboard{
         if (year !== "all"){
             queryStr += " AND YEAR(date)=@year"
         } 
-        if (cellTowerID){
+        if (cellTowerID != "all"){
             queryStr += " AND ec.cell_tower_id=@cellTowerID"
         } 
 
