@@ -1,5 +1,4 @@
 Chart.defaults.font.size = 13
-Chart.defaults.animation = true
 Chart.defaults.color = "#CAC9CA"
 var hourArray = [10, 20, 30, 40, 50]
 var honeyPerMin = [5,10,15,20, 13]
@@ -119,7 +118,6 @@ renewableEnergyContributionChart.innerText = `${Math.round(perc)}%`
 
 new EasyPieChart(renewableEnergyContributionChart, {
     scaleLength: false,
-    animate: false,
     lineCap: "square",
     lineWidth: 7,
     size: chartSize,
