@@ -1,18 +1,14 @@
-/* Reset some default styles */
 body, html {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
     font-family: Arial, sans-serif;
 }
 
-/* Full height for the layout */
 .layout-container {
     height: 100vh;
     display: flex;
 }
 
-/* Sidebar styles */
 .sidebar {
     width: 250px;
     background-color: #ffffff;
@@ -25,111 +21,93 @@ body, html {
     overflow-y: auto;
 }
 
-.logo h2 {
-    font-size: 1.5em;
-    color: #4FD1C5;
-    font-weight: 600;
-}
-
-.nav-menu a {
-    text-decoration: none;
-    color: #555;
-    padding: 15px 0;
-    font-weight: 600;
-    transition: 0.3s ease;
-}
-
-.nav-menu a:hover,
-.nav-menu a.active {
-    color: #4FD1C5;
-}
-
-/* Main content styles */
 .main-content {
-    margin-left: 270px; /* Ensure it accounts for sidebar width */
+    margin-left: 270px;
     padding: 20px;
-    overflow-y: auto;
-    flex: 1; /* Allow it to grow and fill available space */
+    flex: 1;
 }
 
-/* Report content styling */
 .report-content {
-    padding: 20px;
+    width: 800px;
+    margin: 0 auto;
     background-color: #fff;
-    border: 1px solid #ddd; /* Border for normal view */
+    padding: 20px;
+    border: 1px solid #ddd;
     border-radius: 10px;
-    overflow-y: auto;
-    width: 100%; /* Full width */
 }
 
-/* Chart container styling */
+.report-section {
+    margin-bottom: 20px;
+}
+
+.report-section h2 {
+    font-size: 1.75em;
+    color: #333;
+}
+
 #chart-container {
     margin: 20px 0;
     width: 100%;
 }
 
-/* Data table styling */
 .data-table {
-    width: 100%; /* Make the table take the full width of the container */
+    width: 100%; /* Keep the table width reduced for a compact look */
+    max-width: 600px; /* Ensure it doesn’t expand too wide */
+    margin: 15px auto; /* Center the table */
     border-collapse: collapse;
-    margin-top: 10px;
-    font-size: 0.9em;
-    table-layout: auto; /* Allow the table to adjust column width automatically */
+    table-layout: fixed; /* Allows specific column widths */
 }
 
 .data-table th, .data-table td {
     border: 1px solid #ddd;
-    padding: 12px; /* Increased padding for better readability */
+    padding: 6px;
     text-align: center;
+    font-size: 0.85em;
 }
 
 .data-table th {
     background-color: #f4f4f4;
     font-weight: bold;
 }
-
-/* Specific adjustments for Date column */
-.data-table th:first-child,
-.data-table td:first-child {
-    width: 150px; /* Set a minimum width for the Date column */
+.data-insights-page {
+    page-break-before: always;
+    margin-left: 10px;
+}
+.data-overview {
+    margin-left: 10px;
 }
 
-/* Download button styling */
-.download-container {
+.recommendations-page {
+    page-break-before: always;
+    margin-left: 10px;
+
+}
+
+.conclusion-page {
+    page-break-before: always;
+    margin-left: 10px;
+
+}
+.status-message {
     text-align: center;
-    margin-top: 20px;
+    font-size: 1.2em;
+    color: #4FD1C5; /* Status message color */
 }
 
-.download-btn {
+.generate-btn {
+    display: block; /* Ensures button takes the full width */
+    margin: 20px auto; /* Centers the button */
     padding: 10px 20px;
-    background-color: #4FD1C5;
-    color: white;
+    background-color: #4FD1C5; /* Button color */
+    color: white; /* Text color */
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 16px; /* Font size */
+    transition: background-color 0.3s; /* Smooth transition */
 }
 
-.download-btn:hover {
-    background-color: #3BAF9B;
+.generate-btn:hover {
+    background-color: #3BAF9B; /* Darker shade on hover */
 }
 
-/* Ensure text and images are well-sized for printing */
-@media print {
-    body, html {
-        margin: 0; /* Remove margin */
-        padding: 0; /* Remove padding */
-    }
-    
-    .report-content {
-        width: 100%; /* Ensure full width when printing */
-        border: none; /* Remove border for cleaner print */
-        border-radius: 0; /* Remove border radius for cleaner print */
-        padding: 0; /* Remove padding for cleaner print */
-    }
-    
-    .data-table th, .data-table td {
-        border: none; /* Remove border for print */
-        padding: 10px; /* More padding for print readability */
-    }
-}
