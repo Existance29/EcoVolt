@@ -64,21 +64,21 @@
                         <div class="main-stat-container">
                             <div class="stat">
                                 <img src= "assets/dashboard/cell-tower.png">
-                                <div class="inter-bold stat-value">Off-Grid</div>
-                                <div class="inter-medium stat-name">Cell Tower Type</div>
+                                <div class="inter-bold stat-value" id="grid-type">Off-Grid</div>
+                                <div class="inter-medium stat-name">Cell Tower Grid Type</div>
                             </div>
                         </div>
                         <div class="main-stat-container">
                             <div class="stat">
                                 <img src= "assets/dashboard/carbon-emission.png">
-                                <div class="inter-bold stat-value">68,196 Tons</div>
+                                <div class="inter-bold stat-value" id="total-carbon-emission">68,196 Tons</div>
                                 <div class="inter-medium stat-name">Total Carbon Emissions</div>
                             </div>
                         </div>
                         <div class="main-stat-container">
                             <div class="stat">
                                 <img src= "assets/dashboard/energy-consumption.png">
-                                <div class="inter-bold stat-value">120,003 MWh</div>
+                                <div class="inter-bold stat-value" id="total-energy">120,003 MWh</div>
                                 <div class="inter-medium stat-name">Total Energy Consumption</div>
                             </div>
                         </div>
@@ -95,8 +95,8 @@
                 <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; width: calc(100% - 63% - 1rem);">
                     <div class="inter-semibold graph-container" style="flex: 1 1 0; height: 0;">
                         <div class="inter-bold" style="margin-bottom: 1.2rem;">Energy Consumption Breakdown</div>
-                        <div style="display: flex; height: 100%; flex-wrap: wrap;">
-                            <div style="max-height: 75%; aspect-ratio: 1; max-width: 35%;">
+                        <div style="display: flex; height: 100%;">
+                            <div style="max-height: 75%; aspect-ratio: 1; max-width: 30%;">
                                 <canvas id="energyBreakdownChart"></canvas>
                             </div>
                             <div class="pie-chart-labels-container">
@@ -111,7 +111,7 @@
                         <div class="inter-bold" style="margin-bottom: 1.2rem;">Renewable Energy Contribution</div>
                         <div class="chart-container">
                             <div class="chart inter-medium" id="renewable-energy-contribution-chart"></div>
-                            <div class="inter-semibold" style="margin-top: 1rem;"><span style="color: #4FD1C5;">200</span> / 400 MWh</div>
+                            <div class="inter-semibold" style="margin-top: 1rem;"></div>
                         </div>
                     </div>
                 </div>

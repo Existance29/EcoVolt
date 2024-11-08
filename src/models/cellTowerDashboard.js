@@ -30,7 +30,8 @@ class cellTowerDashboard{
         } 
 
         //return total stats
-        const result = (await query.query(`SELECT SUM(total_energy_kwh) AS total_energy, SUM(radio_equipment_energy_kwh) AS radio_equipment_energy, SUM(cooling_energy_kwh) AS cooling_energy, SUM(backup_power_energy_kwh) AS backup_power_energy, SUM(misc_energy_kwh) AS misc_energy, SUM(renewable_energy_kwh) AS renewable_energy, SUM(carbon_emission_kg) AS carbon_emission \
+        //max is pretty hacky here
+        const result = (await query.query(`SELECT MAX(cell_tower_grid_type) AS grid_type, SUM(total_energy_kwh) AS total_energy, SUM(radio_equipment_energy_kwh) AS radio_equipment_energy, SUM(cooling_energy_kwh) AS cooling_energy, SUM(backup_power_energy_kwh) AS backup_power_energy, SUM(misc_energy_kwh) AS misc_energy, SUM(renewable_energy_kwh) AS renewable_energy, SUM(carbon_emission_kg) AS carbon_emission \
             FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}`, 
             params)).recordset[0]
         
@@ -39,12 +40,12 @@ class cellTowerDashboard{
         //if month is selected, trend by days in that month
         let trendSQL;
         if (month == "all"){
-            trendSQL = `SELECT SUM(carbon_emission_kg) AS carbon_emission, MONTH(date) AS month
+            trendSQL = `SELECT SUM(carbon_emission_kg) AS carbon_emission, MONTH(date) AS num
                 FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}
                 GROUP BY MONTH(date)`
         }
         else{
-            trendSQL = `SELECT carbon_emission_kg AS carbon_emission, DAY(date) AS day
+            trendSQL = `SELECT carbon_emission_kg AS carbon_emission, DAY(date) AS num
                 FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}`
         }
         const trendResults = (await query.query(trendSQL, params)).recordset
