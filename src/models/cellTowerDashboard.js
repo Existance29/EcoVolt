@@ -17,20 +17,38 @@ class cellTowerDashboard{
             "month": month,
             "year": year
         }
-        let queryStr = "SELECT * FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID"
+        let filterStr = ""
         //check if the filter params exist and modify the sql statement accordingly
         if (month !== "all"){
-            queryStr += " AND MONTH(date)=@month"
+            filterStr += " AND MONTH(date)=@month"
         } 
         if (year !== "all"){
-            queryStr += " AND YEAR(date)=@year"
+            filterStr += " AND YEAR(date)=@year"
         } 
         if (cellTowerID != "all"){
-            queryStr += " AND ec.cell_tower_id=@cellTowerID"
+            filterStr += " AND ec.cell_tower_id=@cellTowerID"
         } 
 
-        const result = (await query.query(queryStr, params)).recordset
-
+        //return total stats
+        const result = (await query.query(`SELECT SUM(total_energy_kwh) AS total_energy, SUM(radio_equipment_energy_kwh) AS radio_equipment_energy, SUM(cooling_energy_kwh) AS cooling_energy, SUM(backup_power_energy_kwh) AS backup_power_energy, SUM(misc_energy_kwh) AS misc_energy, SUM(renewable_energy_kwh) AS renewable_energy, SUM(carbon_emission_kg) AS carbon_emission \
+            FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}`, 
+            params)).recordset[0]
+        
+        //set the trend sql statement
+        //if month is not selected, trend by months
+        //if month is selected, trend by days in that month
+        let trendSQL;
+        if (month == "all"){
+            trendSQL = `SELECT SUM(carbon_emission_kg) AS carbon_emission, MONTH(date) AS month
+                FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}
+                GROUP BY MONTH(date)`
+        }
+        else{
+            trendSQL = `SELECT carbon_emission_kg AS carbon_emission, DAY(date) AS day
+                FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}`
+        }
+        const trendResults = (await query.query(trendSQL, params)).recordset
+        result["trends"] = trendResults //add trend to results
         return result ? result : null
     }
 }
