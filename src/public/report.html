@@ -7,11 +7,6 @@
     <link rel="stylesheet" href="styles/report.css">
     <link rel="stylesheet" href="styles/common.css">
     <link rel="stylesheet" href="styles/dataCenterDashboard.css">
-    
-    <!-- Include html2canvas and jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div class="layout-container">
@@ -27,31 +22,41 @@
                 <a href="#">Sign In</a>
                 <a href="#">Sign Up</a>
             </nav>
+            <div id="statusMessage" class="status-message"></div>
+            <button id="generateReportBtn" class="generate-btn">Download Report as PDF</button>
+
             <div class="help-box">
                 <p>Need help? <br> Please reach out to us</p>
             </div>
         </aside>
 
         <main class="main-content">
-            <header class="mainHeader">
-                <h1>Singtel Sustainability Report 2024</h1>
-            </header>
-
             <div id="reportContent" class="report-content">
+                <div class="print-header">
+                    <div class="logo" style="display: flex; align-items: center;">
+                        <img src="assets/logo.png" alt="EcoVolt Logo" style="width: 80px; height: auto; margin-right: 10px;">
+                        <h2 style="margin: 0; font-size: 24px;">EcoVolt</h2>
+                    </div>
+                </div>
+                <h1 style="text-align: center; margin-top: 50px;">Singtel Sustainability Report 2024</h1>
+
+                <!-- Page 1: Executive Summary and Data Overview -->
                 <section class="report-section">
-                    <h2>Executive Summary</h2>
-                    <p id="executiveSummary"></p>
+                    <h2 style="margin-top: 40px; margin-left: 10px;">Executive Summary</h2>
+                    <p id="executiveSummary" style="margin-left: 10px;"></p>
                 </section>
 
-                <section class="report-section">
-                    <h2>Data Overview</h2>
+                <section class="report-section data-overview">
+                    <h2 style="margin-top: 50px">Data Overview</h2>
                     <div id="chart-container">
                         <canvas id="dataChart" width="800" height="400"></canvas>
                     </div>
+                    <p id="dataAnalysis"></p>
                 </section>
 
-                <section class="report-section">
-                    <h2>Data Insights</h2>
+                <!-- Page 2: Data Insights -->
+                <section class="report-section data-insights-page">
+                    <h2 style="margin-top: 50px">Data Insights</h2>
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -65,24 +70,29 @@
                         </thead>
                         <tbody></tbody>
                     </table>
+                    <p id="dataInsightsText"></p>
                 </section>
 
-                <section class="report-section">
-                    <h2>Recommendations</h2>
-                    <div class="recommendations"></div>
+                <!-- Page 3: Recommendations -->
+                <section class="report-section recommendations-page">
+                    <h2 style="margin-top: 50px">Recommendations</h2>
+                    <div class="recommendations" style="margin-top: 30px"></div>
                 </section>
 
-                <section class="report-section">
-                    <h2>Conclusion</h2>
-                    <p id="conclusion"></p>
+                <!-- Page 4: Conclusion -->
+                <section class="report-section conclusion-page">
+                    <h2 style="margin-top: 50px">Conclusion</h2>
+                    <p id="conclusion" style="margin-top: 30px;"></p>
                 </section>
             </div>
+           
         </main>
-        <button id="generateReportBtn" class="generate-btn">Generate Report</button>
-        <p id="statusMessage"></p>
     </div>
 
     <script src="scripts/generateReport.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 </html>

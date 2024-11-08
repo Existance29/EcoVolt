@@ -1,62 +1,9 @@
-// document.addEventListener('DOMContentLoaded', function () {
-//     const reportFrame = document.getElementById('reportFrame');
-//     const downloadReportBtn = document.getElementById('downloadReportBtn');
-
-//     // Load the PDF into the iframe for viewing
-//     fetch('/reports/pdf', {
-//         method: 'GET'
-//     })
-//     .then(response => {
-//         if (response.ok) {
-//             return response.blob(); // Convert to Blob for iframe
-//         } else {
-//             throw new Error('Failed to load report');
-//         }
-//     })
-//     .then(blob => {
-//         const url = window.URL.createObjectURL(blob);
-//         reportFrame.src = url; // Set iframe source to the Blob URL
-//     })
-//     .catch(error => {
-//         console.error('Error loading report:', error);
-//     });
-
-//     // Download the report PDF on button click
-//     downloadReportBtn.addEventListener('click', function () {
-//         fetch('/reports/pdf', {
-//             method: 'GET'
-//         })
-//         .then(response => {
-//             if (response.ok) {
-//                 return response.blob(); // Convert the response to a Blob
-//             } else {
-//                 throw new Error('Failed to generate report');
-//             }
-//         })
-//         .then(blob => {
-//             const url = window.URL.createObjectURL(blob);
-//             const link = document.createElement('a');
-//             link.href = url;
-//             link.setAttribute('download', 'Singtel_Report.pdf'); // Set the filename
-//             document.body.appendChild(link);
-//             link.click();
-//             document.body.removeChild(link);
-//         })
-//         .catch(error => {
-//             console.error('Error generating report:', error);
-//         });
-//     });
-// });
-
-
-
 document.addEventListener('DOMContentLoaded', function () {
     const dataTableBody = document.querySelector('.data-table tbody');
     const generateReportBtn = document.getElementById('generateReportBtn');
     const statusMessage = document.getElementById('statusMessage');
     let reportChart = null;
 
-    // Fetch report data on page load
     fetchReportData();
 
     function fetchReportData(force = false) {
@@ -67,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 document.getElementById('executiveSummary').innerText = `In 2024, Singtel's total energy consumption reached ${data.totalEnergy.toLocaleString()} kWh, with carbon emissions totaling ${data.totalCO2.toFixed(2)} tons.`;
+                document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
                 populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
                 populateDataTable(data.reportData);
                 populateRecommendations(data.recommendations);
@@ -83,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function () {
     generateReportBtn.addEventListener('click', function () {
         statusMessage.innerText = "Generating PDF report...";
 
-        // Temporarily replace chart canvas with an image to prevent layout change
         const chartCanvas = document.getElementById('dataChart');
         const chartContainer = document.getElementById('chart-container');
         const chartImage = new Image();
@@ -92,7 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
         chartImage.style.height = chartCanvas.style.height;
         chartContainer.replaceChild(chartImage, chartCanvas);
 
-        // Generate the PDF using html2pdf
         const element = document.getElementById('reportContent');
         const opt = {
             margin: 0,
@@ -103,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         html2pdf().from(element).set(opt).save().then(() => {
-            // Restore original chart canvas after PDF is generated
             chartContainer.replaceChild(chartCanvas, chartImage);
             statusMessage.innerText = "PDF report generated successfully.";
         }).catch(error => {
@@ -171,12 +116,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function populateDataTable(reportData) {
         dataTableBody.innerHTML = '';
         reportData.forEach(row => {
+            const date = new Date(row.date);
+            const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${
+                (date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+    
             const tableRow = document.createElement('tr');
-            const formattedDate = new Date(row.date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
             tableRow.innerHTML = `
                 <td>${formattedDate}</td>
                 <td>${row.radioEquipmentEnergy || 'N/A'}</td>
@@ -195,10 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
         recommendations.split('\n\n').forEach((recommendation, index) => {
             const recDiv = document.createElement('div');
             recDiv.classList.add('recommendation');
-            recDiv.innerHTML = `
-                <h3>Recommendation ${index + 1}:</h3>
-                <p>${recommendation}</p>
-            `;
+            recDiv.innerHTML = `<h3>Recommendation ${index + 1}:</h3><p>${recommendation}</p>`;
             recommendationsSection.appendChild(recDiv);
         });
     }
