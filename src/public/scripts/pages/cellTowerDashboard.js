@@ -142,7 +142,18 @@ async function loadData(){
     const month = document.getElementById("monthDropdown").value
     const year = document.getElementById("yearPicker").value
     const cellTower = document.getElementById("cellTowerDropdown").value
-    const data = await (await get(`Dashboard/Cell-Tower/Consumption/${cellTower}/${month}/${year || "all"}`)).json()
+    //get data
+    const response = await get(`Dashboard/Cell-Tower/Consumption/${cellTower}/${month}/${year || "all"}`)
+    //check if the data exists
+    console.log(response.status)
+    if (response.status == 404){
+        document.getElementById("noDataMessage").style.display = "block"
+        document.getElementById("dashboard").style.display = "none"
+        return
+    }
+    document.getElementById("noDataMessage").style.display = "none"
+    document.getElementById("dashboard").style.display = "flex"
+    const data = await response.json()
     //main stats
     document.getElementById("grid-type").innerText = data.grid_type
     document.getElementById("total-carbon-emission").innerText = `${formatDecimals(data.carbon_emission)} Tons`

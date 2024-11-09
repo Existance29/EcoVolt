@@ -51,7 +51,12 @@ class cellTowerDashboard{
         }
         const trendResults = (await query.query(trendSQL, params)).recordset
         result["trends"] = trendResults //add trend to results
-        return result ? result : null
+        
+        //check if the data is blank
+        for (const [key, value] of Object.entries(result)) {
+            if (!value) return null
+        }
+        return result
     }
 }
 
