@@ -45,8 +45,9 @@ class cellTowerDashboard{
                 GROUP BY MONTH(date)`
         }
         else{
-            trendSQL = `SELECT carbon_emission_kg AS carbon_emission, DAY(date) AS num
-                FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}`
+            trendSQL = `SELECT SUM(carbon_emission_kg) AS carbon_emission, DAY(date) AS num
+                FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}
+                GROUP BY DAY(date)`
         }
         const trendResults = (await query.query(trendSQL, params)).recordset
         result["trends"] = trendResults //add trend to results
