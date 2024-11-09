@@ -68,7 +68,7 @@ body {
     display: block;
   }
   
-  .date-picker input[type="date"], .data-center-filter select {
+  .date-picker input[type="date"], .data-center-filter select, .data-center-filter input {
     width: 100%;
     padding: 10px;
     font-size: 16px;

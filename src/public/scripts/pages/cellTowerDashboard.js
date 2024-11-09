@@ -15,6 +15,9 @@ function renderLineChart(canvasElement, xData, yData, lineColor){
     // const parentHeightVH = (100 * parentHeightPX / window.innerHeight)
     // console.log(parentHeightPX)
     // parentElement.style.maxHeight = `${parentHeightPX}px`
+    if(Chart.getChart(canvasElement.id)) {
+        Chart.getChart(canvasElement.id)?.destroy()
+    }
     new Chart(canvasElement, {
         type: 'line',
         data: {
@@ -66,6 +69,10 @@ function renderLineChart(canvasElement, xData, yData, lineColor){
 }
 
 function renderDoughnutChart(element, labels, data, colors){
+    if(Chart.getChart(element.id)) {
+        Chart.getChart(element.id)?.destroy()
+    }
+
     new Chart(element, {
         type: 'doughnut',
         data: {
@@ -131,6 +138,11 @@ function renderCircleProgressBar(element, currentValue, totalValue, chartSize, b
 }
 
 async function loadData(){
+    //get filters
+    const month = document.getElementById("monthDropdown").value
+    const year = document.getElementById("yearPicker").value
+    const cellTower = document.getElementById("cellTowerDropdown").value
+
     const data = await (await get("Dashboard/Cell-Tower/Consumption/all/all/all")).json()
     //main stats
     document.getElementById("grid-type").innerText = data.grid_type
@@ -153,4 +165,19 @@ async function loadData(){
     //renewable energy contribution
     renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 100, "#4FD1C5", "#CAC9CA80")
 }
+
+//get all cell towers and add them to the dropdown options
+async function loadCellTowerDropdown(){
+    const cellTowers = await (await get("Dashboard/Cell-Towers")).json()
+    const dropdown = document.getElementById("cellTowerDropdown")
+    for (let i = 0; i < cellTowers.length; i++){
+        const cellTower = cellTowers[i]
+        var option = document.createElement("option");
+        option.text = cellTower.cell_tower_name;
+        option.value = cellTower.id
+        dropdown.add(option);
+    }
+}
+loadCellTowerDropdown()
+//load data
 loadData()
