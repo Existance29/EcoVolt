@@ -3,36 +3,22 @@ const DashboardModel = require("../models/overviewDashboardModel");
 const DashboardController = {
     async getDashboardSummary(req, res) {
         try {
-            const cellTowerSummary = await DashboardModel.getCellTowerSummary();
-            const dataCenterSummary = await DashboardModel.getDataCenterSummary();
-            const carbonEmissionsSummary = await DashboardModel.getCarbonEmissionsSummary();
-            const renewableEnergySummary = await DashboardModel.getRenewableEnergyUsagePercentage();
-            const energyBreakdown = await DashboardModel.getEnergyConsumptionBreakdown();
-            const energyConsumptionTrend = await DashboardModel.getEnergyConsumptionTrend(); // Ensure this function exists
-            const renewableEnergyUsage = await DashboardModel.getRenewableEnergyUsage();
-            const efficiencyMetrics = await DashboardModel.getEfficiencyMetrics();
+            const highestEmissions = await DashboardModel.getHighestEmissions();
+            const totalEmissions = await DashboardModel.getTotalEmissions();
+            const sustainabilityGoals = await DashboardModel.getSustainabilityGoals();
+            const top3Companies = await DashboardModel.getTop3CompaniesByEmissions(); // Fetch top 3 companies
+            const yearlyEnergyConsumption = await DashboardModel.getYearlyEnergyConsumption();
 
-            // Log the data for debugging
-            console.log({
-                cellTower: cellTowerSummary,
-                dataCenter: dataCenterSummary,
-                carbonEmissions: carbonEmissionsSummary,
-                renewableEnergy: renewableEnergySummary,
-                energyBreakdown,
-                energyConsumptionTrend, // Change from co2Trend to energyConsumptionTrend
-                renewableEnergyUsage,
-                efficiencyMetrics
-            });
-
+            // Combine all data into a single response
             res.json({
-                cellTower: cellTowerSummary,
-                dataCenter: dataCenterSummary,
-                carbonEmissions: carbonEmissionsSummary,
-                renewableEnergy: renewableEnergySummary,
-                energyBreakdown,
-                energyConsumptionTrend, // Use the correct variable here
-                renewableEnergyUsage,
-                efficiencyMetrics
+                highestDataCenter: highestEmissions.highestDataCenter,
+                highestCellTower: highestEmissions.highestCellTower,
+                totalDataCenterEmissions: totalEmissions.totalDataCenterEmissions,
+                totalCellTowerEmissions: totalEmissions.totalCellTowerEmissions,
+                overallTotal: totalEmissions.overallTotal,
+                sustainabilityGoals, // Include sustainability goals data
+                top3Companies, // Include top 3 companies data
+                yearlyEnergyConsumption,
             });
         } catch (error) {
             console.error("Error fetching dashboard summary:", error);
