@@ -8,6 +8,32 @@ function formatDecimals(n){
     return Math.round(n).toLocaleString()
 }   
 
+function formatNum(num, month){
+   
+    numToMonth = {
+        "1": "Jan",
+        "2": "Feb", 
+        "3": "Mar", 
+        "4": "Apr", 
+        "5": "May", 
+        "6": "Jun", 
+        "7": "Jul", 
+        "8": "Aug",
+        "9": "Sep", 
+        "10": "Oct", 
+        "11": "Nov",
+        "12": "Dec"
+    }
+    
+    if (month == "all"){
+        return `${numToMonth[num]} 2024`
+    }
+
+    return `${num} ${numToMonth[month]}`
+
+
+}
+
 function renderLineChart(canvasElement, xData, yData, lineColor){
     // const parentElement = canvasElement.parentElement
     // const parentHeightPX = parentElement.offsetHeight
@@ -162,7 +188,7 @@ async function loadData(){
     //deal with trends
     const trendData = data.trends
     const carbonEmissionTrends = trendData.map(item => item.carbon_emission);
-    const trendLabels = trendData.map(item => item.num);
+    const trendLabels = trendData.map(item => formatNum(item.num, month));
     //carbon emission
     renderLineChart(document.getElementById('carbonEmissionChart'), carbonEmissionTrends, trendLabels, "#4FD1C5")
 
