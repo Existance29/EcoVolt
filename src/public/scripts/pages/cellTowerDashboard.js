@@ -1,8 +1,38 @@
 Chart.defaults.font.size = 13
-Chart.defaults.animation = true
 Chart.defaults.color = "#CAC9CA"
 var hourArray = [10, 20, 30, 40, 50]
 var honeyPerMin = [5,10,15,20, 13]
+
+//round the decimals and add commas
+function formatDecimals(n){
+    return Math.round(n).toLocaleString()
+}   
+
+function formatNum(num, month){
+   
+    numToMonth = {
+        "1": "Jan",
+        "2": "Feb", 
+        "3": "Mar", 
+        "4": "Apr", 
+        "5": "May", 
+        "6": "Jun", 
+        "7": "Jul", 
+        "8": "Aug",
+        "9": "Sep", 
+        "10": "Oct", 
+        "11": "Nov",
+        "12": "Dec"
+    }
+    
+    if (month == "all"){
+        return `${numToMonth[num]} 2024`
+    }
+
+    return `${num} ${numToMonth[month]}`
+
+
+}
 
 function renderLineChart(canvasElement, xData, yData, lineColor){
     // const parentElement = canvasElement.parentElement
@@ -11,6 +41,9 @@ function renderLineChart(canvasElement, xData, yData, lineColor){
     // const parentHeightVH = (100 * parentHeightPX / window.innerHeight)
     // console.log(parentHeightPX)
     // parentElement.style.maxHeight = `${parentHeightPX}px`
+    if(Chart.getChart(canvasElement.id)) {
+        Chart.getChart(canvasElement.id)?.destroy()
+    }
     new Chart(canvasElement, {
         type: 'line',
         data: {
@@ -43,7 +76,8 @@ function renderLineChart(canvasElement, xData, yData, lineColor){
                     ticks: {
                         maxTicksLimit: 6,
                         autoSkip: false,
-                    }
+                    },
+                    beginAtZero: true
                 },
                 x: {
                     grid: {
@@ -61,6 +95,10 @@ function renderLineChart(canvasElement, xData, yData, lineColor){
 }
 
 function renderDoughnutChart(element, labels, data, colors){
+    if(Chart.getChart(element.id)) {
+        Chart.getChart(element.id)?.destroy()
+    }
+
     new Chart(element, {
         type: 'doughnut',
         data: {
@@ -99,33 +137,103 @@ function renderDoughnutChart(element, labels, data, colors){
             </div>
         `
 
-        valueColumn.innerHTML += `<div class="label-value inter-medium">${data[i]} (${Math.round(data[i]/dataSum*100)}%)</div>`
+        valueColumn.innerHTML += `<div class="label-value inter-medium">${formatDecimals(data[i])} (${Math.round(data[i]/dataSum*100)}%)</div>`
 
     }
+} 
+
+function renderCircleProgressBar(element, currentValue, totalValue, chartSize, barColor, trackColor){
+    const perc = currentValue/totalValue*100
+    element.dataset.percent = perc
+    element.innerText = `${Math.round(perc)}%`
+
+    new EasyPieChart(element, {
+        scaleLength: false,
+        lineCap: "square",
+        lineWidth: 7,
+        size: chartSize,
+        barColor: barColor,
+        trackColor: trackColor
+    });
+
+    element.style.height = `${chartSize}px`
+    element.style.width = `${chartSize}px`
+
+    const labelDiv = element.parentNode.children[1]
+    labelDiv.innerHTML = `<span style="color: ${barColor};">${formatDecimals(currentValue)}</span> / ${formatDecimals(totalValue)} MWh`
 }
 
-renderLineChart(document.getElementById('carbonEmissionChart'), honeyPerMin, hourArray, "#4FD1C5")
+async function loadData(){
+    //get filters
+    const month = document.getElementById("monthDropdown").value
+    const year = document.getElementById("yearPicker").value
+    const cellTower = document.getElementById("cellTowerDropdown").value
+    //get data
+    const response = await get(`Dashboard/Cell-Tower/Consumption/${cellTower}/${month}/${year || "all"}`)
+    //check if the data exists
+    console.log(response.status)
+    if (response.status == 404){
+        document.getElementById("noDataMessage").style.display = "block"
+        document.getElementById("dashboard").style.display = "none"
+        return
+    }
+    document.getElementById("noDataMessage").style.display = "none"
+    document.getElementById("dashboard").style.display = "flex"
+    const data = await response.json()
+    //main stats
+    document.getElementById("grid-type").innerText = data.grid_type
+    document.getElementById("total-carbon-emission").innerText = `${formatDecimals(data.carbon_emission)} Tons`
+    document.getElementById("total-energy").innerText = `${formatDecimals(data.total_energy)} MWh`
 
-const energyBreakdownColors = ["#263332","#485251","#4FD1C5","#95D1CB","#5BA79F"]
-const energyBreakdownLabels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"]
-const energyBreakdownData = [1,2,3,4]
-renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors)
+    //deal with trends
+    const trendData = data.trends
+    const carbonEmissionTrends = trendData.map(item => item.carbon_emission);
+    const trendLabels = trendData.map(item => formatNum(item.num, month));
+    //carbon emission
+    renderLineChart(document.getElementById('carbonEmissionChart'), carbonEmissionTrends, trendLabels, "#4FD1C5")
 
-const chartSize = 100
-const renewableEnergyContributionChart = document.getElementById("renewable-energy-contribution-chart")
-const perc = 50.2
-renewableEnergyContributionChart.dataset.percent = perc
-renewableEnergyContributionChart.innerText = `${Math.round(perc)}%`
+    //energy breakdown
+    const energyBreakdownColors = ["#5BA79F","#95D1CB","#4FD1C5","#485251","#263332"]
+    const energyBreakdownLabels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"]
+    const energyBreakdownData = [data.radio_equipment_energy, data.cooling_energy, data.backup_power_energy, data.misc_energy]
+    renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors)
 
-new EasyPieChart(renewableEnergyContributionChart, {
-    scaleLength: false,
-    animate: false,
-    lineCap: "square",
-    lineWidth: 7,
-    size: chartSize,
-    barColor: "#4FD1C5",
-    trackColor: `#CAC9CA80`
-});
+    //renewable energy contribution
+    renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 100, "#4FD1C5", "#CAC9CA80")
+}
 
-renewableEnergyContributionChart.style.height = `${chartSize}px`
-renewableEnergyContributionChart.style.width = `${chartSize}px`
+
+async function onLoad(){
+
+    //get all cell towers and add them to the dropdown options
+    const cellTowers = await (await get("Dashboard/Cell-Towers")).json()
+    const dropdown = document.getElementById("cellTowerDropdown")
+    for (let i = 0; i < cellTowers.length; i++){
+        const cellTower = cellTowers[i]
+        var option = document.createElement("option");
+        option.text = cellTower.cell_tower_name;
+        option.value = cellTower.id
+        dropdown.add(option);
+    }
+
+    const cellTowerIDs = cellTowers.map(x => x.id)
+
+    //get url parameters
+    const initialYear = getUrlParameter("year") || ""
+    var initialMonth = getUrlParameter("month")
+    var initialCellTowerID = getUrlParameter("id")
+
+    //validate the parameters, default to "all" if invalid
+    initialMonth = initialMonth && initialMonth >= 1 && initialMonth <= 12 ? initialMonth : "all"
+    initialCellTowerID = !isNaN(initialCellTowerID) && cellTowerIDs.includes(parseInt(initialCellTowerID)) ? initialCellTowerID : "all"
+    
+    //set the filters to the parameter value
+    document.getElementById("monthDropdown").value = initialMonth
+    document.getElementById("yearPicker").value = initialYear
+    document.getElementById("cellTowerDropdown").value = initialCellTowerID   
+
+    //load data
+    loadData()
+}
+
+onLoad()
