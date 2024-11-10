@@ -153,6 +153,23 @@ async function fetchAvailableDates() {
     }
 }
 
+function updateDatePickerToggleLabel() {
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    
+    if (selectedYear && selectedMonth) {
+        // Show month and year (e.g., January 2024)
+        const monthName = monthPicker.options[monthPicker.selectedIndex].text;
+        document.getElementById("datePickerToggle").textContent = `${monthName} ${selectedYear}`;
+    } else if (selectedYear) {
+        // Show only year (e.g., 2024)
+        document.getElementById("datePickerToggle").textContent = selectedYear;
+    } else {
+        // Default to "All"
+        document.getElementById("datePickerToggle").textContent = "All";
+    }
+}
+
 async function fetchData() {
     const selectedMonth = monthPicker.value;
     const selectedYear = yearPicker.value;
@@ -197,6 +214,7 @@ async function fetchData() {
 
     console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
 
+    updateDatePickerToggleLabel();
 
     if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
         // No date, fetch totals for all data centers under the company
