@@ -29,15 +29,25 @@ document.addEventListener("click", function(event) {
         container.style.display = "none";
     }
 });
-// Event listener for the Clear button
-document.getElementById("datePickerOk").addEventListener("click", function(event) {
+
+// Event listener for the Apply button
+document.getElementById("datePickerApply").addEventListener("click", function(event) {
     event.preventDefault();
-    document.getElementById("monthPicker").value = "";
-    document.getElementById("yearPicker").value = "";
-    document.getElementById("datePickerToggle").textContent = "All";
+    updateDatePickerToggleLabel(); // Update the label based on the selected month/year
     document.getElementById("datePickerContainer").style.display = "none";
     fetchData();
 });
+
+// Event listener for the Clear button
+document.getElementById("datePickerClear").addEventListener("click", function(event) {
+    event.preventDefault();
+    monthPicker.value = "";
+    yearPicker.value = "";
+    updateDatePickerToggleLabel(); // Reset the label to "All"
+    document.getElementById("datePickerContainer").style.display = "none";
+    fetchData();
+});
+
 
 
 const monthPicker = document.getElementById("monthPicker");
