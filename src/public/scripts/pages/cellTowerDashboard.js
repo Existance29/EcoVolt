@@ -202,8 +202,10 @@ async function loadData(){
     renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 100, "#4FD1C5", "#CAC9CA80")
 }
 
-//get all cell towers and add them to the dropdown options
-async function loadCellTowerDropdown(){
+
+async function onLoad(){
+
+    //get all cell towers and add them to the dropdown options
     const cellTowers = await (await get("Dashboard/Cell-Towers")).json()
     const dropdown = document.getElementById("cellTowerDropdown")
     for (let i = 0; i < cellTowers.length; i++){
@@ -213,7 +215,25 @@ async function loadCellTowerDropdown(){
         option.value = cellTower.id
         dropdown.add(option);
     }
+
+    const cellTowerIDs = cellTowers.map(x => x.id)
+
+    //get url parameters
+    const initialYear = getUrlParameter("year") || ""
+    var initialMonth = getUrlParameter("month")
+    var initialCellTowerID = getUrlParameter("id")
+
+    //validate the parameters, default to "all" if invalid
+    initialMonth = initialMonth && initialMonth >= 1 && initialMonth <= 12 ? initialMonth : "all"
+    initialCellTowerID = !isNaN(initialCellTowerID) && cellTowerIDs.includes(parseInt(initialCellTowerID)) ? initialCellTowerID : "all"
+    
+    //set the filters to the parameter value
+    document.getElementById("monthDropdown").value = initialMonth
+    document.getElementById("yearPicker").value = initialYear
+    document.getElementById("cellTowerDropdown").value = initialCellTowerID   
+
+    //load data
+    loadData()
 }
-loadCellTowerDropdown()
-//load data
-loadData()
+
+onLoad()
