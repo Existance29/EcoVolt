@@ -327,10 +327,10 @@ static async getTotalEnergyConsumptionByCompanyIdAndYearAndMonth(company_id, yea
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
             SELECT 
-                AVG(it_energy_mwh) AS it_energy_mwh,
-                AVG(cooling_energy_mwh) AS cooling_energy_mwh,
-                AVG(backup_power_energy_mwh) AS backup_power_energy_mwh,
-                AVG(lighting_energy_mwh) AS lighting_energy_mwh,		
+                SUM(it_energy_mwh) AS it_energy_mwh,
+                SUM(cooling_energy_mwh) AS cooling_energy_mwh,
+                SUM(backup_power_energy_mwh) AS backup_power_energy_mwh,
+                SUM(lighting_energy_mwh) AS lighting_energy_mwh,		
                 AVG(pue) AS pue_avg,
 				AVG (cue) AS cue_avg, 
 				AVG (wue) AS wue_avg
@@ -354,10 +354,10 @@ static async getTotalEnergyConsumptionByCompanyIdAndYearAndMonth(company_id, yea
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
             SELECT 
-                AVG(e.it_energy_mwh) AS it_energy_mwh,
-                AVG(e.cooling_energy_mwh) AS cooling_energy_mwh,
-                AVG(e.backup_power_energy_mwh) AS backup_power_energy_mwh,
-                AVG(e.lighting_energy_mwh) AS lighting_energy_mwh,
+                SUM(e.it_energy_mwh) AS it_energy_mwh,
+                SUM(e.cooling_energy_mwh) AS cooling_energy_mwh,
+                SUM(e.backup_power_energy_mwh) AS backup_power_energy_mwh,
+                SUM(e.lighting_energy_mwh) AS lighting_energy_mwh,
                 AVG(pue) AS pue_avg,
 				AVG (cue) AS cue_avg, 
 				AVG (wue) AS wue_avg
@@ -386,10 +386,10 @@ static async getTotalEnergyConsumptionByCompanyIdAndYearAndMonth(company_id, yea
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
             SELECT 
-                AVG(e.it_energy_mwh) AS it_energy_mwh,
-                AVG(e.cooling_energy_mwh) AS cooling_energy_mwh,
-                AVG(e.backup_power_energy_mwh) AS backup_power_energy_mwh,
-                AVG(e.lighting_energy_mwh) AS lighting_energy_mwh,
+                SUM(e.it_energy_mwh) AS it_energy_mwh,
+                SUM(e.cooling_energy_mwh) AS cooling_energy_mwh,
+                SUM(e.backup_power_energy_mwh) AS backup_power_energy_mwh,
+                SUM(e.lighting_energy_mwh) AS lighting_energy_mwh,
                 AVG(pue) AS pue_avg,
 				AVG (cue) AS cue_avg, 
 				AVG (wue) AS wue_avg
