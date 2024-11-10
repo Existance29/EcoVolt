@@ -17,7 +17,7 @@ window.onclick = function(event) {
 const company_id = getCompanyId();
 
 document.getElementById("datePickerToggle").addEventListener("click", function(event) {
-    event.stopPropagation(); // Prevent the click from propagating
+    event.stopPropagation(); 
     var container = document.getElementById("datePickerContainer");
     container.style.display = container.style.display === "none" || !container.style.display ? "block" : "none";
 });
@@ -29,6 +29,15 @@ document.addEventListener("click", function(event) {
         container.style.display = "none";
     }
 });
+// Event listener for the Clear button
+document.getElementById("datePickerOk").addEventListener("click", function(event) {
+    event.preventDefault();
+    document.getElementById("monthPicker").value = "";
+    document.getElementById("yearPicker").value = "";
+    document.getElementById("datePickerToggle").textContent = "All";
+    document.getElementById("datePickerContainer").style.display = "none";
+    fetchData();
+});
 
 
 const monthPicker = document.getElementById("monthPicker");
@@ -36,6 +45,14 @@ const yearPicker = document.getElementById("yearPicker");
 const dataCenterDropdown = document.getElementById("dataCenterDropdown");
 const noDataMessage = document.getElementById("noDataMessage");
 const mainChartContent = document.querySelector(".main-chart-content");
+
+const yearErrorMessage = document.createElement("div"); // Create error message element
+
+yearErrorMessage.style.color = "red";
+yearErrorMessage.style.fontSize = "12px";
+yearErrorMessage.style.marginTop = "4px";
+yearErrorMessage.style.display = "none"; // Initially hidden
+yearPicker.parentNode.insertBefore(yearErrorMessage, yearPicker.nextSibling); // Insert error message below year picker
 
 
 // Initialize chart instances
@@ -141,10 +158,17 @@ async function fetchData() {
     const selectedYear = yearPicker.value;
     const selectedDataCenter = dataCenterDropdown.value;
 
-    // Construct the selectedDate as either "YYYY-MM" or "YYYY" based on available inputs
+    // Check if month is selected without a year
+    if (selectedMonth && !selectedYear) {
+        yearErrorMessage.textContent = "Please select a year";
+        yearErrorMessage.style.display = "block";
+        return; // Stop fetch if month is selected without a year
+    } else {
+        yearErrorMessage.style.display = "none"; // Hide the error message if validation passes
+    }
+
     const selectedDate = selectedYear && selectedMonth ? `${selectedYear}-${selectedMonth}` : selectedYear;
 
-    // Validate selected date format before proceeding
     if (selectedDate && (selectedDate.length !== 4 && selectedDate.length !== 7)) {
         console.error("Invalid date format. Expected format: YYYY or YYYY-MM.");
         noDataMessage.style.display = "block";
@@ -152,7 +176,6 @@ async function fetchData() {
         return;
     }
 
-    // Fetch available dates and log any potential issues with data availability
     const { availableYears, availableMonths } = await fetchAvailableDates();
 
     if (selectedYear && !availableYears.has(selectedYear)) {
