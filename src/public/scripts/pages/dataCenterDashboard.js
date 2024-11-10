@@ -127,8 +127,19 @@ async function fetchData() {
     const selectedMonth = monthPicker.value;
     const selectedYear = yearPicker.value;
     const selectedDataCenter = dataCenterDropdown.value;
+
+    // Construct the selectedDate as either "YYYY-MM" or "YYYY" based on available inputs
     const selectedDate = selectedYear && selectedMonth ? `${selectedYear}-${selectedMonth}` : selectedYear;
 
+    // Validate selected date format before proceeding
+    if (selectedDate && (selectedDate.length !== 4 && selectedDate.length !== 7)) {
+        console.error("Invalid date format. Expected format: YYYY or YYYY-MM.");
+        noDataMessage.style.display = "block";
+        mainChartContent.style.display = "none";
+        return;
+    }
+
+    // Fetch available dates and log any potential issues with data availability
     const { availableYears, availableMonths } = await fetchAvailableDates();
 
     if (selectedYear && !availableYears.has(selectedYear)) {
@@ -149,7 +160,6 @@ async function fetchData() {
     mainChartContent.style.display = "flex";
 
     console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
-
 
 
     if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
@@ -476,18 +486,11 @@ async function fetchTotalEnergyConsumptionByDataCenterId(data_center_id) {
 }
 
 // Function to fetch total energy consumption for the company using the selected date
-async function fetchTotalEnergyConsumptionByCompanyIdAndDate() {
-    const selectedMonth = monthPicker.value;
-    const selectedYear = yearPicker.value;
-    // Combine month and year if both are selected
-    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
+async function fetchTotalEnergyConsumptionByCompanyIdAndDate(selectedDate) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/1?date=${selectedDate}`);
         const data = await response.json();
-        console.log("Total Energy Consumption data for company by date:", data);
-
-        // Update the total energy consumption display in the stat-value element
-        document.getElementById("totalEnergyConsumption").textContent = `${data.total_energy_consumption} MWh`;
+        console.log("Total energy consumption data for company by date:", data);
     } catch (error) {
         console.error("Error fetching total energy consumption data for company by date:", error);
     }
@@ -543,9 +546,8 @@ async function fetchEnergyConsumptionBreakdownByDataCenterId(data_center_id) {
 
 // Function to fetch energy consumption breakdown for the company using the selected date
 async function fetchEnergyConsumptionBreakdownByCompanyIdAndDate(date) {
-    const formattedDate = new Date(date).toISOString().split('T')[0]; // Format date as YYYY-MM-DD
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}/date?date=${encodeURIComponent(formattedDate)}`);
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}/date?date=${date}`);
         const data = await response.json();
         console.log("Energy Breakdown data for company by date:", data);
         renderEnergyBreakdownChart(data);
@@ -689,9 +691,8 @@ async function fetchTotalRenewableEnergyByDataCenterId(data_center_id) {
 
 // Function to fetch and display total renewable energy for the company with date
 async function fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate) {
-    const formattedDate = new Date(selectedDate).toISOString().split('T')[0];
     try {
-        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/company/${company_id}/date?date=${encodeURIComponent(formattedDate)}`);
+        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/company/${company_id}/date?date=${selectedDate}`);
         const data = await response.json();
         console.log("Total Renewable Energy data for company by date:", data);
 

@@ -67,7 +67,7 @@ const getTotalEnergyConsumptionByCompanyId = async (req, res) => {
 };
 
 const getTotalEnergyConsumptionByDataCenterId = async (req, res) => {
-    const dataCenterId = parseInt(req.params.data_Center_Id);
+    const dataCenterId = parseInt(req.params.data_center_id);
 
     if (!dataCenterId) {
         return res.status(400).send("dataCenterId is required.");
@@ -86,7 +86,7 @@ const getTotalEnergyConsumptionByDataCenterId = async (req, res) => {
 };
 
 const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
-    const dataCenterId = parseInt(req.params.data_Center_Id);
+    const dataCenterId = parseInt(req.params.data_center_id);
     const date = req.query.date;
 
     if (!dataCenterId || !date) {
@@ -182,7 +182,7 @@ const getAllEnergyConsumptionByCompanyId = async (req, res) => {
 
 // purpose: if user doesnt select all data center, there will options of data center for user to select which one to see for comparison
 const getAllEnergyConsumptionByDataCenterId = async (req, res) => {
-    const dataCenterId = parseInt(req.params.data_Center_Id);
+    const dataCenterId = parseInt(req.params.data_center_id);
     try {
         const data = await dataCenterDashboard.getAllEnergyConsumptionByDataCenterId(dataCenterId);
         // console.log(data);
@@ -197,7 +197,7 @@ const getAllEnergyConsumptionByDataCenterId = async (req, res) => {
 };
 
 const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
-    const dataCenterId = parseInt(req.params.data_Center_Id);
+    const dataCenterId = parseInt(req.params.data_center_id);
     const date = req.query.date;
 
     if (!dataCenterId || !date) {
@@ -236,6 +236,7 @@ const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
 const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
     const date = req.query.date;
+    console.log(company_id, "  ", date);
 
     if (!company_id || !date) {
         console.log("Missing company_id or date parameters.");
@@ -246,21 +247,26 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
         let data;
         const [year, month] = date.split('-');
 
-        if (month) {
-            // If month is provided, fetch data for the specified year and month
+        // Check for correct date format: YYYY or YYYY-MM
+        if (date.length === 4) { // Format: YYYY
+            // Fetch data for the specified year
+            data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndYear(
+                company_id,
+                parseInt(year)
+            );
+        } else if (date.length === 7) { // Format: YYYY-MM
+            // Fetch data for the specified year and month
             data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndYearMonth(
                 company_id,
                 parseInt(year),
                 parseInt(month)
             );
         } else {
-            // If only the year is provided, fetch data for the specified year
-            data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndYear(
-                company_id,
-                parseInt(year)
-            );
+            console.log("Invalid date format.");
+            return res.status(400).send("Invalid date format. Use YYYY or YYYY-MM.");
         }
 
+        console.log(data);
         if (!data) {
             return res.status(404).send("No energy consumption data found for this company in the specified date range.");
         }
@@ -270,6 +276,7 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
         res.status(500).send("Failed to retrieve energy consumption data: Internal Server Error.");
     }
 };
+
 // --------------------------------------------------------------------------------------------------- fix
 
 
@@ -317,7 +324,6 @@ const getTotalCarbonEmissionByDataCenterId = async (req, res) => {
 const getTotalCarbonEmissionByCompanyIdAndDate = async (req, res) => {
     const companyId = parseInt(req.params.company_id);
     const date = req.query.date;
-
     if (!companyId || !date) {
         return res.status(400).send("companyId and date (in YYYY-MM or YYYY format) are required.");
     }
