@@ -16,7 +16,20 @@ window.onclick = function(event) {
 
 const company_id = getCompanyId();
 
+    // Toggle the display of the date picker container
+    document.getElementById("datePickerToggle").addEventListener("click", function() {
+        var container = document.getElementById("datePickerContainer");
+        container.style.display = container.style.display === "none" || !container.style.display ? "block" : "none";
+    });
 
+    // Hide the date picker when clicking outside of it
+    document.addEventListener("click", function(event) {
+        var container = document.getElementById("datePickerContainer");
+        var toggle = document.getElementById("datePickerToggle");
+        if (!container.contains(event.target) && event.target !== toggle) {
+            container.style.display = "none";
+        }
+    });
 
 const monthPicker = document.getElementById("monthPicker");
 const yearPicker = document.getElementById("yearPicker");
