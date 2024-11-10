@@ -215,7 +215,7 @@ async function fetchData() {
     } else if (selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
         // With date, fetch totals for the company by date
         await fetchAllCarbonEmissionByCompanyIdAndDate(selectedDate);
-        await fetchTotalCarbonEmissionByCompanyIdAndDate();
+        await fetchTotalCarbonEmissionByCompanyIdAndDate(selectedDate);
         await fetchTotalEnergyConsumptionByCompanyIdAndDate(selectedDate); // Fetch energy consumption for the company by date
         await fetchEnergyConsumptionBreakdownByCompanyIdAndDate(selectedDate); // Fetch energy breakdown for the company by date
         await fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate); // Fetch total renewable energy for the company by date
