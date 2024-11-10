@@ -249,7 +249,7 @@ async function fetchAllCarbonEmissionByCompanyIdAndDate(date) {
 // Case 4: Fetch carbon emissions for a specific data center and date - fix
 async function fetchAllCarbonEmissionByDataCenterIdAndDate(data_center_id, date) {
     try {
-        const url = `/Dashboard/Data-Center/CarbonEmission/data-center/${data_center_id}/date?date=${encodeURIComponent(date)}`;
+        const url = `/Dashboard/Data-Center/CarbonEmission/data-center/${data_center_id}/date?date=${date}`;
         
         console.log("Request URL for data center by date:", url);
         
@@ -558,9 +558,8 @@ async function fetchEnergyConsumptionBreakdownByCompanyIdAndDate(date) {
 
 // Function to fetch energy consumption breakdown for a specific data center using the selected date
 async function fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(data_center_id, date) {
-    const formattedDate = new Date(date).toISOString().split('T')[0]; // Format date as YYYY-MM-DD
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${data_center_id}/date?date=${encodeURIComponent(formattedDate)}`);
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${data_center_id}/date?date=${date}`);
         const data = await response.json();
         console.log("Energy Breakdown data for data center by date:", data);
         renderEnergyBreakdownChart(data);
@@ -706,9 +705,8 @@ async function fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate) {
 
 // Function to fetch and display total renewable energy for a specific data center with date
 async function fetchTotalRenewableEnergyByDataCenterIdAndDate(data_center_id, selectedDate) {
-    const formattedDate = new Date(selectedDate).toISOString().split('T')[0];
     try {
-        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/data-center/${data_center_id}/date?date=${encodeURIComponent(formattedDate)}`);
+        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/data-center/${data_center_id}/date?date=${selectedDate}`);
         const data = await response.json();
         console.log("Total Renewable Energy data for data center by date:", data);
 
