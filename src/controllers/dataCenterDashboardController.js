@@ -18,34 +18,30 @@ const getAllDataCenter = async (req, res) => {
 }
 
 
-const getLastDate = async (req, res) => {
-    const company_id = parseInt(req.params.company_id); // convert string to integer
-    try {
-        const data = await dataCenterDashboard.getLastDate(company_id);
-        if (!data) {
-            return res.status(404).send('Month or year not found.');
-        }
-        res.status(200).json(data);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to retrieve Year: Internal Server Error.');
+const getAllDates = async (req, res) => {
+    const dc = req.params.dc ? parseInt(req.params.dc) : null;
+    const company_id = parseInt(req.params.company_id);
+    if (!company_id) {
+        return res.status(400).send("company_id is required.");
     }
 
-};
-
-const getLastDateByDataCenter = async (req, res) => {
-    const company_id = parseInt(req.params.company_id); // convert string to integer
     try {
-        const data = await dataCenterDashboard.getLastDateByDataCenter(company_id);
-        if (!data) {
-            return res.status(404).send('Month or year not found.');
+        let dates;
+        if (dc) {
+            dates = await dataCenterDashboard.getAvailDatesByCompanyIdandDc(company_id, dc);
+        } else {
+            dates = await dataCenterDashboard.getAvailDatesByCompanyId(company_id);
         }
-        res.status(200).json(data);
+
+        if (!dates || dates.length === 0) {
+            return res.status(404).send("No available dates found.");
+        }
+
+        res.status(200).json(dates);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Failed to retrieve Year: Internal Server Error.');
+        res.status(500).send("Failed to retrieve dates: Internal Server Error.");
     }
-
 };
 
 
@@ -71,7 +67,7 @@ const getTotalEnergyConsumptionByCompanyId = async (req, res) => {
 };
 
 const getTotalEnergyConsumptionByDataCenterId = async (req, res) => {
-    const dataCenterId = parseInt(req.params.dataCenterId);
+    const dataCenterId = parseInt(req.params.data_center_id);
 
     if (!dataCenterId) {
         return res.status(400).send("dataCenterId is required.");
@@ -89,8 +85,8 @@ const getTotalEnergyConsumptionByDataCenterId = async (req, res) => {
     }
 };
 
-const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
-    const dataCenterId = parseInt(req.params.dataCenterId);
+const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => { // wrong need change
+    const dataCenterId = parseInt(req.params.data_center_id);
     const date = req.query.date;
 
     if (!dataCenterId || !date) {
@@ -126,7 +122,7 @@ const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
     }
 };
 
-const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
+const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => { // wrong need change // not passing thru back end 
     const company_id = parseInt(req.params.company_id);
     const date = req.query.date;
 
@@ -152,7 +148,6 @@ const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
                 parseInt(year)
             );
         }
-
         if (totalEnergyConsumption === null) {
             return res.status(404).send("No energy consumption data found for this company in the specified date range.");
         }
@@ -186,7 +181,7 @@ const getAllEnergyConsumptionByCompanyId = async (req, res) => {
 
 // purpose: if user doesnt select all data center, there will options of data center for user to select which one to see for comparison
 const getAllEnergyConsumptionByDataCenterId = async (req, res) => {
-    const dataCenterId = parseInt(req.params.dataCenterId);
+    const dataCenterId = parseInt(req.params.data_center_id);
     try {
         const data = await dataCenterDashboard.getAllEnergyConsumptionByDataCenterId(dataCenterId);
         // console.log(data);
@@ -201,7 +196,7 @@ const getAllEnergyConsumptionByDataCenterId = async (req, res) => {
 };
 
 const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
-    const dataCenterId = parseInt(req.params.dataCenterId);
+    const dataCenterId = parseInt(req.params.data_center_id);
     const date = req.query.date;
 
     if (!dataCenterId || !date) {
@@ -250,19 +245,23 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
         let data;
         const [year, month] = date.split('-');
 
-        if (month) {
-            // If month is provided, fetch data for the specified year and month
+        // Check for correct date format: YYYY or YYYY-MM
+        if (date.length === 4) { // Format: YYYY
+            // Fetch data for the specified year
+            data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndYear(
+                company_id,
+                parseInt(year)
+            );
+        } else if (date.length === 7) { // Format: YYYY-MM
+            // Fetch data for the specified year and month
             data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndYearMonth(
                 company_id,
                 parseInt(year),
                 parseInt(month)
             );
         } else {
-            // If only the year is provided, fetch data for the specified year
-            data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyIdAndYear(
-                company_id,
-                parseInt(year)
-            );
+            console.log("Invalid date format.");
+            return res.status(400).send("Invalid date format. Use YYYY or YYYY-MM.");
         }
 
         if (!data) {
@@ -274,6 +273,7 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
         res.status(500).send("Failed to retrieve energy consumption data: Internal Server Error.");
     }
 };
+
 // --------------------------------------------------------------------------------------------------- fix
 
 
@@ -319,7 +319,6 @@ const getTotalCarbonEmissionByDataCenterId = async (req, res) => {
 const getTotalCarbonEmissionByCompanyIdAndDate = async (req, res) => {
     const companyId = parseInt(req.params.company_id);
     const date = req.query.date;
-
     if (!companyId || !date) {
         return res.status(400).send("companyId and date (in YYYY-MM or YYYY format) are required.");
     }
@@ -648,8 +647,7 @@ const getAllSustainabilityGoalsData = async (req, res) => {
 
 module.exports = {
     getAllDataCenter,
-    getLastDate,
-    getLastDateByDataCenter,
+    getAllDates,
 
     getTotalEnergyConsumptionByCompanyId,
     getTotalEnergyConsumptionByDataCenterId ,
