@@ -304,13 +304,11 @@ const getTotalCarbonEmissionByCompanyId = async (req, res) => {
 
 const getTotalCarbonEmissionByDataCenterId = async (req, res) => {
     const data_center_id = parseInt(req.params.data_center_id);
-    console.log(data_center_id);
     try {
         const totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByDataCenterId(data_center_id);
         if (totalCO2Emissions === null) {
             return res.status(404).send("No Carbon Emission data found for this data center.");
         }
-        console.log(totalCO2Emissions);
         res.status(200).json({ total_co2_emissions: totalCO2Emissions });
     } catch (error) {
         console.error(error);
