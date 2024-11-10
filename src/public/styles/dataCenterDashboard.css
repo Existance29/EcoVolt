@@ -47,7 +47,7 @@ canvas {
 
 
 /* Styling for No Data Message */
-.no-data-message {
+#noDataMessage {
   display: none;
   justify-content: center;
   align-items: center;

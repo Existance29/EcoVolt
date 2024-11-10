@@ -14,14 +14,16 @@ window.onclick = function(event) {
     }
 };
 
-// Set your company ID (replace with the actual ID)
-const company_id = getCompanyId(); // Replace with actual company ID
+const company_id = getCompanyId();
 
 
 
 const monthPicker = document.getElementById("monthPicker");
 const yearPicker = document.getElementById("yearPicker");
 const dataCenterDropdown = document.getElementById("dataCenterDropdown");
+const noDataMessage = document.getElementById("noDataMessage");
+const mainChartContent = document.querySelector(".main-chart-content");
+
 
 // Initialize chart instances
 let carbonEmissionChart;
@@ -100,16 +102,54 @@ async function loadDataCenterOptions() {
     }
 }
 
-// Function to determine which data to fetch based on the current filters
+async function fetchAvailableDates() {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/AvailableDates/${company_id}`);
+        const data = await response.json();
+        console.log("Full fetched data:", data);
+
+        // Extract years and months from the fetched data
+        const availableDates = data.recordsets[0].map(item => item.date.split('T')[0]); // "YYYY-MM-DD"
+        const availableYears = new Set(availableDates.map(date => date.split('-')[0])); // Extract year part
+        const availableMonths = new Set(availableDates.map(date => date.slice(0, 7))); // "YYYY-MM"
+
+        console.log("Available years:", availableYears);
+        console.log("Available months:", availableMonths);
+
+        return { availableYears, availableMonths };
+    } catch (error) {
+        console.error("Error fetching available dates:", error);
+        return { availableYears: new Set(), availableMonths: new Set() };
+    }
+}
+
 async function fetchData() {
     const selectedMonth = monthPicker.value;
     const selectedYear = yearPicker.value;
     const selectedDataCenter = dataCenterDropdown.value;
+    const selectedDate = selectedYear && selectedMonth ? `${selectedYear}-${selectedMonth}` : selectedYear;
+
+    const { availableYears, availableMonths } = await fetchAvailableDates();
+
+    if (selectedYear && !availableYears.has(selectedYear)) {
+        console.warn("Year not found:", selectedYear);
+        noDataMessage.style.display = "block";
+        mainChartContent.style.display = "none";
+        return;
+    }
+
+    if (selectedDate && selectedMonth && !availableMonths.has(selectedDate)) {
+        console.warn("Month-year not found:", selectedDate);
+        noDataMessage.style.display = "block";
+        mainChartContent.style.display = "none";
+        return;
+    }
+
+    noDataMessage.style.display = "none";
+    mainChartContent.style.display = "flex";
 
     console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
 
-    // Combine month and year if both are selected
-    const selectedDate = selectedYear ? (selectedMonth ? `${selectedYear}-${selectedMonth}` : `${selectedYear}`) : null;
 
 
     if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
@@ -148,9 +188,6 @@ async function fetchData() {
 
 
 
-
-
-
 // Case 1: Fetch carbon emissions for all data centers under the company
 async function fetchAllCarbonEmissionByCompanyId() {
     try {
@@ -172,51 +209,6 @@ async function fetchAllCarbonEmissionByDataCenterId(data_center_id) {
     } catch (error) {
         console.error("Error fetching carbon emission data for specific data center:", error);
     }
-}
-// Function to determine which data to fetch based on the current filters
-async function fetchData() {
-    const selectedMonth = monthPicker.value;
-    const selectedYear = yearPicker.value;
-    const selectedDataCenter = dataCenterDropdown.value;
-
-    console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
-
-    // Construct selectedDate based on available inputs
-    const selectedDate = selectedYear ? (selectedMonth ? `${selectedYear}-${selectedMonth}` : `${selectedYear}`) : null;
-
-    if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
-        // No date, fetch totals for all data centers under the company
-        await fetchAllCarbonEmissionByCompanyId();
-        await fetchTotalCarbonEmissionByCompanyId();
-        await fetchTotalEnergyConsumptionByCompanyId();
-        await fetchEnergyConsumptionBreakdownByCompanyId();
-        await fetchTotalRenewableEnergyByCompanyId();
-    } else if (!selectedDate && selectedDataCenter !== "all") {
-        // No date, fetch totals for a specific data center
-        await fetchAllCarbonEmissionByDataCenterId(selectedDataCenter);
-        await fetchTotalCarbonEmissionByDataCenterId(selectedDataCenter);
-        await fetchTotalEnergyConsumptionByDataCenterId(selectedDataCenter);
-        await fetchEnergyConsumptionBreakdownByDataCenterId(selectedDataCenter);
-        await fetchTotalRenewableEnergyByDataCenterId(selectedDataCenter);
-    } else if (selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
-        // With date, fetch totals for the company by date
-        await fetchAllCarbonEmissionByCompanyIdAndDate(selectedDate);
-        await fetchTotalCarbonEmissionByCompanyIdAndDate(selectedDate);
-        await fetchTotalEnergyConsumptionByCompanyIdAndDate(selectedDate);
-        await fetchEnergyConsumptionBreakdownByCompanyIdAndDate(selectedDate);
-        await fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate);
-    } else if (selectedDate && selectedDataCenter !== "all") {
-        // With date, fetch totals for a specific data center by date
-        await fetchAllCarbonEmissionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
-        await fetchTotalCarbonEmissionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
-        await fetchTotalEnergyConsumptionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
-        await fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(selectedDataCenter, selectedDate);
-        await fetchTotalRenewableEnergyByDataCenterIdAndDate(selectedDataCenter, selectedDate);
-    }
-
-    // Fetch metric data for the selected metric button
-    const activeMetric = document.querySelector(".button-container .active").innerText;
-    fetchMetricData(activeMetric); // Ensure the gauge chart updates based on the active metric
 }
 
 // Case 3: Fetch carbon emissions for all data centers under the company for a specific date - fix

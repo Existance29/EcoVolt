@@ -18,34 +18,30 @@ const getAllDataCenter = async (req, res) => {
 }
 
 
-const getLastDate = async (req, res) => {
-    const company_id = parseInt(req.params.company_id); // convert string to integer
-    try {
-        const data = await dataCenterDashboard.getLastDate(company_id);
-        if (!data) {
-            return res.status(404).send('Month or year not found.');
-        }
-        res.status(200).json(data);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to retrieve Year: Internal Server Error.');
+const getAllDates = async (req, res) => {
+    const dc = req.params.dc ? parseInt(req.params.dc) : null;
+    const company_id = parseInt(req.params.company_id);
+    if (!company_id) {
+        return res.status(400).send("company_id is required.");
     }
 
-};
-
-const getLastDateByDataCenter = async (req, res) => {
-    const company_id = parseInt(req.params.company_id); // convert string to integer
     try {
-        const data = await dataCenterDashboard.getLastDateByDataCenter(company_id);
-        if (!data) {
-            return res.status(404).send('Month or year not found.');
+        let dates;
+        if (dc) {
+            dates = await dataCenterDashboard.getAvailDatesByCompanyIdandDc(company_id, dc);
+        } else {
+            dates = await dataCenterDashboard.getAvailDatesByCompanyId(company_id);
         }
-        res.status(200).json(data);
+
+        if (!dates || dates.length === 0) {
+            return res.status(404).send("No available dates found.");
+        }
+
+        res.status(200).json(dates);
     } catch (error) {
         console.error(error);
-        res.status(500).send('Failed to retrieve Year: Internal Server Error.');
+        res.status(500).send("Failed to retrieve dates: Internal Server Error.");
     }
-
 };
 
 
@@ -71,7 +67,7 @@ const getTotalEnergyConsumptionByCompanyId = async (req, res) => {
 };
 
 const getTotalEnergyConsumptionByDataCenterId = async (req, res) => {
-    const dataCenterId = parseInt(req.params.dataCenterId);
+    const dataCenterId = parseInt(req.params.data_Center_Id);
 
     if (!dataCenterId) {
         return res.status(400).send("dataCenterId is required.");
@@ -90,7 +86,7 @@ const getTotalEnergyConsumptionByDataCenterId = async (req, res) => {
 };
 
 const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
-    const dataCenterId = parseInt(req.params.dataCenterId);
+    const dataCenterId = parseInt(req.params.data_Center_Id);
     const date = req.query.date;
 
     if (!dataCenterId || !date) {
@@ -186,7 +182,7 @@ const getAllEnergyConsumptionByCompanyId = async (req, res) => {
 
 // purpose: if user doesnt select all data center, there will options of data center for user to select which one to see for comparison
 const getAllEnergyConsumptionByDataCenterId = async (req, res) => {
-    const dataCenterId = parseInt(req.params.dataCenterId);
+    const dataCenterId = parseInt(req.params.data_Center_Id);
     try {
         const data = await dataCenterDashboard.getAllEnergyConsumptionByDataCenterId(dataCenterId);
         // console.log(data);
@@ -201,7 +197,7 @@ const getAllEnergyConsumptionByDataCenterId = async (req, res) => {
 };
 
 const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
-    const dataCenterId = parseInt(req.params.dataCenterId);
+    const dataCenterId = parseInt(req.params.data_Center_Id);
     const date = req.query.date;
 
     if (!dataCenterId || !date) {
@@ -304,11 +300,13 @@ const getTotalCarbonEmissionByCompanyId = async (req, res) => {
 
 const getTotalCarbonEmissionByDataCenterId = async (req, res) => {
     const data_center_id = parseInt(req.params.data_center_id);
+    console.log(data_center_id);
     try {
         const totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByDataCenterId(data_center_id);
         if (totalCO2Emissions === null) {
             return res.status(404).send("No Carbon Emission data found for this data center.");
         }
+        console.log(totalCO2Emissions);
         res.status(200).json({ total_co2_emissions: totalCO2Emissions });
     } catch (error) {
         console.error(error);
@@ -648,8 +646,7 @@ const getAllSustainabilityGoalsData = async (req, res) => {
 
 module.exports = {
     getAllDataCenter,
-    getLastDate,
-    getLastDateByDataCenter,
+    getAllDates,
 
     getTotalEnergyConsumptionByCompanyId,
     getTotalEnergyConsumptionByDataCenterId ,
