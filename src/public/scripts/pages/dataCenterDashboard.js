@@ -216,7 +216,7 @@ async function fetchData() {
         // With date, fetch totals for the company by date
         await fetchAllCarbonEmissionByCompanyIdAndDate(selectedDate);
         await fetchTotalCarbonEmissionByCompanyIdAndDate();
-        await fetchTotalEnergyConsumptionByCompanyIdAndDate(); // Fetch energy consumption for the company by date
+        await fetchTotalEnergyConsumptionByCompanyIdAndDate(selectedDate); // Fetch energy consumption for the company by date
         await fetchEnergyConsumptionBreakdownByCompanyIdAndDate(selectedDate); // Fetch energy breakdown for the company by date
         await fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate); // Fetch total renewable energy for the company by date
     } else if (selectedDate && selectedDataCenter !== "all") {
@@ -419,8 +419,9 @@ async function fetchTotalCarbonEmissionByCompanyId() {
         console.log("Total Carbon Emission data for company:", data);
         
         // Update the total emissions display in the stat-value element
-        document.getElementById("totalCarbonEmissions").textContent = `${data.total_co2_emissions} Tons`;
-        
+        const totalCarbonEmissions = parseFloat(data.total_co2_emissions);
+        document.getElementById("totalCarbonEmissions").textContent = 
+            `${totalCarbonEmissions % 1 !== 0 ? totalCarbonEmissions.toFixed(1) : totalCarbonEmissions} Tons`;                
     } catch (error) {
         console.error("Error fetching total carbon emission data for company:", error);
     }
@@ -434,8 +435,9 @@ async function fetchTotalCarbonEmissionByDataCenterId(data_center_id) {
         console.log("Total Carbon Emission data for data center:", data);
         
         // Update the total emissions display in the stat-value element
-        document.getElementById("totalCarbonEmissions").textContent = `${data.total_co2_emissions} Tons`;
-        
+        const totalCarbonEmissions = parseFloat(data.total_co2_emissions);
+        document.getElementById("totalCarbonEmissions").textContent = 
+            `${totalCarbonEmissions % 1 !== 0 ? totalCarbonEmissions.toFixed(1) : totalCarbonEmissions} Tons`;                
     } catch (error) {
         console.error("Error fetching total carbon emission data for data center:", error);
     }
@@ -467,8 +469,9 @@ async function fetchTotalCarbonEmissionByCompanyIdAndDate() {
         console.log("Total Carbon Emission data for company by date:", data);
 
         // Update the total emissions display in the stat-value element
-        document.getElementById("totalCarbonEmissions").textContent = `${data.total_co2_emissions} Tons`;
-        
+        const totalCarbonEmissions = parseFloat(data.total_co2_emissions);
+        document.getElementById("totalCarbonEmissions").textContent = 
+            `${totalCarbonEmissions % 1 !== 0 ? totalCarbonEmissions.toFixed(1) : totalCarbonEmissions} Tons`;                
     } catch (error) {
         console.error("Error fetching total carbon emission data for company by date:", error);
     }
@@ -486,8 +489,10 @@ async function fetchTotalCarbonEmissionByDataCenterIdAndDate(data_center_id) {
         console.log("Total Carbon Emission data for data center by date:", data);
 
         // Update the total emissions display in the stat-value element
-        document.getElementById("totalCarbonEmissions").textContent = `${data.total_co2_emissions} Tons`;
-        
+        const totalCarbonEmissions = parseFloat(data.total_co2_emissions);
+        document.getElementById("totalCarbonEmissions").textContent = 
+            `${totalCarbonEmissions % 1 !== 0 ? totalCarbonEmissions.toFixed(1) : totalCarbonEmissions} Tons`;
+                
     } catch (error) {
         console.error("Error fetching total carbon emission data for data center by date:", error);
     }
@@ -508,7 +513,9 @@ async function fetchTotalEnergyConsumptionByCompanyId() {
         console.log("Total Energy Consumption data for company:", data);
         
         // Update the total energy consumption display in the stat-value element
-        document.getElementById("totalEnergyConsumption").textContent = `${data.total_energy_consumption} MWh`;
+        const totalEnergyConsumption = parseFloat(data.total_energy_consumption);
+        document.getElementById("totalEnergyConsumption").textContent = 
+            `${totalEnergyConsumption % 1 !== 0 ? totalEnergyConsumption.toFixed(1) : totalEnergyConsumption} MWh`;
     } catch (error) {
         console.error("Error fetching total energy consumption data for company:", error);
     }
@@ -521,8 +528,9 @@ async function fetchTotalEnergyConsumptionByDataCenterId(data_center_id) {
         const data = await response.json();
         console.log("Total Energy Consumption data for data center:", data);
         
-        // Update the total energy consumption display in the stat-value element
-        document.getElementById("totalEnergyConsumption").textContent = `${data.total_energy_consumption} MWh`;
+        const totalEnergyConsumption = parseFloat(data.total_energy_consumption);
+        document.getElementById("totalEnergyConsumption").textContent = 
+            `${totalEnergyConsumption % 1 !== 0 ? totalEnergyConsumption.toFixed(1) : totalEnergyConsumption} MWh`;
     } catch (error) {
         console.error("Error fetching total energy consumption data for data center:", error);
     }
@@ -531,9 +539,13 @@ async function fetchTotalEnergyConsumptionByDataCenterId(data_center_id) {
 // Function to fetch total energy consumption for the company using the selected date
 async function fetchTotalEnergyConsumptionByCompanyIdAndDate(selectedDate) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/1?date=${selectedDate}`);
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/${company_id}/date?date=${selectedDate}`);
         const data = await response.json();
         console.log("Total energy consumption data for company by date:", data);
+        // Update the total energy consumption display in the stat-value element
+        const totalEnergyConsumption = parseFloat(data.total_energy_consumption);
+        document.getElementById("totalEnergyConsumption").textContent = 
+            `${totalEnergyConsumption % 1 !== 0 ? totalEnergyConsumption.toFixed(1) : totalEnergyConsumption} MWh`;
     } catch (error) {
         console.error("Error fetching total energy consumption data for company by date:", error);
     }
@@ -550,7 +562,9 @@ async function fetchTotalEnergyConsumptionByDataCenterIdAndDate(data_center_id) 
         console.log("Total Energy Consumption data for data center by date:", data);
 
         // Update the total energy consumption display in the stat-value element
-        document.getElementById("totalEnergyConsumption").textContent = `${data.total_energy_consumption} MWh`;
+        const totalEnergyConsumption = parseFloat(data.total_energy_consumption);
+        document.getElementById("totalEnergyConsumption").textContent = 
+            `${totalEnergyConsumption % 1 !== 0 ? totalEnergyConsumption.toFixed(1) : totalEnergyConsumption} MWh`;
     } catch (error) {
         console.error("Error fetching total energy consumption data for data center by date:", error);
     }
@@ -645,7 +659,7 @@ function renderEnergyBreakdownChart(data) {
             labels: labels,
             datasets: [{
                 label: 'Energy Consumption (MWh)',
-                data: values,
+                data: values.map(val => parseFloat(val.toFixed(1))),
                 backgroundColor: colors,
                 borderColor: '#ffffff',
                 borderWidth: 2
@@ -677,7 +691,7 @@ function renderEnergyBreakdownChart(data) {
 
     labels.forEach((label, index) => {
         const color = colors[index];
-        const value = values[index];
+        const value = parseFloat(values[index].toFixed(1));
         const percentage = ((value / total) * 100).toFixed(1);
 
         // Create a legend item
@@ -709,8 +723,10 @@ async function fetchTotalRenewableEnergyByCompanyId() {
         console.log("Total Renewable Energy data for company:", data);
         
         // Update the "Total Renewable Energy" display
-        document.getElementById("totalRenewableEnergy").textContent = `${data.total_renewable_energy} MWh`;
-        
+        const totalRenewableEnergy = parseFloat(data.total_renewable_energy);
+        document.getElementById("totalRenewableEnergy").textContent = 
+            `${totalRenewableEnergy % 1 !== 0 ? totalRenewableEnergy.toFixed(1) : totalRenewableEnergy} MWh`;
+                
     } catch (error) {
         console.error("Error fetching total renewable energy data for company:", error);
     }
@@ -724,8 +740,10 @@ async function fetchTotalRenewableEnergyByDataCenterId(data_center_id) {
         console.log("Total Renewable Energy data for data center:", data);
         
         // Update the "Total Renewable Energy" display
-        document.getElementById("totalRenewableEnergy").textContent = `${data.total_renewable_energy} MWh`;
-        
+        const totalRenewableEnergy = parseFloat(data.total_renewable_energy);
+        document.getElementById("totalRenewableEnergy").textContent = 
+            `${totalRenewableEnergy % 1 !== 0 ? totalRenewableEnergy.toFixed(1) : totalRenewableEnergy} MWh`;
+                
     } catch (error) {
         console.error("Error fetching total renewable energy data for data center:", error);
     }
@@ -739,8 +757,10 @@ async function fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate) {
         console.log("Total Renewable Energy data for company by date:", data);
 
         // Update the "Total Renewable Energy" display
-        document.getElementById("totalRenewableEnergy").textContent = `${data.total_renewable_energy} MWh`;
-        
+        const totalRenewableEnergy = parseFloat(data.total_renewable_energy);
+        document.getElementById("totalRenewableEnergy").textContent = 
+            `${totalRenewableEnergy % 1 !== 0 ? totalRenewableEnergy.toFixed(1) : totalRenewableEnergy} MWh`;
+                
     } catch (error) {
         console.error("Error fetching total renewable energy data for company by date:", error);
     }
@@ -754,8 +774,10 @@ async function fetchTotalRenewableEnergyByDataCenterIdAndDate(data_center_id, se
         console.log("Total Renewable Energy data for data center by date:", data);
 
         // Update the "Total Renewable Energy" display
-        document.getElementById("totalRenewableEnergy").textContent = `${data.total_renewable_energy} MWh`;
-        
+        const totalRenewableEnergy = parseFloat(data.total_renewable_energy);
+        document.getElementById("totalRenewableEnergy").textContent = 
+            `${totalRenewableEnergy % 1 !== 0 ? totalRenewableEnergy.toFixed(1) : totalRenewableEnergy} MWh`;
+                
     } catch (error) {
         console.error("Error fetching total renewable energy data for data center by date:", error);
     }

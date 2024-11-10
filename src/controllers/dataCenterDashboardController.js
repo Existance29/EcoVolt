@@ -85,7 +85,7 @@ const getTotalEnergyConsumptionByDataCenterId = async (req, res) => {
     }
 };
 
-const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
+const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => { // wrong need change
     const dataCenterId = parseInt(req.params.data_center_id);
     const date = req.query.date;
 
@@ -122,10 +122,11 @@ const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
     }
 };
 
-const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
+const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => { // wrong need change // not passing thru back end 
     const company_id = parseInt(req.params.company_id);
     const date = req.query.date;
 
+    console.log("date: ", date, " company id: ", company_id);
     if (!company_id || !date) {
         return res.status(400).send("company_id and date (in YYYY-MM or YYYY format) are required.");
     }
@@ -148,7 +149,7 @@ const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
                 parseInt(year)
             );
         }
-
+        console.log(totalEnergyConsumption);
         if (totalEnergyConsumption === null) {
             return res.status(404).send("No energy consumption data found for this company in the specified date range.");
         }
@@ -236,7 +237,6 @@ const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
 const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
     const date = req.query.date;
-    console.log(company_id, "  ", date);
 
     if (!company_id || !date) {
         console.log("Missing company_id or date parameters.");
@@ -266,7 +266,6 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
             return res.status(400).send("Invalid date format. Use YYYY or YYYY-MM.");
         }
 
-        console.log(data);
         if (!data) {
             return res.status(404).send("No energy consumption data found for this company in the specified date range.");
         }
