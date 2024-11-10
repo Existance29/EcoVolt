@@ -275,39 +275,46 @@ async function fetchAllCarbonEmissionByDataCenterIdAndDate(data_center_id, date)
 function renderChart(data) {
     console.log("Rendering chart with data:", data);
 
-    // Step 1: Process data to group by month and year
+    // Step 1: Check if both month and year filters are selected
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    const isDailyView = selectedMonth && selectedYear;
+
+    // Step 2: Process data to group by day if daily view is required; otherwise, by month-year
     const groupedData = data.reduce((acc, item) => {
         const date = new Date(item.date);
-        const monthYear = date.toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
+        let dateLabel;
 
-        // If monthYear is not in accumulator, add it with initial value
-        if (!acc[monthYear]) {
-            acc[monthYear] = 0;
+        if (isDailyView) {
+            // Group by day-month (e.g., 01-Jan, 02-Jan)
+            dateLabel = date.toLocaleDateString("en-US", { day: '2-digit', month: 'short' });
+        } else {
+            // Group by month-year (e.g., Jan-2024)
+            dateLabel = date.toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
         }
-        // Accumulate emissions for each month-year
-        acc[monthYear] += item.co2_emissions_tons;
+
+        if (!acc[dateLabel]) {
+            acc[dateLabel] = 0;
+        }
+        acc[dateLabel] += item.co2_emissions_tons;
         return acc;
     }, {});
 
-    // Step 2: Extract labels and emissions from grouped data
+    // Step 3: Extract labels and emissions from grouped data
     const labels = Object.keys(groupedData);
     const emissions = Object.values(groupedData);
 
-    // Check if we have any data to display
     if (!labels.length || !emissions.length) {
         console.warn("No data available to display.");
         return;
     }
 
-    // Get chart canvas context
     const ctx = document.getElementById("carbonEmissionChart").getContext("2d");
 
-    // Destroy previous chart instance if it exists
     if (carbonEmissionChart) {
         carbonEmissionChart.destroy();
     }
 
-    // Create a new line chart with Chart.js
     carbonEmissionChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -334,14 +341,14 @@ function renderChart(data) {
             },
             plugins: {
                 legend: {
-                    display: false // Hide the legend
+                    display: false
                 }
             },
             scales: {
                 x: {
                     title: {
                         display: true,
-                        text: 'Month-Year'
+                        text: isDailyView ? 'Day-Month' : 'Month-Year'
                     },
                     ticks: {
                         autoSkip: true,
