@@ -14,9 +14,6 @@ async function pageRequireSignIn(){
   if (!await isSignedIn()) location.href = "signIn.html"
 }
 
-async function pageRequireNotSignIn(){
-  if (await isSignedIn()) location.href = "overviewDashboard.html"
-}
 
 async function post(url, jsondata){
     let settings = {
