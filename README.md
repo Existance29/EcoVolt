@@ -1,4 +1,4 @@
-# Placeholder
+# Ecovolt
 ## Project Setup
 
 **Before proceeding, cd into the /src directory**
