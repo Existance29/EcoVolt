@@ -45,12 +45,6 @@ canvas {
   border-bottom: 3px solid #4FD1C5;
 }
 
-.right-aligned {
-  display: flex;
-  margin-left: auto;
-  gap: 20px;
-  align-items: center;
-}
 
 /* Styling for No Data Message */
 .no-data-message {
@@ -432,4 +426,57 @@ left: 0;
 /* Optional: Spacing between each paragraph */
 .tooltip-content p:not(:last-child) {
   margin-bottom: 15px;
+}
+
+
+
+
+
+/* Right-aligned container */
+.right-aligned {
+  display: flex;
+  gap: 20px; /* Control spacing between filters */
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-left: auto;
+  flex-wrap: nowrap; /* Prevents stacking */
+}
+
+/* Filter container with label on top */
+.date-picker, .data-center-filter {
+  display: flex;
+  flex-direction: column; /* Stack label on top of input */
+  width: 150px; /* Fixed width to prevent stacking */
+  box-sizing: border-box;
+}
+
+/* Styling for select and input fields */
+.date-picker select, .data-center-filter select, .date-picker input[type="number"] {
+  width: 100%; /* Full width within container */
+  padding: 6px 10px;
+  font-size: 14px;
+  color: #333;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+/* Hover and focus styles */
+.date-picker select:hover, .data-center-filter select:hover, .date-picker input[type="number"]:hover {
+  border-color: #777;
+}
+
+.date-picker select:focus, .data-center-filter select:focus, .date-picker input[type="number"]:focus {
+  border-color: #4A90E2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+}
+
+/* Label styling */
+.date-picker label, .data-center-filter label {
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 5px;
 }

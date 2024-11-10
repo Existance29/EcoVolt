@@ -83,7 +83,7 @@ async function loadDataCenterOptions() {
         // Add "All Data Centers" option
         const allOption = document.createElement('option');
         allOption.value = 'all';
-        allOption.textContent = 'All Data Centers';
+        allOption.textContent = 'All';
         dataCenterDropdown.appendChild(allOption);
 
         // Populate dropdown with fetched data centers
