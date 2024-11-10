@@ -126,7 +126,6 @@ const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => { // wro
     const company_id = parseInt(req.params.company_id);
     const date = req.query.date;
 
-    console.log("date: ", date, " company id: ", company_id);
     if (!company_id || !date) {
         return res.status(400).send("company_id and date (in YYYY-MM or YYYY format) are required.");
     }
@@ -149,7 +148,6 @@ const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => { // wro
                 parseInt(year)
             );
         }
-        console.log(totalEnergyConsumption);
         if (totalEnergyConsumption === null) {
             return res.status(404).send("No energy consumption data found for this company in the specified date range.");
         }
