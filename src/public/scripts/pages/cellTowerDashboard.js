@@ -193,7 +193,7 @@ async function loadData(){
     renderLineChart(document.getElementById('carbonEmissionChart'), carbonEmissionTrends, trendLabels, "#4FD1C5")
 
     //energy breakdown
-    const energyBreakdownColors = ["#5BA79F","#95D1CB","#4FD1C5","#485251","#263332"]
+    const energyBreakdownColors = ["#263332","#485251","#4FD1C5","#95D1CB","#5BA79F"]
     const energyBreakdownLabels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"]
     const energyBreakdownData = [data.radio_equipment_energy, data.cooling_energy, data.backup_power_energy, data.misc_energy]
     renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors)

@@ -1,0 +1,92 @@
+input, button{
+    all: unset;
+}
+
+.tabs {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+    align-items: center;
+}
+  
+.tabs div {
+    text-decoration: none;
+    color: #555;
+    padding: 10px;
+    font-weight: 600;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+}
+
+.tabs div:hover, .tabs div.active {
+    color: #4FD1C5;
+    border-bottom: 3px solid #4FD1C5;
+}
+
+.tabs div:hover{
+    cursor: pointer;
+}
+
+.settings-container{
+    padding: 3vh 3%;
+}
+
+#profile-img{
+    border-radius: 50%;
+    object-fit: cover; 
+    height: 6vw; 
+    width: 6vw;
+}
+
+.text-field{
+    width: 50%;
+    margin-top: 2rem;
+}
+
+.title{
+    color: #333;
+    font-size: 1rem;
+}
+
+.edit{
+    color: #48BEB3;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.value{
+    color: #6D7B8A;
+    margin-top: 0.8rem;
+    font-size: 0.95rem;
+    width: 100%;
+    padding: 0;
+}
+
+.value.active{
+    border-radius: 12px;
+    border: 1px solid #E7EAED;
+    padding: 0.8rem 0.6rem;
+    color: #333;;
+}
+
+.separator{
+    height: 2px;
+    width: 100%;
+    background-color: #E7EAED;
+    margin-top: 1.8rem;
+}
+
+.edit-profile-picture-label{
+    border-radius: 50%; 
+    background-color: white; 
+    width: 2vw; 
+    height: 2vw; 
+    box-shadow: 0px 0 5px 2px rgba(0, 0, 0, 0.1); 
+    position: absolute; 
+    right: 0; 
+    bottom: 0; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    cursor: pointer;
+}
