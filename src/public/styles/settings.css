@@ -41,6 +41,8 @@ input, button{
 .text-field{
     width: 50%;
     margin-top: 2rem;
+    display: flex; 
+    flex-direction: column;
 }
 
 .title{
@@ -58,14 +60,13 @@ input, button{
     color: #6D7B8A;
     margin-top: 0.8rem;
     font-size: 0.95rem;
-    width: 100%;
     padding: 0;
 }
 
 .value.active{
     border-radius: 12px;
-    border: 1px solid #E7EAED;
-    padding: 0.8rem 0.6rem;
+    border: 1px solid #E0E3E5;
+    padding: 0.6rem 0.5rem;
     color: #333;;
 }
 

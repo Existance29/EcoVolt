@@ -35,7 +35,7 @@
                             <div class="title inter-semibold">Name</div>
                             <button class="edit inter-semibold">Edit</button>
                         </div>
-                        <input type="text" class="value" value="David" disabled/>
+                        <input type="text" class="value inter-medium" value="David" disabled/>
                         <div class="separator"></div>
                     </div>
                     
@@ -44,7 +44,7 @@
                             <div class="title inter-semibold">Email</div>
                             <button class="edit inter-semibold">Edit</button>
                         </div>
-                        <input type="text" class="value" value="davidcheng@singtel.com" disabled/>
+                        <input type="text" class="value inter-medium" value="davidcheng@singtel.com" disabled/>
                         <div class="separator"></div>
                     </div>
 
@@ -53,12 +53,31 @@
                             <div class="title inter-semibold">About</div>
                             <button class="edit inter-semibold">Edit</button>
                         </div>
-                        <input type="text" class="value" value="Hello!" disabled/>
+                        <input type="text" class="value inter-medium" value="Hello!" disabled/>
                     </div>
                 </form>
 
                 <form id = "security-settings" class="settings-container">
-
+                    <div class="title inter-bold" style="font-size: 1rem; margin-top: 1rem;">Reset Password</div>
+                    <div class="text-field">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                            <div class="title inter-semibold" style="font-size: 0.9rem;">Old Password</div>
+                        </div>
+                        <input type="text" class="value active inter-medium"/>
+                    </div>
+                    <div class="text-field">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                            <div class="title inter-semibold" style="font-size: 0.9rem;">New Password</div>
+                        </div>
+                        <input type="text" class="value active inter-medium"/>
+                    </div>
+                    <div class="text-field">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                            <div class="title inter-semibold" style="font-size: 0.9rem;">Confirm New Password</div>
+                        </div>
+                        <input type="text" class="value active inter-medium"/>
+                    </div>
+                    <button id="reset-password-btn" style="border-radius: 12px; padding: 0.9rem 0.7rem; background-color: #4FD1C5; font-size: 0.9rem; color: white; margin-top: 1.7rem;">Reset Password</button>
                 </form>
             </div>
         </main>

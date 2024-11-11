@@ -11,6 +11,11 @@ Array.from(document.getElementsByClassName("edit")).forEach(x => {
             textbox.classList.add("active")
             x.innerText = "Save"
             textbox.disabled = false
+            textbox.focus()
+            //a little hack to get the cursor to the back of the text
+            var val = textbox.value
+            textbox.value = '' 
+            textbox.value = val 
         }
         console.log(textbox)
     } )
