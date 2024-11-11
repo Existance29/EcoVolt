@@ -39,14 +39,32 @@
                 <a href="dataCenterDashboard.html">Data Center</a>
                 <a href="cellTowerDashboard.html" class="active">Cell Tower</a>
                 <div class="right-aligned">
-                    <div class="date-picker">
-                        <label for="datePicker">Select Date:</label>
-                        <input type="date" id="datePicker" aria-label="Select Date">
+                    <div class="data-center-filter">
+                        <label for="monthDropdown">Select Month:</label>
+                        <select id="monthDropdown" onchange="loadData()">
+                            <option value="all" selected>--Select Month--</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
                     </div>
                     <div class="data-center-filter">
-                        <label for="dataCenterDropdown">Select Cell Tower:</label>
-                        <select id="dataCenterDropdown">
-                            <option value="" disabled>Select Cell Tower</option>
+                        <label for="yearDropdown">Select Year:</label>
+                        <input type="number" id="yearPicker" aria-label="Select Year" min="2000" max="2100" placeholder="Year" oninput="loadData()">
+                    </div>
+                    <div class="data-center-filter">
+                        <label for="cellTowerDropdown">Select Cell Tower:</label>
+                        <select id="cellTowerDropdown" onchange="loadData()">
+                            <option value="all" selected>All</option>
                         </select>
                     </div>
                 </div>
@@ -58,27 +76,27 @@
             </div>
 
             <!-- Main Chart Content -->
-             <div style="display: flex; gap: 1rem; max-height: 70vh; height: 70vh;">
+             <div style="display: flex; gap: 1rem; max-height: 70vh; height: 70vh;" id="dashboard">
                 <div style="display: flex; flex-direction: column; gap: 1rem; width: 63%; flex-grow: 2;">
                     <div style="display: flex; width: 100%; gap: 1.1rem; flex-wrap: wrap;">
                         <div class="main-stat-container">
                             <div class="stat">
                                 <img src= "assets/dashboard/cell-tower.png">
-                                <div class="inter-bold stat-value">Off-Grid</div>
-                                <div class="inter-medium stat-name">Cell Tower Type</div>
+                                <div class="inter-bold stat-value" id="grid-type">Off-Grid</div>
+                                <div class="inter-medium stat-name">Cell Tower Grid Type</div>
                             </div>
                         </div>
                         <div class="main-stat-container">
                             <div class="stat">
                                 <img src= "assets/dashboard/carbon-emission.png">
-                                <div class="inter-bold stat-value">68,196 Tons</div>
+                                <div class="inter-bold stat-value" id="total-carbon-emission">68,196 Tons</div>
                                 <div class="inter-medium stat-name">Total Carbon Emissions</div>
                             </div>
                         </div>
                         <div class="main-stat-container">
                             <div class="stat">
                                 <img src= "assets/dashboard/energy-consumption.png">
-                                <div class="inter-bold stat-value">120,003 MWh</div>
+                                <div class="inter-bold stat-value" id="total-energy">120,003 MWh</div>
                                 <div class="inter-medium stat-name">Total Energy Consumption</div>
                             </div>
                         </div>
@@ -95,8 +113,8 @@
                 <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; width: calc(100% - 63% - 1rem);">
                     <div class="inter-semibold graph-container" style="flex: 1 1 0; height: 0;">
                         <div class="inter-bold" style="margin-bottom: 1.2rem;">Energy Consumption Breakdown</div>
-                        <div style="display: flex; height: 100%; flex-wrap: wrap;">
-                            <div style="max-height: 75%; aspect-ratio: 1; max-width: 35%;">
+                        <div style="display: flex; height: 100%;">
+                            <div style="max-height: 75%; aspect-ratio: 1; max-width: 30%;">
                                 <canvas id="energyBreakdownChart"></canvas>
                             </div>
                             <div class="pie-chart-labels-container">
@@ -111,7 +129,7 @@
                         <div class="inter-bold" style="margin-bottom: 1.2rem;">Renewable Energy Contribution</div>
                         <div class="chart-container">
                             <div class="chart inter-medium" id="renewable-energy-contribution-chart"></div>
-                            <div class="inter-semibold" style="margin-top: 1rem;"><span style="color: #4FD1C5;">200</span> / 400 MWh</div>
+                            <div class="inter-semibold" style="margin-top: 1rem;"></div>
                         </div>
                     </div>
                 </div>

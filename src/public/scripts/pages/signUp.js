@@ -1,4 +1,4 @@
-pageRequireNotSignIn()
+
 //sign up
 document.getElementById("submit-btn").addEventListener("click", async (event) => {
     signUpData = {
