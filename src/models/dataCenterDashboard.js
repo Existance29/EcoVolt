@@ -30,104 +30,87 @@ class dataCenterDashboard {
 
 
 
+        static async getAllDataCenter(company_id) {
+            let connection;
+            try {
+                connection = await sql.connect(dbConfig);
+                const sqlQuery = `SELECT * FROM data_centers WHERE company_id =  @company_id`;
+                const request = connection.request();
+                request.input('company_id', company_id);
+                const result = await request.query(sqlQuery);
+                if (result.recordset.length === 0) {
+                    return null;
+                }
+                return result.recordset;
+            } catch (error) {
+                throw new Error("Error retrieving Data Centers");
+            } finally {
+                if (connection) {
+                    await connection.close();
+                }
+            }
+        }    
 
-    static async getAllDataCenter(company_id) {
-        let connection;
-        try {
-            connection = await sql.connect(dbConfig);
-            const sqlQuery = `SELECT * FROM data_centers WHERE company_id =  @company_id`;
-            const request = connection.request();
-            request.input('company_id', company_id);
-            const result = await request.query(sqlQuery);
-            if (result.recordset.length === 0) {
-                return null;
-            }
-            return result.recordset;
-        } catch (error) {
-            throw new Error("Error retrieving Data Centers");
-        } finally {
-            if (connection) {
-                await connection.close();
-            }
-        }
-    }    
-        
-        
 
-    static async getAllDate(company_id) { // Get the years that exist in the database so that it populates the filter dropdown dynamically
-        let connection;
-        try {
-            connection = await sql.connect(dbConfig);
-            const sqlQuery = `
-            SELECT DISTINCT date, YEAR(date) AS year, MONTH(date) AS month
-            FROM data_center_energy_consumption INNER JOIN data_centers
-			ON data_center_energy_consumption.data_center_id = data_centers.id
-			INNER JOIN companies ON companies.id = data_centers.company_id
-			WHERE companies.id =@company_id
-            ORDER BY year, month
-            `; // If there is energy consumotion, then there is carbon emission. hence selecting from only one table
-            const request = connection.request();
-            request.input('company_id', company_id);
-            const result = await request.query(sqlQuery);
-            if(result.recordset.length === 0) {
-                return null;
-            }
-            return result.recordset;
-        } catch (error) {
-            throw new Error("Error retrieving Date");
-        } finally {
-            if (connection) {
-                await connection.close();
-            }
-        }
-    }
-       
 
-    // In dataCenterDashboard.js (or wherever your model functions are defined)
-static async getLastDate(companyId) {
+static async getAvailDatesByCompanyId(company_id) {
     let connection;
     try {
         connection = await sql.connect(dbConfig);
         const sqlQuery = `
-            SELECT MAX(date) AS lastDate
-            FROM data_center_carbon_emissions
-            INNER JOIN data_centers ON data_center_carbon_emissions.data_center_id = data_centers.id
-            WHERE data_centers.company_id = @company_id
+        select date from data_center_carbon_emissions 
+        INNER JOIN data_centers ON
+        data_centers.id = data_center_id
+        INNER JOIN companies ON
+        companies.id = data_centers.company_id
+        WHERE companies.id = @company_id
         `;
         const request = connection.request();
-        request.input('company_id', companyId);
+        request.input('company_id', company_id);
         const result = await request.query(sqlQuery);
-        return result.recordset[0]?.lastDate || null;
+        if (result.recordset.length === 0) {
+            return null;
+        }
+        return result;
     } catch (error) {
-        throw new Error("Error retrieving the last date");
+        console.error("Error in getAvailDatesByCompanyId:", error.message);
+        throw new Error("Error retrieving getAvailDatesByCompanyId");
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
 }
 
-
-// In dataCenterDashboard.js (model file)
-static async getLastDateByDataCenter(data_center_id) {
+static async getAvailDatesByCompanyIdandDc(company_id, dc) {
     let connection;
     try {
         connection = await sql.connect(dbConfig);
         const sqlQuery = `
-            SELECT MAX(date) AS lastDate
-            FROM data_center_carbon_emissions
-            WHERE data_center_id = @data_center_id
+        select date from data_center_carbon_emissions 
+        INNER JOIN data_centers ON
+        data_centers.id = data_center_id
+        INNER JOIN companies ON
+        companies.id = data_centers.company_id
+        WHERE companies.id = 1 AND data_centers.id = @dc
         `;
         const request = connection.request();
-        request.input('data_center_id', data_center_id);
+        request.input('company_id', company_id);
+        request.input('dc', dc);
         const result = await request.query(sqlQuery);
-        return result.recordset[0]?.lastDate || null;
+        if (result.recordset.length === 0) {
+            return null;
+        }
+        return result;
     } catch (error) {
-        console.error("Error retrieving last date for data center:", error.message);
-        throw new Error("Error retrieving last date for data center");
+        console.error("Error in getAvailDatesByCompanyIdandDc:", error.message);
+        throw new Error("Error retrieving getAvailDatesByCompanyIdandDc");
     } finally {
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
 }
-
 
 
 // ---------------------------------------------------------------------------------------------------
@@ -344,10 +327,10 @@ static async getTotalEnergyConsumptionByCompanyIdAndYearAndMonth(company_id, yea
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
             SELECT 
-                AVG(it_energy_mwh) AS it_energy_mwh,
-                AVG(cooling_energy_mwh) AS cooling_energy_mwh,
-                AVG(backup_power_energy_mwh) AS backup_power_energy_mwh,
-                AVG(lighting_energy_mwh) AS lighting_energy_mwh,		
+                SUM(it_energy_mwh) AS it_energy_mwh,
+                SUM(cooling_energy_mwh) AS cooling_energy_mwh,
+                SUM(backup_power_energy_mwh) AS backup_power_energy_mwh,
+                SUM(lighting_energy_mwh) AS lighting_energy_mwh,		
                 AVG(pue) AS pue_avg,
 				AVG (cue) AS cue_avg, 
 				AVG (wue) AS wue_avg
@@ -371,10 +354,10 @@ static async getTotalEnergyConsumptionByCompanyIdAndYearAndMonth(company_id, yea
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
             SELECT 
-                AVG(e.it_energy_mwh) AS it_energy_mwh,
-                AVG(e.cooling_energy_mwh) AS cooling_energy_mwh,
-                AVG(e.backup_power_energy_mwh) AS backup_power_energy_mwh,
-                AVG(e.lighting_energy_mwh) AS lighting_energy_mwh,
+                SUM(e.it_energy_mwh) AS it_energy_mwh,
+                SUM(e.cooling_energy_mwh) AS cooling_energy_mwh,
+                SUM(e.backup_power_energy_mwh) AS backup_power_energy_mwh,
+                SUM(e.lighting_energy_mwh) AS lighting_energy_mwh,
                 AVG(pue) AS pue_avg,
 				AVG (cue) AS cue_avg, 
 				AVG (wue) AS wue_avg
@@ -403,10 +386,10 @@ static async getTotalEnergyConsumptionByCompanyIdAndYearAndMonth(company_id, yea
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
             SELECT 
-                AVG(e.it_energy_mwh) AS it_energy_mwh,
-                AVG(e.cooling_energy_mwh) AS cooling_energy_mwh,
-                AVG(e.backup_power_energy_mwh) AS backup_power_energy_mwh,
-                AVG(e.lighting_energy_mwh) AS lighting_energy_mwh,
+                SUM(e.it_energy_mwh) AS it_energy_mwh,
+                SUM(e.cooling_energy_mwh) AS cooling_energy_mwh,
+                SUM(e.backup_power_energy_mwh) AS backup_power_energy_mwh,
+                SUM(e.lighting_energy_mwh) AS lighting_energy_mwh,
                 AVG(pue) AS pue_avg,
 				AVG (cue) AS cue_avg, 
 				AVG (wue) AS wue_avg

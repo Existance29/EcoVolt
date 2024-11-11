@@ -4,15 +4,16 @@ const dataCenterDashboardRoute = (app) => {
     // DC page
 
     app.get('/Dashboard/Data-Center/:company_id', dataCenterDashboardController.getAllDataCenter);
-
+    app.get('/Dashboard/Data-Center/AvailableDates/:company_id/:dc?', dataCenterDashboardController.getAllDates);
+    
     app.get('/Dashboard/Data-Center/EnergyConsumption/Sum/company/:company_id', dataCenterDashboardController.getTotalEnergyConsumptionByCompanyId); // text values 
-    app.get('/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/:dataCenterId', dataCenterDashboardController.getTotalEnergyConsumptionByDataCenterId);
-    app.get('/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/:dataCenterId/date', dataCenterDashboardController.getTotalEnergyConsumptionByDataCenterIdAndDate);
+    app.get('/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/:data_center_id', dataCenterDashboardController.getTotalEnergyConsumptionByDataCenterId);
+    app.get('/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/:data_center_id/date', dataCenterDashboardController.getTotalEnergyConsumptionByDataCenterIdAndDate);
     app.get('/Dashboard/Data-Center/EnergyConsumption/Sum/company/:company_id/date', dataCenterDashboardController.getTotalEnergyConsumptionByCompanyIdAndDate);
     
     app.get('/Dashboard/Data-Center/EnergyConsumption/company/:company_id', dataCenterDashboardController.getAllEnergyConsumptionByCompanyId);
-    app.get('/Dashboard/Data-Center/EnergyConsumption/data-center/:dataCenterId', dataCenterDashboardController.getAllEnergyConsumptionByDataCenterId);
-    app.get('/Dashboard/Data-Center/EnergyConsumption/data-center/:dataCenterId/date', dataCenterDashboardController.getAllEnergyConsumptionByDataCenterIdAndDate);
+    app.get('/Dashboard/Data-Center/EnergyConsumption/data-center/:data_center_id', dataCenterDashboardController.getAllEnergyConsumptionByDataCenterId);
+    app.get('/Dashboard/Data-Center/EnergyConsumption/data-center/:data_center_id/date', dataCenterDashboardController.getAllEnergyConsumptionByDataCenterIdAndDate);
     app.get('/Dashboard/Data-Center/EnergyConsumption/company/:company_id/date', dataCenterDashboardController.getAllEnergyConsumptionByCompanyIdAndDate);
 
 
