@@ -83,7 +83,7 @@ const generateReportData = async (req, res) => {
             monthlyCO2,
             totalEnergy,
             totalCO2,
-            dataAnalysis,  // Include generated analysis in report data
+            dataAnalysis,
             recommendations,
             conclusion,
             reportData: singtelReports,
@@ -133,7 +133,7 @@ const generateReportPDF = async (req, res) => {
     }
 };
 
-// Helper function to get all AI recommendations
+// Helper function to get exactly 5 AI recommendations, one from each category
 async function getAllAIRecommendations(data) {
     const categories = [
         "Energy Efficiency Improvements",
@@ -144,7 +144,16 @@ async function getAllAIRecommendations(data) {
     ];
 
     const recommendations = await Promise.all(
-        categories.map(category => generateAIRecommendations(data, category))
+        categories.map(async (category, index) => {
+            // Add a delay between API calls to prevent rate-limiting and increase response reliability
+            await new Promise(resolve => setTimeout(resolve, index * 1000)); // 1 second delay between each request
+
+            const allRecommendations = await generateAIRecommendations(data, category);
+            const splitRecommendations = allRecommendations.split('\n').filter(rec => rec.trim().length > 0);
+
+            // Take only the first complete recommendation for each category
+            return splitRecommendations[0] || `Recommendation not available for ${category}`;
+        })
     );
 
     return recommendations.join("\n\n");
@@ -157,13 +166,13 @@ async function generateAIRecommendations(data, category) {
     - Total CO2 Emissions: ${data.co2Emissions} Tons
     - Current Progress: ${data.currentProgress}%
     
-    Provide two specific recommendations for ${category} with actionable steps.`;
+    Provide 1 clear, specific recommendation for ${category} with detailed actionable steps.`;
 
     try {
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
-            max_tokens: 150,
+            max_tokens: 500, // Increased token count for more detailed responses
             temperature: 0.7
         });
 
