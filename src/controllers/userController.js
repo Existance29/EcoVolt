@@ -85,6 +85,20 @@ class userController{
           res.status(500).send("Error updating user")
         }
       }
+    
+    static async getPublicUserById(req, res){
+      const id = req.params.id
+        try {
+          const user = await User.getUserById(id)
+          if (!user) {
+            return res.status(404).send("User not found")
+          }
+          res.json(user);
+        } catch (error) {
+          console.error(error)
+          res.status(500).send("Error retrieving users")
+        }
+    }
 
 }
 
