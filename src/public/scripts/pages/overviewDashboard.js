@@ -38,6 +38,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                 window.location.href = "cellTowerDashboard.html"; // Redirect to cell tower dashboard 
             }); 
         } 
+
+        // Add event listener for yearly energy consumption container
+        const yearlyEnergyContainer = document.querySelector(".yearly-energy-container"); 
+        if (yearlyEnergyContainer && data.yearlyEnergyConsumption.length > 0) { 
+            const highestYear = data.yearlyEnergyConsumption[0].year; // Assuming the first item has the highest consumption year 
+            yearlyEnergyContainer.addEventListener("click", () => { 
+                window.location.href = `cellTowerDashboard.html?year=${highestYear}`; // Redirect with year as query parameter 
+            }); 
+        } 
     } catch (error) {
         console.error("Error fetching dashboard data:", error);
     }
