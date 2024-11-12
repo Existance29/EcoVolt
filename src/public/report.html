@@ -25,6 +25,13 @@
             <div id="statusMessage" class="status-message"></div>
             <button id="generateReportBtn" class="generate-btn">Download PDF Report</button>
 
+            <select id="yearSelector">
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <!-- Add more years as needed -->
+            </select>
+
             <div class="help-box">
                 <p>Need help? <br> Please reach out to us</p>
             </div>
@@ -85,14 +92,16 @@
                     <p id="conclusion" style="margin-top: 30px;"></p>
                 </section>
             </div>
-           
         </main>
     </div>
 
     <script src="scripts/generateReport.js"></script>
+    <script src="./scripts/utils.js"></script>
+    <script src="./scripts/common.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 </html>

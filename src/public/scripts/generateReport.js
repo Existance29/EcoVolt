@@ -1,14 +1,36 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const dataTableBody = document.querySelector('.data-table tbody');
     const generateReportBtn = document.getElementById('generateReportBtn');
     const statusMessage = document.getElementById('statusMessage');
+    const yearSelector = document.getElementById('yearSelector');
     let reportChart = null;
+    let company_id = null;
 
-    fetchReportData();
+    // Initialize company_id before calling fetchReportData
+    async function initializeCompanyId() {
+        company_id = await getCompanyId(); // Ensure getCompanyId() returns a promise
+        if (company_id) {
+            console.log("Company ID:", company_id);
+            fetchReportData();
+        } else {
+            console.error("Company ID could not be initialized.");
+            statusMessage.innerText = "Failed to load company information.";
+        }
+    }
 
-    // Function to fetch report data
-    function fetchReportData(force = false) {
-        const url = force ? '/reports/generate' : '/reports';
+    // Fetch report data when the selected year changes
+    yearSelector.addEventListener('change', fetchReportData);
+
+    // Fetch report data based on the selected year
+    function fetchReportData() {
+        if (!company_id) {
+            console.error("Company ID is not available.");
+            return;
+        }
+
+        const year = yearSelector.value || '2024'; // Default year if none is selected
+        const url = `/reports/${company_id}/generate?year=${year}`; // Updated URL structure to include company_id
+
         statusMessage.innerText = "Loading report data...";
 
         fetch(url, {
@@ -35,6 +57,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Trigger the initialization of company_id
+    await initializeCompanyId();
+
     // Event listener to trigger PDF generation
     generateReportBtn.addEventListener('click', function () {
         statusMessage.innerText = "Generating PDF report...";
@@ -50,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const element = document.getElementById('reportContent');
         const opt = {
             margin: 0,
-            filename: 'Singtel_Report.pdf',
+            filename: `Singtel_Report_${yearSelector.value || '2024'}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
@@ -123,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Function to populate the data table
-    function populateDataTable(reportData) {
+    function populateDataTable(reportData = []) {
         dataTableBody.innerHTML = '';
         reportData.forEach(row => {
             const date = new Date(row.date);
@@ -150,7 +175,6 @@ document.addEventListener('DOMContentLoaded', function () {
     
         recommendations.forEach((recommendation, index) => {
             if (index % 2 === 0) {
-                // Create a container for every two recommendations
                 const pageContainer = document.createElement('div');
                 pageContainer.classList.add('page-break-container');
                 recommendationsSection.appendChild(pageContainer);
@@ -159,7 +183,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const recDiv = document.createElement('div');
             recDiv.classList.add('recommendation');
     
-            // Format recommendation with structured data
             recDiv.innerHTML = `
                 <h3>Recommendation ${index + 1}:</h3>
                 <p><strong>Recommendation:</strong> ${recommendation.recommendation}</p>
@@ -174,7 +197,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 <p class="intended-impact"><strong>Intended Impact:</strong> ${recommendation.intendedImpact}</p>
             `;
     
-            // Append recommendation to the current page container
             const currentContainer = recommendationsSection.lastChild;
             currentContainer.appendChild(recDiv);
         });

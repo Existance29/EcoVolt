@@ -1,8 +1,9 @@
-const OpenAI = require('openai');
 const Report = require('../models/report');
+const OpenAI = require('openai');
 const puppeteer = require('puppeteer');
 const moment = require('moment');
 require('dotenv').config();
+const path = require('path');
 
 const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
@@ -31,20 +32,23 @@ async function generateDataAnalysis(monthlyEnergy, monthlyCO2) {
 
 // Generate report data with optional caching in session
 const generateReportData = async (req, res) => {
-    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+    const { company_id } = req.params; // Extract company_id from the URL parameters
+    const year = req.query.year;
+    const oneHour = 60 * 60 * 1000;
     const currentTime = new Date();
 
-    if (req.session.reportData && req.session.reportData.timestamp) {
-        const reportAge = currentTime - new Date(req.session.reportData.timestamp);
+    // Check if cached data exists for the requested year and if it’s within the cache duration
+    if (req.session.reportData && req.session.reportData[year] && req.session.reportData[year].timestamp) {
+        const reportAge = currentTime - new Date(req.session.reportData[year].timestamp);
         if (reportAge < oneHour) {
-            console.log("Serving cached report data from session.");
-            return res.status(200).json(req.session.reportData.data); // Serve cached data
+            console.log(`Serving cached report data for year ${year} from session.`);
+            return res.status(200).json(req.session.reportData[year].data);
         }
     }
 
-    console.log("Generating new report data...");
+    console.log(`Generating new report data for year ${year}...`);
     try {
-        const reports = await Report.getAllReport();
+        const reports = await Report.getAllReport(company_id, year);
         const singtelReports = reports.filter(report => report.companyName === 'Singapore Telecommunications Limited');
 
         const months = [];
@@ -77,7 +81,6 @@ const generateReportData = async (req, res) => {
             co2Emissions: totalCO2,
             currentProgress: (totalCO2 / (totalEnergy * 0.2)) * 100
         });
-
         const conclusion = await generateConclusion(totalEnergy, totalCO2);
 
         const reportData = {
@@ -88,12 +91,14 @@ const generateReportData = async (req, res) => {
             executiveSummary,
             totalCO2,
             dataAnalysis,
-            recommendations, // Pass recommendations directly here
+            recommendations,
             conclusion,
             reportData: singtelReports,
         };
 
-        req.session.reportData = { data: reportData, timestamp: currentTime };
+        // Cache the generated data for the specific year
+        if (!req.session.reportData) req.session.reportData = {}; // Initialize session data if empty
+        req.session.reportData[year] = { data: reportData, timestamp: currentTime };
 
         res.status(200).json(reportData);
     } catch (error) {
@@ -102,23 +107,23 @@ const generateReportData = async (req, res) => {
     }
 };
 
+
 // Forcefully generate new report data
 const forceGenerateReportData = async (req, res) => {
     console.log("Force generating new report data...");
     await generateReportData(req, res);
 };
 
+// Generate PDF report
 const generateReportPDF = async (req, res) => {
     console.log("Generating PDF with Puppeteer...");
     try {
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
 
-        // Load the report HTML and wait for it to be fully loaded
         const reportHtmlPath = `file://${path.resolve(__dirname, '..', 'public', 'report.html')}`;
         await page.goto(reportHtmlPath, { waitUntil: 'networkidle0' });
 
-        // Generate the PDF with specified formatting
         const pdfBuffer = await page.pdf({
             format: 'A4',
             printBackground: true,
@@ -127,7 +132,6 @@ const generateReportPDF = async (req, res) => {
 
         await browser.close();
 
-        // Send the PDF as a response
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="Singtel_Report.pdf"');
         res.send(pdfBuffer);
@@ -246,8 +250,25 @@ async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEn
     }
 }
 
+// Function to get all available reports based on year and month
+const getAvailableMonthsAndYears = async (req, res) => {
+    try {
+        const reports = await Report.getAllReport(req.query.year); // Fetch reports filtered by year
+        const monthsAndYears = reports.map(report => {
+            const year = moment(report.date).year();
+            const month = moment(report.date).month() + 1;
+            return { year, month };
+        });
+        res.status(200).json({ monthsAndYears: [...new Set(monthsAndYears)] });
+    } catch (error) {
+        console.error("Error fetching available months and years:", error);
+        res.status(500).json({ error: 'Failed to fetch available months and years' });
+    }
+};
+
 module.exports = {
     generateReportData,
     forceGenerateReportData,
     generateReportPDF,
+    getAvailableMonthsAndYears,
 };

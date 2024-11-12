@@ -15,9 +15,13 @@ class Report {
         this.dataCenterId = dataCenterId;
     }
 
-    static async getAllReport() {
+    static async getAllReport(company_id, year) {
         try {
             const connection = await sql.connect(dbConfig);
+            
+            const yearFilter = year ? `AND YEAR(CTec.date) = ${year}` : '';
+            const companyFilter = company_id ? `AND c.id = ${company_id}` : '';
+            
             const query = `
                 SELECT 
                     c.name AS companyName, 
@@ -27,7 +31,7 @@ class Report {
                     MAX(CTec.cooling_energy_kwh) AS coolingEnergy,
                     MAX(CTec.backup_power_energy_kwh) AS backupEnergy,
                     MAX(CTec.misc_energy_kwh) AS miscEnergy,
-                    NULL AS co2EmissionsTons, -- Set CO2 emissions to NULL for cell towers
+                    NULL AS co2EmissionsTons, 
                     MAX(sg.goal_name) AS goal_name, 
                     MAX(sg.target_value) AS target_value, 
                     MAX(sg.current_value) AS current_value, 
@@ -35,8 +39,9 @@ class Report {
                     MAX(sg.progress) AS progress,
                     NULL AS dataCenterId
                 FROM companies c
-                INNER JOIN cell_tower_energy_consumption CTec ON c.id = CTec.company_id
+                INNER JOIN cell_tower_energy_consumption CTec ON c.id = CTec.cell_tower_id
                 LEFT JOIN company_sustainability_goals sg ON c.id = sg.company_id
+                WHERE 1=1 ${companyFilter} ${yearFilter}
                 GROUP BY c.name, CTec.date
 
                 UNION ALL
@@ -49,7 +54,7 @@ class Report {
                     MAX(DCec.cooling_energy_mwh) AS coolingEnergy,
                     MAX(DCec.backup_power_energy_mwh) AS backupEnergy,
                     MAX(DCec.lighting_energy_mwh) AS miscEnergy,
-                    MAX(DCce.co2_emissions_tons) AS co2EmissionsTons, -- Only for data centers
+                    MAX(DCce.co2_emissions_tons) AS co2EmissionsTons,
                     MAX(sg.goal_name) AS goal_name, 
                     MAX(sg.target_value) AS target_value, 
                     MAX(sg.current_value) AS current_value, 
@@ -61,6 +66,7 @@ class Report {
                 INNER JOIN data_center_energy_consumption DCec ON dct.id = DCec.data_center_id
                 LEFT JOIN data_center_carbon_emissions DCce ON dct.id = DCce.data_center_id AND DCec.date = DCce.date
                 LEFT JOIN company_sustainability_goals sg ON c.id = sg.company_id
+                WHERE 1=1 ${companyFilter} ${year ? `AND YEAR(DCec.date) = ${year}` : ''}
                 GROUP BY c.name, DCec.date, dct.id
                 ORDER BY date;
             `;
