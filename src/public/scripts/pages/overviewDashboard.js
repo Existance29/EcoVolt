@@ -23,6 +23,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         displaySustainabilityGoals(data.sustainabilityGoals);
         renderTop3YearsChart(data.top3Companies);
         renderYearlyEnergyChart(data.yearlyEnergyConsumption, data.totalCellTowerEmissions);
+
+        // Add event listener to totalDataCenter card for redirection
+        const totalDataCenterElement = document.getElementById("totalDataCenter");
+        if (totalDataCenterElement) {
+            totalDataCenterElement.addEventListener("click", () => {
+                window.location.href = "dataCenterDashboard.html";
+            });
+        }
     } catch (error) {
         console.error("Error fetching dashboard data:", error);
     }
@@ -31,13 +39,51 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Function to display the highest emissions data center and cell tower
 function displayHighestEmissions(data) {
     const highestDataCenter = data.highestDataCenter;
-    document.getElementById("highestDataCenterName").textContent = `${highestDataCenter.data_center_name}`;
-    document.getElementById("highestDataCenterEmissions").textContent = `Highest CO₂ Emissions: ${highestDataCenter.co2_emissions_tons} Tons`;
-
     const highestCellTower = data.highestCellTower;
-    document.getElementById("highestCellTowerName").textContent = ` ${highestCellTower.cell_tower_name}`;
-    document.getElementById("highestCellTowerEmissions").textContent = `Highest Emissions: ${highestCellTower.total_emissions} kWh`;
+    const highestDataCenterElement = document.getElementById("highestDataCenter");
+    const highestCellTowerElement = document.getElementById("highestCellTower");
+
+    // Display the highest-emission data center and add click event
+    if (highestDataCenter && highestDataCenterElement) {
+        highestDataCenterElement.setAttribute("data-center-id", highestDataCenter.id);
+        document.getElementById("highestDataCenterName").textContent = `${highestDataCenter.data_center_name}`;
+        document.getElementById("highestDataCenterEmissions").textContent = `CO₂ Emissions: ${highestDataCenter.co2_emissions_tons} Tons`;
+
+        highestDataCenterElement.addEventListener("click", () => {
+            const dataCenterId = highestDataCenter.id;
+            const month = 9;  // Replace with actual month if dynamic
+            const year = 2024; // Replace with actual year if dynamic
+
+            // Redirect with query parameters for data center and date in YYYY/MM format
+            window.location.href = `dataCenterDashboard.html?data_center_id=${dataCenterId}&date=${year}/${month}`; // work alr but need to refine
+        });
+    } else {
+        console.error("Highest Data Center or element not found.");
+    }
+
+    // Display the highest-emission cell tower and add click event
+    if (highestCellTower && highestCellTowerElement) {
+        highestCellTowerElement.setAttribute("data-tower-id", highestCellTower.id);
+        document.getElementById("highestCellTowerName").textContent = `${highestCellTower.cell_tower_name}`;
+        
+        // Adjusted to access `total_emissions` instead of `co2_emissions_tons`
+        document.getElementById("highestCellTowerEmissions").textContent = `CO₂ Emissions: ${highestCellTower.total_emissions} Tons`;
+
+        highestCellTowerElement.addEventListener("click", () => {
+            const cellTowerId = highestCellTower.id;
+            const month = 9;  // Replace with actual month if dynamic
+            const year = 2024; // Replace with actual year if dynamic
+
+            // Redirect with query parameters for cell tower and date in YYYY/MM format
+            window.location.href = `cellTowerDashboard.html?cell_tower_id=${cellTowerId}&date=${year}/${month}`;
+        });
+    } else {
+        console.error("Highest Cell Tower or element not found.");
+    }
 }
+
+
+
 
 // Function to display total emissions
 function displayTotalEmissions(data) {
@@ -105,15 +151,14 @@ function displaySustainabilityGoals(goals) {
     renderGoals();
 }
 
-// Function to render the Top 3 Years Chart
+// Function to render the Top 3 Years Chart with clickable bars for redirection
 function renderTop3YearsChart(top3Years) {
     if (top3Years && top3Years.length) {
         const years = [];
         const emissionsData = [];
 
-        // Populate years and emissionsData arrays
         for (let i = 0; i < top3Years.length; i++) {
-            years.push(top3Years[i].year); // Assuming the data has a 'year' field
+            years.push(top3Years[i].year);
             emissionsData.push(top3Years[i].total_emissions);
         }
 
@@ -121,7 +166,7 @@ function renderTop3YearsChart(top3Years) {
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: years, // Label the x-axis with years
+                labels: years,
                 datasets: [{
                     label: 'Total CO₂ Emissions (tons)',
                     data: emissionsData,
@@ -139,6 +184,13 @@ function renderTop3YearsChart(top3Years) {
                 },
                 plugins: {
                     legend: { labels: { font: { size: 12 } } }
+                },
+                onClick: (e, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const selectedYear = years[index];
+                        window.location.href = `dataCenterDashboard.html?year=${selectedYear}`;
+                    }
                 }
             }
         });
@@ -150,18 +202,15 @@ function renderTop3YearsChart(top3Years) {
 // Function to render the Yearly Energy Consumption Doughnut Chart
 function renderYearlyEnergyChart(yearlyEnergyConsumption, totalCellTowerEmissions) {
     if (yearlyEnergyConsumption && yearlyEnergyConsumption.length > 0 && totalCellTowerEmissions) {
-        // Find the year with the highest energy consumption
         const highestYearData = yearlyEnergyConsumption.reduce((max, item) => 
             item.total_emissions > max.total_emissions ? item : max, yearlyEnergyConsumption[0]);
 
         const ctx = document.getElementById("yearlyEnergyChart").getContext("2d");
 
-        // Destroy the previous chart instance if it exists to prevent overlap
         if (window.yearlyEnergyChartInstance) {
             window.yearlyEnergyChartInstance.destroy();
         }
 
-        // Create a new chart instance
         window.yearlyEnergyChartInstance = new Chart(ctx, {
             type: 'doughnut',
             data: {
