@@ -23,12 +23,12 @@ const DashboardModel = {
             const highestCellTowerResult = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
                 .query(`
-                    SELECT TOP 1 ct.cell_tower_name, SUM(ctec.total_energy_kwh) AS total_emissions
-                    FROM cell_tower_energy_consumption AS ctec
-                    JOIN cell_towers AS ct ON ctec.cell_tower_id = ct.id
-                    WHERE ct.company_id = @company_id
-                    GROUP BY ct.cell_tower_name
-                    ORDER BY total_emissions DESC;
+                SELECT TOP 1 ct.id, ct.cell_tower_name, YEAR(ctec.date) AS year, 
+                SUM(ctec.total_energy_kwh) AS total_emissions
+                FROM cell_tower_energy_consumption AS ctec JOIN cell_towers AS ct 
+                ON ctec.cell_tower_id = ct.id WHERE ct.company_id = 1 
+                GROUP BY ct.cell_tower_name, ct.id, YEAR(ctec.date) 
+                ORDER BY total_emissions DESC;
                 `);
             const highestCellTower = highestCellTowerResult.recordset[0] || {};
 

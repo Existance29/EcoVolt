@@ -25,28 +25,37 @@
                 <a href="dataCenterDashboard.html">Data Center</a>
                 <a href="cellTowerDashboard.html" class="active">Cell Tower</a>
                 <div class="right-aligned">
-                    <div class="data-center-filter">
-                        <label for="monthDropdown">Select Month:</label>
-                        <select id="monthDropdown" onchange="loadData()">
-                            <option value="all" selected>--Select Month--</option>
-                            <option value="1">January</option>
-                            <option value="2">February</option>
-                            <option value="3">March</option>
-                            <option value="4">April</option>
-                            <option value="5">May</option>
-                            <option value="6">June</option>
-                            <option value="7">July</option>
-                            <option value="8">August</option>
-                            <option value="9">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
-                        </select>
+                    <div class="date-dropdown">
+                        <label for="date-dropdown" class="data-center-label">Select Date:</label>
+                        <button id="datePickerToggle" class="date-toggle">All</button>
+                        <div id="datePickerContainer" class="date-picker-container">
+                            <label for="monthPicker"></label>
+                            <select id="monthPicker" aria-label="Select Month">
+                                <option value="">Month</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+            
+                            <label for="yearPicker"></label>
+                            <input type="number" id="yearPicker" aria-label="Select Year" min="2000" max="2100" placeholder="Year">
+                            
+                            <div class="button-container-date">
+                                <button id="datePickerClear" class="ok-button">Clear</button>
+                                <button id="datePickerApply" class="ok-button">Apply</button>
+                            </div>                            
+                        </div>
                     </div>
-                    <div class="data-center-filter">
-                        <label for="yearDropdown">Select Year:</label>
-                        <input type="number" id="yearPicker" aria-label="Select Year" min="2000" max="2100" placeholder="Year" oninput="loadData()">
-                    </div>
+
                     <div class="data-center-filter">
                         <label for="cellTowerDropdown">Select Cell Tower:</label>
                         <select id="cellTowerDropdown" onchange="loadData()">

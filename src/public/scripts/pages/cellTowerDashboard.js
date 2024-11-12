@@ -164,15 +164,24 @@ function renderCircleProgressBar(element, currentValue, totalValue, chartSize, b
     labelDiv.innerHTML = `<span style="color: ${barColor};">${formatDecimals(currentValue)}</span> / ${formatDecimals(totalValue)} MWh`
 }
 
+const monthPicker = document.getElementById("monthPicker")
+const yearPicker = document.getElementById("yearPicker")
+const yearErrorMessage = document.createElement("div"); // Create error message element
+
+yearErrorMessage.style.color = "red";
+yearErrorMessage.style.fontSize = "12px";
+yearErrorMessage.style.marginTop = "4px";
+yearErrorMessage.style.display = "none"; // Initially hidden
+yearPicker.parentNode.insertBefore(yearErrorMessage, yearPicker.nextSibling); // Insert error message below year picker
+
 async function loadData(){
     //get filters
-    const month = document.getElementById("monthDropdown").value
-    const year = document.getElementById("yearPicker").value
+    const month = monthPicker.value || "all"
+    const year = yearPicker.value || "all"
     const cellTower = document.getElementById("cellTowerDropdown").value
     //get data
-    const response = await get(`Dashboard/Cell-Tower/Consumption/${cellTower}/${month}/${year || "all"}`)
+    const response = await get(`Dashboard/Cell-Tower/Consumption/${cellTower}/${month}/${year}`)
     //check if the data exists
-    console.log(response.status)
     if (response.status == 404){
         document.getElementById("noDataMessage").style.display = "block"
         document.getElementById("dashboard").style.display = "none"
@@ -204,37 +213,105 @@ async function loadData(){
 }
 
 
-async function onLoad(){
-
+async function onLoad() {
     //get all cell towers and add them to the dropdown options
-    const cellTowers = await (await get("Dashboard/Cell-Towers")).json()
-    const dropdown = document.getElementById("cellTowerDropdown")
-    for (let i = 0; i < cellTowers.length; i++){
-        const cellTower = cellTowers[i]
+    const cellTowers = await (await get("Dashboard/Cell-Towers")).json();
+    const dropdown = document.getElementById("cellTowerDropdown");
+    for (let i = 0; i < cellTowers.length; i++) {
+        const cellTower = cellTowers[i];
         var option = document.createElement("option");
         option.text = cellTower.cell_tower_name;
-        option.value = cellTower.id
+        option.value = cellTower.id;
         dropdown.add(option);
     }
 
-    const cellTowerIDs = cellTowers.map(x => x.id)
+    const cellTowerIDs = cellTowers.map(x => x.id);
 
     //get url parameters
-    const initialYear = getUrlParameter("year") || ""
-    var initialMonth = getUrlParameter("month")
-    var initialCellTowerID = getUrlParameter("id")
+    const initialYear = getUrlParameter("year") || ""; 
+    var initialMonth = getUrlParameter("month"); 
+    var initialCellTowerID = getUrlParameter("cell_tower_id"); 
 
     //validate the parameters, default to "all" if invalid
-    initialMonth = initialMonth && initialMonth >= 1 && initialMonth <= 12 ? initialMonth : "all"
-    initialCellTowerID = !isNaN(initialCellTowerID) && cellTowerIDs.includes(parseInt(initialCellTowerID)) ? initialCellTowerID : "all"
-    
-    //set the filters to the parameter value
-    document.getElementById("monthDropdown").value = initialMonth
-    document.getElementById("yearPicker").value = initialYear
-    document.getElementById("cellTowerDropdown").value = initialCellTowerID   
+    initialMonth = initialMonth && initialMonth >= 1 && initialMonth <= 12 ? initialMonth : ""; 
+    initialCellTowerID = !isNaN(initialCellTowerID) && cellTowerIDs.includes(parseInt(initialCellTowerID)) ? initialCellTowerID : "all"; 
 
-    //load data
-    loadData()
+    //set the filters to the parameter value
+    monthPicker.value = initialMonth; 
+    yearPicker.value = initialYear; 
+    document.getElementById("cellTowerDropdown").value = initialCellTowerID; 
+
+    // Update date picker label based on URL parameters 
+    updateDatePickerToggleLabel(); 
+
+    // Load data based on initial parameters 
+    loadData(); 
 }
+
+// Function to get URL parameters by name 
+function getUrlParameter(name) { 
+    const urlParams = new URLSearchParams(window.location.search); 
+    return urlParams.get(name); 
+} 
+
+function updateDatePickerToggleLabel() {
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    
+    if (selectedYear && selectedMonth) {
+        // Show month and year (e.g., January 2024)
+        const monthName = monthPicker.options[monthPicker.selectedIndex].text;
+        document.getElementById("datePickerToggle").textContent = `${monthName} ${selectedYear}`;
+    } else if (selectedYear) {
+        // Show only year (e.g., 2024)
+        document.getElementById("datePickerToggle").textContent = selectedYear;
+    } else {
+        // Default to "All"
+        document.getElementById("datePickerToggle").textContent = "All";
+    }
+}
+
+document.getElementById("datePickerToggle").addEventListener("click", function(event) {
+    event.stopPropagation(); 
+    var container = document.getElementById("datePickerContainer");
+    container.style.display = container.style.display === "none" || !container.style.display ? "block" : "none";
+});
+
+document.addEventListener("click", function(event) {
+    var container = document.getElementById("datePickerContainer");
+    var toggle = document.getElementById("datePickerToggle");
+    if (!toggle.contains(event.target) && !container.contains(event.target)) {
+        container.style.display = "none";
+    }
+});
+
+// Event listener for the Apply button
+document.getElementById("datePickerApply").addEventListener("click", function(event) {
+    event.preventDefault();
+    // Check if month is selected without a year
+    if (monthPicker.value && !yearPicker.value) {
+        yearErrorMessage.textContent = "Please select a year";
+        yearErrorMessage.style.display = "block";
+        return; // Stop fetch if month is selected without a year
+    }
+    yearErrorMessage.style.display = "none"; // Hide the error message if validation passes
+    updateDatePickerToggleLabel(); // Update the label based on the selected month/year
+    document.getElementById("datePickerContainer").style.display = "none";
+    loadData()
+});
+
+// Event listener for the Clear button
+document.getElementById("datePickerClear").addEventListener("click", function(event) {
+    event.preventDefault();
+    monthPicker.value = "";
+    yearPicker.value = "";
+    updateDatePickerToggleLabel(); // Reset the label to "All"
+    document.getElementById("datePickerContainer").style.display = "none";
+    yearErrorMessage.style.display = "none"; // Hide the error message if validation passes
+    loadData()
+});
+
+monthPicker.addEventListener("change", () => {
+})
 
 onLoad()
