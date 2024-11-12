@@ -31,6 +31,13 @@ document.addEventListener("DOMContentLoaded", async () => {
                 window.location.href = "dataCenterDashboard.html";
             });
         }
+
+        const totalCellTowerElement = document.getElementById("totalCellTower"); 
+        if (totalCellTowerElement) { 
+            totalCellTowerElement.addEventListener("click", () => { 
+                window.location.href = "cellTowerDashboard.html"; // Redirect to cell tower dashboard 
+            }); 
+        } 
     } catch (error) {
         console.error("Error fetching dashboard data:", error);
     }
