@@ -79,7 +79,7 @@ class userController{
 
         try {
           const updatedUser = await User.updateUserAccountInfo(req.user.userId, req.body)
-          res.status(200).send("Success")
+          res.status(200).json(updatedUser)
         } catch (error) {
           console.error(error);
           res.status(500).send("Error updating user")
@@ -103,7 +103,7 @@ class userController{
     static async changePassword(req, res){
       try {
         const updatedUser = await User.changePassword(req.user.userId, userController.hashPassword(req.body.new_password))
-        res.status(200).send("Success")
+        res.status(200).json({"Success":"Success"})
       } catch (error) {
         console.error(error)
         res.status(500).send("Error changing user password")

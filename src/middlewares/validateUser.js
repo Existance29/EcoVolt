@@ -52,7 +52,7 @@ class validateUser{
     
                 const res = await customEmailValidation(email, helper)
                 //check if the email belongs to the user
-                const user = await User.getUserById(req.user.userId)
+                const user = await User.getPrivateUserById(req.user.userId)
                 if (user.email !== email) return res
             }),
             about: Joi.string().max(250).required().allow(''), //can be blank, max 250 chars

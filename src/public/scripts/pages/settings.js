@@ -9,12 +9,12 @@ var accountTextFieldValues = {} //store the value of the textboxes before editin
 //hide the error message when the input field is changed
 function inputChanged(e){
     //get the associated error message based on the id of the input field
-    const error = document.getElementById(`${e.target.id.replaceAll("-","_")}-error`)
+    const error = document.getElementById(`${e.target.id}-error`)
     error.style.opacity = "0"
 }
 
 Array.from(document.getElementsByTagName("input")).forEach(x => {
-    if (x.type == "text") x.addEventListener("input", inputChanged)
+    if (x.type == "text" || x.type == "password") x.addEventListener("input", inputChanged)
 })
 
 function closeTextBox(editBtn, textbox){
@@ -83,7 +83,7 @@ document.addEventListener("click", (event) => {
     if (event.target.classList.contains("edit")){
         editClicked(event.target)
     }
-    else{
+    else if (event.target.classList.contains("settings-container")){
         //close textboxes if user clicks elsewhere
         closeAllTextBoxes()
     }
@@ -134,3 +134,28 @@ loadData()
 Password Tab
 =====================
 */
+
+const changePasswordFields = ["old_password", "new_password", "confirm_new_password"]
+
+//change password
+document.getElementById("reset-password-btn").addEventListener("click", async()=> {
+    let passwordData = {}
+    changePasswordFields.forEach(x => passwordData[x] = document.getElementById(x.replaceAll("_","-")).value)
+    const resp = await put("users/password", passwordData)
+    const body = await resp.json()
+    if (resp.status == 200){ 
+        //success, clear input fields and show sucess message
+        changePasswordFields.forEach(x => document.getElementById(x.replaceAll("_","-")).value = "")
+        const successMsgElement = document.getElementById("change-password-success").style.opacity = "1"  
+        return
+    }
+
+    //iterate through all errors, display the error message
+    for (var i = 0; i < body.errors.length; i++){
+        const x  = body.errors[i]
+        const errorEle = document.getElementById(`${x[0].replaceAll("_","-")}-error`) //get the error messasge element associated with the error
+        errorEle.innerText = x[1].replaceAll("_"," ").replaceAll('"','') //do a bit of formatting to make the message more readable
+        errorEle.style.opacity = "1"
+    }
+    return false
+})
