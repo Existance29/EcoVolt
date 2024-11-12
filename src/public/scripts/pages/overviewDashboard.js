@@ -55,7 +55,7 @@ function displayHighestEmissions(data) {
             const year = 2024; // Replace with actual year if dynamic
 
             // Redirect with query parameters for data center and date in YYYY/MM format
-            window.location.href = `dataCenterDashboard.html?data_center_id=${dataCenterId}&date=${year}/${month}`;
+            window.location.href = `dataCenterDashboard.html?data_center_id=${dataCenterId}&date=${year}/${month}`; // work alr but need to refine
         });
     } else {
         console.error("Highest Data Center or element not found.");
