@@ -34,6 +34,7 @@ const dataCenterDashboardRoute = (app) => {
     app.get('/Dashboard/Data-Center/RenewableEnergy/Total/data-center/:data_center_id/date', dataCenterDashboardController.getTotalRenewableEnergyByDataCenterIdAndDate);
     app.get('/Dashboard/Data-Center/RenewableEnergy/Total/company/:company_id/date', dataCenterDashboardController.getTotalRenewableEnergyByCompanyIdAndDate);
     
+    app.get('/Dashboard/Data-Center/EnergyConsumption/GroupByDc/:company_id/:data_center_id?', dataCenterDashboardController.getEnergyConsumptionGroupByDc);
 
     // overview page
     app.get('/Dashboard/sustainability-goals/:company_id', dataCenterDashboardController.getAllSustainabilityGoalsData);
