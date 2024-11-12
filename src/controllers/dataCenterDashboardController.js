@@ -635,7 +635,6 @@ const getEnergyConsumptionGroupByDc = async (req, res) => {
     const data_center_id = req.params.data_center_id ? parseInt(req.params.data_center_id) : null;
     const year = req.query.year ? parseInt(req.query.year) : null;
     const month = req.query.month ? parseInt(req.query.month) : null;
-    console.log("hi");
 
     try {
         let data;
@@ -663,7 +662,6 @@ const getEnergyConsumptionGroupByDc = async (req, res) => {
             return res.status(400).send("Invalid request: please provide a valid year or both year and month.");
         }
 
-        console.log(data);
         if (!data || data.length === 0) {
             return res.status(404).send("No energy consumption data found for the specified filters.");
         }
