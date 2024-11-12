@@ -29,5 +29,21 @@ class validateUser{
         //check if validation successful
         if (await validateSchema(req,res,schema)) next()
     }
+
+    static async validateAccountUpdate(req, res, next){
+        const schema = Joi.object({
+            name: Joi.string().min(1).max(40).required(), //no blanks, max 40 chars
+            email: Joi.string().min(3).max(50).required().email().external(async(email, helper) => {
+    
+                const res = await customEmailValidation(email, helper)
+                //check if the email belongs to the user
+                const user = await User.getUserById(req.user.userId)
+                if (user.email !== email) return res
+            }),
+            about: Joi.string().max(250).required().allow(''), //can be blank, max 250 chars
+          })
+          //check if validation successful
+          if (await validateSchema(req,res,schema)) next()
+    }
 }
 module.exports = validateUser

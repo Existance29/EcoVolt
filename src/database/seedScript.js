@@ -59,6 +59,8 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     company_id INT NOT NULL,
+    about VARCHAR(255) NOT NULL,
+    profile_picture_file_name VARCHAR(255) NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
@@ -190,16 +192,16 @@ VALUES
     ('StarHub Limited', 'StarHub', 'starhub.com');
 
 -- Insert sample data into users table
-INSERT INTO users (name, email, password, company_id)
+INSERT INTO users (name, email, password, company_id, about, profile_picture_file_name)
 VALUES
-    ('John Doe', 'jdoe@singtel.com', 'password123', 1),
-    ('Jane Smith', 'jsmith@m1.com.sg', 'password123', 2),
-    ('Alice Tan', 'alice.tan@simba.sg', 'password123', 3),
-    ('Bob Lee', 'bob.lee@starhub.com', 'password123', 4),
-    ('Apple Lim', 'apple.lim@singtel.com', 'password123', 1),
-    ('Benedict Soh', 'bsoh@m1.com.sg', 'password123', 2),
-    ('cadence Tan', 'cadence.tan@simba.sg', 'password123', 3),
-    ('dominic Lee', 'dominic.lee@starhub.com', 'password123', 4);
+    ('John Doe', 'jdoe@singtel.com', 'password123', 1, 'Hello! I am John', 'default.png'),
+    ('Jane Smith', 'jsmith@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
+    ('Alice Tan', 'alice.tan@simba.sg', 'password123', 3, 'NPC', 'default.png'),
+    ('Bob Lee', 'bob.lee@starhub.com', 'password123', 4, 'NPC', 'default.png'),
+    ('Apple Lim', 'apple.lim@singtel.com', 'password123', 1, 'NPC', 'default.png'),
+    ('Benedict Soh', 'bsoh@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
+    ('cadence Tan', 'cadence.tan@simba.sg', 'password123', 3, 'NPC', 'default.png'),
+    ('dominic Lee', 'dominic.lee@starhub.com', 'password123', 4, 'NPC', 'default.png');
 
 
 -- Insert sample data into data_centers table

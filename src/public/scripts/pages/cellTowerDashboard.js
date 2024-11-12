@@ -99,6 +99,7 @@ function renderDoughnutChart(element, labels, data, colors){
         Chart.getChart(element.id)?.destroy()
     }
 
+    
     new Chart(element, {
         type: 'doughnut',
         data: {
@@ -107,8 +108,7 @@ function renderDoughnutChart(element, labels, data, colors){
                 {
                     data: data,
                     backgroundColor: colors,
-                    borderWidth: 0,
-                    borderRadius: 0
+                    borderWidth: 2,
                 }
             ]
         },
@@ -120,12 +120,13 @@ function renderDoughnutChart(element, labels, data, colors){
                     display: false
                 },
             },
-            cutout: "65%"
+            cutout: "55 %"
         }
     })
+
     //render the labels for the pie chart
     const dataSum = data.reduce((a, b) => a + b, 0)
-    const labelElement = element.parentNode.parentNode.childNodes[3]
+    const labelElement = element.parentNode.parentNode.children[2]
     const [labelColumn, valueColumn] = labelElement.children
     labelColumn.innerHTML = ""
     valueColumn.innerHTML = ""
@@ -150,7 +151,7 @@ function renderCircleProgressBar(element, currentValue, totalValue, chartSize, b
     new EasyPieChart(element, {
         scaleLength: false,
         lineCap: "square",
-        lineWidth: 7,
+        lineWidth: 10,
         size: chartSize,
         barColor: barColor,
         trackColor: trackColor

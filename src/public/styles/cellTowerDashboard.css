@@ -179,11 +179,10 @@ body {
 .pie-chart-labels-container{
   font-size: 0.8rem;
   margin-left: 2rem;
-  margin-bottom: 1rem;
   white-space: nowrap;
   display: flex;
   gap: 0.8rem;
-  margin-top: 0.6rem;
+  margin-top: 1rem;
   flex-wrap: nowrap;
 }
 
@@ -191,6 +190,7 @@ body {
   margin-right: 0.7rem;
   width: 0.9rem;
   height: 0.9rem;
+  border-radius: 3px;
 }
 
 .pie-chart-labels-container .label-name{
