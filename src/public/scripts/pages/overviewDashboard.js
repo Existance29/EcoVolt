@@ -24,6 +24,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderTop3YearsChart(data.top3Companies);
         renderYearlyEnergyChart(data.yearlyEnergyConsumption, data.totalCellTowerEmissions);
 
+        // Add event listener to totalDataCenter card for redirection
+        const totalDataCenterElement = document.getElementById("totalDataCenter");
+        if (totalDataCenterElement) {
+            totalDataCenterElement.addEventListener("click", () => {
+                window.location.href = "dataCenterDashboard.html";
+            });
+        }
     } catch (error) {
         console.error("Error fetching dashboard data:", error);
     }
