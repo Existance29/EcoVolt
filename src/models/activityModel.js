@@ -198,6 +198,109 @@ class Posts {
                 console.error("Error getting dislike count", error);
             }
         }
+
+        static async getCommentsByPostId(post_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `SELECT c.comment_id, c.comment_text, u.id, u.name
+                FROM comments c
+                INNER JOIN users u ON c.user_id = u.id
+                INNER JOIN activity_feed af ON c.post_id = af.post_id
+                WHERE af.post_id = @post_id`;
+                
+                const request = connection.request();
+                const result = await request
+                .input("post_id", sql.Int, post_id)
+                .query(query);
+
+                connection.close();
+                return result.recordset;
+            } catch (error) {
+                console.error("Error fetching comments: ", error);
+            }
+        }
+
+        static async addNewComment(post_id, user_id, company_id, comment_text) {
+            try {
+                const connection = await sql.connect(dbConfig);
+
+                console.log("Received comment text: ", comment_text);
+
+                const companyid = `SELECT company_id, name FROM users WHERE id = @user_id`;
+                const companyIdRequest = connection.request();
+                companyIdRequest.input("user_id", user_id);
+
+                const companyResult = await companyIdRequest.query(companyid);
+                company_id = companyResult.recordset[0].company_id;
+                const username = companyResult.recordset[0].name;
+                console.log("CompanyID : ", company_id);
+                console.log("Username: ", username);
+
+                if (company_id === null || company_id === undefined) {
+                    console.log("Not connected to company.");
+                    company_id = 0;
+                }
+
+                const query = `INSERT INTO comments (post_id, user_id, company_id, comment_text, date, time) VALUES (@post_id, @user_id, @company_id, @comment_text, GETDATE(), GETDATE())`;
+                
+                const request = connection.request();
+                request.input("post_id", post_id);
+                request.input("user_id", user_id);
+                request.input("company_id", company_id);
+                request.input("comment_text", comment_text);
+
+                const result = await request.query(query);
+                console.log("json result: ", result);
+                connection.close();
+
+                return result.rowsAffected[0] > 0 ? { post_id, user_id, username, company_id, comment_text } : null;
+            } catch (error) {
+                console.error("Error adding new comments: ", error);
+            }
+        }
+
+        static async getCommentCount(post_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `SELECT COUNT(*) AS comments_count FROM comments WHERE post_id = @post_id;`;
+                
+                const request = connection.request();
+                request.input("post_id", post_id);
+                const result = await request.query(query);
+                connection.close();
+                return result.recordset[0].comments_count;
+            } catch (error) {
+                console.error("Error getting comments count", error);
+            }
+        }
+
+        static async addNewPost (user_id, company_id, context, media_url, carbon_emission, energy_consumption, activity_type, location) {
+            try{
+                const connection = await sql.connect(dbConfig);
+                const query = `
+                INSERT INTO activity_feed (user_id, company_id, context, media_url, carbon_emission, energy_consumption, activity_type, location, date, time) 
+                VALUES (@user_id, @company_id, @context, @media_url, @carbon_emission, @energy_consumption, @activity_type, @location, GETDATE(), GETDATE());
+                SELECT SCOPE_IDENTITY() AS post_id;`;
+
+                const request = connection.request();
+                request.input("user_id", user_id);
+                request.input("company_id", company_id);
+                request.input("context", context);
+                request.input("media_url", media_url);
+                request.input("carbon_emission", carbon_emission);
+                request.input("energy_consumption", energy_consumption);
+                request.inupt("activity_type", activity_type);
+                request.input("location", location);
+
+                const result = await request.query(query);
+                connection.close();
+
+                return result.recordset[0];
+            } catch (error) {
+                console.error("Error adding new post: ", error);
+                throw error;
+            }
+        }
 }
 
 module.exports = Posts;

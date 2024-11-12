@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/activityFeed.css">
+    <link rel="stylesheet" href="styles/common.css">
     <!-- Linking to external stylesheets for icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -13,56 +14,92 @@
     <title>EcoVolt | ActivityFeed</title>
 </head>
 <body>
-    <!-- navbar -->
-    <nav></nav>
-
     <h1> Activity Feed </h1>
-
-    <div class="filter-sort">
-        <div class="filter">
-            <label for="filter">Filter by: </label>
-            <select id="filter">
-                <option value="all">All</option>
-                <option value="sustainability">Sustainability</option>
-                <option value="energy">Energy Consumption</option>
-                <option value="emissions">Carbon Emissions</option>
-            </select>
+    <aside class="sidebar">
+        <div class="logo">
+            <h2>EcoVolt</h2>
         </div>
-        <div class="sort">
-            <label for="sort">Sort by: </label>
-            <select id="sort">
-                <option value="recent">Most Recent</option>
-                <option value="popular">Most Liked</option>
-            </select>
+        <nav class="nav-menu">
+            <a href="dataCenterDashboard.html">Dashboard</a>
+            <a href="#">Report</a>
+            <a href="#" class="active">Blog</a>
+            <a href="#">Profile</a>
+            <a href="#">Sign In</a>
+            <a href="#">Sign Up</a>
+        </nav>
+        <div class="help-box">
+            <p>Need help? <br> Please reach out to us</p>
         </div>
-    </div>
-
-    <h2 class="subtitle">Posts</h2>
-
-    <div class="posts">
-        <!-- Example Post -->
-        <!-- <div class="post">
-            <div class="post-header">
-                <h3>User Name</h3>
-                <span class="timestamp">Posted on: YYYY-MM-DD</span>
+    </aside>
+ 
+    <div class="content">
+        <div class="filter-sort">
+            <div class="filter">
+                <label for="filter">Filter by: </label>
+                <select id="filter">
+                    <option value="all">All</option>
+                    <option value="sustainability">Sustainability</option>
+                    <option value="energy">Energy Consumption</option>
+                    <option value="emissions">Carbon Emissions</option>
+                </select>
             </div>
-            <p class="post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-            <div class="post-footer">
-                <div class="action-buttons">
-                    <button class="action-btn like-button"><i class="fa fa-thumbs-up"></i><span class="likes-count">0 Likes</span></button>
-                    <button class="action-btn dislike-button"><i class="fa fa-thumbs-down"></i><span class="dislikes-count">0 Dislikes</span></button>
-                    <button class="action-btn comment-button"><i class="fa fa-comment"></i><span class="comments-count">0 Comments</span></button>
+            <div class="sort">
+                <label for="sort">Sort by: </label>
+                <select id="sort">
+                    <option value="recent">Most Recent</option>
+                    <option value="popular">Most Liked</option>
+                </select>
+            </div>
+        </div>
+
+        <h2 class="subtitle">Posts</h2>
+
+        <div class="posts">
+            <!-- Example Post -->
+            <div class="post">
+                <div class="post-header">
+                    <h3>User Name</h3>
+                    <span class="timestamp">Posted on: YYYY-MM-DD</span>
+                </div>
+                <p class="post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                <div class="post-footer">
+                    <div class="action-buttons">
+                        <button class="action-btn like-button"><i class="fa fa-thumbs-up"></i><span class="likes-count">0 Likes</span></button>
+                        <button class="action-btn dislike-button"><i class="fa fa-thumbs-down"></i><span class="dislikes-count">0 Dislikes</span></button>
+                        <button class="action-btn comment-button"><i class="fa fa-comment"></i><span class="comments-count">0 Comments</span></button>
+                    </div>
                 </div>
             </div>
-        </div> -->
+        </div>
+        
+        <!-- Comments section -->
+        <div class="comments-container" style="display: none;"></div>
+        
+        <button class="new-post-button" id="new-post-button">+</button>
+
+        <div id="postModal" class="modal">
+            <div class="modal-content">
+                <span id="closeModalBtn" class="close">&times;</span>
+                <h2>Create New Post</h2>
+                <input type="text" id="postContext" placeholder="What's on your mind?" required />
+                <input type="text" id="postLocation" placeholder="Location" />
+                <input type="number" id="postCarbonEmission" placeholder="Carbon Emission" />
+                <input type="number" id="postEnergyConsumption" placeholder="Energy Consumption" />
+                <select id="postActivityType">
+                    <option value="Travel">Travel</option>
+                    <option value="Food">Food</option>
+                    <option value="Shopping">Shopping</option>
+                    <!-- more -->
+                </select>
+                <button id="submitPostBtn">Post</button>
+            </div>
+        </div>
+
+        <!--Footer-->
+        <footer></footer>
+
+        <!-- Linking js to html -->
+        <script src="scripts/pages/activityFeed.js"></script>
     </div>
-    
-    <button class="new-post-button">+</button>
-
-    <!--Footer-->
-    <footer></footer>
-
-    <!-- Linking js to html -->
-    <script src="scripts/pages/activityFeed.js"></script>
 </body>
 </html>

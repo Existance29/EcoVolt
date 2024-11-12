@@ -952,12 +952,37 @@ function renderGaugeChart(value, label) {
 
 
 
-
-// Load data centers and chart on page load
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM fully loaded, initializing data center options...");
-    await loadDataCenterOptions(); // Load data centers when the page loads
+    
+    // Load data center options
+    await loadDataCenterOptions();
+    
+    // Extract parameters from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const dataCenterIdFromUrl = urlParams.get('data_center_id');
+    const dateFromUrl = urlParams.get('date');
+    const yearFromUrl = urlParams.get('year'); // Additional year parameter
+
+    // Set data center dropdown based on URL parameter if present
+    if (dataCenterIdFromUrl) {
+        dataCenterDropdown.value = dataCenterIdFromUrl;
+    }
+
+    // Set month and year pickers based on URL parameter if present
+    if (dateFromUrl) {
+        const [year, month] = dateFromUrl.split('/');
+        if (yearPicker) yearPicker.value = year;
+        if (monthPicker && month) monthPicker.value = month.padStart(2, '0'); // Ensure month is two digits
+    }
+
+    // Set year picker based on year parameter if present
+    if (yearFromUrl && yearPicker) {
+        yearPicker.value = yearFromUrl;
+    }
+
+    // Initialize metric gauge with PUE as default and trigger data fetch
     fetchMetricData("PUE");
     pueButton.classList.add("active");
-    fetchData(); 
+    fetchData();
 });
