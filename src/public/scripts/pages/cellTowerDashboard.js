@@ -107,8 +107,8 @@ function renderDoughnutChart(element, labels, data, colors){
                 {
                     data: data,
                     backgroundColor: colors,
-                    borderWidth: 0,
-                    borderRadius: 0
+                    borderColor: '#ffffff',
+                    borderWidth: 3,
                 }
             ]
         },
@@ -120,12 +120,12 @@ function renderDoughnutChart(element, labels, data, colors){
                     display: false
                 },
             },
-            cutout: "65%"
         }
     })
     //render the labels for the pie chart
     const dataSum = data.reduce((a, b) => a + b, 0)
-    const labelElement = element.parentNode.parentNode.childNodes[3]
+    const labelElement = element.parentNode.parentNode.parentNode.children[2]
+    console.log(labelElement)
     const [labelColumn, valueColumn] = labelElement.children
     labelColumn.innerHTML = ""
     valueColumn.innerHTML = ""
