@@ -179,7 +179,6 @@ body {
 .pie-chart-labels-container{
   font-size: 0.8rem;
   margin-left: 2rem;
-  margin-bottom: 1rem;
   white-space: nowrap;
   display: flex;
   gap: 0.8rem;
