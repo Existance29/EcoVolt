@@ -5,7 +5,6 @@ const DashboardModel = {
     async getHighestEmissions(company_id) {
         try {
             await sql.connect(dbConfig);
-            console.log("Connected to the database");
 
             // Query for highest emissions data center
             const highestDataCenterResult = await new sql.Request()
@@ -49,7 +48,6 @@ const DashboardModel = {
     async getTotalEmissions(company_id) {
         try {
             await sql.connect(dbConfig);
-            console.log("Connected to the database");
 
             // Total emissions for data centers
             const dataCenterResult = await new sql.Request()
@@ -90,7 +88,6 @@ const DashboardModel = {
     async getSustainabilityGoals(company_id) {
         try {
             await sql.connect(dbConfig);
-            console.log("Connected to the database");
 
             const result = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
@@ -117,7 +114,6 @@ const DashboardModel = {
     async getTop3YearsByEmissions(company_id) {
         try {
             await sql.connect(dbConfig);
-            console.log("Connected to the database");
     
             const request = new sql.Request();
             request.input("company_id", sql.Int, company_id);  // Set the company_id parameter
@@ -147,7 +143,6 @@ const DashboardModel = {
     async getYearlyEnergyConsumption(company_id) {
         try {
             await sql.connect(dbConfig);
-            console.log("Connected to the database");
 
             const result = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
