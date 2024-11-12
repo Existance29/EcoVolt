@@ -52,7 +52,7 @@ body, html {
 
 .data-table {
     width: 100%; /* Keep the table width reduced for a compact look */
-    max-width: 600px; /* Ensure it doesn’t expand too wide */
+    max-width: 640px; /* Ensure it doesn’t expand too wide */
     margin: 15px auto; /* Center the table */
     border-collapse: collapse;
     table-layout: fixed; /* Allows specific column widths */
@@ -75,17 +75,73 @@ body, html {
 }
 .data-overview {
     margin-left: 10px;
+    padding-right: 10px;
+
 }
 
+.recommendation {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+
+.page-break-container {
+    page-break-after: always; /* Forces a new page after each container */
+}
+.recommendation h3 {
+    font-size: 1.25em;
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.recommendation p {
+    line-height: 1.6;
+    font-size: 1em;
+    color: #000000;
+    margin: 10px 0;
+}
+
+.recommendation strong {
+    color: #333;
+    font-weight: bold;
+}
+
+.recommendation ol {
+    list-style-type: decimal;
+    padding-left: 1.5em;
+}
+
+.recommendation ol li {
+    margin: 20px 0; /* More space between actions */
+}
+
+.recommendation ol li strong {
+    color: #000000; /* Match the theme */
+}
+
+.recommendation .intended-impact {
+    font-size: 1em;
+    color: #000000;
+    font-weight: bold;
+    margin-top: 15px;
+    display: block;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
 .recommendations-page {
     page-break-before: always;
     margin-left: 10px;
-
+    padding-right: 10px;
 }
 
 .conclusion-page {
     page-break-before: always;
     margin-left: 10px;
+    padding-right: 10px;
 
 }
 .status-message {
