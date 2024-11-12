@@ -1,10 +1,21 @@
 const accountTextFields = ["name", "email", "about"]
 
+//hide the error message when the input field is changed
+function inputChanged(e){
+    //get the associated error message based on the id of the input field
+    const error = document.getElementById(`${e.target.id.replaceAll("-","_")}-error`)
+    console.log(error)
+    error.style.opacity = "0"
+}
+
+Array.from(document.getElementsByTagName("input")).forEach(x => {
+    if (x.type == "text") x.addEventListener("input", inputChanged)
+})
+
 function closeTextBox(editBtn, textbox){
     textbox.classList.remove("active")
     editBtn.innerText = "Edit"
     textbox.disabled = true
-    console.log("a")
 }
 
 function getTextBox(editBtn){
@@ -15,13 +26,21 @@ async function updateAccountInfo(){
     let updateData = {}
     accountTextFields.forEach(x => updateData[x] = document.getElementById(x).value)
     const resp = await put("users/account/private", updateData)
+    const body = await resp.json()
     //check if error
     if (resp.status == 200) return true
 
-    //show error message
+    //iterate through all errors, display the error message
+    for (var i = 0; i < body.errors.length; i++){
+        const x  = body.errors[i]
+        const errorEle = document.getElementById(`${x[0]}-error`) //get the error messasge element associated with the error
+        errorEle.innerText = x[1].replaceAll("_"," ").replaceAll('"','') //do a bit of formatting to make the message more readable
+        errorEle.style.opacity = "1"
+    }
     return false
 
 }
+
 
 //add event handler to text input edit buttons
 Array.from(document.getElementsByClassName("edit")).forEach(x => {

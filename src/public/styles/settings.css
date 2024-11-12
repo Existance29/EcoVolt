@@ -74,7 +74,7 @@ input, button{
     height: 2px;
     width: 100%;
     background-color: #E7EAED;
-    margin-top: 1.8rem;
+    margin-top: 0.3rem;
 }
 
 .edit-profile-picture-label{
@@ -90,4 +90,11 @@ input, button{
     align-items: center; 
     justify-content: center;
     cursor: pointer;
+}
+
+.error-message{
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    color: red;
+    opacity: 0;
 }
