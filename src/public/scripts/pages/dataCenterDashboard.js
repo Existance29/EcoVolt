@@ -30,9 +30,25 @@ document.addEventListener("click", function(event) {
     }
 });
 
-// Event listener for the Apply button
+// monthPicker.addEventListener("change", fetchData);
+// yearPicker.addEventListener("change", fetchData);
+
+// Call fetchData only when "Apply" button is clicked
 document.getElementById("datePickerApply").addEventListener("click", function(event) {
     event.preventDefault();
+    
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+
+    // Show error if month is selected without a year
+    if (selectedMonth && !selectedYear) {
+        yearErrorMessage.textContent = "Please select a year";
+        yearErrorMessage.style.display = "block";
+        return;
+    } else {
+        yearErrorMessage.style.display = "none"; // Hide error if validation passes
+    }
+
     updateDatePickerToggleLabel(); // Update the label based on the selected month/year
     document.getElementById("datePickerContainer").style.display = "none";
     fetchData();
@@ -70,8 +86,8 @@ let carbonEmissionChart;
 let energyBreakdownChart;
 
 // Event listeners to handle changes in the date or data center dropdown
-monthPicker.addEventListener("change", fetchData);
-yearPicker.addEventListener("change", fetchData);
+// monthPicker.addEventListener("change", fetchData);
+// yearPicker.addEventListener("change", fetchData);
 dataCenterDropdown.addEventListener("change", fetchData);
 
 // Elements for the metric buttons
@@ -185,14 +201,14 @@ async function fetchData() {
     const selectedYear = yearPicker.value;
     const selectedDataCenter = dataCenterDropdown.value;
 
-    // Check if month is selected without a year
-    if (selectedMonth && !selectedYear) {
-        yearErrorMessage.textContent = "Please select a year";
-        yearErrorMessage.style.display = "block";
-        return; // Stop fetch if month is selected without a year
-    } else {
-        yearErrorMessage.style.display = "none"; // Hide the error message if validation passes
-    }
+    // // Check if month is selected without a year
+    // if (selectedMonth && !selectedYear) {
+    //     yearErrorMessage.textContent = "Please select a year";
+    //     yearErrorMessage.style.display = "block";
+    //     return; // Stop fetch if month is selected without a year
+    // } else {
+    //     yearErrorMessage.style.display = "none"; // Hide the error message if validation passes
+    // }
 
     const selectedDate = selectedYear && selectedMonth ? `${selectedYear}-${selectedMonth}` : selectedYear;
 
