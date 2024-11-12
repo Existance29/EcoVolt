@@ -2,6 +2,8 @@ $(document).ready(function() {
     $("#nav1").load("commonHTML/navBar1.html");
     $("#nav2").load("commonHTML/navBar2.html");
     $("footer").load("commonHTML/footer.html");
+    $(".mainHeader").load("commonHTML/mainHeader.html");
+    $(".sidebar").load("commonHTML/sidebar.html");
 });
 
 //prevent reloading page when form submitted

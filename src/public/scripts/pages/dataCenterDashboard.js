@@ -1,30 +1,134 @@
-pageRequireSignIn();
+function showTooltip() {
+    document.getElementById("tooltipModal").style.display = "block";
+}
+
+function hideTooltip() {
+    document.getElementById("tooltipModal").style.display = "none";
+}
+
+// Close the tooltip when clicking outside the modal content
+window.onclick = function(event) {
+    const modal = document.getElementById("tooltipModal");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+};
+
 const company_id = getCompanyId();
 
-// Global variables
-let selectedDataCenter = 'all'; // Default to "all" data centers
-let energyConsumptionChart; // Chart instance placeholder
-let carbonEmissionChart; // Chart instance placeholder
-let carbonVsRenewableGauge; // gauge chart instance
+document.getElementById("datePickerToggle").addEventListener("click", function(event) {
+    event.stopPropagation(); 
+    var container = document.getElementById("datePickerContainer");
+    container.style.display = container.style.display === "none" || !container.style.display ? "block" : "none";
+});
+
+document.addEventListener("click", function(event) {
+    var container = document.getElementById("datePickerContainer");
+    var toggle = document.getElementById("datePickerToggle");
+    if (!toggle.contains(event.target) && !container.contains(event.target)) {
+        container.style.display = "none";
+    }
+});
+
+// Event listener for the Apply button
+document.getElementById("datePickerApply").addEventListener("click", function(event) {
+    event.preventDefault();
+    updateDatePickerToggleLabel(); // Update the label based on the selected month/year
+    document.getElementById("datePickerContainer").style.display = "none";
+    fetchData();
+});
+
+// Event listener for the Clear button
+document.getElementById("datePickerClear").addEventListener("click", function(event) {
+    event.preventDefault();
+    monthPicker.value = "";
+    yearPicker.value = "";
+    updateDatePickerToggleLabel(); // Reset the label to "All"
+    document.getElementById("datePickerContainer").style.display = "none";
+    fetchData();
+});
+
+
+
+const monthPicker = document.getElementById("monthPicker");
+const yearPicker = document.getElementById("yearPicker");
+const dataCenterDropdown = document.getElementById("dataCenterDropdown");
+const noDataMessage = document.getElementById("noDataMessage");
+const mainChartContent = document.querySelector(".main-chart-content");
+
+const yearErrorMessage = document.createElement("div"); // Create error message element
+
+yearErrorMessage.style.color = "red";
+yearErrorMessage.style.fontSize = "12px";
+yearErrorMessage.style.marginTop = "4px";
+yearErrorMessage.style.display = "none"; // Initially hidden
+yearPicker.parentNode.insertBefore(yearErrorMessage, yearPicker.nextSibling); // Insert error message below year picker
+
+
+// Initialize chart instances
+let carbonEmissionChart;
+let energyBreakdownChart;
+
+// Event listeners to handle changes in the date or data center dropdown
+monthPicker.addEventListener("change", fetchData);
+yearPicker.addEventListener("change", fetchData);
+dataCenterDropdown.addEventListener("change", fetchData);
+
+// Elements for the metric buttons
+const pueButton = document.getElementById("pueButton");
+const cueButton = document.getElementById("cueButton");
+const wueButton = document.getElementById("wueButton");
+
+// Function to set the active button
+function setActiveButton(button) {
+    // Remove the active class from all buttons
+    pueButton.classList.remove("active");
+    cueButton.classList.remove("active");
+    wueButton.classList.remove("active");
+
+    // Add the active class to the clicked button
+    button.classList.add("active");
+}
+
+// Event listeners for metric buttons
+pueButton.addEventListener("click", () => {
+    fetchMetricData("PUE");
+    setActiveButton(pueButton);
+});
+cueButton.addEventListener("click", () => {
+    fetchMetricData("CUE");
+    setActiveButton(cueButton);
+});
+wueButton.addEventListener("click", () => {
+    fetchMetricData("WUE");
+    setActiveButton(wueButton);
+});
+
 
 // Function to load data centers into the dropdown
 async function loadDataCenterOptions() {
-    try {
-        console.log("Loading data centers for dropdown...");
-        const response = await get(`/Dashboard/Data-Center/${company_id}`);
-        const dataCenters = await response.json();
-        console.log("Data centers loaded:", dataCenters);
+    console.log("Starting to load data centers...");
 
-        const dataCenterDropdown = document.getElementById('dataCenterDropdown');
+    try {
+        // Fetch data centers for the company
+        const response = await fetch(`/Dashboard/Data-Center/${company_id}`);
+        if (!response.ok) {
+            throw new Error(`Failed to load data centers. Status: ${response.status}`);
+        }
+
+        const dataCenters = await response.json();
+        console.log("Data centers fetched successfully:", dataCenters);
+
+        // Clear the dropdown first
         dataCenterDropdown.innerHTML = '';
 
         // Add "All Data Centers" option
         const allOption = document.createElement('option');
         allOption.value = 'all';
-        allOption.textContent = 'All Data Centers';
+        allOption.textContent = 'All';
         dataCenterDropdown.appendChild(allOption);
 
-        // Populate dropdown with data centers
+        // Populate dropdown with fetched data centers
         dataCenters.forEach(dc => {
             const option = document.createElement('option');
             option.value = dc.id;
@@ -32,377 +136,249 @@ async function loadDataCenterOptions() {
             dataCenterDropdown.appendChild(option);
         });
 
-        dataCenterDropdown.value = selectedDataCenter;
-
-        // Event listener for dropdown selection
-        dataCenterDropdown.addEventListener('change', (e) => {
-            selectedDataCenter = e.target.value;
-            console.log(`Dropdown changed, selectedDataCenter is now: ${selectedDataCenter}`);
-            updateChartData(selectedDataCenter);
-            renderCarbonEmissionChart(); // Render carbon emissions when selection changes
-        });
+        console.log("Data center dropdown populated successfully.");
     } catch (error) {
-        console.error('Error loading data centers:', error);
+        console.error("Error loading data centers:", error);
     }
 }
 
-async function updateChartData(dataCenterId) {
-    console.log(`Updating chart data for selected data center: ${dataCenterId}`);
-    const selectedDate = document.getElementById('datePicker') ? document.getElementById('datePicker').value : '';
-    
-    // Get the dataCenterOptions element
-    const dataCenterOptions = document.getElementById('dataCenterOptions');
+async function fetchAvailableDates() {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/AvailableDates/${company_id}`);
+        const data = await response.json();
+        console.log("Full fetched data:", data);
 
-    if (dataCenterId === 'all') {
-        // Show data center options if "All Data Centers" is selected
-        dataCenterOptions.style.display = 'flex';
+        // Extract years and months from the fetched data
+        const availableDates = data.recordsets[0].map(item => item.date.split('T')[0]); // "YYYY-MM-DD"
+        const availableYears = new Set(availableDates.map(date => date.split('-')[0])); // Extract year part
+        const availableMonths = new Set(availableDates.map(date => date.slice(0, 7))); // "YYYY-MM"
+
+        console.log("Available years:", availableYears);
+        console.log("Available months:", availableMonths);
+
+        return { availableYears, availableMonths };
+    } catch (error) {
+        console.error("Error fetching available dates:", error);
+        return { availableYears: new Set(), availableMonths: new Set() };
+    }
+}
+
+function updateDatePickerToggleLabel() {
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    
+    if (selectedYear && selectedMonth) {
+        // Show month and year (e.g., January 2024)
+        const monthName = monthPicker.options[monthPicker.selectedIndex].text;
+        document.getElementById("datePickerToggle").textContent = `${monthName} ${selectedYear}`;
+    } else if (selectedYear) {
+        // Show only year (e.g., 2024)
+        document.getElementById("datePickerToggle").textContent = selectedYear;
+    } else {
+        // Default to "All"
+        document.getElementById("datePickerToggle").textContent = "All";
+    }
+}
+
+async function fetchData() {
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    const selectedDataCenter = dataCenterDropdown.value;
+
+    // Check if month is selected without a year
+    if (selectedMonth && !selectedYear) {
+        yearErrorMessage.textContent = "Please select a year";
+        yearErrorMessage.style.display = "block";
+        return; // Stop fetch if month is selected without a year
+    } else {
+        yearErrorMessage.style.display = "none"; // Hide the error message if validation passes
+    }
+
+    const selectedDate = selectedYear && selectedMonth ? `${selectedYear}-${selectedMonth}` : selectedYear;
+
+    if (selectedDate && (selectedDate.length !== 4 && selectedDate.length !== 7)) {
+        console.error("Invalid date format. Expected format: YYYY or YYYY-MM.");
+        noDataMessage.style.display = "block";
+        mainChartContent.style.display = "none";
+        return;
+    }
+
+    const { availableYears, availableMonths } = await fetchAvailableDates();
+
+    if (selectedYear && !availableYears.has(selectedYear)) {
+        console.warn("Year not found:", selectedYear);
+        noDataMessage.style.display = "block";
+        mainChartContent.style.display = "none";
+        return;
+    }
+
+    if (selectedDate && selectedMonth && !availableMonths.has(selectedDate)) {
+        console.warn("Month-year not found:", selectedDate);
+        noDataMessage.style.display = "block";
+        mainChartContent.style.display = "none";
+        return;
+    }
+
+    noDataMessage.style.display = "none";
+    mainChartContent.style.display = "flex";
+
+    console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
+
+    updateDatePickerToggleLabel();
+
+    if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
+        // No date, fetch totals for all data centers under the company
+        await fetchAllCarbonEmissionByCompanyId();
+        await fetchTotalCarbonEmissionByCompanyId();
+        await fetchTotalEnergyConsumptionByCompanyId(); // Fetch energy consumption for the company
+        await fetchEnergyConsumptionBreakdownByCompanyId(); // Fetch energy breakdown for the company
+        await fetchTotalRenewableEnergyByCompanyId(); // Fetch total renewable energy for the company
+    } else if (!selectedDate && selectedDataCenter !== "all") {
+        // No date, fetch totals for a specific data center
+        await fetchAllCarbonEmissionByDataCenterId(selectedDataCenter);
+        await fetchTotalCarbonEmissionByDataCenterId(selectedDataCenter);
+        await fetchTotalEnergyConsumptionByDataCenterId(selectedDataCenter); // Fetch energy consumption for the data center
+        await fetchEnergyConsumptionBreakdownByDataCenterId(selectedDataCenter); // Fetch energy breakdown for the data center
+        await fetchTotalRenewableEnergyByDataCenterId(selectedDataCenter); // Fetch total renewable energy for the specific data center
+    } else if (selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
+        // With date, fetch totals for the company by date
+        await fetchAllCarbonEmissionByCompanyIdAndDate(selectedDate);
+        await fetchTotalCarbonEmissionByCompanyIdAndDate(selectedDate);
+        await fetchTotalEnergyConsumptionByCompanyIdAndDate(selectedDate); // Fetch energy consumption for the company by date
+        await fetchEnergyConsumptionBreakdownByCompanyIdAndDate(selectedDate); // Fetch energy breakdown for the company by date
+        await fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate); // Fetch total renewable energy for the company by date
+    } else if (selectedDate && selectedDataCenter !== "all") {
+        // With date, fetch totals for a specific data center by date
+        await fetchAllCarbonEmissionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
+        await fetchTotalCarbonEmissionByDataCenterIdAndDate(selectedDataCenter);
+        await fetchTotalEnergyConsumptionByDataCenterIdAndDate(selectedDataCenter); // Fetch energy consumption for the data center by date
+        await fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(selectedDataCenter, selectedDate); // Fetch energy breakdown for the data center by date
+        await fetchTotalRenewableEnergyByDataCenterIdAndDate(selectedDataCenter, selectedDate); // Fetch total renewable energy for the data center by date
+    }
+        // Fetch metric data for the selected metric button
+        const activeMetric = document.querySelector(".button-container .active").innerText;
+        fetchMetricData(activeMetric); // Ensure the gauge chart updates based on the active metric
+}
+
+
+
+// Case 1: Fetch carbon emissions for all data centers under the company
+async function fetchAllCarbonEmissionByCompanyId() {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/company/${company_id}`);
+        const data = await response.json();
+        console.log("Data received from fetchAllCarbonEmissionByCompanyId:", data);
+        renderChart(data);
+    } catch (error) {
+        console.error("Error fetching all carbon emission data for company:", error);
+    }
+}
+// Case 2: Fetch carbon emissions for a specific data center
+async function fetchAllCarbonEmissionByDataCenterId(data_center_id) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/data-center/${data_center_id}`);
+        const data = await response.json();
+        console.log("Data received from fetchAllCarbonEmissionByDataCenterId:", data);
+        renderChart(data);
+    } catch (error) {
+        console.error("Error fetching carbon emission data for specific data center:", error);
+    }
+}
+
+// Case 3: Fetch carbon emissions for all data centers under the company for a specific date - fix
+async function fetchAllCarbonEmissionByCompanyIdAndDate(date) {
+    try {
+        const url = `/Dashboard/Data-Center/CarbonEmission/company/${company_id}/date?date=${encodeURIComponent(date)}`;
         
-        if (selectedDate) {
-            await fetchTotalCarbonEmissionAndRenewableEnergyByDate(selectedDate);
-        } else {
-            await fetchTotalCarbonEmissionAndRenewableEnergy();
-        }
-        const chartData = await fetchEnergyConsumptionByCompanyId(selectedDate);
-        renderDataCenterOptions(); // Ensure the data center options are rendered
-        renderDonutChart(chartData, dataCenterId);
-    } else {
-        // Hide data center options for specific data center selection
-        dataCenterOptions.style.display = 'none';
+        console.log("Request URL for company by date:", url);
         
-        if (selectedDate) {
-            await fetchTotalCarbonEmissionAndRenewableEnergyByDataCenterAndDate(company_id, dataCenterId, selectedDate);
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch data. Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("Data received from fetchAllCarbonEmissionByCompanyIdAndDate:", data);
+
+        if (data) {
+            renderChart(data);
         } else {
-            await fetchTotalCarbonEmissionAndRenewableEnergyByDataCenter(company_id, dataCenterId);
+            console.warn("No data received for the specified date range.");
         }
-        const chartData = await fetchEnergyConsumptionByDataCenterId(dataCenterId, selectedDate);
-        renderDonutChart(chartData, dataCenterId);
+    } catch (error) {
+        console.error("Error fetching carbon emission data for company by date:", error);
     }
-
-    // Call renderCarbonVsRenewableGauge with the current data center and date filter
-    await renderCarbonVsRenewableGauge(dataCenterId, selectedDate);
-    
-    // Render the line chart immediately after updating data
-    renderCarbonEmissionChart();
 }
 
-
-
-
-// Fetch energy consumption for all data centers in the company, with optional date filtering
-async function fetchEnergyConsumptionByCompanyId(date) {
-    let url = `/Dashboard/Data-Center/EnergyConsumption/company/${company_id}`;
-    if (date) {
-        url += `/date?date=${encodeURIComponent(date)}`; // Use route with date if provided
-    }
-    console.log("Requesting URL for all data centers:", url);
+// Case 4: Fetch carbon emissions for a specific data center and date - fix
+async function fetchAllCarbonEmissionByDataCenterIdAndDate(data_center_id, date) {
     try {
+        const url = `/Dashboard/Data-Center/CarbonEmission/data-center/${data_center_id}/date?date=${date}`;
+        
+        console.log("Request URL for data center by date:", url);
+        
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText} (Status ${response.status})`);
+            throw new Error(`Failed to fetch data. Status: ${response.status}`);
         }
+        
         const data = await response.json();
-        console.log("Energy consumption data for all data centers:", data);
-        return data;
-    } catch (error) {
-        console.error("Error fetching energy consumption data for all data centers:", error);
-        return [];
-    }
-}
+        console.log("Data received from fetchAllCarbonEmissionByDataCenterIdAndDate:", data);
 
-// Fetch energy consumption for a specific data center, with optional date filtering
-async function fetchEnergyConsumptionByDataCenterId(dataCenterId, date) {
-    let url = `/Dashboard/Data-Center/EnergyConsumption/data-center/${dataCenterId}`;
-    if (date) {
-        url += `/date?date=${encodeURIComponent(date)}`; // Use route with date if provided
-    }
-    console.log("Requesting URL for specific data center:", url);
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText} (Status ${response.status})`);
+        if (data) {
+            renderChart(data);
+        } else {
+            console.warn("No data received for the specified date range.");
         }
-        const data = await response.json();
-        console.log(`Energy consumption data for data center ${dataCenterId}:`, data);
-        return data;
     } catch (error) {
-        console.error(`Error fetching energy consumption data for data center ${dataCenterId}:`, error);
-        return [];
+        console.error("Error fetching carbon emission data for specific data center by date:", error);
     }
 }
 
-// Fetch carbon emissions and renewable energy data for the gauge chart
-async function fetchCarbonVsRenewableData() {
-    const url = `/Dashboard/Data-Center/CarbonEmission/company/${company_id}`;
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText} (Status ${response.status})`);
+
+function renderChart(data) {
+    console.log("Rendering chart with data:", data);
+
+    // Step 1: Check if both month and year filters are selected
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    const isDailyView = selectedMonth && selectedYear;
+
+    // Step 2: Process data to group by day if daily view is required; otherwise, by month-year
+    const groupedData = data.reduce((acc, item) => {
+        const date = new Date(item.date);
+        let dateLabel;
+
+        if (isDailyView) {
+            // Group by day-month (e.g., 01-Jan, 02-Jan)
+            dateLabel = date.toLocaleDateString("en-US", { day: '2-digit', month: 'short' });
+        } else {
+            // Group by month-year (e.g., Jan-2024)
+            dateLabel = date.toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
         }
-        const data = await response.json();
-        console.log("Carbon vs Renewable data:", data);
 
-        // Assuming data includes renewable_energy_percentage
-        // Calculate the average renewable energy percentage from the data
-        const renewablePercentage = data.reduce((sum, entry) => sum + entry.renewable_energy_percentage, 0) / data.length;
-
-        return { renewablePercentage };
-    } catch (error) {
-        console.error("Error fetching carbon vs renewable data:", error);
-        return { renewablePercentage: 0 };
-    }
-}
-
-
-// Render the donut chart
-function renderDonutChart(data, dataCenterId) {
-    const ctx = document.getElementById('energyConsumptionDonut').getContext('2d');
-
-    let totalIT, totalCooling, totalBackup, totalLighting, totalEnergy;
-    
-    if (dataCenterId === 'all') {
-        // Calculate the sum of all data centers' total energy
-        totalIT = data.reduce((sum, entry) => sum + entry.it_energy_mwh, 0);
-        totalCooling = data.reduce((sum, entry) => sum + entry.cooling_energy_mwh, 0);
-        totalBackup = data.reduce((sum, entry) => sum + entry.backup_power_energy_mwh, 0);
-        totalLighting = data.reduce((sum, entry) => sum + entry.lighting_energy_mwh, 0);
-        totalEnergy = data.reduce((sum, entry) => sum + entry.total_energy_mwh, 0); // Use total_energy_mwh directly
-    } else {
-        // Use the values directly from the selected data center
-        totalIT = data[0].it_energy_mwh;
-        totalCooling = data[0].cooling_energy_mwh;
-        totalBackup = data[0].backup_power_energy_mwh;
-        totalLighting = data[0].lighting_energy_mwh;
-        totalEnergy = data[0].total_energy_mwh;
-    }
-
-    const chartData = {
-        labels: ['IT Energy', 'Cooling Energy', 'Backup Power', 'Lighting Energy'],
-        datasets: [{
-            data: [totalIT, totalCooling, totalBackup, totalLighting],
-            backgroundColor: ['#4FD1C5', '#36A2EB', '#FF6384', '#FFCE56'],
-        }]
-    };
-    
-    // Destroy previous chart instance if it exists
-    if (energyConsumptionChart) {
-        energyConsumptionChart.destroy();
-    }
-    
-    // Create new chart
-    energyConsumptionChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: chartData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            cutout: '65%',
-            elements: {
-                arc: {
-                    borderWidth: 6,
-                    borderColor: '#ffffff',
-                    borderAlign: 'center',
-                    borderRadius: 6
-                }
-            },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: (tooltipItem) => `${tooltipItem.label}: ${tooltipItem.raw} MWh`
-                    }
-                },
-                datalabels: {
-                    font: {
-                        size: 7
-                    },
-                    formatter: (value) => {
-                        let displayValue = value > 1000 ? `${Math.round(value / 1000)}K MWh` : `${value} MWh`;
-                        return displayValue.length > 7 ? `${displayValue.slice(0, 7)}…` : displayValue;
-                    },
-                    anchor: 'center',
-                    align: 'center',
-                    padding: 5,
-                    clamp: true,
-                    rotation: 0,
-                    clip: false
-                }
-            }
-        },
-        plugins: [
-            ChartDataLabels,
-            {
-                id: 'centerText',
-                beforeDraw: function(chart) {
-                    const { width, height, ctx } = chart;
-                    ctx.restore();
-                    const fontSize = (height / 160).toFixed(2);
-                    ctx.font = `${fontSize}em sans-serif`;
-                    ctx.textBaseline = "middle";
-    
-                    const text = `${totalEnergy} MWh`;
-                    const textX = Math.round((width - ctx.measureText(text).width) / 2);
-                    const textY = height / 2;
-    
-                    ctx.fillStyle = "#333";
-                    ctx.fillText(text, textX, textY);
-                    ctx.save();
-                }
-            }
-        ]
-    });
-    
-    // Custom Legend Rendering
-    const legendContainer = document.getElementById('customLegend');
-    legendContainer.innerHTML = ''; // Clear existing legend
-    
-    chartData.labels.forEach((label, index) => {
-        const legendItem = document.createElement('div');
-        legendItem.classList.add('legend-item');
-        legendItem.innerHTML = `    
-            <span class="legend-color" style="background-color: ${chartData.datasets[0].backgroundColor[index]};"></span>
-            ${label}
-        `;
-        legendContainer.appendChild(legendItem);
-    });
-    
-    console.log("Donut chart rendered with data:", data);
-}
-
-function renderDataCenterOptions() {
-    const optionsContainer = document.getElementById('dataCenterOptions');
-    optionsContainer.innerHTML = ''; // Clear existing options if in "All Data Centers" mode
-    console.log("Rendering data center options...");
-
-    fetch(`/Dashboard/Data-Center/${company_id}`).then(response => response.json()).then(dataCenters => {
-        dataCenters.forEach(dc => {
-            const button = document.createElement('button');
-            button.textContent = dc.data_center_name;
-            button.classList.add('data-center-button'); // Add a base class for styling
-            console.log(`Created button for: ${dc.data_center_name}`);
-
-            // Event listener for toggling selection
-            button.addEventListener('click', async () => {
-                // Toggle selected state
-                if (button.classList.contains('selected-button')) {
-                    button.classList.remove('selected-button');
-                    selectedDataCenter = 'all';
-                    updateChartData(selectedDataCenter);
-                    console.log(`Data center unselected, showing all data centers.`);
-                } else {
-                    document.querySelectorAll('.data-center-button').forEach(btn => {
-                        btn.classList.remove('selected-button');
-                    });
-                    button.classList.add('selected-button');
-                    selectedDataCenter = dc.id.toString();
-                    console.log(`Data center button clicked, selectedDataCenter is now: ${selectedDataCenter}`);
-                    
-                    const data = await fetchEnergyConsumptionByDataCenterId(selectedDataCenter, document.getElementById('datePicker') ? document.getElementById('datePicker').value : '');
-                    renderDonutChart(data, selectedDataCenter);
-                }
-            });
-
-            optionsContainer.appendChild(button);
-        });
-        console.log("Data center options rendered.");
-    }).catch(error => console.error('Error fetching data centers:', error));
-}
-
-// Fetch carbon emissions for all data centers
-async function fetchCarbonEmissionsByCompanyId() {
-    const url = `/Dashboard/Data-Center/CarbonEmission/company/${company_id}`;
-    console.log("Requesting URL for carbon emissions:", url);
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText} (Status ${response.status})`);
+        if (!acc[dateLabel]) {
+            acc[dateLabel] = 0;
         }
-        const data = await response.json();
-        console.log("Carbon emissions data for all data centers:", data);
-        return data;
-    } catch (error) {
-        console.error("Error fetching carbon emissions data for all data centers:", error);
-        return [];
-    }
-}
-
-// Fetch carbon emissions for a specific data center
-async function fetchCarbonEmissionsByDataCenterId(dataCenterId) {
-    const url = `/Dashboard/Data-Center/CarbonEmission/data-center/${dataCenterId}`;
-    console.log("Requesting URL for carbon emissions:", url); // Log the URL
-    try {
-        const response = await fetch(url);
-        // Check response status
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText} (Status ${response.status})`);
-        }
-        const data = await response.json();
-        console.log("Carbon emissions data for data center:", data); // Log the data
-        return data;
-    } catch (error) {
-        console.error("Error fetching carbon emissions data:", error);
-        return [];
-    }
-}
-
-async function renderCarbonEmissionChart() {
-    let carbonData;
-
-    if (selectedDataCenter === 'all') {
-        // Fetch carbon emissions for all data centers
-        carbonData = await fetchCarbonEmissionsByCompanyId();
-    } else {
-        // Fetch carbon emissions for the specific data center
-        carbonData = await fetchCarbonEmissionsByDataCenterId(selectedDataCenter);
-    }
-
-    // Check if a date filter has been applied
-    const datePicker = document.getElementById('datePicker');
-    let selectedDate = datePicker && datePicker.value ? new Date(datePicker.value) : null;
-
-    if (selectedDate) {
-        // Get the month and year of the selected date
-        const selectedMonth = selectedDate.getMonth();
-        const selectedYear = selectedDate.getFullYear();
-
-        // Filter the data to include entries within the selected month
-        carbonData = carbonData.filter((entry) => {
-            const entryDate = new Date(entry.date);
-            return (
-                entryDate.getFullYear() === selectedYear &&
-                entryDate.getMonth() === selectedMonth
-            );
-        });
-    }
-
-    // If no data is available after filtering, provide a default message or set empty arrays
-    if (!carbonData || carbonData.length === 0) {
-        console.warn("No carbon emission data available for the selected filters.");
-        carbonData = [{ date: selectedDate || new Date(), co2_emissions_tons: 0 }];
-    }
-
-    // Aggregate data by date within the selected month and calculate emissions
-    const dailyEmissions = carbonData.reduce((acc, entry) => {
-        const date = new Date(entry.date).toLocaleDateString("en-US", { day: '2-digit', month: 'short' });
-
-        if (!acc[date]) {
-            acc[date] = 0;
-        }
-        acc[date] += entry.co2_emissions_tons;
+        acc[dateLabel] += item.co2_emissions_tons;
         return acc;
     }, {});
 
-    // Prepare data for the chart
-    const labels = Object.keys(dailyEmissions);
-    const emissions = Object.values(dailyEmissions);
+    // Step 3: Extract labels and emissions from grouped data
+    const labels = Object.keys(groupedData);
+    const emissions = Object.values(groupedData);
 
-    const ctx = document.getElementById('carbonEmissionChart').getContext('2d');
+    if (!labels.length || !emissions.length) {
+        console.warn("No data available to display.");
+        return;
+    }
 
-    // Destroy previous chart instance if it exists
+    const ctx = document.getElementById("carbonEmissionChart").getContext("2d");
+
     if (carbonEmissionChart) {
         carbonEmissionChart.destroy();
     }
 
-    // Create new chart instance
     carbonEmissionChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -410,18 +386,42 @@ async function renderCarbonEmissionChart() {
             datasets: [{
                 label: 'Carbon Emissions (tons)',
                 data: emissions,
-                borderColor: '#FF6384',
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: '#4FD1C5',
+                backgroundColor: 'rgba(79, 209, 197, 0.2)',
                 fill: true,
+                tension: 0.4
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 20,
+                    top: 20,
+                    bottom: 20
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
             scales: {
                 x: {
                     title: {
                         display: true,
-                        text: 'Date (Day of Month)'
+                        text: isDailyView ? 'Day-Month' : 'Month-Year'
+                    },
+                    ticks: {
+                        autoSkip: true,
+                        maxTicksLimit: 10,
+                        padding: 10
+                    },
+                    grid: {
+                        display: true,
+                        drawBorder: false
                     }
                 },
                 y: {
@@ -429,8 +429,7 @@ async function renderCarbonEmissionChart() {
                         display: true,
                         text: 'Carbon Emissions (tons)'
                     },
-                    min: emissions.length ? Math.min(...emissions) - 1000 : 0,
-                    max: emissions.length ? Math.max(...emissions) + 1000 : 1000,
+                    beginAtZero: true
                 }
             }
         }
@@ -440,83 +439,302 @@ async function renderCarbonEmissionChart() {
 
 
 
+// Function to fetch total carbon emissions for the company
+async function fetchTotalCarbonEmissionByCompanyId() {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/company/${company_id}`);
+        const data = await response.json();
+        console.log("Total Carbon Emission data for company:", data);
+        
+        // Update the total emissions display in the stat-value element
+        const totalCarbonEmissions = parseFloat(data.total_co2_emissions);
+        document.getElementById("totalCarbonEmissions").textContent = 
+            `${totalCarbonEmissions % 1 !== 0 ? totalCarbonEmissions.toFixed(1) : totalCarbonEmissions} Tons`;                
+    } catch (error) {
+        console.error("Error fetching total carbon emission data for company:", error);
+    }
+}
 
+// Function to fetch total carbon emissions for a specific data center
+async function fetchTotalCarbonEmissionByDataCenterId(data_center_id) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}`);
+        const data = await response.json();
+        console.log("Total Carbon Emission data for data center:", data);
+        
+        // Update the total emissions display in the stat-value element
+        const totalCarbonEmissions = parseFloat(data.total_co2_emissions);
+        document.getElementById("totalCarbonEmissions").textContent = 
+            `${totalCarbonEmissions % 1 !== 0 ? totalCarbonEmissions.toFixed(1) : totalCarbonEmissions} Tons`;                
+    } catch (error) {
+        console.error("Error fetching total carbon emission data for data center:", error);
+    }
+}
 
-// Render gauge chart for Carbon vs Renewable Energy
-async function renderCarbonVsRenewableGauge(dataCenterId, selectedDate) {
-    let renewablePercentage = 0; // Default value in case of error or missing data
+// Function to fetch total carbon emissions for the company using the selected date
+async function fetchTotalCarbonEmissionByCompanyIdAndDate() {
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+
+    // Construct selectedDate based on available inputs
+    let selectedDate;
+    if (selectedYear) {
+        selectedDate = selectedMonth ? `${selectedYear}-${selectedMonth}` : selectedYear;
+    } else {
+        // If neither year nor month is selected, return or handle the missing date scenario
+        console.error("Please select a year (and optionally a month) to fetch data.");
+        return;
+    }
 
     try {
-        let totalRenewableEnergy = parseFloat(document.getElementById('renewable-energy-value-text').textContent.split(" ")[0]) || 0;
-        let totalCarbonEmissions = parseFloat(document.getElementById('carbon-emission-value-text').textContent.split(" ")[0]) || 0;
-
-        if (totalCarbonEmissions > 0) {
-            renewablePercentage = (totalRenewableEnergy / totalCarbonEmissions) * 100;
-        } else {
-            console.warn("Total carbon emissions is zero or not defined. Cannot calculate renewable percentage.");
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        if (!response.ok) {
+            console.error("Failed to fetch data. Server response:", response.statusText);
+            return;
         }
+        
+        const data = await response.json();
+        console.log("Total Carbon Emission data for company by date:", data);
+
+        // Update the total emissions display in the stat-value element
+        const totalCarbonEmissions = parseFloat(data.total_co2_emissions);
+        document.getElementById("totalCarbonEmissions").textContent = 
+            `${totalCarbonEmissions % 1 !== 0 ? totalCarbonEmissions.toFixed(1) : totalCarbonEmissions} Tons`;                
     } catch (error) {
-        console.error("Error fetching or calculating data for gauge chart:", error);
+        console.error("Error fetching total carbon emission data for company by date:", error);
+    }
+}
+
+// Function to fetch total carbon emissions for a specific data center using the selected date
+async function fetchTotalCarbonEmissionByDataCenterIdAndDate(data_center_id) {
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    // Combine month and year if both are selected
+    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        const data = await response.json();
+        console.log("Total Carbon Emission data for data center by date:", data);
+
+        // Update the total emissions display in the stat-value element
+        const totalCarbonEmissions = parseFloat(data.total_co2_emissions);
+        document.getElementById("totalCarbonEmissions").textContent = 
+            `${totalCarbonEmissions % 1 !== 0 ? totalCarbonEmissions.toFixed(1) : totalCarbonEmissions} Tons`;
+                
+    } catch (error) {
+        console.error("Error fetching total carbon emission data for data center by date:", error);
+    }
+}
+
+
+
+
+
+
+
+
+// Function to fetch total energy consumption for the company
+async function fetchTotalEnergyConsumptionByCompanyId() {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/${company_id}`);
+        const data = await response.json();
+        console.log("Total Energy Consumption data for company:", data);
+        
+        // Update the total energy consumption display in the stat-value element
+        const totalEnergyConsumption = parseFloat(data.total_energy_consumption);
+        document.getElementById("totalEnergyConsumption").textContent = 
+            `${totalEnergyConsumption % 1 !== 0 ? totalEnergyConsumption.toFixed(1) : totalEnergyConsumption} MWh`;
+    } catch (error) {
+        console.error("Error fetching total energy consumption data for company:", error);
+    }
+}
+
+// Function to fetch total energy consumption for a specific data center
+async function fetchTotalEnergyConsumptionByDataCenterId(data_center_id) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}`);
+        const data = await response.json();
+        console.log("Total Energy Consumption data for data center:", data);
+        
+        const totalEnergyConsumption = parseFloat(data.total_energy_consumption);
+        document.getElementById("totalEnergyConsumption").textContent = 
+            `${totalEnergyConsumption % 1 !== 0 ? totalEnergyConsumption.toFixed(1) : totalEnergyConsumption} MWh`;
+    } catch (error) {
+        console.error("Error fetching total energy consumption data for data center:", error);
+    }
+}
+
+// Function to fetch total energy consumption for the company using the selected date
+async function fetchTotalEnergyConsumptionByCompanyIdAndDate(selectedDate) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/${company_id}/date?date=${selectedDate}`);
+        const data = await response.json();
+        console.log("Total energy consumption data for company by date:", data);
+        // Update the total energy consumption display in the stat-value element
+        const totalEnergyConsumption = parseFloat(data.total_energy_consumption);
+        document.getElementById("totalEnergyConsumption").textContent = 
+            `${totalEnergyConsumption % 1 !== 0 ? totalEnergyConsumption.toFixed(1) : totalEnergyConsumption} MWh`;
+    } catch (error) {
+        console.error("Error fetching total energy consumption data for company by date:", error);
+    }
+}
+// Function to fetch total energy consumption for a specific data center using the selected date
+async function fetchTotalEnergyConsumptionByDataCenterIdAndDate(data_center_id) {
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    // Combine month and year if both are selected
+    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        const data = await response.json();
+        console.log("Total Energy Consumption data for data center by date:", data);
+
+        // Update the total energy consumption display in the stat-value element
+        const totalEnergyConsumption = parseFloat(data.total_energy_consumption);
+        document.getElementById("totalEnergyConsumption").textContent = 
+            `${totalEnergyConsumption % 1 !== 0 ? totalEnergyConsumption.toFixed(1) : totalEnergyConsumption} MWh`;
+    } catch (error) {
+        console.error("Error fetching total energy consumption data for data center by date:", error);
+    }
+}
+
+
+
+
+
+
+
+
+// Function to fetch energy consumption breakdown for the company
+async function fetchEnergyConsumptionBreakdownByCompanyId() {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}`);
+        const data = await response.json();
+        console.log("Energy Breakdown data for company:", data);
+        renderEnergyBreakdownChart(data); // Render the doughnut chart with the fetched data
+    } catch (error) {
+        console.error("Error fetching energy breakdown data for company:", error);
+    }
+}
+
+// Function to fetch energy consumption breakdown for a specific data center
+async function fetchEnergyConsumptionBreakdownByDataCenterId(data_center_id) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${data_center_id}`);
+        const data = await response.json();
+        console.log("Energy Breakdown data for data center:", data);
+        renderEnergyBreakdownChart(data);
+    } catch (error) {
+        console.error("Error fetching energy breakdown data for data center:", error);
+    }
+}
+
+// Function to fetch energy consumption breakdown for the company using the selected date
+async function fetchEnergyConsumptionBreakdownByCompanyIdAndDate(date) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}/date?date=${date}`);
+        const data = await response.json();
+        console.log("Energy Breakdown data for company by date:", data);
+        renderEnergyBreakdownChart(data);
+    } catch (error) {
+        console.error("Error fetching energy breakdown data for company by date:", error);
+    }
+}
+
+// Function to fetch energy consumption breakdown for a specific data center using the selected date
+async function fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(data_center_id, date) {
+    try {
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${data_center_id}/date?date=${date}`);
+        const data = await response.json();
+        console.log("Energy Breakdown data for data center by date:", data);
+        renderEnergyBreakdownChart(data);
+    } catch (error) {
+        console.error("Error fetching energy breakdown data for data center by date:", error);
+    }
+}
+
+
+function renderEnergyBreakdownChart(data) {
+    console.log("Rendering energy breakdown chart with data:", data);
+
+    const energyData = data[0];
+    if (!energyData) {
+        console.warn("No energy data available for breakdown chart.");
+        return;
     }
 
-    const carbonPercentage = 100 - renewablePercentage;
-    const ctx = document.getElementById('carbonVsRenewableGauge').getContext('2d');
+    const labels = ['Backup Power', 'Cooling', 'IT Equipment', 'Lighting'];
+    const values = [
+        energyData.backup_power_energy_mwh,
+        energyData.cooling_energy_mwh,
+        energyData.it_energy_mwh,
+        energyData.lighting_energy_mwh
+    ];
+    const colors = ['#2F3E46', '#4E5D63', '#38B2AC', '#A8DADC']; // Colors for each section
+    const total = values.reduce((acc, val) => acc + val, 0); // Calculate the total for percentage
 
-    // Destroy previous chart instance if it exists
-    if (carbonVsRenewableGauge) {
-        carbonVsRenewableGauge.destroy();
+    const ctx = document.getElementById("energyBreakdownChart").getContext("2d");
+
+    // Check if the chart already exists before attempting to destroy
+    if (window.energyBreakdownChart && typeof window.energyBreakdownChart.destroy === "function") {
+        window.energyBreakdownChart.destroy();
     }
 
-    // Create new gauge chart and assign it to the global variable
-    carbonVsRenewableGauge = new Chart(ctx, {
+    // Create a new doughnut chart with Chart.js
+    window.energyBreakdownChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Renewable Energy', 'Carbon Emissions'],
+            labels: labels,
             datasets: [{
-                data: [renewablePercentage, carbonPercentage],
-                backgroundColor: ['#36A2EB', '#FF6384'],
-                borderWidth: 0
+                label: 'Energy Consumption (MWh)',
+                data: values.map(val => parseFloat(val.toFixed(1))),
+                backgroundColor: colors,
+                borderColor: '#ffffff',
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
-            rotation: -90,
-            circumference: 180,
-            cutout: '70%',
+            maintainAspectRatio: true,
             plugins: {
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        label: (tooltipItem) => `${tooltipItem.label}: ${tooltipItem.raw.toFixed(2)}%`
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} MWh (${percentage}%)`;
+                        }
                     }
                 }
-            }
-        },
-        plugins: [
-            {
-                id: 'centerText',
-                beforeDraw: function(chart) {
-                    const { ctx, chartArea: { width, height } } = chart;
-                    ctx.save();
-                    
-                    // Center text (xx/xx format)
-                    ctx.font = '16px sans-serif';
-                    ctx.fillStyle = '#666';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(
-                        `${renewablePercentage.toFixed(1)}/${carbonPercentage.toFixed(1)}`,
-                        width / 2,
-                        height / 1.5
-                    );
-
-                    ctx.restore();
-                }
-            }
-        ]
+            },
+            layout: { padding: 10 }
+        }
     });
 
-    console.log("Gauge chart rendered with renewable and carbon percentages based on displayed values.");
+    // Generate dynamic labels for the right-side legend
+    const legendContainer = document.querySelector(".pie-chart-labels-container");
+    legendContainer.innerHTML = ''; // Clear any existing labels
+
+    labels.forEach((label, index) => {
+        const color = colors[index];
+        const value = parseFloat(values[index].toFixed(1));
+        const percentage = ((value / total) * 100).toFixed(1);
+
+        // Create a legend item
+        const legendItem = document.createElement("div");
+        legendItem.classList.add("legend-item");
+        legendItem.innerHTML = `
+        <span class="label-color" style="background-color: ${color}; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></span>
+        <span class="label-name" style="font-weight: bold;">${label}:</span>
+        <span class="label-value" style="font-weight: normal;">${value} MWh (${percentage}%)</span>
+    `;
+     
+
+        // Append the legend item to the container
+        legendContainer.appendChild(legendItem);
+    });
 }
 
 
@@ -525,216 +743,246 @@ async function renderCarbonVsRenewableGauge(dataCenterId, selectedDate) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-// Function to fetch and display total Carbon Emission and Renewable Energy values for all data centers
-async function fetchTotalCarbonEmissionAndRenewableEnergy() {
-    const url = `/Dashboard/Data-Center/CarbonEmissionRenewableEnergyValue/company/${company_id}`;
+// Function to fetch and display total renewable energy for the company
+async function fetchTotalRenewableEnergyByCompanyId() {
     try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText} (Status ${response.status})`);
-        }
+        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/company/${company_id}`);
         const data = await response.json();
+        console.log("Total Renewable Energy data for company:", data);
         
-        // Display the values in the designated HTML containers
-        document.getElementById('carbon-emission-value-text').textContent = `${data.total_co2_emissions.toFixed(2)} tons`;
-        document.getElementById('renewable-energy-value-text').textContent = `${data.total_renewable_energy_value.toFixed(2)} MWh`;
-        
-        console.log("Total Carbon Emission and Renewable Energy values displayed.");
+        // Update the "Total Renewable Energy" display
+        const totalRenewableEnergy = parseFloat(data.total_renewable_energy);
+        document.getElementById("totalRenewableEnergy").textContent = 
+            `${totalRenewableEnergy % 1 !== 0 ? totalRenewableEnergy.toFixed(1) : totalRenewableEnergy} MWh`;
+                
     } catch (error) {
-        console.error("Error fetching total carbon and renewable values:", error);
-        document.getElementById('carbon-emission-value-text').textContent = "Error loading data";
-        document.getElementById('renewable-energy-value-text').textContent = "Error loading data";
+        console.error("Error fetching total renewable energy data for company:", error);
     }
 }
 
-
-// Function to fetch and display total Carbon Emission and Renewable Energy values for all data centers with date filter
-async function fetchTotalCarbonEmissionAndRenewableEnergyByDate(date) {
-    const url = `/Dashboard/Data-Center/CarbonEmissionRenewableEnergyValue/company/${company_id}/date?date=${encodeURIComponent(date)}`;
+// Function to fetch and display total renewable energy for a specific data center
+async function fetchTotalRenewableEnergyByDataCenterId(data_center_id) {
     try {
-        const response = await fetch(url);
-        console.log("Response status:", response.status); // Log the response status
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText} (Status ${response.status})`);
-        }
+        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/data-center/${data_center_id}`);
         const data = await response.json();
+        console.log("Total Renewable Energy data for data center:", data);
         
-        // Display the values in the designated HTML containers
-        document.getElementById('carbon-emission-value-text').textContent = `${data.total_co2_emissions.toFixed(2)} tons`;
-        document.getElementById('renewable-energy-value-text').textContent = `${data.total_renewable_energy_value.toFixed(2)} MWh`;
-        
-        console.log("Fetched data with date:", data); // Log fetched data
+        // Update the "Total Renewable Energy" display
+        const totalRenewableEnergy = parseFloat(data.total_renewable_energy);
+        document.getElementById("totalRenewableEnergy").textContent = 
+            `${totalRenewableEnergy % 1 !== 0 ? totalRenewableEnergy.toFixed(1) : totalRenewableEnergy} MWh`;
+                
     } catch (error) {
-        console.error("Error fetching total carbon and renewable values by date:", error);
-        document.getElementById('carbon-emission-value-text').textContent = "Error loading data";
-        document.getElementById('renewable-energy-value-text').textContent = "Error loading data";
+        console.error("Error fetching total renewable energy data for data center:", error);
     }
 }
 
-
-
-// Fetch carbon emission and renewable energy data for a specific data center
-async function fetchTotalCarbonEmissionAndRenewableEnergyByDataCenter(company_id, dataCenterId, date = '') {
-    let url = `/Dashboard/Data-Center/CarbonEmissionRenewableEnergyValue/company/${company_id}/${dataCenterId}`;
-    if (date) {
-        url += `?date=${encodeURIComponent(date)}`; // Append date as query parameter if provided
-    }
-    console.log("Requesting URL for specific data center's carbon emission and renewable data:", url);
+// Function to fetch and display total renewable energy for the company with date
+async function fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate) {
     try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText} (Status ${response.status})`);
-        }
+        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/company/${company_id}/date?date=${selectedDate}`);
         const data = await response.json();
-        console.log("Carbon emission and renewable energy data for data center:", data);
+        console.log("Total Renewable Energy data for company by date:", data);
 
-        // Display the values in the designated HTML containers
-        document.getElementById('carbon-emission-value-text').textContent = `${data.total_co2_emissions.toFixed(2)} tons`;
-        document.getElementById('renewable-energy-value-text').textContent = `${data.total_renewable_energy_value.toFixed(2)} MWh`;
-
-        return data;
+        // Update the "Total Renewable Energy" display
+        const totalRenewableEnergy = parseFloat(data.total_renewable_energy);
+        document.getElementById("totalRenewableEnergy").textContent = 
+            `${totalRenewableEnergy % 1 !== 0 ? totalRenewableEnergy.toFixed(1) : totalRenewableEnergy} MWh`;
+                
     } catch (error) {
-        console.error("Error fetching total carbon and renewable values:", error);
-        document.getElementById('carbon-emission-value-text').textContent = "Error loading data";
-        document.getElementById('renewable-energy-value-text').textContent = "Error loading data";
+        console.error("Error fetching total renewable energy data for company by date:", error);
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-// Fetch carbon emission and renewable energy data for a specific data center with a specific date
-async function fetchTotalCarbonEmissionAndRenewableEnergyByDataCenterAndDate(company_id, dataCenterId, date) {
-    const url = `/Dashboard/Data-Center/CarbonEmissionRenewableEnergyValue/company/${company_id}/${dataCenterId}/date?date=${encodeURIComponent(date)}`;
-    console.log("Requesting URL for specific data center's carbon emission and renewable data with date:", url);
-
+// Function to fetch and display total renewable energy for a specific data center with date
+async function fetchTotalRenewableEnergyByDataCenterIdAndDate(data_center_id, selectedDate) {
     try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.statusText} (Status ${response.status})`);
-        }
+        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/data-center/${data_center_id}/date?date=${selectedDate}`);
         const data = await response.json();
-        console.log("Carbon emission and renewable energy data for specific data center with date:", data);
+        console.log("Total Renewable Energy data for data center by date:", data);
 
-        // Display the values in the designated HTML containers
-        document.getElementById('carbon-emission-value-text').textContent = `${data.total_co2_emissions.toFixed(2)} tons`;
-        document.getElementById('renewable-energy-value-text').textContent = `${data.total_renewable_energy_value.toFixed(2)} MWh`;
-
-        return data;
+        // Update the "Total Renewable Energy" display
+        const totalRenewableEnergy = parseFloat(data.total_renewable_energy);
+        document.getElementById("totalRenewableEnergy").textContent = 
+            `${totalRenewableEnergy % 1 !== 0 ? totalRenewableEnergy.toFixed(1) : totalRenewableEnergy} MWh`;
+                
     } catch (error) {
-        console.error("Error fetching total carbon and renewable values:", error);
-        document.getElementById('carbon-emission-value-text').textContent = "Error loading data";
-        document.getElementById('renewable-energy-value-text').textContent = "Error loading data";
+        console.error("Error fetching total renewable energy data for data center by date:", error);
     }
 }
 
 
 
 
-async function fetchAvailableDates() {
-    const company_id = sessionStorage.getItem('company_id'); // Ensure company_id is available from sessionStorage
+
+async function fetchMetricData(metric) {
+    const selectedDataCenter = dataCenterDropdown.value;
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    // Combine month and year if both are selected
+    const selectedDate = selectedYear ? (selectedMonth ? `${selectedYear}-${selectedMonth}` : `${selectedYear}`) : null;
 
     try {
-        const response = await fetch(`/Dashboard/Data-Center/AvailableDates/${company_id}`);
-        
-        if (!response.ok) {
-            throw new Error("Error fetching available dates");
+        // Determine the endpoint based on filters
+        if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
+            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}`);
+        } else if (!selectedDate && selectedDataCenter !== "all") {
+            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${selectedDataCenter}`);
+        } else if (selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
+            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        } else if (selectedDate && selectedDataCenter !== "all") {
+            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${selectedDataCenter}/date?date=${encodeURIComponent(selectedDate)}`);
         }
 
-        const dates = await response.json();
-        
-        // Convert each date object to 'YYYY-MM-DD' format for comparison
-        return dates.map(dateObj => {
-            const date = new Date(dateObj.date);
-            return date.toISOString().split('T')[0]; // Format date to 'YYYY-MM-DD'
-        });
+        const data = await response.json();
+        console.log(`Data fetched for ${metric}:`, data);
+
+        // Access the first object in the array to find the metric value
+        if (Array.isArray(data) && data.length > 0 && data[0][`${metric.toLowerCase()}_avg`] !== undefined) {
+            const metricValue = data[0][`${metric.toLowerCase()}_avg`];
+            console.log(`Rendering gauge chart for ${metric} with value:`, metricValue);
+            renderGaugeChart(metricValue, metric); // Render the gauge chart with the metric value
+        } else {
+            console.warn(`No ${metric} data found or missing ${metric.toLowerCase()}_avg field`);
+        }
     } catch (error) {
-        console.error("Error fetching available dates:", error);
-        return [];
+        console.error(`Error fetching ${metric} data:`, error);
     }
 }
 
-// Function to toggle the visibility of charts and "No Data" message
-function toggleNoDataMessage(show) {
-    const chartRow = document.getElementById('chartRow');
-    let noDataMessage = document.querySelector('.no-data-message');
 
-    if (show) {
-        chartRow.style.display = 'none';
-        if (!noDataMessage) {
-            noDataMessage = document.createElement('p');
-            noDataMessage.textContent = "No Data Recorded on this date";
-            noDataMessage.classList.add('no-data-message');
-            document.querySelector('.main-content').appendChild(noDataMessage);
-        }
-        noDataMessage.style.display = 'flex';
-    } else {
-        chartRow.style.display = 'flex';
-        if (noDataMessage) {
-            noDataMessage.style.display = 'none';
-        }
-    }
+
+
+
+
+function renderGaugeChart(value, label) {
+    const targetValues = { PUE: 1, CUE: 0.5, WUE: 1.0 };
+    const target = targetValues[label];
+    const maxValue = target * 2;
+
+    // Set canvas dimensions for better clarity
+    const canvas = document.getElementById("gaugeChart");
+    const pixelRatio = window.devicePixelRatio || 1;
+    canvas.width = 200 * pixelRatio;
+    canvas.height = 200 * pixelRatio;
+    canvas.style.width = '200px';
+    canvas.style.height = '200px';
+
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawing
+    ctx.scale(pixelRatio, pixelRatio);
+
+    const centerX = canvas.width / (2 * pixelRatio);
+    const centerY = canvas.height / (2 * pixelRatio) + 10;
+    const radius = 70;
+
+    // Draw green section
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, Math.PI, Math.PI + (0.5 * Math.PI));
+    ctx.lineWidth = 20;
+    ctx.strokeStyle = "#4FD1C5";
+    ctx.stroke();
+
+    // Draw red section
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, Math.PI + (0.5 * Math.PI), 2 * Math.PI);
+    ctx.strokeStyle = "#FF6B6B";
+    ctx.stroke();
+
+    // Needle calculations and drawing
+    const needleAngle = Math.PI + (value / maxValue) * Math.PI;
+    const needleLength = radius - 10;
+
+    // Draw needle shaft
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(
+        centerX + needleLength * Math.cos(needleAngle),
+        centerY + needleLength * Math.sin(needleAngle)
+    );
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#333";
+    ctx.stroke();
+
+    // Draw needle head (arrow)
+    const headLength = 10;
+    const headWidth = 4;
+    const headAngle1 = needleAngle - 0.15;
+    const headAngle2 = needleAngle + 0.15;
+
+    ctx.beginPath();
+    ctx.moveTo(
+        centerX + needleLength * Math.cos(needleAngle),
+        centerY + needleLength * Math.sin(needleAngle)
+    );
+    ctx.lineTo(
+        centerX + (needleLength - headLength) * Math.cos(headAngle1),
+        centerY + (needleLength - headLength) * Math.sin(headAngle1)
+    );
+    ctx.lineTo(
+        centerX + (needleLength - headLength) * Math.cos(headAngle2),
+        centerY + (needleLength - headLength) * Math.sin(headAngle2)
+    );
+    ctx.closePath();
+    ctx.fillStyle = "#333";
+    ctx.fill();
+
+    // Needle base circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = "#333";
+    ctx.fill();
+
+    // Labels
+    ctx.font = "14px Arial";
+    ctx.fillStyle = "#333";
+    ctx.textAlign = "center";
+    ctx.fillText("0", centerX - radius - 10, centerY + 15);
+    ctx.fillText(target.toFixed(2), centerX, centerY - radius + 25);
+    ctx.fillText(maxValue.toFixed(2), centerX + radius + 10, centerY + 15);
+
+    // Value label below
+    ctx.font = "bold 14px Arial";
+    ctx.fillText(`${label}: ${value.toFixed(2)}`, centerX, centerY + 20);
 }
 
-// Initialize dropdown, date picker, and charts on page load
+
+
+
+
+
+
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log("Page loaded. Initializing data center options and default chart...");
+    console.log("DOM fully loaded, initializing data center options...");
+    
+    // Load data center options
     await loadDataCenterOptions();
-    await updateChartData(selectedDataCenter);
-    renderCarbonEmissionChart();
+    
+    // Extract parameters from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const dataCenterIdFromUrl = urlParams.get('data_center_id');
+    const dateFromUrl = urlParams.get('date');
+    const yearFromUrl = urlParams.get('year'); // Additional year parameter
 
-    const availableDates = await fetchAvailableDates();
-
-    const datePicker = document.getElementById('datePicker');
-    const noDataMessage = document.getElementById('noDataMessage');
-    const chartContainerWrapper = document.getElementById('chartContainerWrapper');
-
-    if (datePicker) {
-        datePicker.addEventListener('change', async () => {
-            const selectedDate = datePicker.value;
-            console.log("Date selected:", selectedDate);
-
-            if (!selectedDate || availableDates.includes(selectedDate)) {
-                chartContainerWrapper.style.display = 'block';
-                noDataMessage.style.display = 'none';
-                await updateChartData(selectedDataCenter);
-                renderCarbonEmissionChart();
-            } else {
-                chartContainerWrapper.style.display = 'none';
-                noDataMessage.style.display = 'block';
-            }
-        });
+    // Set data center dropdown based on URL parameter if present
+    if (dataCenterIdFromUrl) {
+        dataCenterDropdown.value = dataCenterIdFromUrl;
     }
 
-    const dataCenterDropdown = document.getElementById('dataCenterDropdown');
-    if (dataCenterDropdown) {
-        dataCenterDropdown.addEventListener('change', async () => {
-            if (dataCenterDropdown.value === 'all' && !datePicker.value) {
-                chartContainerWrapper.style.display = 'block';
-                noDataMessage.style.display = 'none';
-            }
-            await updateChartData(selectedDataCenter);
-            renderCarbonEmissionChart();
-        });
+    // Set month and year pickers based on URL parameter if present
+    if (dateFromUrl) {
+        const [year, month] = dateFromUrl.split('/');
+        if (yearPicker) yearPicker.value = year;
+        if (monthPicker && month) monthPicker.value = month.padStart(2, '0'); // Ensure month is two digits
     }
+
+    // Set year picker based on year parameter if present
+    if (yearFromUrl && yearPicker) {
+        yearPicker.value = yearFromUrl;
+    }
+
+    // Initialize metric gauge with PUE as default and trigger data fetch
+    fetchMetricData("PUE");
+    pueButton.classList.add("active");
+    fetchData();
 });
-

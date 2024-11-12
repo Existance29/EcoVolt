@@ -1,0 +1,113 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+.layout-container {
+    height: 100vh;
+    display: flex;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.main-content {
+    margin-left: 270px;
+    padding: 20px;
+    flex: 1;
+}
+
+.report-content {
+    width: 800px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.report-section {
+    margin-bottom: 20px;
+}
+
+.report-section h2 {
+    font-size: 1.75em;
+    color: #333;
+}
+
+#chart-container {
+    margin: 20px 0;
+    width: 100%;
+}
+
+.data-table {
+    width: 100%; /* Keep the table width reduced for a compact look */
+    max-width: 600px; /* Ensure it doesn’t expand too wide */
+    margin: 15px auto; /* Center the table */
+    border-collapse: collapse;
+    table-layout: fixed; /* Allows specific column widths */
+}
+
+.data-table th, .data-table td {
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: center;
+    font-size: 0.85em;
+}
+
+.data-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+.data-insights-page {
+    page-break-before: always;
+    margin-left: 10px;
+}
+.data-overview {
+    margin-left: 10px;
+}
+
+.recommendations-page {
+    page-break-before: always;
+    margin-left: 10px;
+
+}
+
+.conclusion-page {
+    page-break-before: always;
+    margin-left: 10px;
+
+}
+.status-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: #4FD1C5; /* Status message color */
+}
+
+.generate-btn {
+    display: block; /* Ensures button takes the full width */
+    margin: 20px auto; /* Centers the button */
+    padding: 10px 20px;
+    background-color: #4FD1C5; /* Button color */
+    color: white; /* Text color */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px; /* Font size */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.generate-btn:hover {
+    background-color: #3BAF9B; /* Darker shade on hover */
+}
+

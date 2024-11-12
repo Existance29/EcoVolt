@@ -1,0 +1,322 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  h1, h2 {
+    color: #333;
+  }
+  
+  h2 {
+    font-size: 14px;
+  }
+  
+  canvas {
+    width: 100%;
+  }
+  
+  /* Tabs Navigation */
+  .tabs {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+    align-items: center;
+  }
+  
+  .tabs a {
+    text-decoration: none;
+    color: #555;
+    padding: 10px;
+    font-weight: 600;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+  }
+  
+  .tabs a:hover, .tabs a.active {
+    color: #4FD1C5;
+    border-bottom: 3px solid #4FD1C5;
+  }
+  
+  .right-aligned {
+    display: flex;
+    margin-left: auto;
+    gap: 20px;
+    align-items: center;
+  }
+  
+  .date-dropdown,
+  .data-center-filter {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 5px;
+  }
+  
+  .date-dropdown label,
+  .data-center-filter label {
+      font-weight: bold;
+      color: #333;
+      font-size: 14px;
+  }
+  
+  .date-picker input[type="date"], .data-center-filter select, .data-center-filter input {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.9rem;
+    color: #333;
+    background-color: #f9f9f9;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .date-picker input[type="date"]:hover, .data-center-filter select:hover {
+    border-color: #777;
+  }
+  
+  .date-picker input[type="date"]:focus, .data-center-filter select:focus {
+    border-color: #4A90E2;
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+  }
+  
+  /* Styling for No Data Message */
+  .no-data-message {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: #000000;
+    background-color: #f4f4f9;
+    text-align: center;
+    padding: 50px;
+  }
+
+/*Dashboard styling*/
+
+.main-stat-container{
+    background-color: white; 
+    border-radius: 10px; 
+    padding: 1.3rem 1.1rem; 
+    flex-grow: 1;
+    display: flex; 
+    align-items: center;
+    box-shadow: 0px 3.5px 5.5px 0px rgba(0, 0, 0, 0.05);
+}
+
+/* .main-stat-container:not(:has(.change-container)){
+    padding: 0.9rem 1.6rem;
+} */
+
+.main-stat-container .stat{
+    white-space: nowrap;
+}
+
+.main-stat-container .stat-value{
+    color: #464549; 
+    font-size: 1.05rem;
+}
+
+.main-stat-container .stat-name{
+    color: #CAC9CA; 
+    font-size: 0.86rem; 
+    margin-top: 0.8rem;
+}
+
+.main-stat-container img{
+  filter: invert(72%) sepia(99%) saturate(265%) hue-rotate(116deg) brightness(86%) contrast(89%);
+  height: 2.2rem;
+  margin-bottom: 0.7rem;
+}
+
+
+.main-stat-container .change-container{
+    border-radius: 10px; 
+    aspect-ratio: 1; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    font-size: 0.78rem;
+    height: 100%;
+    padding: 0.6rem;
+    margin-left: auto;
+}
+
+.main-stat-container .change-container.negative{
+    background-color: #EDFAF0; 
+    color: #4D995A;
+}
+
+.main-stat-container .change-container.positive{
+    background-color: #FAEDED; 
+    color: #CC3D3D;
+}
+
+.main-stat-container .change-container.neutral{
+    background-color: #F2F2F2; 
+    color: #C2C2C2;
+}
+
+.graph-container{
+  background: white; 
+  padding: 1.3rem 1.6rem; 
+  border-radius: 10px; 
+  color: #464549; 
+  font-size: 0.97rem;
+  box-shadow: 0px 3.5px 5.5px 0px rgba(0, 0, 0, 0.05);
+}
+
+.pie-chart-labels-container{
+  font-size: 0.8rem;
+  white-space: nowrap;
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  flex-wrap: nowrap;
+}
+
+.pie-chart-labels-container .label-color{
+  margin-right: 0.7rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 3px;
+}
+
+.pie-chart-labels-container .label-name{
+  padding-right: 1rem;
+}
+
+.pie-chart-labels-container .label-value {
+  color: #8A8A8A;
+}
+
+.pie-chart-labels-container .column{
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.chart-container{
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chart {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.chart canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#cellTowerDropdown option {
+  background-color: #f9f9f9;
+  color: #333;
+  padding: 8px;
+  text-align: left;
+}
+
+#datePickerToggle,
+#cellTowerDropdown {
+  -webkit-appearance: none;
+  width: 120px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #333;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: left;
+  cursor: pointer;
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"%3E%3Cpath fill="%23333" d="M5 6L0 0h10L5 6z"/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px 6px;
+  transition: border-color 0.3s ease;
+  text-indent: 10px;
+}
+
+#datePickerToggle:hover,
+#cellTowerDropdown:hover,
+#datePickerToggle:focus,
+#cellTowerDropdown:focus {
+  background-color: #e1f5f4;
+  border-color: #4FD1C5;
+}
+
+#datePickerContainer {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  width: 180px;
+}
+
+#datePickerContainer select,
+#datePickerContainer input {
+  width: 100%;
+  padding: 8px;
+  font-size: 14px;
+  color: #333;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 5px;
+  transition: border-color 0.3s ease;
+}
+
+#datePickerContainer select:focus,
+#datePickerContainer input:focus {
+  border-color: #4FD1C5;
+  box-shadow: 0 0 5px rgba(79, 209, 197, 0.2);
+}
+
+.button-container-date {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-top: 10px;
+}
+  
+
+.ok-button {
+  padding: 8px 20px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #4e5d63; /* Text color */
+  background-color: #ffffff; /* White background */
+  border: 1px solid #4e5d63; /* Gray border */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.ok-button:hover {
+  background-color: #4e5d63; /* Gray background on hover */
+  color: #ffffff; /* White text on hover */
+}
