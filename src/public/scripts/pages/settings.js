@@ -1,10 +1,15 @@
+/* 
+=====================
+Account tab
+=====================
+*/
 const accountTextFields = ["name", "email", "about"]
+var accountTextFieldValues = {} //store the value of the textboxes before editing
 
 //hide the error message when the input field is changed
 function inputChanged(e){
     //get the associated error message based on the id of the input field
     const error = document.getElementById(`${e.target.id.replaceAll("-","_")}-error`)
-    console.log(error)
     error.style.opacity = "0"
 }
 
@@ -16,6 +21,11 @@ function closeTextBox(editBtn, textbox){
     textbox.classList.remove("active")
     editBtn.innerText = "Edit"
     textbox.disabled = true
+    //revert back to previous value
+    textbox.value = accountTextFieldValues[textbox.id]
+    //hide errors
+    inputChanged({target: textbox})
+
 }
 
 function getTextBox(editBtn){
@@ -28,7 +38,10 @@ async function updateAccountInfo(){
     const resp = await put("users/account/private", updateData)
     const body = await resp.json()
     //check if error
-    if (resp.status == 200) return true
+    if (resp.status == 200){ 
+        accountTextFieldValues = body
+        return true
+    }
 
     //iterate through all errors, display the error message
     for (var i = 0; i < body.errors.length; i++){
@@ -41,28 +54,46 @@ async function updateAccountInfo(){
 
 }
 
+function closeAllTextBoxes(){
+    Array.from(document.getElementsByClassName("edit")).forEach(x => closeTextBox(x, getTextBox(x)))
+}
 
-//add event handler to text input edit buttons
-Array.from(document.getElementsByClassName("edit")).forEach(x => {
-    x.addEventListener("click", async() => {
-        const textbox = getTextBox(x)
-        if (textbox.classList.contains("active")){
-            if (await updateAccountInfo()) closeTextBox(x, textbox)
-        } else{
-            //close all textboxes
-            Array.from(document.getElementsByClassName("edit")).forEach(y => closeTextBox(y, getTextBox(y)))
-            textbox.classList.add("active")
-            x.innerText = "Save"
-            textbox.disabled = false
-            textbox.focus()
-            //a little hack to get the cursor to the back of the text
-            var val = textbox.value
-            textbox.value = '' 
-            textbox.value = val 
-            //close all other active textboxes
-        }
-    } )
-})
+
+//click input text input edit buttons
+async function editClicked(x){
+    const textbox = getTextBox(x)
+    if (textbox.classList.contains("active")){
+        if (await updateAccountInfo()) closeTextBox(x, textbox)
+    } else{
+        //close all existing textboxes and show the active one
+        closeAllTextBoxes()
+        textbox.classList.add("active")
+        x.innerText = "Save"
+        textbox.disabled = false
+        textbox.focus()
+        //a little hack to get the cursor to the back of the text
+        var val = textbox.value
+        textbox.value = '' 
+        textbox.value = val
+    }
+}
+
+//deal with clicks
+document.addEventListener("click", (event) => {
+    if (event.target.classList.contains("edit")){
+        editClicked(event.target)
+    }
+    else{
+        //close textboxes if user clicks elsewhere
+        closeAllTextBoxes()
+    }
+});
+
+/* 
+=====================
+Tab Navigation
+=====================
+*/
 
 const navItems = document.getElementsByTagName("nav")[0].children
 
@@ -90,7 +121,16 @@ async function loadData(){
     const accountData = await (await get("users/account/private")).json()
 
     //load inputs
-    accountTextFields.forEach(x => document.getElementById(x).value = accountData[x])
+    accountTextFields.forEach(x => {
+        accountTextFieldValues[x] = accountData[x]
+        document.getElementById(x).value = accountData[x]
+    })
 }
 
 loadData()
+
+/* 
+=====================
+Password Tab
+=====================
+*/

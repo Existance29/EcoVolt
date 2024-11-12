@@ -42,6 +42,12 @@ class User{
         //return the updated user
         return this.getUserById(id)
     }
+
+    static async changePassword(id, newPassword){
+        await query.query("UPDATE Users SET password = @password WHERE id = @id", {"id":id,"password":newPassword})
+        //return the updated hashed password
+        return {password: newPassword}
+    }
 }
 
 module.exports = User
