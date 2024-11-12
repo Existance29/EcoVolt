@@ -10,12 +10,12 @@ const DashboardModel = {
             const highestDataCenterResult = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
                 .query(`
-                    SELECT TOP 1 dc.data_center_name, SUM(dce.co2_emissions_tons) AS co2_emissions_tons
-                    FROM data_center_carbon_emissions AS dce
-                    JOIN data_centers AS dc ON dce.data_center_id = dc.id
-                    WHERE dc.company_id = @company_id
-                    GROUP BY dc.data_center_name
-                    ORDER BY co2_emissions_tons DESC;
+                SELECT TOP 1 dc.id, dc.data_center_name, SUM(dce.co2_emissions_tons) AS co2_emissions_tons
+                FROM data_center_carbon_emissions AS dce
+                JOIN data_centers AS dc ON dce.data_center_id = dc.id
+                WHERE dc.company_id = 1
+                GROUP BY dc.id, dc.data_center_name
+                ORDER BY co2_emissions_tons DESC;
                 `);
             const highestDataCenter = highestDataCenterResult.recordset[0] || {};
 
