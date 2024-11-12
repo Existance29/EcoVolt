@@ -1052,6 +1052,239 @@ static async getTotalCarbonEmissionByDataCenterIdAndYear(data_center_id, year, m
 
 
 
+static async getEnergyConsumptionGroupByDcForAllTime(company_id) { // chart
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+	    SELECT 
+            data_centers.id AS data_center_id,
+            data_centers.data_center_name,
+            SUM(data_center_energy_consumption.total_energy_mwh) AS total_energy_consumption_mwh,
+            SUM(data_center_energy_consumption.backup_power_energy_mwh) AS total_backup_power_mwh,
+            SUM(data_center_energy_consumption.cooling_energy_mwh) AS total_cooling_mwh,
+            SUM(data_center_energy_consumption.it_energy_mwh) AS total_it_energy_mwh,
+            SUM(data_center_energy_consumption.lighting_energy_mwh) AS total_lighting_mwh
+        FROM 
+            data_center_energy_consumption
+        INNER JOIN 
+            data_centers ON data_centers.id = data_center_energy_consumption.data_center_id
+        INNER JOIN 
+            companies ON companies.id = data_centers.company_id
+        WHERE 
+            companies.id = @company_id
+        GROUP BY 
+            data_centers.id, data_centers.data_center_name;
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        const result = await request.query(sqlQuery);
+        return result.recordset.length > 0 ? result.recordset : null;
+    } catch (error) {
+        throw new Error("Error retrieving Energy Consumption Data");
+    } finally { 
+        if (connection) await connection.close();
+    }
+}
+
+
+
+static async getEnergyConsumptionGroupByDcForYear(company_id, year) { // bar chart for year-only filter
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            data_centers.id AS data_center_id,
+            data_centers.data_center_name,
+            SUM(data_center_energy_consumption.total_energy_mwh) AS total_energy_consumption_mwh,
+            SUM(data_center_energy_consumption.backup_power_energy_mwh) AS total_backup_power_mwh,
+            SUM(data_center_energy_consumption.cooling_energy_mwh) AS total_cooling_mwh,
+            SUM(data_center_energy_consumption.it_energy_mwh) AS total_it_energy_mwh,
+            SUM(data_center_energy_consumption.lighting_energy_mwh) AS total_lighting_mwh
+        FROM 
+            data_center_energy_consumption
+        INNER JOIN 
+            data_centers ON data_centers.id = data_center_energy_consumption.data_center_id
+        INNER JOIN 
+            companies ON companies.id = data_centers.company_id
+        WHERE 
+            companies.id = @company_id
+            AND YEAR(data_center_energy_consumption.date) = @year
+        GROUP BY 
+            data_centers.id, data_centers.data_center_name;
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        request.input('year', year);
+        const result = await request.query(sqlQuery);
+        return result.recordset.length > 0 ? result.recordset : null;
+    } catch (error) {
+        throw new Error("Error retrieving Energy Consumption Data");
+    } finally { 
+        if (connection) await connection.close();
+    }
+}
+static async getEnergyConsumptionGroupByDcForSaidMonthYear(company_id, month, year) { // bar chart
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            data_centers.id AS data_center_id,
+            data_centers.data_center_name,
+            SUM(data_center_energy_consumption.total_energy_mwh) AS total_energy_consumption_mwh,
+            SUM(data_center_energy_consumption.backup_power_energy_mwh) AS total_backup_power_mwh,
+            SUM(data_center_energy_consumption.cooling_energy_mwh) AS total_cooling_mwh,
+            SUM(data_center_energy_consumption.it_energy_mwh) AS total_it_energy_mwh,
+            SUM(data_center_energy_consumption.lighting_energy_mwh) AS total_lighting_mwh
+        FROM 
+            data_center_energy_consumption
+        INNER JOIN 
+            data_centers ON data_centers.id = data_center_energy_consumption.data_center_id
+        INNER JOIN 
+            companies ON companies.id = data_centers.company_id
+        WHERE 
+            companies.id = @company_id
+            AND MONTH(data_center_energy_consumption.date) = @month
+            AND YEAR(data_center_energy_consumption.date) = @year
+        GROUP BY 
+            data_centers.id, data_centers.data_center_name;
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        request.input('month', month);
+        request.input('year', year);
+        const result = await request.query(sqlQuery);
+        return result.recordset.length > 0 ? result.recordset : null;
+    } catch (error) {
+        throw new Error("Error retrieving Energy Consumption Data");
+    } finally { 
+        if (connection) await connection.close();
+    }
+}
+
+
+
+// date and dc filter
+static async getEnergyConsumptionGroupByDcForSelectedDc(company_id, data_center_id) { // line chart if filtered by dc - to show over time
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            date,
+            data_centers.id AS data_center_id,
+            data_centers.data_center_name,
+            (data_center_energy_consumption.total_energy_mwh) AS total_energy_consumption_mwh,
+            (data_center_energy_consumption.backup_power_energy_mwh) AS total_backup_power_mwh,
+            (data_center_energy_consumption.cooling_energy_mwh) AS total_cooling_mwh,
+            (data_center_energy_consumption.it_energy_mwh) AS total_it_energy_mwh,
+            (data_center_energy_consumption.lighting_energy_mwh) AS total_lighting_mwh
+        FROM 
+            data_center_energy_consumption
+        INNER JOIN 
+            data_centers ON data_centers.id = data_center_energy_consumption.data_center_id
+        INNER JOIN 
+            companies ON companies.id = data_centers.company_id
+        WHERE 
+            companies.id = @company_id AND data_center_id=@data_center_id
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        request.input('data_center_id', data_center_id);
+        const result = await request.query(sqlQuery);
+        return result.recordset.length > 0 ? result.recordset : null;
+    } catch (error) {
+        throw new Error("Error retrieving Energy Consumption Data");
+    } finally { 
+        if (connection) await connection.close();
+    }
+}
+
+static async getEnergyConsumptionGroupByDcForSelectedDcByYear(company_id, data_center_id, year) { // line chart if filtered by dc - to show over time
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            date,
+            data_centers.id AS data_center_id,
+            data_centers.data_center_name,
+            (data_center_energy_consumption.total_energy_mwh) AS total_energy_consumption_mwh,
+            (data_center_energy_consumption.backup_power_energy_mwh) AS total_backup_power_mwh,
+            (data_center_energy_consumption.cooling_energy_mwh) AS total_cooling_mwh,
+            (data_center_energy_consumption.it_energy_mwh) AS total_it_energy_mwh,
+            (data_center_energy_consumption.lighting_energy_mwh) AS total_lighting_mwh
+        FROM 
+            data_center_energy_consumption
+        INNER JOIN 
+            data_centers ON data_centers.id = data_center_energy_consumption.data_center_id
+        INNER JOIN 
+            companies ON companies.id = data_centers.company_id
+        WHERE 
+            companies.id =@company_id AND data_center_id=@data_center_id
+            AND YEAR(date) = @year
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        request.input('data_center_id', data_center_id);
+        request.input('year', year);
+        const result = await request.query(sqlQuery);
+        return result.recordset.length > 0 ? result.recordset : null;
+    } catch (error) {
+        throw new Error("Error retrieving Energy Consumption Data");
+    } finally { 
+        if (connection) await connection.close();
+    }
+}
+static async getEnergyConsumptionGroupByDcForSelectedDcByYearMonth(company_id, data_center_id, year, month) { // line chart if filtered by dc - to show over time
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            date,
+            data_centers.id AS data_center_id,
+            data_centers.data_center_name,
+            (data_center_energy_consumption.total_energy_mwh) AS total_energy_consumption_mwh,
+            (data_center_energy_consumption.backup_power_energy_mwh) AS total_backup_power_mwh,
+            (data_center_energy_consumption.cooling_energy_mwh) AS total_cooling_mwh,
+            (data_center_energy_consumption.it_energy_mwh) AS total_it_energy_mwh,
+            (data_center_energy_consumption.lighting_energy_mwh) AS total_lighting_mwh
+        FROM 
+            data_center_energy_consumption
+        INNER JOIN 
+            data_centers ON data_centers.id = data_center_energy_consumption.data_center_id
+        INNER JOIN 
+            companies ON companies.id = data_centers.company_id
+        WHERE 
+            companies.id =@company_id AND data_center_id=@data_center_id
+            AND YEAR(date) = @year AND MONTH(date) = @month
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        request.input('data_center_id', data_center_id);
+        request.input('year', year);
+        request.input('month', month);
+        const result = await request.query(sqlQuery);
+        return result.recordset.length > 0 ? result.recordset : null;
+    } catch (error) {
+        throw new Error("Error retrieving Energy Consumption Data");
+    } finally { 
+        if (connection) await connection.close();
+    }
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

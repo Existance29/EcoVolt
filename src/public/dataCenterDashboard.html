@@ -22,7 +22,7 @@
             <nav class="tabs" aria-label="Dashboard Tabs">
                 <a href="overviewDashboard.html">Overview</a>
                 <a href="dataCenterDashboard.html" class="active">Data Center</a>
-                <a href="cellTowerDashboard.html">Cell Tower</a>
+                <a href="cellTowerDashboard.html">Data Center</a>
                 
                 <div class="right-aligned">
                     <!-- Date Picker Dropdown Container -->
@@ -69,7 +69,15 @@
             <div id="noDataMessage" style="display: none;">
                 No data recorded on this date.
             </div>
-            
+
+            <!-- Popup Modal for Chart Details -->
+            <div id="popupModal" class="popup-modal" style="display: none;">
+                <div class="popup-content">
+                    <span class="close-btn" onclick="closePopup()">&times;</span>
+                    <canvas id="popupChart"></canvas>
+                </div>
+            </div>
+
 
  <!-- Main Chart Content -->
 <div class="main-chart-content" style="display: flex; gap: 1rem; max-height: 70vh; height: 70vh;">
