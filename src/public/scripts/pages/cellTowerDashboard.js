@@ -213,38 +213,46 @@ async function loadData(){
 }
 
 
-async function onLoad(){
-
+async function onLoad() {
     //get all cell towers and add them to the dropdown options
-    const cellTowers = await (await get("Dashboard/Cell-Towers")).json()
-    const dropdown = document.getElementById("cellTowerDropdown")
-    for (let i = 0; i < cellTowers.length; i++){
-        const cellTower = cellTowers[i]
+    const cellTowers = await (await get("Dashboard/Cell-Towers")).json();
+    const dropdown = document.getElementById("cellTowerDropdown");
+    for (let i = 0; i < cellTowers.length; i++) {
+        const cellTower = cellTowers[i];
         var option = document.createElement("option");
         option.text = cellTower.cell_tower_name;
-        option.value = cellTower.id
+        option.value = cellTower.id;
         dropdown.add(option);
     }
 
-    const cellTowerIDs = cellTowers.map(x => x.id)
+    const cellTowerIDs = cellTowers.map(x => x.id);
 
     //get url parameters
-    const initialYear = getUrlParameter("year") || ""
-    var initialMonth = getUrlParameter("month")
-    var initialCellTowerID = getUrlParameter("id")
+    const initialYear = getUrlParameter("year") || ""; 
+    var initialMonth = getUrlParameter("month"); 
+    var initialCellTowerID = getUrlParameter("cell_tower_id"); 
 
     //validate the parameters, default to "all" if invalid
-    initialMonth = initialMonth && initialMonth >= 1 && initialMonth <= 12 ? initialMonth : ""
-    initialCellTowerID = !isNaN(initialCellTowerID) && cellTowerIDs.includes(parseInt(initialCellTowerID)) ? initialCellTowerID : "all"
+    initialMonth = initialMonth && initialMonth >= 1 && initialMonth <= 12 ? initialMonth : ""; 
+    initialCellTowerID = !isNaN(initialCellTowerID) && cellTowerIDs.includes(parseInt(initialCellTowerID)) ? initialCellTowerID : "all"; 
 
     //set the filters to the parameter value
-    monthPicker.value = initialMonth
-    yearPicker.value = initialYear
-    document.getElementById("cellTowerDropdown").value = initialCellTowerID   
+    monthPicker.value = initialMonth; 
+    yearPicker.value = initialYear; 
+    document.getElementById("cellTowerDropdown").value = initialCellTowerID; 
 
-    //load data
-    loadData()
+    // Update date picker label based on URL parameters 
+    updateDatePickerToggleLabel(); 
+
+    // Load data based on initial parameters 
+    loadData(); 
 }
+
+// Function to get URL parameters by name 
+function getUrlParameter(name) { 
+    const urlParams = new URLSearchParams(window.location.search); 
+    return urlParams.get(name); 
+} 
 
 function updateDatePickerToggleLabel() {
     const selectedMonth = monthPicker.value;
