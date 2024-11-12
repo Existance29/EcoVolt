@@ -1,34 +1,38 @@
 const sql = require("mssql");
-const dbConfig = require("../database/dbConfig"); // Import your database configuration
+const dbConfig = require("../database/dbConfig");
 
 const DashboardModel = {
-    async getHighestEmissions() {
+    async getHighestEmissions(company_id) {
         try {
-            // Connect to the database
             await sql.connect(dbConfig);
             console.log("Connected to the database");
 
-            // Query to get the highest emissions for data centers
-            const highestDataCenterResult = await sql.query(`
-                SELECT TOP 1 dc.data_center_name, SUM(dce.co2_emissions_tons) AS co2_emissions_tons
-                FROM data_center_carbon_emissions AS dce
-                JOIN data_centers AS dc ON dce.data_center_id = dc.id
-                GROUP BY dc.data_center_name
-                ORDER BY co2_emissions_tons DESC;
-            `);
+            // Query for highest emissions data center
+            const highestDataCenterResult = await new sql.Request()
+                .input("company_id", sql.Int, company_id)
+                .query(`
+                    SELECT TOP 1 dc.data_center_name, SUM(dce.co2_emissions_tons) AS co2_emissions_tons
+                    FROM data_center_carbon_emissions AS dce
+                    JOIN data_centers AS dc ON dce.data_center_id = dc.id
+                    WHERE dc.company_id = @company_id
+                    GROUP BY dc.data_center_name
+                    ORDER BY co2_emissions_tons DESC;
+                `);
             const highestDataCenter = highestDataCenterResult.recordset[0] || {};
 
-            // Query to get the highest emissions for cell towers
-            const highestCellTowerResult = await sql.query(`
-                SELECT company_id, SUM(total_energy_kwh) AS total_emissions
-                FROM cell_tower_energy_consumption
-                GROUP BY company_id
-                ORDER BY total_emissions DESC
-                OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY; 
-            `);
+            // Query for highest emissions cell tower
+            const highestCellTowerResult = await new sql.Request()
+                .input("company_id", sql.Int, company_id)
+                .query(`
+                    SELECT TOP 1 ct.cell_tower_name, SUM(ctec.total_energy_kwh) AS total_emissions
+                    FROM cell_tower_energy_consumption AS ctec
+                    JOIN cell_towers AS ct ON ctec.cell_tower_id = ct.id
+                    WHERE ct.company_id = @company_id
+                    GROUP BY ct.cell_tower_name
+                    ORDER BY total_emissions DESC;
+                `);
             const highestCellTower = highestCellTowerResult.recordset[0] || {};
 
-            // Return the highest emissions data
             return {
                 highestDataCenter,
                 highestCellTower
@@ -36,34 +40,39 @@ const DashboardModel = {
 
         } catch (error) {
             console.error("Error getting highest emissions:", error);
-            throw error; // Re-throw error for handling in the controller
+            throw error;
         } finally {
-            // Ensure the database connection is closed
             await sql.close();
         }
     },
 
-    async getTotalEmissions() {
+    async getTotalEmissions(company_id) {
         try {
-            // Connect to the database
             await sql.connect(dbConfig);
             console.log("Connected to the database");
 
-            // Query to get total emissions from data centers
-            const dataCenterResult = await sql.query(`
-                SELECT SUM(co2_emissions_tons) AS total_emissions
-                FROM data_center_carbon_emissions;
-            `);
-            const totalDataCenterEmissions = dataCenterResult.recordset[0].total_emissions || 0;
+            // Total emissions for data centers
+            const dataCenterResult = await new sql.Request()
+                .input("company_id", sql.Int, company_id)
+                .query(`
+                    SELECT SUM(dce.co2_emissions_tons) AS total_emissions
+                    FROM data_center_carbon_emissions AS dce
+                    JOIN data_centers AS dc ON dce.data_center_id = dc.id
+                    WHERE dc.company_id = @company_id;
+                `);
+            const totalDataCenterEmissions = dataCenterResult.recordset[0]?.total_emissions || 0;
 
-            // Query to get total emissions from cell towers
-            const cellTowerResult = await sql.query(`
-                SELECT SUM(total_energy_kwh) AS total_emissions
-                FROM cell_tower_energy_consumption;
-            `);
-            const totalCellTowerEmissions = cellTowerResult.recordset[0].total_emissions || 0;
+            // Total emissions for cell towers
+            const cellTowerResult = await new sql.Request()
+                .input("company_id", sql.Int, company_id)
+                .query(`
+                    SELECT SUM(ctec.total_energy_kwh) AS total_emissions
+                    FROM cell_tower_energy_consumption AS ctec
+                    JOIN cell_towers AS ct ON ctec.cell_tower_id = ct.id
+                    WHERE ct.company_id = @company_id;
+                `);
+            const totalCellTowerEmissions = cellTowerResult.recordset[0]?.total_emissions || 0;
 
-            // Return combined emissions data
             return {
                 totalDataCenterEmissions,
                 totalCellTowerEmissions,
@@ -72,82 +81,94 @@ const DashboardModel = {
 
         } catch (error) {
             console.error("Error getting total emissions:", error);
-            throw error; // Re-throw error for handling in the controller
+            throw error;
         } finally {
-            // Ensure the database connection is closed
             await sql.close();
         }
     },
 
+    async getSustainabilityGoals(company_id) {
+        try {
+            await sql.connect(dbConfig);
+            console.log("Connected to the database");
 
-    async getSustainabilityGoals() {
-      try {
-          const pool = await sql.connect(dbConfig);
-          const result = await pool.request()
-              .query(`
-                  SELECT 
-                      goal_name, 
-                      target_value, 
-                      current_value,
-                      (current_value / target_value) * 100 AS progress
-                  FROM 
-                      company_sustainability_goals
-              `);
-          return result.recordset; // Return the array of sustainability goals with progress
-      } catch (error) {
-          console.error("Error fetching sustainability goals:", error);
-          throw error; // Re-throw to be handled in the controller
-      }
-  },
+            const result = await new sql.Request()
+                .input("company_id", sql.Int, company_id)
+                .query(`
+                    SELECT 
+                        goal_name, 
+                        target_value, 
+                        current_value,
+                        (current_value / target_value) * 100 AS progress
+                    FROM company_sustainability_goals
+                    WHERE company_id = @company_id;
+                `);
 
-  async getTop3CompaniesByEmissions() {
-    try {
-        await sql.connect(dbConfig);
+            return result.recordset;
 
-        const result = await sql.query(`
-            SELECT c.name AS company_name, SUM(dcc.co2_emissions_tons) AS total_emissions
-            FROM data_center_carbon_emissions AS dcc
-            JOIN data_centers AS dc ON dcc.data_center_id = dc.id
-            JOIN companies AS c ON dc.company_id = c.id
-            GROUP BY c.name
-            ORDER BY total_emissions DESC
-            OFFSET 0 ROWS FETCH NEXT 3 ROWS ONLY; 
-        `);
+        } catch (error) {
+            console.error("Error fetching sustainability goals:", error);
+            throw error;
+        } finally {
+            await sql.close();
+        }
+    },
 
-        return result.recordset; // Returns top 3 companies with the highest emissions
-    } catch (error) {
-        console.error("Error getting top 3 companies by emissions:", error);
-        throw error;
-    } finally {
-        await sql.close();
-    }
-},
-
-async getYearlyEnergyConsumption() {
-    try {
-        await sql.connect(dbConfig);
-        console.log("Connected to the database");
-
-        // Query to calculate total energy consumption by year
-        const result = await sql.query(`
-            SELECT YEAR(date) AS year, SUM(total_energy_kwh) AS total_emissions
-                FROM cell_tower_energy_consumption
-                GROUP BY YEAR(date)
-                ORDER BY total_emissions DESC
-                OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY;
-        `);
-
-        return result.recordset; // Returns an array of { year, total_energy_kwh } objects
-    } catch (error) {
-        console.error("Error fetching yearly energy consumption:", error);
-        throw error;
-    } finally {
-        await sql.close();
-    }
-
+    async getTop3YearsByEmissions(company_id) {
+        try {
+            await sql.connect(dbConfig);
+            console.log("Connected to the database");
     
-}
-  
+            const request = new sql.Request();
+            request.input("company_id", sql.Int, company_id);  // Set the company_id parameter
+    
+            const result = await request.query(`
+                SELECT TOP 3 YEAR(dce.date) AS year, dc.data_center_name, SUM(dce.co2_emissions_tons) AS total_emissions
+                FROM data_center_carbon_emissions AS dce
+                JOIN data_centers AS dc ON dce.data_center_id = dc.id
+                WHERE dc.company_id = @company_id
+                GROUP BY YEAR(dce.date), dc.data_center_name
+                ORDER BY total_emissions DESC;
+            `);
+    
+            return result.recordset;
+    
+        } catch (error) {
+            console.error("Error getting top 3 years by emissions for the company:", error);
+            throw error;
+        } finally {
+            await sql.close();
+        }
+    },
+    
+    
+    
+
+    async getYearlyEnergyConsumption(company_id) {
+        try {
+            await sql.connect(dbConfig);
+            console.log("Connected to the database");
+
+            const result = await new sql.Request()
+                .input("company_id", sql.Int, company_id)
+                .query(`
+                    SELECT YEAR(ctec.date) AS year, SUM(ctec.total_energy_kwh) AS total_emissions
+                    FROM cell_tower_energy_consumption AS ctec
+                    JOIN cell_towers AS ct ON ctec.cell_tower_id = ct.id
+                    WHERE ct.company_id = @company_id
+                    GROUP BY YEAR(ctec.date)
+                    ORDER BY year DESC;
+                `);
+
+            return result.recordset;
+
+        } catch (error) {
+            console.error("Error fetching yearly energy consumption:", error);
+            throw error;
+        } finally {
+            await sql.close();
+        }
+    }
 };
 
 module.exports = DashboardModel;

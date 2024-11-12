@@ -1,31 +1,57 @@
 document.addEventListener("DOMContentLoaded", async () => {
+    await pageRequireSignIn(); // Ensure the user is signed in
+
+    const company_id = sessionStorage.getItem("company_id") || localStorage.getItem("company_id");
+
     try {
-        // Fetch data from the server
-        const response = await fetch("/dashboard-overview");
+        // Fetch data from the server with company_id in headers
+        const response = await fetch("/dashboard-overview", {
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.accessToken || localStorage.accessToken}`,
+                "Company-ID": company_id // Pass the company ID to the server
+            }
+        });
+
         if (!response.ok) throw new Error(`Failed to fetch data: ${response.statusText}`);
 
         const data = await response.json();
-        console.log("Dashboard Data:", data); // Log the data structure for reference
+        console.log("Dashboard Data:", data);
 
-        console.log("Data for Top 3 Companies:", data.top3Companies);
-        console.log("Data for Yearly Energy Consumption:", data.yearlyEnergyConsumption);
-
-        // Display Highest Emission Data Center
-        const highestDataCenter = data.highestDataCenter;
-        document.getElementById("highestDataCenterName").textContent = `${highestDataCenter.data_center_name}`;
-        document.getElementById("highestDataCenterEmissions").textContent = `Highest CO₂ Emissions: ${highestDataCenter.co2_emissions_tons} Tons`;
-
-        // Display Highest Emission Cell Tower
-        const highestCellTower = data.highestCellTower;
-        document.getElementById("highestCellTowerName").textContent = `Company ID ${highestCellTower.company_id}`;
-        document.getElementById("highestCellTowerEmissions").textContent = `Highest Emissions: ${highestCellTower.total_emissions} kWh`;
-
-        // Display Total Emissions
-        document.getElementById("totalDataCenterEmissions").textContent = `${data.totalDataCenterEmissions} Tons`;
-        document.getElementById("totalCellTowerEmissions").textContent = `${data.totalCellTowerEmissions} kWh`;
-        document.getElementById("overallTotalEmissions").textContent = `${data.overallTotal} Tons/kWh`;
-
+        // Display data and render charts
+        displayHighestEmissions(data);
+        displayTotalEmissions(data);
         displaySustainabilityGoals(data.sustainabilityGoals);
+        renderTop3YearsChart(data.top3Companies);
+        renderYearlyEnergyChart(data.yearlyEnergyConsumption, data.totalCellTowerEmissions);
+    } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+    }
+});
+
+// Logout function to clear storage and redirect to the sign-in page
+function logout() {
+    sessionStorage.clear();
+    localStorage.clear();
+    window.location.href = "signIn.html";
+}
+
+// Function to display the highest emissions data center and cell tower
+function displayHighestEmissions(data) {
+    const highestDataCenter = data.highestDataCenter;
+    document.getElementById("highestDataCenterName").textContent = `${highestDataCenter.data_center_name}`;
+    document.getElementById("highestDataCenterEmissions").textContent = `Highest CO₂ Emissions: ${highestDataCenter.co2_emissions_tons} Tons`;
+
+    const highestCellTower = data.highestCellTower;
+    document.getElementById("highestCellTowerName").textContent = ` ${highestCellTower.cell_tower_name}`;
+    document.getElementById("highestCellTowerEmissions").textContent = `Highest Emissions: ${highestCellTower.total_emissions} kWh`;
+}
+
+// Function to display total emissions
+function displayTotalEmissions(data) {
+    document.getElementById("totalDataCenterEmissions").textContent = `${data.totalDataCenterEmissions} Tons`;
+    document.getElementById("totalCellTowerEmissions").textContent = `${data.totalCellTowerEmissions} kWh`;
+    document.getElementById("overallTotalEmissions").textContent = `${data.overallTotal} Tons/kWh`;
+}
 
 // Function to display the Sustainability Goals Slideshow
 function displaySustainabilityGoals(goals) {
@@ -41,7 +67,6 @@ function displaySustainabilityGoals(goals) {
     }
     window.toggleGoals = toggleGoals;
 
-    // Render goals in a paginated way
     let currentPage = 0;
     const goalsPerPage = 2;
 
@@ -87,142 +112,105 @@ function displaySustainabilityGoals(goals) {
     renderGoals();
 }
 
-        // Display Top 3 Companies Chart
-        const top3Companies = data.top3Companies;
-        if (top3Companies && top3Companies.length) {
-            const companyNames = top3Companies.map(company => company.company_name);
-            const emissionsData = top3Companies.map(company => company.total_emissions);
+// Function to render the Top 3 Years Chart
+function renderTop3YearsChart(top3Years) {
+    if (top3Years && top3Years.length) {
+        const years = [];
+        const emissionsData = [];
 
-            const ctx = document.getElementById("top3EmissionsChart").getContext("2d");
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: companyNames,
-                    datasets: [{
-                        label: 'Total CO₂ Emissions (tons)',
-                        data: emissionsData,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.5)',  // Red
-                            'rgba(75, 192, 192, 0.5)',  // Green
-                            'rgba(255, 159, 64, 0.5)'   // Orange
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',    // Red
-                            'rgba(75, 192, 192, 1)',    // Green
-                            'rgba(255, 159, 64, 1)'     // Orange
-                        ],
-                        borderWidth: 1
-                    }]
+        // Populate years and emissionsData arrays
+        for (let i = 0; i < top3Years.length; i++) {
+            years.push(top3Years[i].year); // Assuming the data has a 'year' field
+            emissionsData.push(top3Years[i].total_emissions);
+        }
+
+        const ctx = document.getElementById("top3EmissionsChart").getContext("2d");
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: years, // Label the x-axis with years
+                datasets: [{
+                    label: 'Total CO₂ Emissions (tons)',
+                    data: emissionsData,
+                    backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(255, 159, 64, 0.5)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { font: { size: 12 } } },
+                    x: { ticks: { font: { size: 12 }, maxRotation: 0, minRotation: 0 } }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                font: { size: 12 }
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                font: { size: 12 },
-                                maxRotation: 0,
-                                minRotation: 0
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            labels: {
-                                font: { size: 12 }
-                            }
-                        }
+                plugins: {
+                    legend: { labels: { font: { size: 12 } } }
+                }
+            }
+        });
+    } else {
+        console.warn("No data available for top 3 years of emissions.");
+    }
+}
+
+// Function to render the Yearly Energy Consumption Doughnut Chart
+function renderYearlyEnergyChart(yearlyEnergyConsumption, totalCellTowerEmissions) {
+    if (yearlyEnergyConsumption && yearlyEnergyConsumption.length > 0 && totalCellTowerEmissions) {
+        // Find the year with the highest energy consumption
+        const highestYearData = yearlyEnergyConsumption.reduce((max, item) => 
+            item.total_emissions > max.total_emissions ? item : max, yearlyEnergyConsumption[0]);
+
+        const ctx = document.getElementById("yearlyEnergyChart").getContext("2d");
+
+        // Destroy the previous chart instance if it exists to prevent overlap
+        if (window.yearlyEnergyChartInstance) {
+            window.yearlyEnergyChartInstance.destroy();
+        }
+
+        // Create a new chart instance
+        window.yearlyEnergyChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [`${highestYearData.year} Energy Consumption`, 'Total Cell Tower Emissions'],
+                datasets: [{
+                    label: 'Energy & Emissions Comparison',
+                    data: [highestYearData.total_emissions, totalCellTowerEmissions],
+                    backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { top: 20, bottom: 20 } },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: { font: { size: 10 }, padding: 20 }
                     }
                 }
-            });
-        } else {
-            console.warn("No data available for top 3 data centers.");
-        }
-
-        // Display Yearly Energy Consumption in Doughnut Chart
-        const yearlyEnergyConsumption = data.yearlyEnergyConsumption;
-        const totalCellTowerEmissions = data.totalCellTowerEmissions;
-
-        // Identify the year with the highest energy consumption
-        if (yearlyEnergyConsumption && yearlyEnergyConsumption.length > 0 && totalCellTowerEmissions) {
-            const highestYearData = yearlyEnergyConsumption.reduce((max, item) => 
-                item.total_energy_kwh > max.total_energy_kwh ? item : max, yearlyEnergyConsumption[0]);
-
-            const ctx = document.getElementById("yearlyEnergyChart").getContext("2d");
-
-            // Create a doughnut chart comparing the highest yearly energy consumption with total cell tower emissions
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: [`${highestYearData.year} Energy Consumption`, 'Total Cell Tower Emissions'],
-                    datasets: [{
-                        label: 'Energy & Emissions Comparison',
-                        data: [highestYearData.total_energy_kwh, totalCellTowerEmissions],
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.6)',  // Blue for yearly energy consumption
-                            'rgba(255, 99, 132, 0.6)'   // Red for total cell tower emissions
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: {
-                        padding: {
-                            top: 20,
-                            bottom: 20
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                font: { size: 10 },
-                                padding: 20 // Moves the legend further down
-                            }
-                        }
-                    }
-                },
-                plugins: [{
-                    // Plugin to display the highest year's total energy consumption in the center of the chart
-                    afterDraw: function(chart) {
-                        const { width, height, ctx } = chart;
-                        ctx.restore();
-                        
-                        // Adjust the divisor to control the font size (e.g., 160 makes it smaller)
-                        const fontSize = (height / 160).toFixed(2);
-                        
-                        ctx.font = `${fontSize}em sans-serif`;
-                        ctx.textBaseline = "middle";
-                        ctx.textAlign = "center";
-                    
-                        // Check if `total_energy_kwh` exists and is a number
-                        const totalEnergyText = highestYearData.total_energy_kwh 
-                            ? `Total: ${highestYearData.total_energy_kwh.toLocaleString()} kWh` 
-                            : 'No Data';
-                    
-                        const textX = width / 2;
-                        const textY = height / 2;
-                    
-                        ctx.fillText(totalEnergyText, textX, textY);
-                        ctx.save();
-                    }
-                    
-                }]
-            });
-        } else {
-            console.warn("No data available for energy and emissions comparison.");
-        }
-
-    } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+            },
+            plugins: [{
+                afterDraw: function(chart) {
+                    const { width, height, ctx } = chart;
+                    ctx.restore();
+                    const fontSize = (height / 300).toFixed(2);
+                    ctx.font = `${fontSize}em sans-serif`;
+                    ctx.textBaseline = "middle";
+                    ctx.textAlign = "center";
+                    const totalEnergyText = highestYearData.total_emissions 
+                        ? `${highestYearData.total_emissions.toLocaleString()} kWh` 
+                        : 'No Data';
+                    const textX = width / 2;
+                    const textY = height / 2;
+                    ctx.fillText(totalEnergyText, textX, textY);
+                    ctx.save();
+                }
+            }]
+        });
+    } else {
+        console.warn("No data available for energy and emissions comparison.");
     }
-});
+}
