@@ -6,28 +6,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fetchReportData();
 
+    // Function to fetch report data
     function fetchReportData(force = false) {
         const url = force ? '/reports/generate' : '/reports';
         statusMessage.innerText = "Loading report data...";
 
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('executiveSummary').innerText = `In 2024, Singtel's total energy consumption reached ${data.totalEnergy.toLocaleString()} kWh, with carbon emissions totaling ${data.totalCO2.toFixed(2)} tons.`;
-                document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
-                populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
-                populateDataTable(data.reportData);
-                populateRecommendations(data.recommendations);
-                document.getElementById('conclusion').innerText = data.conclusion;
-
-                statusMessage.innerText = "Report data loaded successfully.";
-            })
-            .catch(error => {
-                console.error('Error fetching report data:', error);
-                statusMessage.innerText = "Failed to load report data.";
-            });
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('executiveSummary').innerText = data.executiveSummary;
+            document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
+            populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
+            populateDataTable(data.reportData);
+            populateRecommendations(data.recommendations);
+            document.getElementById('conclusion').innerText = data.conclusion;
+            statusMessage.innerText = "Report data loaded successfully.";
+        })
+        .catch(error => {
+            console.error('Error fetching report data:', error);
+            statusMessage.innerText = "Failed to load report data.";
+        });
     }
 
+    // Event listener to trigger PDF generation
     generateReportBtn.addEventListener('click', function () {
         statusMessage.innerText = "Generating PDF report...";
 
@@ -57,6 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Function to populate chart with fetched data
     function populateChart(labels, energyData, emissionsData) {
         if (reportChart) {
             reportChart.destroy();
@@ -113,6 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Function to populate the data table
     function populateDataTable(reportData) {
         dataTableBody.innerHTML = '';
         reportData.forEach(row => {
@@ -133,14 +143,40 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Function to populate recommendations
     function populateRecommendations(recommendations) {
         const recommendationsSection = document.querySelector('.recommendations');
-        recommendationsSection.innerHTML = '';
-        recommendations.split('\n\n').forEach((recommendation, index) => {
+        recommendationsSection.innerHTML = ''; // Clear existing content
+    
+        recommendations.forEach((recommendation, index) => {
+            if (index % 2 === 0) {
+                // Create a container for every two recommendations
+                const pageContainer = document.createElement('div');
+                pageContainer.classList.add('page-break-container');
+                recommendationsSection.appendChild(pageContainer);
+            }
+    
             const recDiv = document.createElement('div');
             recDiv.classList.add('recommendation');
-            recDiv.innerHTML = `<h3>Recommendation ${index + 1}:</h3><p>${recommendation}</p>`;
-            recommendationsSection.appendChild(recDiv);
+    
+            // Format recommendation with structured data
+            recDiv.innerHTML = `
+                <h3>Recommendation ${index + 1}:</h3>
+                <p><strong>Recommendation:</strong> ${recommendation.recommendation}</p>
+                <ol>
+                    ${recommendation.actions.map(action => `
+                        <li>
+                            <strong>Action:</strong> ${action.description}<br>
+                            <strong>Explanation:</strong> ${action.explanation}
+                        </li>
+                    `).join('')}
+                </ol>
+                <p class="intended-impact"><strong>Intended Impact:</strong> ${recommendation.intendedImpact}</p>
+            `;
+    
+            // Append recommendation to the current page container
+            const currentContainer = recommendationsSection.lastChild;
+            currentContainer.appendChild(recDiv);
         });
     }
 });

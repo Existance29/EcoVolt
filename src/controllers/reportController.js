@@ -31,13 +31,15 @@ async function generateDataAnalysis(monthlyEnergy, monthlyCO2) {
 
 // Generate report data with optional caching in session
 const generateReportData = async (req, res) => {
-    const sessionData = req.session.reportData;
-    const oneHour = 60 * 60 * 1000;
+    const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
     const currentTime = new Date();
 
-    if (sessionData && sessionData.timestamp && (currentTime - new Date(sessionData.timestamp) < oneHour) && !req.query.force) {
-        console.log("Serving cached report data from session.");
-        return res.status(200).json(sessionData.data);
+    if (req.session.reportData && req.session.reportData.timestamp) {
+        const reportAge = currentTime - new Date(req.session.reportData.timestamp);
+        if (reportAge < oneHour) {
+            console.log("Serving cached report data from session.");
+            return res.status(200).json(req.session.reportData.data); // Serve cached data
+        }
     }
 
     console.log("Generating new report data...");
@@ -68,6 +70,7 @@ const generateReportData = async (req, res) => {
             totalCO2 += report.co2EmissionsTons || 0;
         });
 
+        const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2);
         const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2);
         const recommendations = await getAllAIRecommendations({
             totalEnergy: totalEnergy,
@@ -82,9 +85,10 @@ const generateReportData = async (req, res) => {
             monthlyEnergy,
             monthlyCO2,
             totalEnergy,
+            executiveSummary,
             totalCO2,
             dataAnalysis,
-            recommendations,
+            recommendations, // Pass recommendations directly here
             conclusion,
             reportData: singtelReports,
         };
@@ -134,7 +138,7 @@ const generateReportPDF = async (req, res) => {
 };
 
 // Helper function to get exactly 5 AI recommendations, one from each category
-async function getAllAIRecommendations(data) {
+const getAllAIRecommendations = async (data) => {
     const categories = [
         "Energy Efficiency Improvements",
         "CO2 Emission Reduction Strategies",
@@ -143,40 +147,56 @@ async function getAllAIRecommendations(data) {
         "Monitoring and Reporting Practices"
     ];
 
-    const recommendations = await Promise.all(
-        categories.map(async (category, index) => {
-            // Add a delay between API calls to prevent rate-limiting and increase response reliability
-            await new Promise(resolve => setTimeout(resolve, index * 1000)); // 1 second delay between each request
+    try {
+        const recommendations = await Promise.all(
+            categories.map(async (category, index) => {
+                await new Promise(resolve => setTimeout(resolve, index * 1000)); // Delay to avoid rate limiting
+                const detailedRecommendation = await generateAIRecommendations(data, category);
+                console.log(`Generated Recommendation for ${category}:`, detailedRecommendation);
+                return detailedRecommendation || `Recommendation for ${category} is unavailable.`;
+            })
+        );
 
-            const allRecommendations = await generateAIRecommendations(data, category);
-            const splitRecommendations = allRecommendations.split('\n').filter(rec => rec.trim().length > 0);
+        return recommendations;
+    } catch (error) {
+        console.error("Error generating recommendations:", error);
+        return [];
+    }
+};
 
-            // Take only the first complete recommendation for each category
-            return splitRecommendations[0] || `Recommendation not available for ${category}`;
-        })
-    );
-
-    return recommendations.join("\n\n");
-}
-
-// Helper function to generate AI recommendations for each category
+// Helper function to generate a detailed AI recommendation for each category
 async function generateAIRecommendations(data, category) {
     const prompt = `Based on the following data for Singtel:
     - Total Energy Consumption: ${data.totalEnergy} MWh
     - Total CO2 Emissions: ${data.co2Emissions} Tons
     - Current Progress: ${data.currentProgress}%
     
-    Provide 1 clear, specific recommendation for ${category} with detailed actionable steps.`;
+    Provide a specific recommendation for ${category} as a JSON object with the following structure:
+    {
+        "recommendation": "<summary of the recommendation>",
+        "actions": [
+            {
+                "description": "<first action step>",
+                "explanation": "<why this action is effective>"
+            },
+            {
+                "description": "<second action step>",
+                "explanation": "<why this action is effective>"
+            },
+            ...
+        ],
+        "intendedImpact": "<overall impact>"
+    }`;
 
     try {
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
-            max_tokens: 500, // Increased token count for more detailed responses
+            max_tokens: 300,
             temperature: 0.7
         });
 
-        return response.choices[0].message.content;
+        return JSON.parse(response.choices[0].message.content);
     } catch (error) {
         console.error(`Error fetching ${category} recommendations:`, error);
         throw error;
@@ -197,6 +217,31 @@ async function generateConclusion(totalEnergy, totalCO2) {
         return response.choices[0].message.content;
     } catch (error) {
         console.error("Error generating conclusion:", error);
+        throw error;
+    }
+}
+
+// Function to generate an executive summary
+async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2) {
+    const prompt = `Generate a concise executive summary for Singtel’s energy consumption and CO2 emissions report based on the following data:
+    - Total Energy Consumption: ${totalEnergy.toLocaleString()} kWh
+    - Total CO2 Emissions: ${totalCO2.toFixed(2)} tons
+    - Monthly Energy Consumption: ${monthlyEnergy.join(", ")} kWh for months ${months.join(", ")}
+    - Monthly CO2 Emissions: ${monthlyCO2.join(", ")} tons for months ${months.join(", ")}
+
+    The summary should highlight any notable trends or changes over time, with insights on how Singtel’s energy consumption and emissions have evolved.`;
+
+    try {
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 200,
+            temperature: 0.7
+        });
+
+        return response.choices[0].message.content;
+    } catch (error) {
+        console.error("Error generating executive summary:", error);
         throw error;
     }
 }
