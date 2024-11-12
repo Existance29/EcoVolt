@@ -31,6 +31,22 @@ document.addEventListener("DOMContentLoaded", async () => {
                 window.location.href = "dataCenterDashboard.html";
             });
         }
+
+        const totalCellTowerElement = document.getElementById("totalCellTower"); 
+        if (totalCellTowerElement) { 
+            totalCellTowerElement.addEventListener("click", () => { 
+                window.location.href = "cellTowerDashboard.html"; // Redirect to cell tower dashboard 
+            }); 
+        } 
+
+        // Add event listener for yearly energy consumption container
+        const yearlyEnergyContainer = document.querySelector(".yearly-energy-container"); 
+        if (yearlyEnergyContainer && data.yearlyEnergyConsumption.length > 0) { 
+            const highestYear = data.yearlyEnergyConsumption[0].year; // Assuming the first item has the highest consumption year 
+            yearlyEnergyContainer.addEventListener("click", () => { 
+                window.location.href = `cellTowerDashboard.html?year=${highestYear}`; // Redirect with year as query parameter 
+            }); 
+        } 
     } catch (error) {
         console.error("Error fetching dashboard data:", error);
     }
@@ -51,11 +67,8 @@ function displayHighestEmissions(data) {
 
         highestDataCenterElement.addEventListener("click", () => {
             const dataCenterId = highestDataCenter.id;
-            const month = 9;  // Replace with actual month if dynamic
-            const year = 2024; // Replace with actual year if dynamic
-
-            // Redirect with query parameters for data center and date in YYYY/MM format
-            window.location.href = `dataCenterDashboard.html?data_center_id=${dataCenterId}&date=${year}/${month}`; // work alr but need to refine
+            // Redirect to data center dashboard with only the data center filter
+            window.location.href = `dataCenterDashboard.html?data_center_id=${dataCenterId}`;
         });
     } else {
         console.error("Highest Data Center or element not found.");
@@ -65,22 +78,18 @@ function displayHighestEmissions(data) {
     if (highestCellTower && highestCellTowerElement) {
         highestCellTowerElement.setAttribute("data-tower-id", highestCellTower.id);
         document.getElementById("highestCellTowerName").textContent = `${highestCellTower.cell_tower_name}`;
-        
-        // Adjusted to access `total_emissions` instead of `co2_emissions_tons`
         document.getElementById("highestCellTowerEmissions").textContent = `CO₂ Emissions: ${highestCellTower.total_emissions} Tons`;
 
         highestCellTowerElement.addEventListener("click", () => {
             const cellTowerId = highestCellTower.id;
-            const month = 9;  // Replace with actual month if dynamic
-            const year = 2024; // Replace with actual year if dynamic
-
-            // Redirect with query parameters for cell tower and date in YYYY/MM format
-            window.location.href = `cellTowerDashboard.html?cell_tower_id=${cellTowerId}&date=${year}/${month}`;
+            // Redirect to cell tower dashboard with only the cell tower filter
+            window.location.href = `cellTowerDashboard.html?cell_tower_id=${cellTowerId}`;
         });
     } else {
         console.error("Highest Cell Tower or element not found.");
     }
 }
+
 
 
 
