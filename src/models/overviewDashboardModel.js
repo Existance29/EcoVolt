@@ -119,12 +119,14 @@ const DashboardModel = {
             request.input("company_id", sql.Int, company_id);  // Set the company_id parameter
     
             const result = await request.query(`
-                SELECT TOP 3 YEAR(dce.date) AS year, dc.data_center_name, SUM(dce.co2_emissions_tons) AS total_emissions
-                FROM data_center_carbon_emissions AS dce
-                JOIN data_centers AS dc ON dce.data_center_id = dc.id
-                WHERE dc.company_id = @company_id
-                GROUP BY YEAR(dce.date), dc.data_center_name
-                ORDER BY total_emissions DESC;
+            SELECT TOP 3 
+                YEAR(dce.date) AS year, 
+                SUM(dce.co2_emissions_tons) AS total_emissions
+            FROM data_center_carbon_emissions AS dce
+            JOIN data_centers AS dc ON dce.data_center_id = dc.id
+            WHERE dc.company_id = @company_id
+            GROUP BY YEAR(dce.date)
+            ORDER BY total_emissions DESC;
             `);
     
             return result.recordset;
