@@ -120,9 +120,10 @@ button {
 /* Tabs Navigation on dashboard page */
 .tabs {
   display: flex;
-  gap: 20px;
+  gap: 1.25rem;
   margin-bottom: 30px;
   border-bottom: 2px solid #f0f0f0;
+  font-size: 1rem;
 }
 
 .tabs a {

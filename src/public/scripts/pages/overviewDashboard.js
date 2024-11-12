@@ -28,13 +28,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// Logout function to clear storage and redirect to the sign-in page
-function logout() {
-    sessionStorage.clear();
-    localStorage.clear();
-    window.location.href = "signIn.html";
-}
-
 // Function to display the highest emissions data center and cell tower
 function displayHighestEmissions(data) {
     const highestDataCenter = data.highestDataCenter;
