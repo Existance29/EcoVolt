@@ -32,14 +32,14 @@ class Posts {
                 SELECT 
                     af.post_id, af.user_id, u.name AS user_name, af.company_id, af.context, af.location, af.date,
                     af.time, af.carbon_emission, af.energy_consumption, af.activity_type, 
-                    COUNT(DISTINCT l.like_id) AS total_likes,
+                    COUNT(DISTINCT l.like_id) AS totsal_likes,
                     COUNT(DISTINCT d.dislike_id) AS total_dislikes,
                     COUNT(DISTINCT c.comment_id) AS total_comments
                     FROM activity_feed af
-                    INNER JOIN likes l ON af.post_id = l.post_id
-                    INNER JOIN dislikes d ON af.post_id = d.post_id
-                    INNER JOIN comments c ON af.post_id = c.post_id
-                    INNER JOIN users u ON u.id = af.user_id
+                    LEFT JOIN likes l ON af.post_id = l.post_id
+                    LEFT JOIN dislikes d ON af.post_id = d.post_id
+                    LEFT JOIN comments c ON af.post_id = c.post_id
+                    LEFT JOIN users u ON u.id = af.user_id
                     GROUP BY af.post_id, af.user_id, u.name, af.company_id, af.context, af.location, af.date,
                     af.time, af.carbon_emission, af.energy_consumption, af.activity_type
                 `;
@@ -204,8 +204,8 @@ class Posts {
                 const connection = await sql.connect(dbConfig);
                 const query = `SELECT c.comment_id, c.comment_text, u.id, u.name
                 FROM comments c
-                INNER JOIN users u ON c.user_id = u.id
-                INNER JOIN activity_feed af ON c.post_id = af.post_id
+                LEFT JOIN users u ON c.user_id = u.id
+                LEFT JOIN activity_feed af ON c.post_id = af.post_id
                 WHERE af.post_id = @post_id`;
                 
                 const request = connection.request();
@@ -284,12 +284,12 @@ class Posts {
 
                 const request = connection.request();
                 request.input("user_id", user_id);
-                request.input("company_id", company_id);
+                request.input("company_id", sql.Int, company_id);
                 request.input("context", context);
                 request.input("media_url", media_url);
                 request.input("carbon_emission", carbon_emission);
                 request.input("energy_consumption", energy_consumption);
-                request.inupt("activity_type", activity_type);
+                request.input("activity_type", activity_type);
                 request.input("location", location);
 
                 const result = await request.query(query);
