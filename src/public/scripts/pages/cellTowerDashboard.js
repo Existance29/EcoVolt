@@ -99,6 +99,7 @@ function renderDoughnutChart(element, labels, data, colors){
         Chart.getChart(element.id)?.destroy()
     }
 
+    
     new Chart(element, {
         type: 'doughnut',
         data: {
@@ -107,8 +108,7 @@ function renderDoughnutChart(element, labels, data, colors){
                 {
                     data: data,
                     backgroundColor: colors,
-                    borderWidth: 0,
-                    borderRadius: 0
+                    borderWidth: 2,
                 }
             ]
         },
@@ -120,12 +120,13 @@ function renderDoughnutChart(element, labels, data, colors){
                     display: false
                 },
             },
-            cutout: "65%"
+            cutout: "55 %"
         }
     })
+
     //render the labels for the pie chart
     const dataSum = data.reduce((a, b) => a + b, 0)
-    const labelElement = element.parentNode.parentNode.childNodes[3]
+    const labelElement = element.parentNode.parentNode.children[2]
     const [labelColumn, valueColumn] = labelElement.children
     labelColumn.innerHTML = ""
     valueColumn.innerHTML = ""
@@ -150,7 +151,7 @@ function renderCircleProgressBar(element, currentValue, totalValue, chartSize, b
     new EasyPieChart(element, {
         scaleLength: false,
         lineCap: "square",
-        lineWidth: 7,
+        lineWidth: 10,
         size: chartSize,
         barColor: barColor,
         trackColor: trackColor
@@ -193,7 +194,7 @@ async function loadData(){
     renderLineChart(document.getElementById('carbonEmissionChart'), carbonEmissionTrends, trendLabels, "#4FD1C5")
 
     //energy breakdown
-    const energyBreakdownColors = ["#5BA79F","#95D1CB","#4FD1C5","#485251","#263332"]
+    const energyBreakdownColors = ["#263332","#485251","#4FD1C5","#95D1CB","#5BA79F"]
     const energyBreakdownLabels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"]
     const energyBreakdownData = [data.radio_equipment_energy, data.cooling_energy, data.backup_power_energy, data.misc_energy]
     renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors)

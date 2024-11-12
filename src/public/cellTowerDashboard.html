@@ -11,20 +11,6 @@
     <div class="layout-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
-            <div class="logo">
-                <h2>EcoVolt</h2>
-            </div>
-            <nav class="nav-menu">
-                <a href="dataCenterDashboard.html" class="active">Dashboard</a>
-                <a href="report.html">Report</a>
-                <a href="#">Blog</a>
-                <a href="#">Profile</a>
-                <a href="#">Sign In</a>
-                <a href="#">Sign Up</a>
-            </nav>
-            <div class="help-box">
-                <p>Need help? <br> Please reach out to us</p>
-            </div>
         </aside>
 
         <!-- Main Content Area -->
@@ -110,22 +96,23 @@
                     </div>
                 </div>
                 
-                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; width: calc(100% - 63% - 1rem);">
-                    <div class="inter-semibold graph-container" style="flex: 1 1 0; height: 0;">
+                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
+                    <div class="inter-semibold graph-container" style="display: flex; flex-direction: column; align-items: flex-start;">
                         <div class="inter-bold" style="margin-bottom: 1.2rem;">Energy Consumption Breakdown</div>
-                        <div style="display: flex; height: 100%;">
-                            <div style="max-height: 75%; aspect-ratio: 1; max-width: 30%;">
-                                <canvas id="energyBreakdownChart"></canvas>
-                            </div>
+                            <!-- <div style="display: flex; justify-content: center; width: 100%;"> -->
+                                <div style="max-height: 75%; aspect-ratio: 1; max-width: 35%; justify-self: center; align-self: center;">
+                                    <canvas id="energyBreakdownChart"></canvas>
+                                </div>
+                            <!-- </div> -->
                             <div class="pie-chart-labels-container">
                                 <div class="column">
                                 </div>
                                 <div class="column">
                                 </div>
                             </div>
-                        </div>
                     </div>
-                    <div class="inter-semibold graph-container" style="flex: 1 1 0; height: 0;">
+
+                    <div class="inter-semibold graph-container" style="flex-grow: 1;">
                         <div class="inter-bold" style="margin-bottom: 1.2rem;">Renewable Energy Contribution</div>
                         <div class="chart-container">
                             <div class="chart inter-medium" id="renewable-energy-contribution-chart"></div>
