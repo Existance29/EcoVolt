@@ -5,18 +5,17 @@ const DashboardModel = {
     async getHighestEmissions(company_id) {
         try {
             await sql.connect(dbConfig);
-            console.log("Connected to the database");
 
             // Query for highest emissions data center
             const highestDataCenterResult = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
                 .query(`
-                    SELECT TOP 1 dc.data_center_name, SUM(dce.co2_emissions_tons) AS co2_emissions_tons
-                    FROM data_center_carbon_emissions AS dce
-                    JOIN data_centers AS dc ON dce.data_center_id = dc.id
-                    WHERE dc.company_id = @company_id
-                    GROUP BY dc.data_center_name
-                    ORDER BY co2_emissions_tons DESC;
+                SELECT TOP 1 dc.id, dc.data_center_name, SUM(dce.co2_emissions_tons) AS co2_emissions_tons
+                FROM data_center_carbon_emissions AS dce
+                JOIN data_centers AS dc ON dce.data_center_id = dc.id
+                WHERE dc.company_id = 1
+                GROUP BY dc.id, dc.data_center_name
+                ORDER BY co2_emissions_tons DESC;
                 `);
             const highestDataCenter = highestDataCenterResult.recordset[0] || {};
 
@@ -49,7 +48,6 @@ const DashboardModel = {
     async getTotalEmissions(company_id) {
         try {
             await sql.connect(dbConfig);
-            console.log("Connected to the database");
 
             // Total emissions for data centers
             const dataCenterResult = await new sql.Request()
@@ -90,7 +88,6 @@ const DashboardModel = {
     async getSustainabilityGoals(company_id) {
         try {
             await sql.connect(dbConfig);
-            console.log("Connected to the database");
 
             const result = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
@@ -117,18 +114,19 @@ const DashboardModel = {
     async getTop3YearsByEmissions(company_id) {
         try {
             await sql.connect(dbConfig);
-            console.log("Connected to the database");
     
             const request = new sql.Request();
             request.input("company_id", sql.Int, company_id);  // Set the company_id parameter
     
             const result = await request.query(`
-                SELECT TOP 3 YEAR(dce.date) AS year, dc.data_center_name, SUM(dce.co2_emissions_tons) AS total_emissions
-                FROM data_center_carbon_emissions AS dce
-                JOIN data_centers AS dc ON dce.data_center_id = dc.id
-                WHERE dc.company_id = @company_id
-                GROUP BY YEAR(dce.date), dc.data_center_name
-                ORDER BY total_emissions DESC;
+            SELECT TOP 3 
+                YEAR(dce.date) AS year, 
+                SUM(dce.co2_emissions_tons) AS total_emissions
+            FROM data_center_carbon_emissions AS dce
+            JOIN data_centers AS dc ON dce.data_center_id = dc.id
+            WHERE dc.company_id = @company_id
+            GROUP BY YEAR(dce.date)
+            ORDER BY total_emissions DESC;
             `);
     
             return result.recordset;
@@ -147,7 +145,6 @@ const DashboardModel = {
     async getYearlyEnergyConsumption(company_id) {
         try {
             await sql.connect(dbConfig);
-            console.log("Connected to the database");
 
             const result = await new sql.Request()
                 .input("company_id", sql.Int, company_id)

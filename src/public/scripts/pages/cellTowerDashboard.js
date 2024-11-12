@@ -99,6 +99,7 @@ function renderDoughnutChart(element, labels, data, colors){
         Chart.getChart(element.id)?.destroy()
     }
 
+    
     new Chart(element, {
         type: 'doughnut',
         data: {
@@ -107,8 +108,7 @@ function renderDoughnutChart(element, labels, data, colors){
                 {
                     data: data,
                     backgroundColor: colors,
-                    borderWidth: 0,
-                    borderRadius: 0
+                    borderWidth: 2,
                 }
             ]
         },
@@ -120,12 +120,13 @@ function renderDoughnutChart(element, labels, data, colors){
                     display: false
                 },
             },
-            cutout: "65%"
+            cutout: "55 %"
         }
     })
+
     //render the labels for the pie chart
     const dataSum = data.reduce((a, b) => a + b, 0)
-    const labelElement = element.parentNode.parentNode.childNodes[3]
+    const labelElement = element.parentNode.parentNode.children[2]
     const [labelColumn, valueColumn] = labelElement.children
     labelColumn.innerHTML = ""
     valueColumn.innerHTML = ""
@@ -150,7 +151,7 @@ function renderCircleProgressBar(element, currentValue, totalValue, chartSize, b
     new EasyPieChart(element, {
         scaleLength: false,
         lineCap: "square",
-        lineWidth: 7,
+        lineWidth: 10,
         size: chartSize,
         barColor: barColor,
         trackColor: trackColor
@@ -163,15 +164,24 @@ function renderCircleProgressBar(element, currentValue, totalValue, chartSize, b
     labelDiv.innerHTML = `<span style="color: ${barColor};">${formatDecimals(currentValue)}</span> / ${formatDecimals(totalValue)} MWh`
 }
 
+const monthPicker = document.getElementById("monthPicker")
+const yearPicker = document.getElementById("yearPicker")
+const yearErrorMessage = document.createElement("div"); // Create error message element
+
+yearErrorMessage.style.color = "red";
+yearErrorMessage.style.fontSize = "12px";
+yearErrorMessage.style.marginTop = "4px";
+yearErrorMessage.style.display = "none"; // Initially hidden
+yearPicker.parentNode.insertBefore(yearErrorMessage, yearPicker.nextSibling); // Insert error message below year picker
+
 async function loadData(){
     //get filters
-    const month = document.getElementById("monthDropdown").value
-    const year = document.getElementById("yearPicker").value
+    const month = monthPicker.value || "all"
+    const year = yearPicker.value || "all"
     const cellTower = document.getElementById("cellTowerDropdown").value
     //get data
-    const response = await get(`Dashboard/Cell-Tower/Consumption/${cellTower}/${month}/${year || "all"}`)
+    const response = await get(`Dashboard/Cell-Tower/Consumption/${cellTower}/${month}/${year}`)
     //check if the data exists
-    console.log(response.status)
     if (response.status == 404){
         document.getElementById("noDataMessage").style.display = "block"
         document.getElementById("dashboard").style.display = "none"
@@ -193,7 +203,7 @@ async function loadData(){
     renderLineChart(document.getElementById('carbonEmissionChart'), carbonEmissionTrends, trendLabels, "#4FD1C5")
 
     //energy breakdown
-    const energyBreakdownColors = ["#5BA79F","#95D1CB","#4FD1C5","#485251","#263332"]
+    const energyBreakdownColors = ["#263332","#485251","#4FD1C5","#95D1CB","#5BA79F"]
     const energyBreakdownLabels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"]
     const energyBreakdownData = [data.radio_equipment_energy, data.cooling_energy, data.backup_power_energy, data.misc_energy]
     renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors)
@@ -224,16 +234,76 @@ async function onLoad(){
     var initialCellTowerID = getUrlParameter("id")
 
     //validate the parameters, default to "all" if invalid
-    initialMonth = initialMonth && initialMonth >= 1 && initialMonth <= 12 ? initialMonth : "all"
+    initialMonth = initialMonth && initialMonth >= 1 && initialMonth <= 12 ? initialMonth : ""
     initialCellTowerID = !isNaN(initialCellTowerID) && cellTowerIDs.includes(parseInt(initialCellTowerID)) ? initialCellTowerID : "all"
-    
+
     //set the filters to the parameter value
-    document.getElementById("monthDropdown").value = initialMonth
-    document.getElementById("yearPicker").value = initialYear
+    monthPicker.value = initialMonth
+    yearPicker.value = initialYear
     document.getElementById("cellTowerDropdown").value = initialCellTowerID   
 
     //load data
     loadData()
 }
+
+function updateDatePickerToggleLabel() {
+    const selectedMonth = monthPicker.value;
+    const selectedYear = yearPicker.value;
+    
+    if (selectedYear && selectedMonth) {
+        // Show month and year (e.g., January 2024)
+        const monthName = monthPicker.options[monthPicker.selectedIndex].text;
+        document.getElementById("datePickerToggle").textContent = `${monthName} ${selectedYear}`;
+    } else if (selectedYear) {
+        // Show only year (e.g., 2024)
+        document.getElementById("datePickerToggle").textContent = selectedYear;
+    } else {
+        // Default to "All"
+        document.getElementById("datePickerToggle").textContent = "All";
+    }
+}
+
+document.getElementById("datePickerToggle").addEventListener("click", function(event) {
+    event.stopPropagation(); 
+    var container = document.getElementById("datePickerContainer");
+    container.style.display = container.style.display === "none" || !container.style.display ? "block" : "none";
+});
+
+document.addEventListener("click", function(event) {
+    var container = document.getElementById("datePickerContainer");
+    var toggle = document.getElementById("datePickerToggle");
+    if (!toggle.contains(event.target) && !container.contains(event.target)) {
+        container.style.display = "none";
+    }
+});
+
+// Event listener for the Apply button
+document.getElementById("datePickerApply").addEventListener("click", function(event) {
+    event.preventDefault();
+    // Check if month is selected without a year
+    if (monthPicker.value && !yearPicker.value) {
+        yearErrorMessage.textContent = "Please select a year";
+        yearErrorMessage.style.display = "block";
+        return; // Stop fetch if month is selected without a year
+    }
+    yearErrorMessage.style.display = "none"; // Hide the error message if validation passes
+    updateDatePickerToggleLabel(); // Update the label based on the selected month/year
+    document.getElementById("datePickerContainer").style.display = "none";
+    loadData()
+});
+
+// Event listener for the Clear button
+document.getElementById("datePickerClear").addEventListener("click", function(event) {
+    event.preventDefault();
+    monthPicker.value = "";
+    yearPicker.value = "";
+    updateDatePickerToggleLabel(); // Reset the label to "All"
+    document.getElementById("datePickerContainer").style.display = "none";
+    yearErrorMessage.style.display = "none"; // Hide the error message if validation passes
+    loadData()
+});
+
+monthPicker.addEventListener("change", () => {
+})
 
 onLoad()

@@ -3,16 +3,8 @@ const query = require("../libs/query")
 
 class User{
     static async createUser(user) {
-        //accept a object and add it to the database
         //add user data
-        const params = {
-            "name": user.name,
-            "email": user.email,
-            "password": user.password,
-            "company_id": user.company_id,
-        }
-        
-        const result = await query.query("INSERT INTO users (name, email, password, company_id) VALUES (@name, @email, @password, @company_id); SELECT SCOPE_IDENTITY() AS id;", params)
+        const result = await query.query("INSERT INTO users (name, email, password, company_id, about, profile_picture_file_name) VALUES (@name, @email, @password, @company_id, @about, @profile_picture_file_name); SELECT SCOPE_IDENTITY() AS id;", user)
         return this.getUserById(result.recordset[0].id)
     }
 
@@ -32,6 +24,23 @@ class User{
         const result = (await query.query("SELECT * FROM users WHERE email = @email", params)).recordset[0]
         //return null if no user found
         return result ? result : null
+    }
+
+    static async getPrivateUserById(id){
+        //unlike getUserById, this function is only meant to be accessed by the logged in user
+        //returns email, still exclude password
+         //get first user from database that matches id and exclude the password
+        const result = (await query.exceptQuery(["password"],"SELECT * FROM Users WHERE id = @id", {"id": id})).recordset[0]
+        //return null if no user found
+        return result ? result : null
+    }
+
+    static async updateUserAccountInfo(id,user){
+        //accept a object and add it to the database
+        user.id = id
+        await query.query("UPDATE Users SET name = @name, email = @email, about = @about WHERE id = @id", user)
+        //return the updated user
+        return this.getUserById(id)
     }
 }
 

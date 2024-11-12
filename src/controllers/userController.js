@@ -24,6 +24,9 @@ class userController{
             //hash the password and replace the password field with the new hashed password
             newUser.password = userController.hashPassword(newUser.password)
             newUser.company_id = (await Company.getCompanyByEmailDomain(newUser.email.slice(newUser.email.indexOf('@')+1))).id
+            //set default values
+            newUser.about = "Hello!"
+            newUser.profile_picture_file_name = "default.png"
             const createdUser = await User.createUser(newUser)
             //create user successful, display it as json
             res.status(201).json(userController.generateAccessToken(createdUser));
@@ -56,6 +59,32 @@ class userController{
     static async decodeJWT(req, res){
         res.status(200).json(req.user)
     }
+
+    static async getPrivateUserById(req, res){
+
+        const id = parseInt(req.user.userId);
+        try {
+          const user = await User.getPrivateUserById(id)
+          if (!user) {
+            return res.status(404).send("User not found")
+          }
+          res.json(user);
+        } catch (error) {
+          console.error(error)
+          res.status(500).send("Error retrieving users")
+        }
+    }
+
+    static async updateUserAccountInfo(req, res){
+
+        try {
+          const updatedUser = await User.updateUserAccountInfo(req.user.userId, req.body)
+          res.status(200).json(updatedUser);
+        } catch (error) {
+          console.error(error);
+          res.status(500).send("Error updating user")
+        }
+      }
 
 }
 
