@@ -1,5 +1,40 @@
+const accessToken = sessionStorage.accessToken || localStorage.accessToken;
+
+const payloadBase64Url = accessToken.split('.')[1];
+const payload = decodeBase64Url(payloadBase64Url);
+const user_id = payload.userId;
+const company_id = payload.companyId;
+let user_name = "";
+
+function decodeBase64Url(base64Url) {
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = atob(base64);
+    return JSON.parse(decoded);
+}
+
 window.onload = async function() {
     try {
+        loadPosts();
+        const addNewPostButton = document.getElementById("new-post-button");
+        const closeModalButton = document.getElementById("closeModalBtn");
+        const modal = document.getElementById("postModal");
+
+        addNewPostButton.addEventListener("click", () => {
+            modal.style.display = "flex";
+            document.getElementById('submitPostBtn').addEventListener("click", async () => {
+                await addNewPost(user_id, company_id);
+            });
+        });
+        closeModalButton.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+    } catch (error) {
+        console.error("Error getting all posts : ", error);
+    }
+};
+
+async function loadPosts() {
+    try{
         const response = await fetch('http://localhost:3000/posts', { 
             method: 'GET',
             headers: {
@@ -16,6 +51,7 @@ window.onload = async function() {
         postsContainer.innerHTML = '';
 
         if (posts.length > 0) {
+            console.log("post length", posts.length);
             posts.forEach((post) => {
             const postElement = document.createElement("div");
             postElement.classList.add("post");
@@ -44,7 +80,7 @@ window.onload = async function() {
             <i class = "fa fa-thumbs-up"></i>
             <span class="likes-count">${post.likes_count || 0} Likes</span>
             `;
-            likeButton.addEventListener("click", () => updateLikes(post.post_id, likeButton));
+            likeButton.addEventListener("click", () => updateLikes(user_id, post.post_id, likeButton));
 
             const dislikeButton = document.createElement("button");
             dislikeButton.classList.add("action-btn", "dislike-button");
@@ -52,7 +88,7 @@ window.onload = async function() {
             <i class = "fa fa-thumbs-down"></i>
             <span class="dislikes-count">${post.dislikes_count || 0} Dislikes</span>
             `;
-            dislikeButton.addEventListener("click", () => updateDislikes(post.post_id, dislikeButton));
+            dislikeButton.addEventListener("click", () => updateDislikes(user_id, post.post_id, dislikeButton));
 
             const commentButton = document.createElement("button");
             commentButton.classList.add("action-btn", "comment-button");
@@ -78,33 +114,19 @@ window.onload = async function() {
         } else {
             postsContainer.innerHTML = '<p>No posts available.</p>';
         }
-
-        const addNewPostButton = document.getElementById("new-post-button");
-        const closeModalButton = document.getElementById("closeModalBtn");
-        const modal = document.getElementById("postModal");
-
-        addNewPostButton.addEventListener("click", () => {
-            modal.style.display = "flex";
-            //addNewPost(user_id);
-            closeModalButton.addEventListener("click", () => {
-                modal.style.display = "none";
-            });
-            
-        });
-        
     } catch (error) {
-        console.error("Error getting all posts : ", error);
+        console.error("Error getting all posts: ", error);
     }
-};
+}
 
-async function updateLikes(post_id, likeButton) {
+async function updateLikes(user_id, post_id, likeButton) {
     try {
         const response = await fetch('http://localhost:3000/toggleLike', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ post_id, user_id: userId })
+            body: JSON.stringify({ post_id, user_id: user_id })
         });
 
         if (!response.ok) {
@@ -126,14 +148,14 @@ async function updateLikes(post_id, likeButton) {
 }
 
 
-async function updateDislikes(post_id, dislikeButton) {
+async function updateDislikes(user_id, post_id, dislikeButton) {
     try {
         const response = await fetch('http://localhost:3000/toggleDislike', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ post_id, user_id: userId })
+            body: JSON.stringify({ post_id, user_id: user_id })
         });
 
         if (!response.ok) {
@@ -209,7 +231,7 @@ async function loadComments(post_id, commentsContainer) {
         postButton.addEventListener("click", () => {
             const commentInput = document.getElementById(`new-comment-${post_id}`);
             console.log("comment input in text box : ", commentInput.value);
-            addComment(post_id, commentInput.value, postButton);
+            addComment(post_id, user_id, commentInput.value, postButton);
         });
 
         commentsContainer.appendChild(newCommentDiv);
@@ -219,8 +241,7 @@ async function loadComments(post_id, commentsContainer) {
     }
 }
 
-async function addComment(post_id, commentText, commentButton) {
-    user_id = 13;
+async function addComment(post_id, user_id, commentText, commentButton) {
     console.log("Comment Text : ", commentText);
     if (!commentText) return;
 
@@ -247,7 +268,7 @@ async function addComment(post_id, commentText, commentButton) {
         const commentElement = document.createElement("div");
         commentElement.classList.add("comment");
         commentElement.innerHTML = `
-            <strong>${newComment.username || "Anonymous"}</strong>
+            <strong>${newComment.username} || "Anonymous"}</strong>
             <p>${newComment.comment_text || "No comment."}</p>
         `;
         commentsContainer.appendChild(commentElement);
@@ -265,9 +286,10 @@ async function addNewPost(user_id, company_id) {
     const postCarbonEmission = parseFloat(document.getElementById('postCarbonEmission').value) || 0;
     const postEnergyConsumption = parseFloat(document.getElementById('postEnergyConsumption').value) || 0;
     const postActivityType = document.getElementById('postActivityType').value|| null;
-
+    const postMediaUrl = document.getElementById('postMediaUrl').value || null;
+    
     if (!postContext && !postLocation && !postActivityType) {
-        alert("Discard?")
+        alert("Please provide at least on field.")
         return;
     }
 
@@ -278,9 +300,10 @@ async function addNewPost(user_id, company_id) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                user_id, company_id, data_center_id, 
+                user_id: user_id, 
+                company_id: company_id, 
                 context: postContext, 
-                media_url, 
+                media_url: postMediaUrl, 
                 carbon_emission: postCarbonEmission,
                 energy_consumption: postEnergyConsumption,
                 activity_type: postActivityType,
@@ -300,9 +323,11 @@ async function addNewPost(user_id, company_id) {
         document.getElementById('postCarbonEmission').value = '';
         document.getElementById('postEnergyConsumption').value = '';
         document.getElementById('postActivityType').value = '';
+        document.getElementById('postMediaUrl').value = '';
         
         alert("Post added successfully!");
-        document.getElementById("modal").style.display = "none";
+        document.getElementById("postModal").style.display = "none";
+        loadPosts();
 
     } catch (error) {
         console.error("Error adding post:", error);
