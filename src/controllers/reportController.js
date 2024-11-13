@@ -81,7 +81,7 @@ const generateReportData = async (req, res) => {
             co2Emissions: totalCO2,
             currentProgress: (totalCO2 / (totalEnergy * 0.2)) * 100
         });
-        const conclusion = await generateConclusion(totalEnergy, totalCO2);
+        const conclusion = await generateConclusion(totalEnergy, totalCO2, recommendations);
 
         const reportData = {
             months,
@@ -110,7 +110,6 @@ const generateReportData = async (req, res) => {
 
 // Forcefully generate new report data
 const forceGenerateReportData = async (req, res) => {
-    console.log("Force generating new report data...");
     await generateReportData(req, res);
 };
 
@@ -141,7 +140,7 @@ const generateReportPDF = async (req, res) => {
     }
 };
 
-// Helper function to get exactly 5 AI recommendations, one from each category
+// function to get exactly 5 AI recommendations, one from each category
 const getAllAIRecommendations = async (data) => {
     const categories = [
         "Energy Efficiency Improvements",
@@ -156,7 +155,6 @@ const getAllAIRecommendations = async (data) => {
             categories.map(async (category, index) => {
                 await new Promise(resolve => setTimeout(resolve, index * 1000)); // Delay to avoid rate limiting
                 const detailedRecommendation = await generateAIRecommendations(data, category);
-                console.log(`Generated Recommendation for ${category}:`, detailedRecommendation);
                 return detailedRecommendation || `Recommendation for ${category} is unavailable.`;
             })
         );
@@ -168,7 +166,7 @@ const getAllAIRecommendations = async (data) => {
     }
 };
 
-// Helper function to generate a detailed AI recommendation for each category
+// function to generate a detailed AI recommendation for each category
 async function generateAIRecommendations(data, category) {
     const prompt = `Based on the following data for Singtel:
     - Total Energy Consumption: ${data.totalEnergy} MWh
@@ -207,22 +205,37 @@ async function generateAIRecommendations(data, category) {
     }
 }
 
-// Helper function to generate a conclusion
-async function generateConclusion(totalEnergy, totalCO2) {
-    const prompt = `Given the total energy consumption of ${totalEnergy} MWh and CO2 emissions of ${totalCO2} tons, provide a conclusion on Singtel’s sustainability progress and suggest predictive actions for further reducing emissions.`;
+// function to generate a conclusion
+async function generateConclusion(totalEnergy, totalCO2, recommendations) {
+    let conclusion = '';
+    let retries = 0;
 
-    try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: prompt }],
-            max_tokens: 150,
-            temperature: 0.7
-        });
-        return response.choices[0].message.content;
-    } catch (error) {
-        console.error("Error generating conclusion:", error);
-        throw error;
+    while (conclusion.length < 300 && retries < 3) { // Ensure minimum length and limit retries
+        try {
+            const response = await openai.chat.completions.create({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: `
+                    Provide a final, structured conclusion for the Singtel Sustainability Report, including:
+                    - Total energy consumption and CO2 emissions.
+                    - Highlights of recommendations and their intended impact.
+                    - Predictive actions to achieve net-zero goals by adopting renewables, enhancing energy efficiency, and reducing emissions.
+                ` }],
+                max_tokens: 250,
+                temperature: 0.7
+            });
+            
+            conclusion = response.choices[0].message.content;
+            retries++;
+        } catch (error) {
+            console.error("Error generating conclusion, retrying...", error);
+        }
     }
+
+    if (!conclusion) {
+        throw new Error("Failed to generate a complete conclusion after multiple attempts.");
+    }
+
+    return conclusion;
 }
 
 // Function to generate an executive summary
