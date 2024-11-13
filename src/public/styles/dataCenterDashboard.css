@@ -271,6 +271,10 @@ left: 0;
   max-width: 25%; /* Adjust width for the desired number of columns */
 }
 
+.gauge-container h2 {
+  width: 100%; /* Ensure it takes full width of the container */
+  text-align: center; /* Center-align the text */
+}
 
 
 .gauge-container {
@@ -295,16 +299,11 @@ left: 0;
 }
 
 
-.gauge-container h2 {
-  align-self: flex-start;       /* Align the title to the left */
-  margin-top: 40px; /* Moves the title down by adding space above */
-}
-
 .button-container button {
   padding: 6px 12px;
   font-size: 14px;
   font-weight: bold;
-  margin-top: 20px; /* Moves the title down by adding space above */
+  margin-top: 10px; /* Moves the title down by adding space above */
   color: #4e5d63;
   background-color: #f4f4f9;
   border: 2px solid #4e5d63;
