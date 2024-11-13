@@ -1,5 +1,5 @@
 Chart.defaults.font.size = 13
-Chart.defaults.color = "#CAC9CA"
+Chart.defaults.color = "#8A8A8A"
 var hourArray = [10, 20, 30, 40, 50]
 var honeyPerMin = [5,10,15,20, 13]
 
@@ -45,14 +45,13 @@ function renderBarChart(canvasElement, xData, yData, colors){
             datasets: [{
                 data: xData,
                 borderWidth: 1,
+                barThickness: 60,
                 borderColor: colors,
-                barThickness: 50,
                 backgroundColor: colors.map(x => x+"4D")
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
             scales: {
                 y: {
                     grid: {
@@ -60,7 +59,7 @@ function renderBarChart(canvasElement, xData, yData, colors){
                         borderDash: [8, 4],
                     },
                     ticks: {
-                        maxTicksLimit: 6,
+                        maxTicksLimit: 10,
                         autoSkip: false,
                     },
                     beginAtZero: true
@@ -80,7 +79,7 @@ function renderBarChart(canvasElement, xData, yData, colors){
     })
 }
 
-function renderLineChart(canvasElement, xData, yData, lineColor){
+function renderLineChart(canvasElement, xData, yData, lineColor, maintainAspectRatio = false, tension=0.4){
     // const parentElement = canvasElement.parentElement
     // const parentHeightPX = parentElement.offsetHeight
     // //convert from px to vh
@@ -97,7 +96,7 @@ function renderLineChart(canvasElement, xData, yData, lineColor){
             datasets: [{
                 data: xData,
                 borderColor: lineColor,
-                tension: 0.4,
+                tension: tension,
                 fill: {
                     target: 'origin',
                     above: (context) => {
@@ -112,7 +111,7 @@ function renderLineChart(canvasElement, xData, yData, lineColor){
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
+            maintainAspectRatio: maintainAspectRatio,
             scales: {
                 y: {
                     grid: {
@@ -120,7 +119,7 @@ function renderLineChart(canvasElement, xData, yData, lineColor){
                         borderDash: [8, 4],
                     },
                     ticks: {
-                        maxTicksLimit: 6,
+                        maxTicksLimit: 8,
                         autoSkip: false,
                     },
                     beginAtZero: true
@@ -208,11 +207,12 @@ function renderCircleProgressBar(element, currentValue, totalValue, chartSize, b
     element.style.width = `${chartSize}px`
 
     const labelDiv = element.parentNode.children[1]
-    labelDiv.innerHTML = `<span style="color: ${barColor};">${formatDecimals(currentValue)}</span> / ${formatDecimals(totalValue)} MWh`
+    labelDiv.innerHTML = `<span style="color: ${barColor};">${formatDecimals(currentValue)}</span> / ${formatDecimals(totalValue)} kWh`
 }
 
 const monthPicker = document.getElementById("monthPicker")
 const yearPicker = document.getElementById("yearPicker")
+const cellTowerPicker = document.getElementById("cellTowerDropdown")
 const yearErrorMessage = document.createElement("div"); // Create error message element
 
 yearErrorMessage.style.color = "red";
@@ -221,12 +221,18 @@ yearErrorMessage.style.marginTop = "4px";
 yearErrorMessage.style.display = "none"; // Initially hidden
 yearPicker.parentNode.insertBefore(yearErrorMessage, yearPicker.nextSibling); // Insert error message below year picker
 
-async function loadData(){
+function getFilters(){
     //get filters
-    const month = monthPicker.value || "all"
-    const year = yearPicker.value || "all"
-    const cellTower = document.getElementById("cellTowerDropdown").value
+    return {
+        month: monthPicker.value || "all",
+        year: yearPicker.value || "all",
+        cellTower: cellTowerPicker.value
+    }
+}
+
+async function loadData(){
     //get data
+    const {month, year,cellTower} = getFilters()
     const response = await get(`Dashboard/Cell-Tower/Consumption/${cellTower}/${month}/${year}`)
     //check if the data exists
     if (response.status == 404){
@@ -240,7 +246,7 @@ async function loadData(){
     //main stats
     document.getElementById("grid-type").innerText = data.grid_type
     document.getElementById("total-carbon-emission").innerText = `${formatDecimals(data.carbon_emission)} Tons`
-    document.getElementById("total-energy").innerText = `${formatDecimals(data.total_energy)} MWh`
+    document.getElementById("total-energy").innerText = `${formatDecimals(data.total_energy)} kWh`
 
     //deal with trends
     const trendData = data.trends
@@ -369,13 +375,6 @@ Drill Down Chart
 ============================
 */
 
-function energyConsumptionClick(event, elements, chart){
-    if (!elements[0]) return     
-    const i = elements[0].index
-    const label = chart.data.labels[i]
-    showDrillDown(`${label} Energy Consumption By Tower`) 
-}
-
 function hideDrillDown(){
     document.getElementById("drill-down").style.display = "none"
 }
@@ -390,4 +389,36 @@ window.onclick = function(event) {
     if (event.target.id == "drill-down") hideDrillDown()
 };
 
-renderBarChart(document.getElementById('drillDownChart'), [1,2,3,4,5], [1,2,3,4,5], ["#263332","#485251","#4FD1C5","#95D1CB","#5BA79F"])
+//energy consumption drilldowns
+async function loadCellTowersEnergyConsumption(cat, month, year, color){
+    const data = await (await get(`/Dashboard/Cell-Towers/Energy-Consumption/${cat}/${month}/${year}`)).json()
+    renderBarChart(document.getElementById('drillDownChart'), data.map(x => x.data), data.map(x => x.cell_tower_name), Array(data.length).fill(color))
+}
+
+async function loadCellTowerEnergyConsumptionTrend(id, cat, month, year, color){
+    const data = await (await get(`/Dashboard/Cell-Tower/Energy-Consumption-Trend/${id}/${cat}/${month}/${year}`)).json()
+    console.log(data)
+    renderLineChart(document.getElementById('drillDownChart'), data.map(x => x.data), data.map(x => formatNum(x.num, month)), color, true, 0.4)
+}
+
+function energyConsumptionClick(event, elements, chart){
+    if (!elements[0]) return     
+    const i = elements[0].index
+    const label = chart.data.labels[i]
+    const color = chart.data.datasets[0].backgroundColor[i]
+    const {month, year, cellTower} = getFilters()
+
+    //show breakdown based on cell tower
+    if (cellTower == "all"){
+        showDrillDown(`${label} - Energy Consumption (kWh)`) 
+        loadCellTowersEnergyConsumption(label, month, year, color)
+
+    } else{ //show trend for target cell tower
+        const cellTowerName = document.getElementById("cellTowerDropdown").options[document.getElementById("cellTowerDropdown").selectedIndex ].text
+        showDrillDown(`${label} - Data Center: ${cellTowerName} (kWh)`) 
+        loadCellTowerEnergyConsumptionTrend(cellTower, label, month, year, color)
+    }
+}
+
+//renewable energy contribution drill down
+document.getElementById("renewable-energy-contribution-chart").addEventListener
