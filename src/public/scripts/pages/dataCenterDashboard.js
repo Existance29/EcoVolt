@@ -607,7 +607,7 @@ async function fetchTotalEnergyConsumptionByDataCenterIdAndDate(data_center_id) 
         // Update the total energy consumption display in the stat-value element
         const totalEnergyConsumption = Math.round(parseFloat(data.total_energy_consumption)); 
         document.getElementById("totalEnergyConsumption").textContent = 
-            `${totalEnergyConsumption.toLocaleString()} MWh`;       
+            `${totalEnergyConsumption.toLocaleString()} MWh`;
     } catch (error) {
         console.error("Error fetching total energy consumption data for data center by date:", error);
     }
