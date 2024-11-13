@@ -77,24 +77,29 @@ class cellTowerDashboard{
                         WHEN @cat = 'Misc' THEN ec.misc_energy_kwh
                         ELSE 0 END) AS data
                         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID ${this.filterByMonthAndYear(month, year)}
-                        GROUP BY ct.cell_tower_name`
+                        GROUP BY ct.cell_tower_name, ct.id`
 
         const result = (await query.query(queryStr, params)).recordset
-        return result ? result : null
+        return result.length ? result : null
     }
 
     static async getEnergyConsumptionTrendByCellTower(companyID, cellTowerID, cat, month, year){
         const params = {
             "companyID": companyID,
-            "cellTowerID": cellTowerID,
+            "id": cellTowerID,
             "cat": cat,
             "month": month,
             "year": year
         }
 
         const filterStr = this.filterByMonthAndYear(month, year)
-
-        const queryStr = `SELECT ct.cell_tower_name AS cell_tower_name, 
+        let groupBySQL;
+        if (month == "all"){
+            groupBySQL = "MONTH(date)"
+        }else{
+            groupBySQL = "DAY(date)"
+        }
+        const queryStr = `SELECT ${groupBySQL} as num, 
                         SUM(CASE 
                         WHEN @cat = 'Radio Equipment' THEN ec.radio_equipment_energy_kwh
                         WHEN @cat = 'Cooling' THEN ec.cooling_energy_kwh
@@ -102,10 +107,52 @@ class cellTowerDashboard{
                         WHEN @cat = 'Misc' THEN ec.misc_energy_kwh
                         ELSE 0 END) AS data
                         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID AND ct.id=@id ${filterStr}
-                        GROUP BY ct.cell_tower_name`
+                        GROUP BY ${groupBySQL}`
 
         const result = (await query.query(queryStr, params)).recordset
-        return result ? result : null
+        return result.length ? result : null
+    }
+
+    static async getRenewableEnergyForEachCellTower(companyID,month, year){
+        const params = {
+            "companyID": companyID,
+            "month": month,
+            "year": year,
+        }
+
+        const queryStr = `SELECT ct.cell_tower_name AS cell_tower_name, 
+                        SUM(renewable_energy_kwh) AS renewable_energy,
+                        SUM(total_energy_kwh) - SUM(renewable_energy_kwh) AS nonrenewable_energy
+                        FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID ${this.filterByMonthAndYear(month, year)}
+                        GROUP BY ct.cell_tower_name, ct.id`
+
+        const result = (await query.query(queryStr, params)).recordset
+        return result.length ? result : null
+    }
+
+    static async getRenewableEnergyTrendByCellTower(companyID, cellTowerID, month, year){
+        const params = {
+            "companyID": companyID,
+            "id": cellTowerID,
+            "month": month,
+            "year": year
+        }
+
+        const filterStr = this.filterByMonthAndYear(month, year)
+        let groupBySQL;
+        if (month == "all"){
+            groupBySQL = "MONTH(date)"
+        }else{
+            groupBySQL = "DAY(date)"
+        }
+        const queryStr = `SELECT ${groupBySQL} as num, 
+                        SUM(renewable_energy_kwh) AS renewable_energy,
+                        SUM(total_energy_kwh) AS total_energy
+                        FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID AND ct.id=@id ${filterStr}
+                        GROUP BY ${groupBySQL}`
+
+        const result = (await query.query(queryStr, params)).recordset
+        return result.length ? result : null
     }
 }
 

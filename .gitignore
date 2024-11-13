@@ -131,3 +131,6 @@ dist
 
 # Database configuration
 dbConfig.js
+
+# Uploads
+uploads
