@@ -714,15 +714,15 @@ function renderEnergyBreakdownChart(data) {
         options: {
             responsive: true,
             maintainAspectRatio: true,
+            hoverOffset: 15,  // Add this line to set hover offset (enlarges on hover)
             plugins: {
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            const label = context.label || '';
                             const value = context.raw || 0;
                             const percentage = ((value / total) * 100).toFixed(1);
-                            return `${label}: ${value} MWh (${percentage}%)`;
+                            return `${value.toLocaleString()} MWh)`; // Format with commas
                         }
                     }
                 }
@@ -752,8 +752,8 @@ function renderEnergyBreakdownChart(data) {
 
     labels.forEach((label, index) => {
         const color = colors[index];
-        const value = parseFloat(values[index].toFixed(1));
-        const percentage = ((value / total) * 100).toFixed(1);
+        const value = parseFloat(values[index].toFixed(1)).toLocaleString(); // Format with commas
+        const percentage = ((values[index] / total) * 100).toFixed(1);
 
         // Create a legend item
         const legendItem = document.createElement("div");
@@ -766,6 +766,7 @@ function renderEnergyBreakdownChart(data) {
         legendContainer.appendChild(legendItem);
     });
 }
+
 
 function openPopup(dataCenterId, year, month, selectedLabel) {
     popupModal.style.display = 'flex';
