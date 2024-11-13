@@ -20,3 +20,34 @@ document.addEventListener("DOMContentLoaded", function () {
     
   
   })
+
+
+
+  
+
+
+// Toggle chatbot visibility
+function toggleChatbot() {
+  const chatbotContent = document.getElementById("chatbotContent");
+  chatbotContent.style.display = chatbotContent.style.display === "none" ? "block" : "none";
+}
+
+// Handle Enter key press in input field
+function handleKeyPress(event) {
+  if (event.key === "Enter") {
+      sendMessage();
+  }
+}
+
+
+// Display message in chat window
+function displayMessage(message, className) {
+  const messageContainer = document.createElement("div");
+  messageContainer.className = `message ${className}`;
+  messageContainer.textContent = message;
+  document.getElementById("chatbotMessages").appendChild(messageContainer);
+
+  // Scroll to the bottom of the messages
+  const messages = document.querySelector(".chatbot-messages");
+  messages.scrollTop = messages.scrollHeight;
+}

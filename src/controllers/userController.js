@@ -3,6 +3,7 @@ const Company = require("../models/company")
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const jwt = require("jsonwebtoken")
+const path = require('path')
 require("dotenv").config()
 
 class userController{
@@ -107,6 +108,19 @@ class userController{
       } catch (error) {
         console.error(error)
         res.status(500).send("Error changing user password")
+      }
+    }
+
+    static async getProfilePictureById(req, res){
+      try {
+        const user = await User.getUserById(req.params.id)
+        if (!user) {
+          return res.status(404).send("User not found")
+        }
+        res.sendFile(path.join(__dirname, `./uploads/${user.profile_picture_file_name}`));
+      } catch (error) {
+        console.error(error)
+        res.status(500).send("Error retrieving profile picture")
       }
     }
 

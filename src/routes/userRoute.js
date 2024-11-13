@@ -11,6 +11,7 @@ const userRoute = (app) => {
     app.get("/users/account/private", authenticateToken, userController.getPrivateUserById)
     app.put("/users/account/private", authenticateToken, validateUser.validateAccountUpdate, userController.updateUserAccountInfo)
     app.put("/users/password", authenticateToken, validateUser.validateNewPassword, userController.changePassword)
+    app.get("/users/profile-picture/public/:id", userController.getProfilePictureById)
 };
 
 module.exports = userRoute;

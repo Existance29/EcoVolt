@@ -86,15 +86,20 @@ class cellTowerDashboard{
     static async getEnergyConsumptionTrendByCellTower(companyID, cellTowerID, cat, month, year){
         const params = {
             "companyID": companyID,
-            "cellTowerID": cellTowerID,
+            "id": cellTowerID,
             "cat": cat,
             "month": month,
             "year": year
         }
 
         const filterStr = this.filterByMonthAndYear(month, year)
-
-        const queryStr = `SELECT ct.cell_tower_name AS cell_tower_name, 
+        let groupBySQL;
+        if (month == "all"){
+            groupBySQL = "MONTH(date)"
+        }else{
+            groupBySQL = "DAY(date)"
+        }
+        const queryStr = `SELECT ${groupBySQL} as num, 
                         SUM(CASE 
                         WHEN @cat = 'Radio Equipment' THEN ec.radio_equipment_energy_kwh
                         WHEN @cat = 'Cooling' THEN ec.cooling_energy_kwh
@@ -102,7 +107,7 @@ class cellTowerDashboard{
                         WHEN @cat = 'Misc' THEN ec.misc_energy_kwh
                         ELSE 0 END) AS data
                         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID AND ct.id=@id ${filterStr}
-                        GROUP BY ct.cell_tower_name`
+                        GROUP BY ${groupBySQL}`
 
         const result = (await query.query(queryStr, params)).recordset
         return result ? result : null
