@@ -1,21 +1,31 @@
+/* 
+=====================
+Account tab
+=====================
+*/
 const accountTextFields = ["name", "email", "about"]
+var accountTextFieldValues = {} //store the value of the textboxes before editing
 
 //hide the error message when the input field is changed
 function inputChanged(e){
     //get the associated error message based on the id of the input field
-    const error = document.getElementById(`${e.target.id.replaceAll("-","_")}-error`)
-    console.log(error)
+    const error = document.getElementById(`${e.target.id}-error`)
     error.style.opacity = "0"
 }
 
 Array.from(document.getElementsByTagName("input")).forEach(x => {
-    if (x.type == "text") x.addEventListener("input", inputChanged)
+    if (x.type == "text" || x.type == "password") x.addEventListener("input", inputChanged)
 })
 
 function closeTextBox(editBtn, textbox){
     textbox.classList.remove("active")
     editBtn.innerText = "Edit"
     textbox.disabled = true
+    //revert back to previous value
+    textbox.value = accountTextFieldValues[textbox.id]
+    //hide errors
+    inputChanged({target: textbox})
+
 }
 
 function getTextBox(editBtn){
@@ -28,7 +38,10 @@ async function updateAccountInfo(){
     const resp = await put("users/account/private", updateData)
     const body = await resp.json()
     //check if error
-    if (resp.status == 200) return true
+    if (resp.status == 200){ 
+        accountTextFieldValues = body
+        return true
+    }
 
     //iterate through all errors, display the error message
     for (var i = 0; i < body.errors.length; i++){
@@ -41,28 +54,46 @@ async function updateAccountInfo(){
 
 }
 
+function closeAllTextBoxes(){
+    Array.from(document.getElementsByClassName("edit")).forEach(x => closeTextBox(x, getTextBox(x)))
+}
 
-//add event handler to text input edit buttons
-Array.from(document.getElementsByClassName("edit")).forEach(x => {
-    x.addEventListener("click", async() => {
-        const textbox = getTextBox(x)
-        if (textbox.classList.contains("active")){
-            if (await updateAccountInfo()) closeTextBox(x, textbox)
-        } else{
-            //close all textboxes
-            Array.from(document.getElementsByClassName("edit")).forEach(y => closeTextBox(y, getTextBox(y)))
-            textbox.classList.add("active")
-            x.innerText = "Save"
-            textbox.disabled = false
-            textbox.focus()
-            //a little hack to get the cursor to the back of the text
-            var val = textbox.value
-            textbox.value = '' 
-            textbox.value = val 
-            //close all other active textboxes
-        }
-    } )
-})
+
+//click input text input edit buttons
+async function editClicked(x){
+    const textbox = getTextBox(x)
+    if (textbox.classList.contains("active")){
+        if (await updateAccountInfo()) closeTextBox(x, textbox)
+    } else{
+        //close all existing textboxes and show the active one
+        closeAllTextBoxes()
+        textbox.classList.add("active")
+        x.innerText = "Save"
+        textbox.disabled = false
+        textbox.focus()
+        //a little hack to get the cursor to the back of the text
+        var val = textbox.value
+        textbox.value = '' 
+        textbox.value = val
+    }
+}
+
+//deal with clicks
+document.addEventListener("click", (event) => {
+    if (event.target.classList.contains("edit")){
+        editClicked(event.target)
+    }
+    else if (event.target.classList.contains("settings-container")){
+        //close textboxes if user clicks elsewhere
+        closeAllTextBoxes()
+    }
+});
+
+/* 
+=====================
+Tab Navigation
+=====================
+*/
 
 const navItems = document.getElementsByTagName("nav")[0].children
 
@@ -90,7 +121,41 @@ async function loadData(){
     const accountData = await (await get("users/account/private")).json()
 
     //load inputs
-    accountTextFields.forEach(x => document.getElementById(x).value = accountData[x])
+    accountTextFields.forEach(x => {
+        accountTextFieldValues[x] = accountData[x]
+        document.getElementById(x).value = accountData[x]
+    })
 }
 
 loadData()
+
+/* 
+=====================
+Password Tab
+=====================
+*/
+
+const changePasswordFields = ["old_password", "new_password", "confirm_new_password"]
+
+//change password
+document.getElementById("reset-password-btn").addEventListener("click", async()=> {
+    let passwordData = {}
+    changePasswordFields.forEach(x => passwordData[x] = document.getElementById(x.replaceAll("_","-")).value)
+    const resp = await put("users/password", passwordData)
+    const body = await resp.json()
+    if (resp.status == 200){ 
+        //success, clear input fields and show sucess message
+        changePasswordFields.forEach(x => document.getElementById(x.replaceAll("_","-")).value = "")
+        const successMsgElement = document.getElementById("change-password-success").style.opacity = "1"  
+        return
+    }
+
+    //iterate through all errors, display the error message
+    for (var i = 0; i < body.errors.length; i++){
+        const x  = body.errors[i]
+        const errorEle = document.getElementById(`${x[0].replaceAll("_","-")}-error`) //get the error messasge element associated with the error
+        errorEle.innerText = x[1].replaceAll("_"," ").replaceAll('"','') //do a bit of formatting to make the message more readable
+        errorEle.style.opacity = "1"
+    }
+    return false
+})

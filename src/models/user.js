@@ -11,17 +11,15 @@ class User{
     //get a user by their id
     static async getUserById(id){
         //get first user from database that matches id
-        const result = (await query.query("SELECT * FROM users WHERE id = @id", {"id": id})).recordset[0]
+        const result = (await query.exceptQuery(["password", "email"],"SELECT * FROM Users WHERE id = @id", {"id": id})).recordset[0]
         //return null if no user found
         return result ? result : null
     }
 
     //get a user by their email
     static async getUserByEmail(email){
-        //assign sql params to their respective values
-        const params = {"email": email}
-            //get first user from database that matches id
-        const result = (await query.query("SELECT * FROM users WHERE email = @email", params)).recordset[0]
+        //get first user from database that matches id
+        const result = (await query.query("SELECT * FROM Users WHERE email = @email", {"email": email})).recordset[0]
         //return null if no user found
         return result ? result : null
     }
@@ -41,6 +39,12 @@ class User{
         await query.query("UPDATE Users SET name = @name, email = @email, about = @about WHERE id = @id", user)
         //return the updated user
         return this.getUserById(id)
+    }
+
+    static async changePassword(id, newPassword){
+        await query.query("UPDATE Users SET password = @password WHERE id = @id", {"id":id,"password":newPassword})
+        //return the updated hashed password
+        return {password: newPassword}
     }
 }
 

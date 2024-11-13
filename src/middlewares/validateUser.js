@@ -17,6 +17,21 @@ const customEmailValidation = async(email, helper) => {
     return repeatEmailResult ? helper.message('this email is already taken') : email
 }
 
+const isPasswordCorrect = async (id,password,helper) => {
+    const user = await User.getPrivateUserById(id)
+    //if result exists, then password is valid
+    if (user == null){
+      return helper.message('could not find user') //this in theory should never trigger, but a fail safe is nice
+    }
+    //call the getUserByEmail to get the password
+    const privateUser = await User.getUserByEmail(user.email)
+    //check if password is valid
+    if (!bcrypt.compareSync(password,privateUser.password)){
+      return helper.message("password is incorrect")
+    }
+    return password
+}
+
 class validateUser{
 
     static async validateSignUpUser(req, res, next){
@@ -37,13 +52,24 @@ class validateUser{
     
                 const res = await customEmailValidation(email, helper)
                 //check if the email belongs to the user
-                const user = await User.getUserById(req.user.userId)
+                const user = await User.getPrivateUserById(req.user.userId)
                 if (user.email !== email) return res
             }),
             about: Joi.string().max(250).required().allow(''), //can be blank, max 250 chars
           })
           //check if validation successful
           if (await validateSchema(req,res,schema)) next()
+    }
+
+    static async validateNewPassword(req,res,next){
+        const schema = Joi.object({
+        old_password: Joi.string().required().external((value,helper) => isPasswordCorrect(req.user.userId,value,helper)), //make sure current password is correct
+        new_password: Joi.string().min(5).max(100).required(), //ensure new password matches the basic password req (min 5 chars)
+        //check that repeat new password matches with the new password
+        confirm_new_password: Joi.string().required().external((value,helper) => (req.body.new_password == value)? value : helper.message('password does not match the new password')),
+        })
+        //check if validation successful
+        if (await validateSchema(req,res,schema)) next()
     }
 }
 module.exports = validateUser

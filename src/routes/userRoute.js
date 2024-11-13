@@ -10,6 +10,7 @@ const userRoute = (app) => {
     app.get("/users/account/public/:id", userController.getPublicUserById) //this route is for decoding the jwt
     app.get("/users/account/private", authenticateToken, userController.getPrivateUserById)
     app.put("/users/account/private", authenticateToken, validateUser.validateAccountUpdate, userController.updateUserAccountInfo)
+    app.put("/users/password", authenticateToken, validateUser.validateNewPassword, userController.changePassword)
 };
 
 module.exports = userRoute;
