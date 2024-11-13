@@ -121,7 +121,8 @@ class cellTowerDashboard{
         }
 
         const queryStr = `SELECT ct.cell_tower_name AS cell_tower_name, 
-                        SUM(renewable_energy_kwh) AS data
+                        SUM(renewable_energy_kwh) AS renewable_energy,
+                        SUM(total_energy_kwh) - SUM(renewable_energy_kwh) AS nonrenewable_energy
                         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID ${this.filterByMonthAndYear(month, year)}
                         GROUP BY ct.cell_tower_name, ct.id`
 
@@ -145,7 +146,8 @@ class cellTowerDashboard{
             groupBySQL = "DAY(date)"
         }
         const queryStr = `SELECT ${groupBySQL} as num, 
-                        SUM(renewable_energy_kwh) AS data
+                        SUM(renewable_energy_kwh) AS renewable_energy,
+                        SUM(total_energy_kwh) AS total_energy
                         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID AND ct.id=@id ${filterStr}
                         GROUP BY ${groupBySQL}`
 
