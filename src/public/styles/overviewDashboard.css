@@ -424,7 +424,7 @@ button:focus {
 /* Styling for Top 3 Data Centers container */
 .top3-container {
     width: 100%; /* Full width */
-    max-width: 700px; /* Limit the max width */
+    max-width: 570px; /* Limit the max width */
     height: 400px;
     padding: 10px;
     border: 1px solid white;
@@ -436,9 +436,9 @@ button:focus {
 
 /* Title Styling for Top 3 Data Centers */
 .top3-container h2 {
-    font-size: 1.1em;
+    font-size: 14px;
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 20px;
 }
 
 /* Canvas Styling for Top 3 Data Centers Chart */
@@ -454,10 +454,12 @@ button:focus {
 }
 
 
+
 /* Styling for Yearly Energy Consumption container */
-.yearly-energy-container {
+
+.avoided-emissions-container {
     flex: 1; /* Takes the remaining space */
-    max-width: 250px; /* Set a compact max width */
+    max-width: 400px; /* Set a compact max width */
     height: 400px;
     padding: 10px;
     border: 1px solid white;
@@ -468,23 +470,25 @@ button:focus {
 }
 
 /* Title Styling for Yearly Energy Consumption */
-.yearly-energy-container h2 {
+.avoided-emissions-container h2 {
     font-size: 14px; /* Adjusted font size */
     margin-bottom: 8px;
 }
 
 /* Canvas Styling for Yearly Energy Consumption Chart */
-#yearlyEnergyChart {
+#avoidedEmissionsChart {
     
     width: 100%;
-    height: 250px;
+    height: 400px;
     max-height: 350px; /* Restrict height to fit within the compact container */
 }
 
-.yearly-energy-container:hover {
+.avoided-emissions-container:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
+
+
 
 /* Responsive Scaling for Small Screens */
 @media (max-width: 600px) {
@@ -492,11 +496,11 @@ button:focus {
         flex-direction: column; /* Stack charts vertically on small screens */
     }
 
-    .top3-container, .yearly-energy-container {
+    .top3-container, .avoided-emissions-container{
         max-width: 100%; /* Full width on small screens */
     }
 
-    #top3EmissionsChart, #yearlyEnergyChart {
+    #top3EmissionsChart, #avoidedEmissionsChart {
         max-height: 150px; /* Reduce height on small screens */
     }
 }
