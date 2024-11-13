@@ -36,6 +36,7 @@ const dataCenterDashboardRoute = (app) => {
     
     app.get('/Dashboard/Data-Center/EnergyConsumption/GroupByDc/:company_id/:data_center_id?', dataCenterDashboardController.getEnergyConsumptionGroupByDc);
 
+    // app.post('/chat', dataCenterDashboardController.getChatbotResponse);
     // overview page
     app.get('/Dashboard/sustainability-goals/:company_id', dataCenterDashboardController.getAllSustainabilityGoalsData);
 }

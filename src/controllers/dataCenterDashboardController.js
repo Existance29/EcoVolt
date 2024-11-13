@@ -1,3 +1,5 @@
+// require('dotenv').config();
+// const axios = require('axios');
 const dataCenterDashboard = require('../models/dataCenterDashboard');
 
 
@@ -698,6 +700,74 @@ const getAllSustainabilityGoalsData = async (req, res) => {
 };
 
 
+
+
+
+
+
+
+
+
+// const getChatbotResponse = async (req, res) => {
+//     const userMessage = req.body.message;
+
+//     if (!userMessage) {
+//         return res.status(400).send("Message is required.");
+//     }
+
+//     try {
+//         const response = await axios.post(
+//             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_API_KEY}`, 
+//             {
+//                 contents: [
+//                     {
+//                         role: "user", // This is an instruction to the bot, acting as a "system message"
+//                         parts: [
+//                             { text: "You are a carbon emissions and environmental impact assistant. Only respond to questions about carbon emissions, environmental impacts, sustainability, and related topics. Ignore any questions not related to these topics." }
+//                         ]
+//                     },
+//                     {
+//                         role: "user",
+//                         parts: [
+//                             { text: userMessage }
+//                         ]
+//                     }
+//                 ]
+//             },
+//             {
+//                 headers: {
+//                     'Content-Type': 'application/json'
+//                 }
+//             }
+//         );
+
+//         let botMessage = "I'm here to assist with carbon emissions and environmental questions.";
+
+//         // Extract the bot message content directly
+//         if (response.data && response.data.candidates && response.data.candidates[0] && response.data.candidates[0].content && response.data.candidates[0].content.parts && response.data.candidates[0].content.parts[0].text) {
+//             botMessage = response.data.candidates[0].content.parts[0].text;
+//         }
+
+//         res.status(200).json({ content: botMessage });
+//     } catch (error) {
+//         if (error.response) {
+//             console.error("Error response data:", error.response.data);
+//             console.error("Error response status:", error.response.status);
+//             console.error("Error response headers:", error.response.headers);
+//         } else {
+//             console.error("Error message:", error.message);
+//         }
+//         res.status(500).send("Failed to get response from Gemini API: Internal Server Error.");
+//     }
+// };
+
+
+
+
+
+
+
+
 module.exports = {
     getAllDataCenter,
     getAllDates,
@@ -730,6 +800,8 @@ module.exports = {
     getTotalRenewableEnergyByCompanyIdAndDate,
 
     getEnergyConsumptionGroupByDc,
+
+    // getChatbotResponse,
 
     getAllSustainabilityGoalsData
 }
