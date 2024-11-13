@@ -113,7 +113,6 @@ class userController{
     }
 
     static async uploadProfilePicture(req, res){
-
         const tempPath = req.file.path;
         const targetPath = path.join(__dirname, "./uploads/image.png");
 
@@ -136,6 +135,18 @@ class userController{
             .end("Only .png files are allowed!");
         })
         }
+    } 
+    static async getProfilePictureById(req, res){
+      try {
+        const user = await User.getUserById(req.params.id)
+        if (!user) {
+          return res.status(404).send("User not found")
+        }
+        res.sendFile(path.join(__dirname, `./uploads/${user.profile_picture_file_name}`));
+      } catch (error) {
+        console.error(error)
+        res.status(500).send("Error retrieving profile picture")
+      }
     }
 
 }
