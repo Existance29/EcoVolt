@@ -31,7 +31,7 @@ class Report {
                     MAX(CTec.cooling_energy_kwh) AS coolingEnergy,
                     MAX(CTec.backup_power_energy_kwh) AS backupEnergy,
                     MAX(CTec.misc_energy_kwh) AS miscEnergy,
-                    NULL AS co2EmissionsTons, 
+                    MAX(CTec.carbon_emission_kg) AS co2EmissionsTons,
                     MAX(sg.goal_name) AS goal_name, 
                     MAX(sg.target_value) AS target_value, 
                     MAX(sg.current_value) AS current_value, 
