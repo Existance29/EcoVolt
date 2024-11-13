@@ -713,7 +713,7 @@ function renderEnergyBreakdownChart(data) {
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            hoverOffset: 15,  // Add this line to set hover offset (enlarges on hover)
+            hoverOffset: 15,
             plugins: {
                 legend: { display: false },
                 tooltip: {
@@ -721,7 +721,7 @@ function renderEnergyBreakdownChart(data) {
                         label: function(context) {
                             const value = context.raw || 0;
                             const percentage = ((value / total) * 100).toFixed(1);
-                            return `${value.toLocaleString()} MWh)`; // Format with commas
+                            return `${value.toLocaleString()} MWh (${percentage}%)`;
                         }
                     }
                 }
@@ -732,14 +732,15 @@ function renderEnergyBreakdownChart(data) {
                     // Get the index of the clicked item
                     const index = elements[0].index;
                     const selectedLabel = labels[index];
+                    const selectedColor = colors[index];
 
                     // Get date and data center filters
                     const dataCenterId = dataCenterDropdown.value;
                     const year = yearPicker.value || null;
                     const month = monthPicker.value || null;
 
-                    // Open the pop-up with relevant data
-                    openPopup(dataCenterId, year, month, selectedLabel);
+                    // Open the pop-up with relevant data and color
+                    openPopup(dataCenterId, year, month, selectedLabel, selectedColor);
                 }
             }
         }
@@ -751,7 +752,7 @@ function renderEnergyBreakdownChart(data) {
 
     labels.forEach((label, index) => {
         const color = colors[index];
-        const value = parseFloat(values[index].toFixed(1)).toLocaleString(); // Format with commas
+        const value = parseFloat(values[index].toFixed(1)).toLocaleString();
         const percentage = ((values[index] / total) * 100).toFixed(1);
 
         // Create a legend item
@@ -766,8 +767,7 @@ function renderEnergyBreakdownChart(data) {
     });
 }
 
-
-function openPopup(dataCenterId, year, month, selectedLabel) {
+function openPopup(dataCenterId, year, month, selectedLabel, selectedColor) {
     popupModal.style.display = 'flex';
 
     // Only destroy if popupChart exists and is a Chart instance
@@ -807,10 +807,9 @@ function openPopup(dataCenterId, year, month, selectedLabel) {
             });
 
             const labels = isDataCenterFiltered
-                ? data.map(item => new Date(item.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })) // Format as month-year
+                ? data.map(item => new Date(item.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }))
                 : data.map(item => item.data_center_name);
 
-            // Set the title based on data center
             const chartTitle = isDataCenterFiltered ? `Data Center: ${data[0].data_center_name}` : `${selectedLabel} - Energy Consumption (MWh)`;
 
             popupChart = new Chart(popupChartCanvas, {
@@ -820,8 +819,8 @@ function openPopup(dataCenterId, year, month, selectedLabel) {
                     datasets: [{
                         label: `${selectedLabel} - Energy Consumption (MWh)`,
                         data: dataset,
-                        borderColor: '#36A2EB',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: selectedColor,    // Use the color of the clicked segment
+                        backgroundColor: selectedColor, // Make the background solid
                         fill: true,
                     }]
                 },
