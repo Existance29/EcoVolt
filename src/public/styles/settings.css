@@ -31,12 +31,34 @@ input, button{
     padding: 3vh 3%;
 }
 
-#profile-img{
+#profile-img {
     border-radius: 50%;
-    object-fit: cover; 
-    height: 6vw; 
-    width: 6vw;
+    object-fit: cover;
+    width: 80px;
+    height: 80px;
 }
+
+.edit-profile-picture-label {
+    border-radius: 50%;
+    background-color: white;
+    width: 24px;
+    height: 24px;
+    box-shadow: 0px 0px 5px 2px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.edit-profile-picture-label i {
+    color: #4FD1C5;
+    font-size: 12px;
+}
+
+
 
 .text-field{
     width: 50%;
@@ -75,21 +97,6 @@ input, button{
     width: 100%;
     background-color: #E7EAED;
     margin-top: 0.3rem;
-}
-
-.edit-profile-picture-label{
-    border-radius: 50%; 
-    background-color: white; 
-    width: 2vw; 
-    height: 2vw; 
-    box-shadow: 0px 0 5px 2px rgba(0, 0, 0, 0.1); 
-    position: absolute; 
-    right: 0; 
-    bottom: 0; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    cursor: pointer;
 }
 
 .error-message{

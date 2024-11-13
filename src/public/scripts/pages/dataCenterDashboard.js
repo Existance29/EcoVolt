@@ -831,6 +831,9 @@ function openPopup(dataCenterId, year, month, selectedLabel, selectedColor) {
                         title: {
                             display: true,
                             text: chartTitle
+                        },
+                        legend: {
+                            display: false  // Disable the legend
                         }
                     },
                     scales: {
