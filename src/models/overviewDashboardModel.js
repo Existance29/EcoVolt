@@ -21,16 +21,28 @@ const DashboardModel = {
 
             // Query for highest emissions cell tower
             const highestCellTowerResult = await new sql.Request()
-                .input("company_id", sql.Int, company_id)
-                .query(`
-                SELECT TOP 1 ct.id, ct.cell_tower_name, YEAR(ctec.date) AS year, 
-                SUM(ctec.total_energy_kwh) AS total_emissions
-                FROM cell_tower_energy_consumption AS ctec JOIN cell_towers AS ct 
-                ON ctec.cell_tower_id = ct.id WHERE ct.company_id = 1 
-                GROUP BY ct.cell_tower_name, ct.id, YEAR(ctec.date) 
-                ORDER BY total_emissions DESC;
-                `);
+            .input("company_id", sql.Int, company_id)
+            .query(`
+                SELECT TOP 1 
+                    ct.id, 
+                    ct.cell_tower_name, 
+                    YEAR(ctec.date) AS year, 
+                    SUM(ctec.carbon_emission_kg) AS total_emissions
+                FROM 
+                    cell_tower_energy_consumption AS ctec 
+                JOIN 
+                    cell_towers AS ct ON ctec.cell_tower_id = ct.id 
+                WHERE 
+                    ct.company_id = @company_id 
+                GROUP BY 
+                    ct.id, 
+                    ct.cell_tower_name, 
+                    YEAR(ctec.date) 
+                ORDER BY 
+                    total_emissions DESC;
+            `);
             const highestCellTower = highestCellTowerResult.recordset[0] || {};
+
 
             return {
                 highestDataCenter,
@@ -88,7 +100,7 @@ const DashboardModel = {
     async getSustainabilityGoals(company_id) {
         try {
             await sql.connect(dbConfig);
-
+    
             const result = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
                 .query(`
@@ -96,13 +108,16 @@ const DashboardModel = {
                         goal_name, 
                         target_value, 
                         current_value,
-                        (current_value / target_value) * 100 AS progress
+                        CASE 
+                            WHEN target_value = 0 THEN 0
+                            ELSE (current_value / target_value) * 100 
+                        END AS progress
                     FROM company_sustainability_goals
                     WHERE company_id = @company_id;
                 `);
-
+    
             return result.recordset;
-
+    
         } catch (error) {
             console.error("Error fetching sustainability goals:", error);
             throw error;
@@ -110,6 +125,7 @@ const DashboardModel = {
             await sql.close();
         }
     },
+    
 
     async getTop3YearsByEmissions(company_id) {
         try {
@@ -142,30 +158,41 @@ const DashboardModel = {
     
     
 
-    async getYearlyEnergyConsumption(company_id) {
+    async getTop3CellTowersByAvoidedEmissions(company_id) {
         try {
             await sql.connect(dbConfig);
-
+    
             const result = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
                 .query(`
-                    SELECT YEAR(ctec.date) AS year, SUM(ctec.total_energy_kwh) AS total_emissions
-                    FROM cell_tower_energy_consumption AS ctec
-                    JOIN cell_towers AS ct ON ctec.cell_tower_id = ct.id
-                    WHERE ct.company_id = @company_id
-                    GROUP BY YEAR(ctec.date)
-                    ORDER BY year DESC;
+                    SELECT TOP 3 
+                    ct.id AS cell_tower_id,
+                    ct.cell_tower_name,
+                    SUM(ctec.renewable_energy_kwh * 0.233) AS avoided_emissions
+                FROM 
+                    cell_tower_energy_consumption AS ctec
+                JOIN 
+                    cell_towers AS ct ON ctec.cell_tower_id = ct.id
+                WHERE 
+                    ct.company_id = @company_id
+                GROUP BY 
+                    ct.id, ct.cell_tower_name
+                ORDER BY 
+                    avoided_emissions DESC;
+
                 `);
-
+    
             return result.recordset;
-
+    
         } catch (error) {
-            console.error("Error fetching yearly energy consumption:", error);
+            console.error("Error fetching top 3 cell towers by avoided emissions:", error);
             throw error;
         } finally {
             await sql.close();
         }
     }
+    
+    
 };
 
 module.exports = DashboardModel;
