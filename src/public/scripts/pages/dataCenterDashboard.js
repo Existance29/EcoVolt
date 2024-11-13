@@ -819,9 +819,10 @@ function openPopup(dataCenterId, year, month, selectedLabel, selectedColor) {
                     datasets: [{
                         label: `${selectedLabel} - Energy Consumption (MWh)`,
                         data: dataset,
-                        borderColor: selectedColor,    // Use the color of the clicked segment
-                        backgroundColor: selectedColor, // Make the background solid
-                        fill: true,
+                        borderColor: selectedColor,    // Solid border color
+                        backgroundColor: selectedColor + '80',    // Transparent background color
+                        borderWidth: 2,
+                        fill: true,      
                     }]
                 },
                 options: {
