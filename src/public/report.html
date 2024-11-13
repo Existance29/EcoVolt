@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="styles/report.css">
     <link rel="stylesheet" href="styles/common.css">
     <link rel="stylesheet" href="styles/dataCenterDashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
 <body>
     <div class="layout-container">
@@ -93,6 +95,28 @@
                 </section>
             </div>
         </main>
+    </div>
+
+
+    <!-- Chatbot Floating Button and Content -->
+    <div class="chatbot-container">
+        <button class="chatbot-toggle" onclick="toggleChatbot()">
+            <i class="fas fa-comments"></i>
+        </button>
+        <div class="chatbot-content" id="chatbotContent" style="display: none;">
+            <div class="chatbot-header">
+                <h4>Chat with Us</h4>
+                <button class="close-chatbot" onclick="toggleChatbot()">✕</button>
+            </div>
+            <div class="chatbot-messages" id="chatbotMessages">
+                <!-- Initial bot message -->
+                <div class="message bot-message">Hello! How can I assist you with carbon emissions today?</div>
+            </div>
+            <div class="chatbot-input">
+                <input type="text" id="userMessage" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
     </div>
 
     <script src="scripts/generateReport.js"></script>
