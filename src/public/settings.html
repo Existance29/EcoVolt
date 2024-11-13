@@ -61,26 +61,30 @@
                 </form>
 
                 <form id = "security-settings" class="settings-container">
-                    <div class="title inter-semibold" style="font-size: 1rem; margin-top: 1rem;">Reset Password</div>
+                    <div class="title inter-semibold" style="font-size: 1rem; margin-top: 1rem;">Change Password</div>
                     <div class="text-field">
                         <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                             <div class="title inter-medium" style="font-size: 0.9rem;">Old Password</div>
                         </div>
-                        <input type="text" class="value active inter-medium"/>
+                        <input type="password" class="value active inter-medium" id="old-password"/>
+                        <div class="error-message inter-medium" id="old-password-error">Error Message</div>
                     </div>
                     <div class="text-field">
                         <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                             <div class="title inter-medium" style="font-size: 0.9rem;">New Password</div>
                         </div>
-                        <input type="text" class="value active inter-medium"/>
+                        <input type="password" class="value active inter-medium" id="new-password"/>
+                        <div class="error-message inter-medium" id="new-password-error">Error Message</div>
                     </div>
                     <div class="text-field">
                         <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                             <div class="title inter-medium" style="font-size: 0.9rem;">Confirm New Password</div>
                         </div>
-                        <input type="text" class="value active inter-medium"/>
+                        <input type="password" class="value active inter-medium" id="confirm-new-password"/>
+                        <div class="error-message inter-medium" id="confirm-new-password-error">Error Message</div>
                     </div>
-                    <button id="reset-password-btn" style="border-radius: 12px; padding: 0.9rem 0.7rem; background-color: #4FD1C5; font-size: 0.9rem; color: white; margin-top: 1.7rem;">Reset Password</button>
+                    <div class="success-message inter-medium" id="change-password-success">Success! Password has been changed</div>
+                    <button id="reset-password-btn" style="border-radius: 12px; padding: 0.9rem 0.7rem; background-color: #4FD1C5; font-size: 0.9rem; color: white; margin-top: 0.7rem;">Reset Password</button>
                 </form>
             </div>
         </main>
