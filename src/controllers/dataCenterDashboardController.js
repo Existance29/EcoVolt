@@ -630,6 +630,59 @@ const getTotalRenewableEnergyByCompanyIdAndDate = async (req, res) => {
 
 
 
+const getEnergyConsumptionGroupByDc = async (req, res) => {
+    const company_id = parseInt(req.params.company_id);
+    const data_center_id = req.params.data_center_id ? parseInt(req.params.data_center_id) : null;
+    const year = req.query.year ? parseInt(req.query.year) : null;
+    const month = req.query.month ? parseInt(req.query.month) : null;
+
+    try {
+        let data;
+
+        if (!year && !month && !data_center_id) {
+            // All-time data for all data centers
+            data = await dataCenterDashboard.getEnergyConsumptionGroupByDcForAllTime(company_id);
+        } else if (year && !month && !data_center_id) {
+            // Data for a specific year for all data centers (year only)
+            data = await dataCenterDashboard.getEnergyConsumptionGroupByDcForYear(company_id, year);
+        } else if (year && month && !data_center_id) {
+            // Data for a specific year and month for all data centers
+            data = await dataCenterDashboard.getEnergyConsumptionGroupByDcForSaidMonthYear(company_id, month, year);
+        } else if (data_center_id && !year && !month) {
+            // All-time data for a specific data center
+            data = await dataCenterDashboard.getEnergyConsumptionGroupByDcForSelectedDc(company_id, data_center_id);
+        } else if (data_center_id && year && !month) {
+            // Data for a specific year for a specific data center
+            data = await dataCenterDashboard.getEnergyConsumptionGroupByDcForSelectedDcByYear(company_id, data_center_id, year);
+        } else if (data_center_id && year && month) {
+            // Data for a specific month and year for a specific data center
+            data = await dataCenterDashboard.getEnergyConsumptionGroupByDcForSelectedDcByYearMonth(company_id, data_center_id, year, month);
+        } else {
+            // Invalid parameters
+            return res.status(400).send("Invalid request: please provide a valid year or both year and month.");
+        }
+
+        if (!data || data.length === 0) {
+            return res.status(404).send("No energy consumption data found for the specified filters.");
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error("Error in getEnergyConsumptionGroupByDc:", error.message);
+        res.status(500).send("Failed to retrieve energy consumption data: Internal Server Error.");
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
 const getAllSustainabilityGoalsData = async (req, res) => {
     const company_id = parseInt(req.params.company_id); // convert string to integer
     try {
@@ -675,6 +728,8 @@ module.exports = {
     getTotalRenewableEnergyByDataCenterId,
     getTotalRenewableEnergyByDataCenterIdAndDate,
     getTotalRenewableEnergyByCompanyIdAndDate,
+
+    getEnergyConsumptionGroupByDc,
 
     getAllSustainabilityGoalsData
 }

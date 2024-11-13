@@ -669,6 +669,8 @@ async function fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(data_center_
     }
 }
 
+const popupChartCanvas = document.getElementById("popupChart");
+
 
 function renderEnergyBreakdownChart(data) {
     console.log("Rendering energy breakdown chart with data:", data);
@@ -686,12 +688,12 @@ function renderEnergyBreakdownChart(data) {
         energyData.it_energy_mwh,
         energyData.lighting_energy_mwh
     ];
-    const colors = ['#2F3E46', '#4E5D63', '#38B2AC', '#A8DADC']; // Colors for each section
-    const total = values.reduce((acc, val) => acc + val, 0); // Calculate the total for percentage
+    const colors = ['#2F3E46', '#4E5D63', '#38B2AC', '#A8DADC'];
+    const total = values.reduce((acc, val) => acc + val, 0);
 
     const ctx = document.getElementById("energyBreakdownChart").getContext("2d");
 
-    // Check if the chart already exists before attempting to destroy
+    // Destroy existing chart instance if it exists
     if (window.energyBreakdownChart && typeof window.energyBreakdownChart.destroy === "function") {
         window.energyBreakdownChart.destroy();
     }
@@ -725,7 +727,22 @@ function renderEnergyBreakdownChart(data) {
                     }
                 }
             },
-            layout: { padding: 10 }
+            layout: { padding: 10 },
+            onClick: (event, elements) => {
+                if (elements.length > 0) {
+                    // Get the index of the clicked item
+                    const index = elements[0].index;
+                    const selectedLabel = labels[index];
+
+                    // Get date and data center filters
+                    const dataCenterId = dataCenterDropdown.value;
+                    const year = yearPicker.value || null;
+                    const month = monthPicker.value || null;
+
+                    // Open the pop-up with relevant data
+                    openPopup(dataCenterId, year, month, selectedLabel);
+                }
+            }
         }
     });
 
@@ -742,15 +759,112 @@ function renderEnergyBreakdownChart(data) {
         const legendItem = document.createElement("div");
         legendItem.classList.add("legend-item");
         legendItem.innerHTML = `
-        <span class="label-color" style="background-color: ${color}; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></span>
-        <span class="label-name" style="font-weight: bold;">${label}:</span>
-        <span class="label-value" style="font-weight: normal;">${value} MWh (${percentage}%)</span>
-    `;
-     
-
-        // Append the legend item to the container
+            <span class="label-color" style="background-color: ${color}; width: 12px; height: 12px; display: inline-block; margin-right: 8px;"></span>
+            <span class="label-name" style="font-weight: bold;">${label}:</span>
+            <span class="label-value" style="font-weight: normal;">${value} MWh (${percentage}%)</span>
+        `;
         legendContainer.appendChild(legendItem);
     });
+}
+
+function openPopup(dataCenterId, year, month, selectedLabel) {
+    popupModal.style.display = 'flex';
+
+    // Only destroy if popupChart exists and is a Chart instance
+    if (popupChart && typeof popupChart.destroy === 'function') {
+        popupChart.destroy();
+    }
+
+    // Determine chart type based on the data center filter
+    const isDataCenterFiltered = dataCenterId && dataCenterId !== "all";
+    const chartType = isDataCenterFiltered ? 'line' : 'bar';
+
+    // Construct API URL based on filters
+    let apiUrl = `/Dashboard/Data-Center/EnergyConsumption/GroupByDc/${company_id}`;
+    if (isDataCenterFiltered) apiUrl += `/${dataCenterId}`;
+
+    const queryParams = [];
+    if (year) queryParams.push(`year=${year}`);
+    if (month) queryParams.push(`month=${month}`);
+    if (queryParams.length > 0) apiUrl += `?${queryParams.join('&')}`;
+
+    // Fetch data and render the chart
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
+        })
+        .then(data => {
+            // Filter data based on selectedLabel for chart display
+            const dataset = data.map(item => {
+                switch (selectedLabel) {
+                    case 'Backup Power': return item.total_backup_power_mwh;
+                    case 'Cooling': return item.total_cooling_mwh;
+                    case 'IT Equipment': return item.total_it_energy_mwh;
+                    case 'Lighting': return item.total_lighting_mwh;
+                    default: return item.total_energy_consumption_mwh;
+                }
+            });
+
+            const labels = isDataCenterFiltered
+                ? data.map(item => new Date(item.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })) // Format as month-year
+                : data.map(item => item.data_center_name);
+
+            // Set the title based on data center
+            const chartTitle = isDataCenterFiltered ? `Data Center: ${data[0].data_center_name}` : `${selectedLabel} - Energy Consumption (MWh)`;
+
+            popupChart = new Chart(popupChartCanvas, {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${selectedLabel} - Energy Consumption (MWh)`,
+                        data: dataset,
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: chartTitle
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: isDataCenterFiltered ? 'Month-Year' : 'Data Center'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Energy Consumption (MWh)'
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching chart data:', error);
+            alert('Failed to load chart data.');
+        });
+}
+
+
+function closePopup() {
+    const popupModal = document.getElementById("popupModal");
+    popupModal.style.display = 'none';
+    
+    // Destroy the chart instance if it exists
+    if (popupChart && typeof popupChart.destroy === 'function') {
+        popupChart.destroy();
+    }
 }
 
 
