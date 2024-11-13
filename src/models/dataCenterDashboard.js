@@ -92,7 +92,7 @@ static async getAvailDatesByCompanyIdandDc(company_id, dc) {
         data_centers.id = data_center_id
         INNER JOIN companies ON
         companies.id = data_centers.company_id
-        WHERE companies.id = 1 AND data_centers.id = @dc
+        WHERE companies.id = @company_id AND data_centers.id = @dc
         `;
         const request = connection.request();
         request.input('company_id', company_id);
