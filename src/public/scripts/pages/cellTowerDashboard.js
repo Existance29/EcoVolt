@@ -34,6 +34,52 @@ function formatNum(num, month){
 
 }
 
+function renderBarChart(canvasElement, xData, yData, colors){
+    if(Chart.getChart(canvasElement.id)) {
+        Chart.getChart(canvasElement.id)?.destroy()
+    }
+    new Chart(canvasElement, {
+        type: 'bar',
+        data: {
+            labels: yData,
+            datasets: [{
+                data: xData,
+                borderWidth: 1,
+                borderColor: colors,
+                barThickness: 50,
+                backgroundColor: colors.map(x => x+"4D")
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    grid: {
+                        color: "#E2E8F0",
+                        borderDash: [8, 4],
+                    },
+                    ticks: {
+                        maxTicksLimit: 6,
+                        autoSkip: false,
+                    },
+                    beginAtZero: true
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins:{
+                legend: {
+                    display: false
+                }
+            },
+        }
+    })
+}
+
 function renderLineChart(canvasElement, xData, yData, lineColor){
     // const parentElement = canvasElement.parentElement
     // const parentHeightPX = parentElement.offsetHeight
@@ -94,7 +140,7 @@ function renderLineChart(canvasElement, xData, yData, lineColor){
     })
 }
 
-function renderDoughnutChart(element, labels, data, colors){
+function renderDoughnutChart(element, labels, data, colors, onClickFunc){
     if(Chart.getChart(element.id)) {
         Chart.getChart(element.id)?.destroy()
     }
@@ -120,7 +166,8 @@ function renderDoughnutChart(element, labels, data, colors){
                     display: false
                 },
             },
-            cutout: "55 %"
+            onClick: onClickFunc,
+            cutout: "55%"
         }
     })
 
@@ -206,7 +253,7 @@ async function loadData(){
     const energyBreakdownColors = ["#263332","#485251","#4FD1C5","#95D1CB","#5BA79F"]
     const energyBreakdownLabels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"]
     const energyBreakdownData = [data.radio_equipment_energy, data.cooling_energy, data.backup_power_energy, data.misc_energy]
-    renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors)
+    renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors, energyConsumptionClick)
 
     //renewable energy contribution
     renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 100, "#4FD1C5", "#CAC9CA80")
@@ -315,3 +362,32 @@ monthPicker.addEventListener("change", () => {
 })
 
 onLoad()
+
+/*
+============================
+Drill Down Chart
+============================
+*/
+
+function energyConsumptionClick(event, elements, chart){
+    if (!elements[0]) return     
+    const i = elements[0].index
+    const label = chart.data.labels[i]
+    showDrillDown(`${label} Energy Consumption By Tower`) 
+}
+
+function hideDrillDown(){
+    document.getElementById("drill-down").style.display = "none"
+}
+
+function showDrillDown(title){
+    const drillDown = document.getElementById("drill-down")
+    drillDown.style.display = "flex"
+    document.querySelector("#drill-down #title").innerText = title
+}
+
+window.onclick = function(event) {
+    if (event.target.id == "drill-down") hideDrillDown()
+};
+
+renderBarChart(document.getElementById('drillDownChart'), [1,2,3,4,5], [1,2,3,4,5], ["#263332","#485251","#4FD1C5","#95D1CB","#5BA79F"])

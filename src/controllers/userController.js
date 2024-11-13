@@ -3,7 +3,9 @@ const Company = require("../models/company")
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const jwt = require("jsonwebtoken")
+const path = require("path")
 require("dotenv").config()
+
 
 class userController{
     //function to encrypt password
@@ -108,6 +110,32 @@ class userController{
         console.error(error)
         res.status(500).send("Error changing user password")
       }
+    }
+
+    static async uploadProfilePicture(req, res){
+
+        const tempPath = req.file.path;
+        const targetPath = path.join(__dirname, "./uploads/image.png");
+
+        if (path.extname(req.file.originalname).toLowerCase() === ".png") {
+        fs.rename(tempPath, targetPath, err => {
+            if (err) console.log(err)
+
+            res
+            .status(200)
+            .contentType("text/plain")
+            .end("File uploaded!");
+        });
+        } else {
+        fs.unlink(tempPath, err => {
+            if (err) return handleError(err, res);
+
+            res
+            .status(403)
+            .contentType("text/plain")
+            .end("Only .png files are allowed!");
+        })
+        }
     }
 
 }
