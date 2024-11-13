@@ -174,12 +174,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         recommendationsSection.innerHTML = ''; // Clear existing content
     
         recommendations.forEach((recommendation, index) => {
-            if (index % 2 === 0) {
-                const pageContainer = document.createElement('div');
-                pageContainer.classList.add('page-break-container');
-                recommendationsSection.appendChild(pageContainer);
-            }
-    
+            // Create the recommendation container
             const recDiv = document.createElement('div');
             recDiv.classList.add('recommendation');
     
@@ -197,8 +192,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <p class="intended-impact"><strong>Intended Impact:</strong> ${recommendation.intendedImpact}</p>
             `;
     
-            const currentContainer = recommendationsSection.lastChild;
-            currentContainer.appendChild(recDiv);
+            // Append the recommendation to the recommendations section
+            recommendationsSection.appendChild(recDiv);
+    
+            // Add a page break every second recommendation, except after the last recommendation
+            if ((index + 1) % 2 === 0 && index !== recommendations.length - 1) {
+                const pageBreak = document.createElement('div');
+                pageBreak.classList.add('page-break-container');
+                recommendationsSection.appendChild(pageBreak);
+            }
         });
     }
 });

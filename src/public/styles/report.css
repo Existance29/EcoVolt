@@ -9,18 +9,6 @@ body, html {
     display: flex;
 }
 
-.sidebar {
-    width: 250px;
-    background-color: #ffffff;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    overflow-y: auto;
-}
-
 .main-content {
     margin-left: 270px;
     padding: 20px;
@@ -51,11 +39,11 @@ body, html {
 }
 
 .data-table {
-    width: 100%; /* Keep the table width reduced for a compact look */
-    max-width: 640px; /* Ensure it doesn’t expand too wide */
-    margin: 15px auto; /* Center the table */
+    width: 100%;
+    max-width: 640px;
+    margin: 15px auto;
     border-collapse: collapse;
-    table-layout: fixed; /* Allows specific column widths */
+    table-layout: fixed;
 }
 
 .data-table th, .data-table td {
@@ -69,14 +57,15 @@ body, html {
     background-color: #f4f4f4;
     font-weight: bold;
 }
+
 .data-insights-page {
     page-break-before: always;
     margin-left: 10px;
 }
+
 .data-overview {
     margin-left: 10px;
     padding-right: 10px;
-
 }
 
 .recommendation {
@@ -87,10 +76,10 @@ body, html {
     background-color: #f9f9f9;
 }
 
-
 .page-break-container {
-    page-break-after: always; /* Forces a new page after each container */
+    page-break-after: always;
 }
+
 .recommendation h3 {
     font-size: 1.25em;
     color: #333;
@@ -101,7 +90,7 @@ body, html {
 .recommendation p {
     line-height: 1.6;
     font-size: 1em;
-    color: #000000;
+    color: #000;
     margin: 10px 0;
 }
 
@@ -116,22 +105,23 @@ body, html {
 }
 
 .recommendation ol li {
-    margin: 20px 0; /* More space between actions */
+    margin: 20px 0;
 }
 
 .recommendation ol li strong {
-    color: #000000; /* Match the theme */
+    color: #000;
 }
 
 .recommendation .intended-impact {
     font-size: 1em;
-    color: #000000;
+    color: #000;
     font-weight: bold;
     margin-top: 15px;
     display: block;
     padding-top: 15px;
     border-top: 1px solid #ddd;
 }
+
 .recommendations-page {
     page-break-before: always;
     margin-left: 10px;
@@ -142,28 +132,70 @@ body, html {
     page-break-before: always;
     margin-left: 10px;
     padding-right: 10px;
-
 }
+
+.top-row {
+    display: flex;
+    justify-content: center; /* Centers the content */
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
 .status-message {
-    text-align: center;
+    position: absolute;
+    right: 0;
     font-size: 1.2em;
-    color: #4FD1C5; /* Status message color */
+    color: #4FD1C5;
 }
 
 .generate-btn {
-    display: block; /* Ensures button takes the full width */
-    margin: 20px auto; /* Centers the button */
     padding: 10px 20px;
-    background-color: #4FD1C5; /* Button color */
-    color: white; /* Text color */
+    background-color: #4FD1C5;
+    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px; /* Font size */
-    transition: background-color 0.3s; /* Smooth transition */
+    font-size: 16px;
+    transition: background-color 0.3s;
 }
 
 .generate-btn:hover {
-    background-color: #3BAF9B; /* Darker shade on hover */
+    background-color: #3BAF9B;
 }
 
+.dropdown-border {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.dropdown-border label {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+#yearSelector {
+    padding: 8px 12px;
+    font-size: 1em;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    outline: none;
+}
+
+#yearSelector:hover {
+    background-color: #ececec;
+}
+
+#yearSelector:focus {
+    box-shadow: 0 0 5px rgba(79, 209, 197, 0.4);
+}
