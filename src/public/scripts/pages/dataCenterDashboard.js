@@ -945,6 +945,31 @@ async function fetchTotalRenewableEnergyByDataCenterIdAndDate(data_center_id, se
 }
 
 
+let targetValues = {};
+
+// Function to fetch target values for each metric
+async function fetchTargetValues() {
+    try {
+        const response = await fetch(`/Dashboard/sustainability-goals/${company_id}`);
+        const goalsData = await response.json();
+
+        // Map target values based on key phrases in `goal_name`
+        goalsData.forEach(goal => {
+            if (goal.goal_name.includes('PUE')) {
+                targetValues['PUE'] = parseFloat(goal.target_value);
+            } else if (goal.goal_name.includes('CUE')) {
+                targetValues['CUE'] = parseFloat(goal.target_value);
+            } else if (goal.goal_name.includes('WUE')) {
+                targetValues['WUE'] = parseFloat(goal.target_value);
+            }
+        });
+
+        console.log("Mapped target values:", targetValues);  // Verify target values
+    } catch (error) {
+        console.error("Error fetching target values:", error);
+    }
+}
+
 
 
 
@@ -989,8 +1014,7 @@ async function fetchMetricData(metric) {
 
 
 function renderGaugeChart(value, label) {
-    const targetValues = { PUE: 1, CUE: 0.5, WUE: 1.0 };
-    const target = targetValues[label];
+    const target = targetValues[label] || 1;  // Use dynamic target value, default to 1 if not found
     const maxValue = target * 2;
 
     // Set canvas dimensions for better clarity
@@ -1071,7 +1095,7 @@ function renderGaugeChart(value, label) {
     ctx.fillStyle = "#333";
     ctx.textAlign = "center";
     ctx.fillText("0", centerX - radius - 10, centerY + 15);
-    ctx.fillText(target.toFixed(2), centerX, centerY - radius + 25);
+    ctx.fillText(target.toFixed(2), centerX, centerY - radius + 25);  // Midpoint label
     ctx.fillText(maxValue.toFixed(2), centerX + radius + 10, centerY + 15);
 
     // Value label below
@@ -1090,7 +1114,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Load data center options
     await loadDataCenterOptions();
-    
+    await fetchTargetValues();
+
     // Extract parameters from the URL
     const urlParams = new URLSearchParams(window.location.search);
     const dataCenterIdFromUrl = urlParams.get('data_center_id');
