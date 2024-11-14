@@ -1,20 +1,17 @@
-const accessToken = sessionStorage.accessToken || localStorage.accessToken;
+document.addEventListener('DOMContentLoaded', async () => {
+    const accessToken = sessionStorage.accessToken || localStorage.accessToken;
 
-const payloadBase64Url = accessToken.split('.')[1];
-const payload = decodeBase64Url(payloadBase64Url);
-const user_id = payload.userId;
-const company_id = payload.companyId;
-let user_name = "";
-
-function decodeBase64Url(base64Url) {
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const decoded = atob(base64);
-    return JSON.parse(decoded);
-}
-
-window.onload = async function() {
+    const payloadBase64Url = accessToken.split('.')[1];
+    const payload = decodeBase64Url(payloadBase64Url);
+    const user_id = payload.userId;
+    const company_id = payload.companyId;
+    let user_name = "";
+    
     try {
-        loadPosts();
+        loadPosts(user_id, company_id);
+        document.getElementById("reward-progress-container").addEventListener("click", function() {
+            window.location.href = "../../rewards.html";
+        })
         const addNewPostButton = document.getElementById("new-post-button");
         const closeModalButton = document.getElementById("closeModalBtn");
         const modal = document.getElementById("postModal");
@@ -28,12 +25,21 @@ window.onload = async function() {
         closeModalButton.addEventListener("click", () => {
             modal.style.display = "none";
         });
+
+
     } catch (error) {
         console.error("Error getting all posts : ", error);
     }
-};
 
-async function loadPosts() {
+});
+
+function decodeBase64Url(base64Url) {
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = atob(base64);
+    return JSON.parse(decoded);
+}
+
+async function loadPosts(user_id, company_id) {
     try{
         const response = await fetch('http://localhost:3000/posts', { 
             method: 'GET',
@@ -80,7 +86,7 @@ async function loadPosts() {
             <i class = "fa fa-thumbs-up"></i>
             <span class="likes-count">${post.likes_count || 0} Likes</span>
             `;
-            likeButton.addEventListener("click", () => updateLikes(user_id, post.post_id, likeButton));
+            likeButton.addEventListener("click", () => updateLikes(user_id, company_id, post.post_id, likeButton));
 
             const dislikeButton = document.createElement("button");
             dislikeButton.classList.add("action-btn", "dislike-button");
@@ -88,7 +94,7 @@ async function loadPosts() {
             <i class = "fa fa-thumbs-down"></i>
             <span class="dislikes-count">${post.dislikes_count || 0} Dislikes</span>
             `;
-            dislikeButton.addEventListener("click", () => updateDislikes(user_id, post.post_id, dislikeButton));
+            dislikeButton.addEventListener("click", () => updateDislikes(user_id, company_id, post.post_id, dislikeButton));
 
             const commentButton = document.createElement("button");
             commentButton.classList.add("action-btn", "comment-button");
@@ -96,7 +102,7 @@ async function loadPosts() {
             <i class = "fa fa-comment"></i>
             <span class="comments-count">${post.comments_count || 0} Comments</span>
             `;
-            commentButton.addEventListener("click", () => showComments(post.post_id));
+            commentButton.addEventListener("click", () => showComments(user_id, company_id, post.post_id, commentButton));
 
             actionButtons.appendChild(likeButton)
             actionButtons.appendChild(dislikeButton) 
@@ -119,14 +125,15 @@ async function loadPosts() {
     }
 }
 
-async function updateLikes(user_id, post_id, likeButton) {
+async function updateLikes(user_id, company_id, post_id, likeButton) {
+    console.log("user_id", user_id);
     try {
         const response = await fetch('http://localhost:3000/toggleLike', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ post_id, user_id: user_id })
+            body: JSON.stringify({ post_id, company_id, user_id: user_id })
         });
 
         if (!response.ok) {
@@ -148,14 +155,14 @@ async function updateLikes(user_id, post_id, likeButton) {
 }
 
 
-async function updateDislikes(user_id, post_id, dislikeButton) {
+async function updateDislikes(user_id, company_id, post_id, dislikeButton) {
     try {
         const response = await fetch('http://localhost:3000/toggleDislike', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ post_id, user_id: user_id })
+            body: JSON.stringify({ post_id, company_id, user_id: user_id })
         });
 
         if (!response.ok) {
@@ -176,17 +183,18 @@ async function updateDislikes(user_id, post_id, dislikeButton) {
     }
 }
 
-async function showComments(postId) {
+async function showComments(user_id, company_id, postId, commentButton) {
+    console.log("postID: ", postId);
     const postElement = document.querySelector(`[data-post-id="${postId}"]`);
     const commentsContainer = postElement.querySelector('.comments-container');
     commentsContainer.style.display = commentsContainer.style.display === 'none' ? 'block' : 'none';
 
     if (commentsContainer.style.display === 'block') {
-        loadComments(postId, commentsContainer);
+        loadComments(user_id, company_id, postId, commentsContainer, commentButton);
     }
 }
 
-async function loadComments(post_id, commentsContainer) {
+async function loadComments(user_id, company_id, post_id, commentsContainer, commentButton) {
     try {
         const response = await fetch(`http://localhost:3000/comment/${post_id}`, {
             method: 'GET',
@@ -231,7 +239,7 @@ async function loadComments(post_id, commentsContainer) {
         postButton.addEventListener("click", () => {
             const commentInput = document.getElementById(`new-comment-${post_id}`);
             console.log("comment input in text box : ", commentInput.value);
-            addComment(post_id, user_id, commentInput.value, postButton);
+            addComment(post_id, company_id, user_id, commentInput.value, commentButton);
         });
 
         commentsContainer.appendChild(newCommentDiv);
@@ -241,7 +249,7 @@ async function loadComments(post_id, commentsContainer) {
     }
 }
 
-async function addComment(post_id, user_id, commentText, commentButton) {
+async function addComment(post_id, company_id, user_id, commentText, commentButton) {
     console.log("Comment Text : ", commentText);
     if (!commentText) return;
 
@@ -251,7 +259,7 @@ async function addComment(post_id, user_id, commentText, commentButton) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ post_id, user_id, comment_text: commentText })
+            body: JSON.stringify({ post_id, user_id, company_id, comment_text: commentText })
         });
 
         console.log("Comment text in front-end: ", commentText);
@@ -268,13 +276,17 @@ async function addComment(post_id, user_id, commentText, commentButton) {
         const commentElement = document.createElement("div");
         commentElement.classList.add("comment");
         commentElement.innerHTML = `
-            <strong>${newComment.username} || "Anonymous"}</strong>
-            <p>${newComment.comment_text || "No comment."}</p>
+            <strong>${newComment.newComment.username || "Anonymous"}</strong>
+            <p>${newComment.newComment.comment_text || "No comment."}</p>
         `;
+        const commentsCount = newComment.commentsCount;
+        const commentCountElement = commentButton.querySelector('.comments-count');
+        commentCountElement.textContent = `${commentsCount} Comments`;
+
         commentsContainer.appendChild(commentElement);
 
         document.getElementById(`new-comment-${post_id}`).value = "";
-
+        
     } catch (error) {
         console.error("Error adding comments: ", error);
     }
@@ -285,10 +297,10 @@ async function addNewPost(user_id, company_id) {
     const postLocation = document.getElementById('postLocation').value || null;
     const postCarbonEmission = parseFloat(document.getElementById('postCarbonEmission').value) || 0;
     const postEnergyConsumption = parseFloat(document.getElementById('postEnergyConsumption').value) || 0;
-    const postActivityType = document.getElementById('postActivityType').value|| null;
+    const postCategory = document.getElementById('postCategory').value|| null;
     const postMediaUrl = document.getElementById('postMediaUrl').value || null;
     
-    if (!postContext && !postLocation && !postActivityType) {
+    if (!postContext && !postLocation && !postCategory) {
         alert("Please provide at least on field.")
         return;
     }
@@ -306,7 +318,7 @@ async function addNewPost(user_id, company_id) {
                 media_url: postMediaUrl, 
                 carbon_emission: postCarbonEmission,
                 energy_consumption: postEnergyConsumption,
-                activity_type: postActivityType,
+                category: postCategory,
                 location: postLocation 
             })
         });
@@ -322,7 +334,7 @@ async function addNewPost(user_id, company_id) {
         document.getElementById('postLocation').value = '';
         document.getElementById('postCarbonEmission').value = '';
         document.getElementById('postEnergyConsumption').value = '';
-        document.getElementById('postActivityType').value = '';
+        document.getElementById('postCategory').value = '';
         document.getElementById('postMediaUrl').value = '';
         
         alert("Post added successfully!");
@@ -331,5 +343,59 @@ async function addNewPost(user_id, company_id) {
 
     } catch (error) {
         console.error("Error adding post:", error);
+    }
+}
+
+async function trackActivity(user_id, company_id, post_id, activity_type, points) {
+    try {
+        const response = await fetch('http://localhost:3000/trackActivity', {
+            method: 'POST', 
+            headers: {
+                'Content-Type': 'application/json'
+            }, 
+            body: JSON.stringify({ post_id, user_id: user_id, company_id: company_id, activity_type, points})
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const activity = await response.json();
+        console.log("activity: ", activity);
+
+        if (activity) {
+            console.log("activity tracked successfully");
+            updateTotalPoints();
+        } else {
+            console.log("Error tracking activity");
+        }
+    } catch (error) {
+        console.error("Error tracking activity : ", trackActivity)
+    } 
+}
+
+
+async function updateTotalPoints(user_id) {
+    try {
+        const response = await fetch('http://localhost:3000/getTotalPoints', {
+            method: 'GET', 
+            headers: {
+                'Content-Type': 'application/json'
+            }, 
+            body: JSON.stringify({ user_id: user_id })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const totalPoint = await response.json();
+        console.log("total points", totalPoint);
+
+        if (totalPoint) {
+            console.log("Total points fetch successfully");
+        } else {
+            console.log("Error getting total points")
+        }
+    } catch (error) {
+        console.log("Error fetching total points: ", error);
     }
 }

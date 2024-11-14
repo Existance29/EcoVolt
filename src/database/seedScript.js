@@ -59,8 +59,6 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
     company_id INT NOT NULL,
-    about VARCHAR(255) NOT NULL,
-    profile_picture_file_name VARCHAR(255) NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
