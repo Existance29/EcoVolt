@@ -6,9 +6,22 @@ document.addEventListener('DOMContentLoaded', async function () {
     let reportChart = null;
     let company_id = null;
 
+    const loadingScreen = document.getElementById('loading-screen');
+
+    function showLoading() {
+        loadingScreen.style.display = 'block';
+        document.getElementById('reportContentWrapper').classList.add('hidden'); // Hide report content
+    }
+    
+    function hideLoading() {
+        loadingScreen.style.display = 'none';
+        document.getElementById('reportContentWrapper').classList.remove('hidden'); // Show report content
+    }
+
+
     // Initialize company_id before calling fetchReportData
     async function initializeCompanyId() {
-        company_id = await getCompanyId(); // Ensure getCompanyId() returns a promise
+        company_id = await getCompanyId();
         if (company_id) {
             console.log("Company ID:", company_id);
             fetchReportData();
@@ -18,20 +31,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    // Fetch report data when the selected year changes
     yearSelector.addEventListener('change', fetchReportData);
 
-    // Fetch report data based on the selected year
     function fetchReportData() {
         if (!company_id) {
             console.error("Company ID is not available.");
             return;
         }
 
-        const year = yearSelector.value || '2024'; // Default year if none is selected
-        const url = `/reports/${company_id}/generate?year=${year}`; // Updated URL structure to include company_id
-
+        const year = yearSelector.value || '2024';
+        const url = `/reports/${company_id}/generate?year=${year}`;
         statusMessage.innerText = "Loading report data...";
+        showLoading();
 
         fetch(url, {
             method: 'GET',
@@ -54,22 +65,22 @@ document.addEventListener('DOMContentLoaded', async function () {
         .catch(error => {
             console.error('Error fetching report data:', error);
             statusMessage.innerText = "Failed to load report data.";
+        })
+        .finally(() => {
+            hideLoading();
         });
     }
 
-    // Trigger the initialization of company_id
     await initializeCompanyId();
 
-    // Event listener to trigger PDF generation
     generateReportBtn.addEventListener('click', function () {
         statusMessage.innerText = "Generating PDF report...";
+        showLoading();
 
         const chartCanvas = document.getElementById('dataChart');
         const chartContainer = document.getElementById('chart-container');
         const chartImage = new Image();
         chartImage.src = chartCanvas.toDataURL('image/png');
-        chartImage.style.width = chartCanvas.style.width;
-        chartImage.style.height = chartCanvas.style.height;
         chartContainer.replaceChild(chartImage, chartCanvas);
 
         const element = document.getElementById('reportContent');
@@ -79,18 +90,19 @@ document.addEventListener('DOMContentLoaded', async function () {
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-            pagebreak: { before: '.page-break' } // Ensure page break before each .page-break row
+            pagebreak: { before: '.page-break' }
         };
-    
+
         html2pdf().from(element).set(opt).save().then(() => {
             statusMessage.innerText = "PDF report generated successfully.";
         }).catch(error => {
             console.error('Error generating PDF:', error);
             statusMessage.innerText = "Failed to generate PDF report.";
+        }).finally(() => {
+            hideLoading();
         });
     });
 
-    // Function to populate chart with fetched data
     function populateChart(labels, energyData, emissionsData) {
         if (reportChart) {
             reportChart.destroy();
@@ -147,16 +159,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // Function to populate the data table with page breaks within rows
     function populateDataTable(reportData = []) {
-        dataTableBody.innerHTML = ''; // Clear existing content
-        const rowsPerPage = 33; // Define rows per page
-    
+        dataTableBody.innerHTML = '';
+        const rowsPerPage = 33;
+
         reportData.forEach((row, index) => {
             const date = new Date(row.date);
             const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${
                 (date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-    
+
             const tableRow = document.createElement('tr');
             tableRow.innerHTML = `
                 <td>${formattedDate}</td>
@@ -167,23 +178,21 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <td>${row.co2EmissionsTons || 'N/A'}</td>
             `;
             dataTableBody.appendChild(tableRow);
-    
-            // Add page break after specified rows per page
+
             if ((index + 1) % rowsPerPage === 0) {
-                tableRow.classList.add('page-break'); // Add page-break to row
+                tableRow.classList.add('page-break');
             }
         });
     }
-    // Function to populate recommendations
+
     function populateRecommendations(recommendations) {
         const recommendationsSection = document.querySelector('.recommendations');
-        recommendationsSection.innerHTML = ''; // Clear existing content
-    
+        recommendationsSection.innerHTML = '';
+
         recommendations.forEach((recommendation, index) => {
-            // Create the recommendation container
             const recDiv = document.createElement('div');
             recDiv.classList.add('recommendation');
-    
+
             recDiv.innerHTML = `
                 <h3>Recommendation ${index + 1}:</h3>
                 <p><strong>Recommendation:</strong> ${recommendation.recommendation}</p>
@@ -197,11 +206,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 </ol>
                 <p class="intended-impact"><strong>Intended Impact:</strong> ${recommendation.intendedImpact}</p>
             `;
-    
-            // Append the recommendation to the recommendations section
             recommendationsSection.appendChild(recDiv);
-    
-            // Add a page break every second recommendation, except after the last recommendation
+
             if ((index + 1) % 2 === 0 && index !== recommendations.length - 1) {
                 const pageBreak = document.createElement('div');
                 pageBreak.classList.add('page-break');
