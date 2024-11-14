@@ -7,6 +7,17 @@ const path = require('path');
 
 const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
+const getAllReport = async (company_id, year = null) => {
+    try {
+        // Call the Report model method, allowing `year` to be optional
+        const reports = await Report.getAllReport(company_id, year);
+        return reports; // Return data directly
+    } catch (error) {
+        console.error("Error fetching all report data:", error);
+        throw error; // Let the calling function handle the error
+    }
+};
+
 // Function to generate data analysis for Data Overview
 async function generateDataAnalysis(monthlyEnergy, monthlyCO2) {
     const prompt = `Analyze the following energy and CO2 emission data for Singtel:
@@ -279,7 +290,10 @@ const getAvailableMonthsAndYears = async (req, res) => {
     }
 };
 
+
+
 module.exports = {
+    getAllReport,
     generateReportData,
     forceGenerateReportData,
     generateReportPDF,

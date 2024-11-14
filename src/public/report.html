@@ -33,12 +33,12 @@
             </div>
             <div id="reportContent" class="report-content">
                 <div class="print-header">
-                    <div class="logo" style="display: flex; align-items: center;">
-                        <img src="assets/logo.png" alt="EcoVolt Logo" style="width: 80px; height: auto; margin-right: 10px;">
+                    <div class="logo" style="display: flex; align-items: center; margin-right: 10px; margin-top: 25px;">
+                        <img src="assets/logo.png" alt="EcoVolt Logo" style="width: 80px; height: auto;">
                         <h2 style="margin: 0; font-size: 24px;">EcoVolt</h2>
                     </div>
                 </div>
-                <h1 style="text-align: center; margin-top: 50px;">Singtel Sustainability Report 2024</h1>
+                <h1 style="text-align: center; margin-top: 55px;">Singtel Sustainability Report 2024</h1>
 
                 <!-- Page 1: Executive Summary and Data Overview -->
                 <section class="report-section">
@@ -55,7 +55,7 @@
                 </section>
 
                 <!-- Page 2: Data Insights -->
-                <section class="report-section data-insights-page">
+                <section class="report-section data-insights-page page-break">
                     <h2 style="margin-top: 50px">Data Insights</h2>
                     <table class="data-table">
                         <thead>
@@ -74,7 +74,7 @@
                 </section>
 
                 <!-- Page 3: Recommendations -->
-                <section class="report-section recommendations-page">
+                <section class="report-section recommendations-page page-break">
                     <h2 style="margin-top: 50px">Recommendations</h2>
                     <div class="recommendations" style="margin-top: 30px"></div>
                 </section>
@@ -110,9 +110,6 @@
         </div>
     </div>
 
-    <script src="scripts/generateReport.js"></script>
-    <script src="./scripts/utils.js"></script>
-    <script src="./scripts/common.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -120,6 +117,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="scripts/common.js"></script>
     <script src="scripts/generateReport.js"></script>
+    <script src="scripts/chatbot.js"></script>
     <script src="scripts/utils.js"></script>
 </body>
 </html>
