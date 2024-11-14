@@ -1,10 +1,79 @@
+// Array holding the content for each page
+const tooltipPages = [
+    {
+        title: "PUE (Power Usage Effectiveness)",
+        content: `
+            <p>PUE is the ratio of total energy used by the data center to the energy used specifically by IT equipment. It measures the efficiency of energy usage, aiming to reduce energy wasted on cooling, lighting, and other non-IT processes.</p>
+            <p><strong>Ideal Value:</strong> 1.0 (indicating 100% energy efficiency with no waste)</p>
+            <p><strong>Strategies to Improve PUE:</strong></p>
+            <ul>
+                <li>Optimize cooling systems with advanced technologies like liquid cooling or free air cooling.</li>
+                <li>Use hot/cold aisle containment to improve airflow management and reduce cooling requirements.</li>
+                <li>Regularly maintain and upgrade cooling equipment to prevent inefficiencies.</li>
+                <li>Consider using renewable energy sources to power data centers.</li>
+            </ul>
+        `
+    },
+    {
+        title: "CUE (Carbon Usage Effectiveness)",
+        content: `
+            <p>CUE measures the amount of carbon emissions produced per unit of energy consumed by a data center. Lower CUE indicates lower carbon emissions, making the data center more environmentally friendly.</p>
+            <p><strong>Ideal Value:</strong> Close to 0 (indicating minimal or no carbon emissions)</p>
+            <p><strong>Strategies to Improve CUE:</strong></p>
+            <ul>
+                <li>Transition to renewable energy sources such as solar, wind, or hydro power.</li>
+                <li>Invest in carbon offset programs to compensate for emissions that cannot be eliminated.</li>
+                <li>Optimize power management in IT equipment to reduce unnecessary energy consumption.</li>
+            </ul>
+        `
+    },
+    {
+        title: "WUE (Water Usage Effectiveness)",
+        content: `
+            <p>WUE measures the amount of water used for cooling per unit of energy consumed by IT equipment. Reducing WUE improves water efficiency and decreases the environmental impact.</p>
+            <p><strong>Ideal Value:</strong> Close to 0 (indicating minimal water usage)</p>
+            <p><strong>Strategies to Improve WUE:</strong></p>
+            <ul>
+                <li>Implement air-based cooling systems that use less or no water.</li>
+                <li>Recycle and reuse water where possible, especially in areas with limited water resources.</li>
+                <li>Invest in cooling systems that rely on minimal or zero water usage, such as adiabatic or dry cooling.</li>
+            </ul>
+        `
+    }
+];
+
+// Track the current page index
+let currentPage = 0;
+
+// Function to show the tooltip modal and load the first page
 function showTooltip() {
     document.getElementById("tooltipModal").style.display = "block";
+    loadTooltipPage(currentPage);
 }
 
+// Function to hide the tooltip modal
 function hideTooltip() {
     document.getElementById("tooltipModal").style.display = "none";
 }
+
+// Function to load a specific page
+function loadTooltipPage(pageIndex) {
+    // Update title and content based on the current page
+    const page = tooltipPages[pageIndex];
+    document.getElementById("tooltipTitle").textContent = page.title;
+    document.getElementById("tooltipContent").innerHTML = page.content;
+
+    // Update button visibility
+    document.getElementById("prevButton").style.display = pageIndex === 0 ? "none" : "inline";
+    document.getElementById("nextButton").style.display = pageIndex === tooltipPages.length - 1 ? "none" : "inline";
+}
+
+// Function to change the page
+function changePage(direction) {
+    currentPage += direction;
+    loadTooltipPage(currentPage);
+}
+
 
 // Close the tooltip when clicking outside the modal content
 window.onclick = function(event) {
@@ -13,6 +82,32 @@ window.onclick = function(event) {
         modal.style.display = "none";
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const company_id = getCompanyId();
 
@@ -84,6 +179,7 @@ yearPicker.parentNode.insertBefore(yearErrorMessage, yearPicker.nextSibling); //
 // Initialize chart instances
 let carbonEmissionChart;
 let energyBreakdownChart;
+let deviceTypesChart;
 
 // Event listeners to handle changes in the date or data center dropdown
 // monthPicker.addEventListener("change", fetchData);
@@ -359,18 +455,24 @@ function renderChart(data) {
     const selectedMonth = monthPicker.value;
     const selectedYear = yearPicker.value;
     const isDailyView = selectedMonth && selectedYear;
+    const isFilteredByDate = selectedMonth || selectedYear;
 
     // Step 2: Process data to group by day if daily view is required; otherwise, by month-year
     const groupedData = data.reduce((acc, item) => {
         const date = new Date(item.date);
         let dateLabel;
 
-        if (isDailyView) {
-            // Group by day-month (e.g., 01-Jan, 02-Jan)
-            dateLabel = date.toLocaleDateString("en-US", { day: '2-digit', month: 'short' });
+        if (isFilteredByDate) {
+            if (selectedMonth && selectedYear) {
+                // Group by day-month (e.g., 01-Jan)
+                dateLabel = date.toLocaleDateString("en-US", { day: '2-digit', month: 'short' });
+            } else {
+                // Group by month-year (e.g., Jan-2024)
+                dateLabel = date.toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
+            }
         } else {
-            // Group by month-year (e.g., Jan-2024)
-            dateLabel = date.toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
+            // No filter applied, group by year
+            dateLabel = date.getFullYear().toString();
         }
 
         if (!acc[dateLabel]) {
@@ -769,7 +871,6 @@ function renderEnergyBreakdownChart(data) {
 
 function openPopup(dataCenterId, year, month, selectedLabel, selectedColor) {
     popupModal.style.display = 'flex';
-
     // Only destroy if popupChart exists and is a Chart instance
     if (popupChart && typeof popupChart.destroy === 'function') {
         popupChart.destroy();
@@ -945,6 +1046,31 @@ async function fetchTotalRenewableEnergyByDataCenterIdAndDate(data_center_id, se
 }
 
 
+let targetValues = {};
+
+// Function to fetch target values for each metric
+async function fetchTargetValues() {
+    try {
+        const response = await fetch(`/Dashboard/sustainability-goals/${company_id}`);
+        const goalsData = await response.json();
+
+        // Map target values based on key phrases in `goal_name`
+        goalsData.forEach(goal => {
+            if (goal.goal_name.includes('PUE')) {
+                targetValues['PUE'] = parseFloat(goal.target_value);
+            } else if (goal.goal_name.includes('CUE')) {
+                targetValues['CUE'] = parseFloat(goal.target_value);
+            } else if (goal.goal_name.includes('WUE')) {
+                targetValues['WUE'] = parseFloat(goal.target_value);
+            }
+        });
+
+        console.log("Mapped target values:", targetValues);  // Verify target values
+    } catch (error) {
+        console.error("Error fetching target values:", error);
+    }
+}
+
 
 
 
@@ -989,8 +1115,7 @@ async function fetchMetricData(metric) {
 
 
 function renderGaugeChart(value, label) {
-    const targetValues = { PUE: 1, CUE: 0.5, WUE: 1.0 };
-    const target = targetValues[label];
+    const target = targetValues[label] || 1;  // Use dynamic target value, default to 1 if not found
     const maxValue = target * 2;
 
     // Set canvas dimensions for better clarity
@@ -1071,13 +1196,176 @@ function renderGaugeChart(value, label) {
     ctx.fillStyle = "#333";
     ctx.textAlign = "center";
     ctx.fillText("0", centerX - radius - 10, centerY + 15);
-    ctx.fillText(target.toFixed(2), centerX, centerY - radius + 25);
+    ctx.fillText(target.toFixed(2), centerX, centerY - radius + 25);  // Midpoint label
     ctx.fillText(maxValue.toFixed(2), centerX + radius + 10, centerY + 15);
 
     // Value label below
     ctx.font = "bold 14px Arial";
     ctx.fillText(`${label}: ${value.toFixed(2)}`, centerX, centerY + 20);
 }
+
+
+
+// Function to fetch device count based on the selected data center
+async function fetchDeviceCount() {
+    const selectedDataCenter = dataCenterDropdown.value;
+    let apiUrl;
+    if (selectedDataCenter === "all" || !selectedDataCenter) {
+        // No specific data center selected, fetch count for all devices under the company
+        apiUrl = `/Dashboard/Data-Center/Devices/${company_id}`;
+    } else {
+        // Specific data center selected, fetch count for devices in that data center
+        apiUrl = `/Dashboard/Data-Center/Devices/${company_id}/${selectedDataCenter}`;
+    }
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch device count. Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("Device count data:", data);
+
+        // Assuming you have an element to display device count
+        const deviceCountElement = document.getElementById("totalDevices");
+        deviceCountElement.textContent = `${data[0].device_count} Devices`;
+    } catch (error) {
+        console.error("Error fetching device count:", error);
+    }
+}
+
+// Call fetchDeviceCount whenever the data center dropdown changes
+dataCenterDropdown.addEventListener("change", fetchDeviceCount);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Function to fetch device types data
+async function fetchDeviceTypesData() {
+    const selectedDataCenter = document.getElementById('dataCenterDropdown').value;
+
+    let apiUrl;
+    // Determine the endpoint based on the selected data center
+    if (selectedDataCenter === "all" || !selectedDataCenter) {
+        apiUrl = `/Dashboard/Data-Center/DevicesTypes/${company_id}`;
+    } else {
+        apiUrl = `/Dashboard/Data-Center/DevicesTypes/${company_id}/${selectedDataCenter}`;
+    }
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch device types. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Device Types Data:", data);
+
+        const labels = data.map(item => item.device_type_group);
+        const counts = data.map(item => item.device_count);
+
+        renderDeviceTypesChart(labels, counts);
+    } catch (error) {
+        console.error("Error fetching device types:", error);
+    }
+}
+
+// Function to render the device types chart
+function renderDeviceTypesChart(labels, data) {
+    const ctx = document.getElementById("deviceTypesChart").getContext("2d");
+
+    // Destroy existing chart instance if it exists
+    if (deviceTypesChart) {
+        deviceTypesChart.destroy();
+    }
+
+    // Create a new vertical bar chart
+    deviceTypesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Device Count',
+                data: data,
+                borderColor: "#38B2AC",    // Solid border color
+                backgroundColor: "#38B2AC" + '80',    // Transparent background color
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Device Types in Data Center'
+                },
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Device Type'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Count'
+                    },
+                    ticks: {
+                        stepSize: 1 // Ensure only whole numbers are displayed
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Add an event listener to the "Total Number of Devices" container
+document.getElementById('totalDevicesContainer').addEventListener('click', () => {
+    fetchDeviceTypesData();
+    openDeviceTypesPopup();
+});
+
+
+// Function to open the device types modal
+function openDeviceTypesPopup() {
+    document.getElementById("deviceTypesModal").style.display = "flex";
+}
+
+// Function to close the device types modal
+function closeDeviceTypesPopup() {
+    document.getElementById("deviceTypesModal").style.display = "none";
+}
+
+
+document.getElementById("dataCenterDropdown").addEventListener("change", fetchDeviceTypesData);
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1090,12 +1378,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Load data center options
     await loadDataCenterOptions();
-    
+    await fetchTargetValues();
+    await fetchDeviceCount();
+
     // Extract parameters from the URL
     const urlParams = new URLSearchParams(window.location.search);
     const dataCenterIdFromUrl = urlParams.get('data_center_id');
     const dateFromUrl = urlParams.get('date');
-    const yearFromUrl = urlParams.get('year'); // Additional year parameter
+    const yearFromUrl = urlParams.get('year');
 
     // Set data center dropdown based on URL parameter if present
     if (dataCenterIdFromUrl) {

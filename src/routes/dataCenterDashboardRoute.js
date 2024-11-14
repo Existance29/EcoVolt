@@ -36,6 +36,13 @@ const dataCenterDashboardRoute = (app) => {
     
     app.get('/Dashboard/Data-Center/EnergyConsumption/GroupByDc/:company_id/:data_center_id?', dataCenterDashboardController.getEnergyConsumptionGroupByDc);
 
+    app.get('/Dashboard/Data-Center/Devices/:company_id', dataCenterDashboardController.getDevicesCountByCompanyId);
+    app.get('/Dashboard/Data-Center/Devices/:company_id/:data_center_id', dataCenterDashboardController.getDevicesCountByCompanyIdAndDc);
+    
+    app.get('/Dashboard/Data-Center/DevicesTypes/:company_id', dataCenterDashboardController.getDeviceTypesByCompanyId);
+    app.get('/Dashboard/Data-Center/DevicesTypes/:company_id/:data_center_id', dataCenterDashboardController.getDeviceTypesByCompanyIdAndDataCenter);
+
+
     // app.post('/chat', dataCenterDashboardController.getChatbotResponse);
     // overview page
     app.get('/Dashboard/sustainability-goals/:company_id', dataCenterDashboardController.getAllSustainabilityGoalsData);

@@ -211,3 +211,15 @@ async function loadData() {
         profileImg.src = "/assets/profile/defaultprofilepic.jpg";
     }
 }
+
+
+// check whether got badge or not
+
+document.addEventListener("DOMContentLoaded", function() {
+    const badgeIcon = document.getElementById("badge-icon");
+    if (localStorage.getItem("badgeUnlocked") === "true") {
+        badgeIcon.style.display = "block"; // Show the badge icon if unlocked
+    } else {
+        badgeIcon.style.display = "none"; // Hide the badge icon if not unlocked
+    }
+});

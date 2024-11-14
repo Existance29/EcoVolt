@@ -681,6 +681,75 @@ const getEnergyConsumptionGroupByDc = async (req, res) => {
 
 
 
+const getDevicesCountByCompanyId = async (req, res) => {
+    const company_id = parseInt(req.params.company_id);
+    try {
+        const data = await dataCenterDashboard.getDevicesCountByCompanyId(company_id);
+        if (!data) {
+            return res.status(404).send('Device count not found for this company.');
+        }
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Failed to retrieve device count: Internal Server Error.');
+    }
+};
+
+const getDevicesCountByCompanyIdAndDc = async (req, res) => {
+    const company_id = parseInt(req.params.company_id); 
+    const dc = parseInt(req.params.data_center_id); 
+    try {
+        const data = await dataCenterDashboard.getDevicesCountByCompanyIdAndDc(company_id, dc);
+        if (!data) {
+            return res.status(404).send('Device count not found for this data center.');
+        }
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Failed to retrieve device count for data center: Internal Server Error.');
+    }
+};
+
+
+
+const getDeviceTypesByCompanyId = async (req, res) => {
+    const company_id = parseInt(req.params.company_id); // convert string to integer
+    try {
+        const data = await dataCenterDashboard.getDeviceTypesByCompanyId(company_id);
+        if (!data) {
+            return res.status(404).send('Device type by company id Data not found.');
+        }
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Failed to retrieve Device Type by company id: Internal Server Error.');
+    }
+};
+
+
+const getDeviceTypesByCompanyIdAndDataCenter = async (req, res) => {
+    const company_id = parseInt(req.params.company_id); // convert string to integer
+    const dc = parseInt(req.params.data_center_id); 
+    try {
+        const data = await dataCenterDashboard.getDeviceTypesByCompanyIdAndDataCenter(company_id, dc);
+        if (!data) {
+            return res.status(404).send('Device type by company id and data center Data not found.');
+        }
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Failed to retrieve Device Type by company id and data center: Internal Server Error.');
+    }
+};
+
+
+
+
+
+
+
+
+
 
 
 
@@ -801,6 +870,11 @@ module.exports = {
 
     getEnergyConsumptionGroupByDc,
 
+    getDevicesCountByCompanyId, // total amount
+    getDevicesCountByCompanyIdAndDc,
+
+    getDeviceTypesByCompanyId, // what are the devices and how many are there for each
+    getDeviceTypesByCompanyIdAndDataCenter,
     // getChatbotResponse,
 
     getAllSustainabilityGoalsData
