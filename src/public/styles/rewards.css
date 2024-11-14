@@ -1,0 +1,107 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    font-family: 'Afacad';
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+header {
+    background-color: #3BCBBE;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 1.8em;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.daily-progress {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.daily-progress h2 {
+    color: #3BCBBE;
+    margin-bottom: 15px;
+}
+
+.progress-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.progress-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #e8f7f6;
+    border-radius: 6px;
+    color: #333;
+}
+
+.total-points h3 {
+    margin-top: 15px;
+    text-align: center;
+    color: #3BCBBE;
+}
+
+.rewards-redemption {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rewards-redemption h2 {
+    color: #3BCBBE;
+    margin-bottom: 15px;
+}
+
+.reward-item {
+    padding: 15px;
+    background-color: #e8f7f6;
+    margin-bottom: 15px;
+    border-radius: 6px;
+}
+
+.reward-item h3 {
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.reward-item p {
+    color: #666;
+}
+
+.redeem-button {
+    background-color: #3BCBBE;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.redeem-button:hover {
+    background-color: #34b1a9;
+}
