@@ -81,6 +81,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         const chartContainer = document.getElementById('chart-container');
         const chartImage = new Image();
         chartImage.src = chartCanvas.toDataURL('image/png');
+        chartImage.style.width = chartCanvas.style.width;
+        chartImage.style.height = chartCanvas.style.height;
         chartContainer.replaceChild(chartImage, chartCanvas);
 
         const element = document.getElementById('reportContent');
@@ -160,8 +162,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     function populateDataTable(reportData = []) {
-        dataTableBody.innerHTML = '';
-        const rowsPerPage = 33;
+        dataTableBody.innerHTML = ''; // Clear existing content
+        const rowsPerPage = 33; // Define rows per page
 
         reportData.forEach((row, index) => {
             const date = new Date(row.date);
