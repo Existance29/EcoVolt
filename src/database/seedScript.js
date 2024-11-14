@@ -214,7 +214,7 @@ CREATE TABLE reward_history (
     redemption_date DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (company_id) REFERENCES companies(id)
-);
+); 
 
 `;
 
