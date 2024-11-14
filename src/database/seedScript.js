@@ -177,6 +177,45 @@ CREATE TABLE dislikes (
 	FOREIGN KEY (user_id) REFERENCES users(id),
 	UNIQUE (post_id, user_id)
 );
+
+
+-- Create table for reward points
+CREATE TABLE user_rewards (
+    reward_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    company_id INT NOT NULL,
+    total_points INT DEFAULT 0,
+    last_updated DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
+-- Create table for activity points 
+CREATE TABLE activity_points (
+    activity_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    company_id INT NOT NULL,
+    post_id INT,
+    activity_type VARCHAR(50), 
+    points_awarded INT,
+    datetime DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (post_id) REFERENCES activity_feed(post_id)
+);
+
+-- Create table for reward history
+CREATE TABLE reward_history (
+    redemption_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    company_id INT NOT NULL,
+    reward_description VARCHAR(255),
+    points_spent INT,
+    redemption_date DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
 `;
 
 const insertData = `
