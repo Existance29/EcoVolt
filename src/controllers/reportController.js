@@ -19,8 +19,8 @@ const getAllReport = async (company_id, year = null) => {
 };
 
 // Function to generate data analysis for Data Overview
-async function generateDataAnalysis(monthlyEnergy, monthlyCO2) {
-    const prompt = `Analyze the following energy and CO2 emission data for Singtel:
+async function generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName) {
+    const prompt = `Analyze the following energy and CO2 emission data for ${companyName}:
     - Monthly Energy Consumption: ${monthlyEnergy.join(", ")} kWh
     - Monthly CO2 Emissions: ${monthlyCO2.join(", ")} tons
     
@@ -43,10 +43,10 @@ async function generateDataAnalysis(monthlyEnergy, monthlyCO2) {
 
 // Generate report data with optional caching in session
 const generateReportData = async (req, res) => {
-    const { company_id } = req.params; // Extract company_id from the URL parameters
+    const { company_id } = req.params;
     const year = req.query.year;
-    const oneHour = 60 * 60 * 1000;
     const currentTime = new Date();
+    const oneHour = 60 * 60 * 1000;
 
     // Check if cached data exists for the requested year and if it’s within the cache duration
     if (req.session.reportData && req.session.reportData[year] && req.session.reportData[year].timestamp) {
@@ -58,17 +58,22 @@ const generateReportData = async (req, res) => {
     }
 
     console.log(`Generating new report data for year ${year}...`);
+
     try {
         const reports = await Report.getAllReport(company_id, year);
-        const singtelReports = reports.filter(report => report.companyName === 'Singapore Telecommunications Limited');
 
+        if (reports.length === 0) {
+            return res.status(404).json({ error: 'No report data found for the specified company and year.' });
+        }
+
+        const companyName = reports[0].companyName; // Get companyName from reports data
         const months = [];
         const monthlyEnergy = [];
         const monthlyCO2 = [];
         let totalEnergy = 0;
         let totalCO2 = 0;
 
-        singtelReports.forEach(report => {
+        reports.forEach(report => {
             const month = moment(report.date).format('MMM YYYY');
             const monthIndex = months.indexOf(month);
 
@@ -85,8 +90,8 @@ const generateReportData = async (req, res) => {
             totalCO2 += report.co2EmissionsTons || 0;
         });
 
-        const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2);
-        const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2);
+        const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2, companyName);
+        const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName);
         const recommendations = await getAllAIRecommendations({
             totalEnergy: totalEnergy,
             co2Emissions: totalCO2,
@@ -104,11 +109,10 @@ const generateReportData = async (req, res) => {
             dataAnalysis,
             recommendations,
             conclusion,
-            reportData: singtelReports,
+            reportData: reports,
         };
 
-        // Cache the generated data for the specific year
-        if (!req.session.reportData) req.session.reportData = {}; // Initialize session data if empty
+        if (!req.session.reportData) req.session.reportData = {};
         req.session.reportData[year] = { data: reportData, timestamp: currentTime };
 
         res.status(200).json(reportData);
@@ -126,12 +130,23 @@ const forceGenerateReportData = async (req, res) => {
 
 // Generate PDF report
 const generateReportPDF = async (req, res) => {
+    const { company_id } = req.params;
     console.log("Generating PDF with Puppeteer...");
+
     try {
+        const reports = await Report.getAllReport(company_id);
+        
+        if (reports.length === 0) {
+            return res.status(404).json({ error: 'No report data found for the specified company.' });
+        }
+
+        const companyName = reports[0].companyName; // Get companyName from reports data
+
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
 
-        const reportHtmlPath = `file://${path.resolve(__dirname, '..', 'public', 'report.html')}`;
+        // Pass companyName as a query parameter to the report HTML path
+        const reportHtmlPath = `file://${path.resolve(__dirname, '..', 'public', 'report.html')}?companyName=${encodeURIComponent(companyName)}`;
         await page.goto(reportHtmlPath, { waitUntil: 'networkidle0' });
 
         const pdfBuffer = await page.pdf({
@@ -143,7 +158,7 @@ const generateReportPDF = async (req, res) => {
         await browser.close();
 
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename="Singtel_Report.pdf"');
+        res.setHeader('Content-Disposition', `attachment; filename="${companyName}_Report.pdf"`);
         res.send(pdfBuffer);
     } catch (error) {
         console.error("Error generating PDF:", error);
@@ -250,14 +265,14 @@ async function generateConclusion(totalEnergy, totalCO2, recommendations) {
 }
 
 // Function to generate an executive summary
-async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2) {
-    const prompt = `Generate a concise executive summary for Singtel’s energy consumption and CO2 emissions report based on the following data:
+async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2, companyName) {
+    const prompt = `Generate a concise executive summary for ${companyName}'s energy consumption and CO2 emissions report based on the following data:
     - Total Energy Consumption: ${totalEnergy.toLocaleString()} kWh
     - Total CO2 Emissions: ${totalCO2.toFixed(2)} tons
     - Monthly Energy Consumption: ${monthlyEnergy.join(", ")} kWh for months ${months.join(", ")}
     - Monthly CO2 Emissions: ${monthlyCO2.join(", ")} tons for months ${months.join(", ")}
 
-    The summary should highlight any notable trends or changes over time, with insights on how Singtel’s energy consumption and emissions have evolved.`;
+    The summary should highlight any notable trends or changes over time, with insights on how ${companyName}'s energy consumption and emissions have evolved.`;
 
     try {
         const response = await openai.chat.completions.create({
