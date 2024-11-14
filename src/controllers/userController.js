@@ -114,7 +114,7 @@ class userController{
 
     static async uploadProfilePicture(req, res){
         const tempPath = req.file.path;
-        const targetPath = path.join(__dirname, "./uploads/image.png");
+        const targetPath = path.join(__dirname, "./uploads/profile-pictures/image.png");
 
         if (path.extname(req.file.originalname).toLowerCase() === ".png") {
         fs.rename(tempPath, targetPath, err => {

@@ -4,7 +4,7 @@ const authenticateToken = require("../middlewares/authenticateToken")
 const multer = require("multer");
 
 const upload = multer({
-    dest: "../uploads/profile-pictures"
+    dest: "./temp-uploads/profile-pictures"
     // you might also want to set some limits: https://github.com/expressjs/multer#limits
 });
 
@@ -17,7 +17,7 @@ const userRoute = (app) => {
     app.get("/users/account/private", authenticateToken, userController.getPrivateUserById)
     app.put("/users/account/private", authenticateToken, validateUser.validateAccountUpdate, userController.updateUserAccountInfo)
     app.put("/users/password", authenticateToken, validateUser.validateNewPassword, userController.changePassword)
-    app.post("/users/profile-picture", upload.single("file"), userController.uploadProfilePicture)
+    app.put("/users/profile-picture", upload.single("file"), userController.uploadProfilePicture)
     app.get("/users/profile-picture/public/:id", userController.getProfilePictureById)
 };
 
