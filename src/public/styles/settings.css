@@ -111,3 +111,17 @@ input, button{
     color: green;
     opacity: 0;
 }
+
+
+
+
+
+.badge-icon {
+    position: absolute;
+    bottom: -10px; /* Adjust position to align with the larger size */
+    left: 50%; /* Center it horizontally */
+    transform: translateX(-50%); /* Center alignment */
+    width: 50px; /* Set only the width to keep the aspect ratio */
+    height: auto; /* Auto height to maintain aspect ratio */
+    background-color: transparent; /* Ensure no background color */
+}

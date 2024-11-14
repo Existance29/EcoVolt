@@ -11,6 +11,10 @@
 
 </head>
 <body>
+    <div id="loading-screen" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000;">
+        <dotlottie-player src="https://lottie.host/5a25ade9-5ff8-45a2-9fe2-3477d6cf5b49/64EENUZJCU.json" background="transparent" speed="1" style="width: 150px; height: 150px;" loop autoplay></dotlottie-player>
+    </div>
+
     <div class="layout-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
@@ -31,59 +35,62 @@
                     </select>
                 </div>
             </div>
-            <div id="reportContent" class="report-content">
-                <div class="print-header">
-                    <div class="logo" style="display: flex; align-items: center; margin-right: 10px; margin-top: 25px;">
-                        <img src="assets/logo.png" alt="EcoVolt Logo" style="width: 80px; height: auto;">
-                        <h2 style="margin: 0; font-size: 24px;">EcoVolt</h2>
+            <div id="reportContentWrapper" class="hidden">
+
+                <div id="reportContent" class="report-content">
+                    <div class="print-header">
+                        <div class="logo" style="display: flex; align-items: center; margin-right: 10px; margin-top: 25px;">
+                            <img src="assets/logo.png" alt="EcoVolt Logo" style="width: 80px; height: auto;">
+                            <h2 style="margin: 0; font-size: 24px;">EcoVolt</h2>
+                        </div>
                     </div>
+                    <h1 style="text-align: center; margin-top: 55px;">Singtel Sustainability Report 2024</h1>
+
+                    <!-- Page 1: Executive Summary and Data Overview -->
+                    <section class="report-section">
+                        <h2 style="margin-top: 40px; margin-left: 10px;">Executive Summary</h2>
+                        <p id="executiveSummary" style="margin-left: 10px; margin-top: 20px;"></p>
+                    </section>
+
+                    <section class="report-section data-overview">
+                        <h2 style="margin-top: 50px">Data Overview</h2>
+                        <div id="chart-container">
+                            <canvas id="dataChart" width="800" height="400"></canvas>
+                        </div>
+                        <p id="dataAnalysis"></p>
+                    </section>
+
+                    <!-- Page 2: Data Insights -->
+                    <section class="report-section data-insights-page page-break">
+                        <h2 style="margin-top: 50px; margin-left: 10px; margin-bottom: 15px;">Data Insights</h2>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Radio Equipment Energy (kWh)</th>
+                                    <th>Cooling Energy (kWh)</th>
+                                    <th>Backup Power Energy (kWh)</th>
+                                    <th>Misc Energy (kWh)</th>
+                                    <th>CO2 Emissions (tons)</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <p id="dataInsightsText"></p>
+                    </section>
+
+                    <!-- Page 3: Recommendations -->
+                    <section class="report-section recommendations-page page-break">
+                        <h2 style="margin-top: 50px">Recommendations</h2>
+                        <div class="recommendations" style="margin-top: 30px"></div>
+                    </section>
+
+                    <!-- Page 4: Conclusion -->
+                    <section class="report-section conclusion-page">
+                        <h2 style="margin-top: 50px">Conclusion</h2>
+                        <p id="conclusion" style="margin-top: 30px;"></p>
+                    </section>
                 </div>
-                <h1 style="text-align: center; margin-top: 55px;">Singtel Sustainability Report 2024</h1>
-
-                <!-- Page 1: Executive Summary and Data Overview -->
-                <section class="report-section">
-                    <h2 style="margin-top: 40px; margin-left: 10px;">Executive Summary</h2>
-                    <p id="executiveSummary" style="margin-left: 10px; margin-top: 20px;"></p>
-                </section>
-
-                <section class="report-section data-overview">
-                    <h2 style="margin-top: 50px">Data Overview</h2>
-                    <div id="chart-container">
-                        <canvas id="dataChart" width="800" height="400"></canvas>
-                    </div>
-                    <p id="dataAnalysis"></p>
-                </section>
-
-                <!-- Page 2: Data Insights -->
-                <section class="report-section data-insights-page page-break">
-                    <h2 style="margin-top: 50px">Data Insights</h2>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Radio Equipment Energy (kWh)</th>
-                                <th>Cooling Energy (kWh)</th>
-                                <th>Backup Power Energy (kWh)</th>
-                                <th>Misc Energy (kWh)</th>
-                                <th>CO2 Emissions (tons)</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                    <p id="dataInsightsText"></p>
-                </section>
-
-                <!-- Page 3: Recommendations -->
-                <section class="report-section recommendations-page page-break">
-                    <h2 style="margin-top: 50px">Recommendations</h2>
-                    <div class="recommendations" style="margin-top: 30px"></div>
-                </section>
-
-                <!-- Page 4: Conclusion -->
-                <section class="report-section conclusion-page">
-                    <h2 style="margin-top: 50px">Conclusion</h2>
-                    <p id="conclusion" style="margin-top: 30px;"></p>
-                </section>
             </div>
         </main>
     </div>
@@ -115,6 +122,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
     <script src="scripts/common.js"></script>
     <script src="scripts/generateReport.js"></script>
     <script src="scripts/chatbot.js"></script>

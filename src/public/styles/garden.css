@@ -1,27 +1,269 @@
-/* garden.css */
-
-body {
-    margin: 0;
-    padding: 0;
+/* Container Tree - Align to the Right */
+#container-tree {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0; /* Light background for contrast */
+    width: 50%; /* Set width for better alignment */
+    height: 350px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    background-color: #ffffff;
+    background-image: url('/assets/tree/garden.jpg');
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
 }
 
-#container-tree {
-    width: 90%;
-    height: 50%;
-    border: 5px solid #4CAF50; /* Green border for garden effect */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-    background-color: #ffffff; /* White background for container */
-    background-image: url('/assets/tree/garden.jpg');
-    background-size: cover; /* Cover the container */
-    background-position: center; /* Center the image */
-    overflow: hidden;
+.garden-container {
+    margin-top: 30px; /* Adds spacing above the container */
+    padding: 20px;
+    background-color: #ffffff; /* Set background to white */
+    border-radius: 8px;
+    text-align: left; /* Align content to the left by default */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between; /* Space between elements */
+    align-items: center; /* Center items vertically */
+}
+
+.garden-info h2 {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.garden-info p {
+    margin: 0;
+    font-size: 1em;
+    color: #555;
+}
+
+.tree-visualization {
+    width: 100%;
+    height: 350px; /* Adjust this height as needed */
+    background-color: #e6ffe6; /* Light green background for visualization */
+    border-radius: 8px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*--------------- BADGE N BUTTONS --------------*/
+.garden-badge-image {
+    width: 300px; /* Ensure this takes priority */
+    height: auto;  /* Maintain aspect ratio */
+    max-width: 100%; /* Prevents overflow */
+    margin-bottom: 15px;
+}
+
+/* Base button styling */
+button.add-badge-button {
+    background-color: #4FD1C5;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+/* Disabled button styling */
+button.add-badge-button:disabled {
+    background-color: #e0e0e0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+}
+
+/* Hover and active effects */
+button.add-badge-button:hover:not(:disabled) {
+    background-color: #38B2AC;
+}
+
+button.add-badge-button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+/* Focus state */
+button.add-badge-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.4);
+}
+
+/* Modal button styling */
+.garden-view-profile-btn {
+    background-color: #4FD1C5;
+    color: white;
+    margin-top: 15px;
+    padding: 8px 15px;
+    border-radius: 5px;
+}
+
+.garden-view-profile-btn:hover {
+    background-color: white;
+    color: #4FD1C5;
+    border: 1px solid #4FD1C5;
+}
+
+/* Close button styling */
+.garden-close-btn {
+    font-size: 24px;
+    color: #4FD1C5;
+    cursor: pointer;
+    float: right;
+}
+
+.garden-close-btn:hover {
+    color: #333;
+}
+
+/* Hide modal by default */
+.garden-badge-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.garden-badge-modal-content {
+    background-color: #fff;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    height: 450px;
+    position: relative;
+    text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+
+
+
+
+.garden-container {
+    position: relative; /* Ensure positioning context */
+}
+/* Lightbulb Tooltip Position */
+.lightbulb-tooltip {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10; /* Ensure it appears above other elements */
+    background-color: white;
+}
+
+/* Blurred Background */
+.garden-blur-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+}
+
+/* Tooltip Modal Styling */
+.garden-info-tooltip-cards {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    max-width: 90%;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    z-index: 1001;
+}
+
+.tooltip-header {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+}
+
+.tooltip-close-btn {
+    font-size: 24px;
+    color: #333;
+    cursor: pointer;
+}
+
+.tooltip-content .tooltip-slide {
+    display: none;
+}
+
+.tooltip-content .active {
+    display: block;
+}
+
+.tooltip-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.tooltip-nav-btn {
+    padding: 8px 16px;
+    background-color: #4FD1C5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.tooltip-nav-btn:disabled {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+}
+
+
+
+.garden-info-tooltip-cards h3 {
+    font-size: 1.4em;
+    color: #2c5f2d; /* Dark green for a sustainable theme */
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.garden-info-tooltip-cards p {
+    font-size: 1em;
+    color: #333; /* Dark color for readability */
+    line-height: 1.6;
+    text-align: left;
+    margin-bottom: 10px;
 }

@@ -1272,7 +1272,9 @@ static async getEnergyConsumptionGroupByDcForSelectedDcByYearMonth(company_id, d
     } catch (error) {
         throw new Error("Error retrieving Energy Consumption Data");
     } finally { 
-        if (connection) await connection.close();
+        if (connection) {
+            await connection.close();
+        }
     }
 }
 
@@ -1281,15 +1283,133 @@ static async getEnergyConsumptionGroupByDcForSelectedDcByYearMonth(company_id, d
 
 
 
+static async getDevicesCountByCompanyId(company_id) {
+    let connection;
+    try{
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT COUNT(devices.device_type) AS device_count
+        FROM devices
+        INNER JOIN data_centers ON devices.data_center_id = data_centers.id
+        INNER JOIN companies ON companies.id = data_centers.company_id
+        WHERE companies.id = @company_id;
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        const result = await request.query(sqlQuery);
+        return result.recordset.length > 0 ? result.recordset : null;
+    } catch (error) {
+        throw new Error("Error retrieving devices by company id");
+    } finally { 
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
+
+static async getDevicesCountByCompanyIdAndDc(company_id, dc) {
+    let connection;
+    try{
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT COUNT(devices.device_type) AS device_count
+        FROM devices
+        INNER JOIN data_centers ON devices.data_center_id = data_centers.id
+        INNER JOIN companies ON companies.id = data_centers.company_id
+        WHERE companies.id = @company_id AND data_centers.id = @dc;
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        request.input('dc', dc);
+        const result = await request.query(sqlQuery);
+        return result.recordset.length > 0 ? result.recordset : null;
+    } catch (error) {
+        throw new Error("Error retrieving devices by Data center id");
+    } finally { 
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
 
 
 
 
-
-
-
-
-
+// for device types n quantity by cid
+static async getDeviceTypesByCompanyId(company_id) {
+    let connection;
+    try{
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            CASE 
+                WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
+                WHEN device_type LIKE 'Server Rack%' THEN 'server rack'
+                ELSE device_type 
+            END AS device_type_group,
+            COUNT(*) AS device_count
+        FROM devices
+        INNER JOIN data_centers ON data_centers.id = devices.data_center_id
+        INNER JOIN companies ON data_centers.company_id = companies.id
+        WHERE companies.id = @company_id
+        GROUP BY 
+            CASE 
+                WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
+                WHEN device_type LIKE 'Server Rack%' THEN 'server rack'
+                ELSE device_type 
+            END
+        ORDER BY device_count ASC;
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        const result = await request.query(sqlQuery);
+        return result.recordset.length > 0 ? result.recordset : null;
+    } catch (error) {
+        throw new Error("Error retrieving devices by company id");
+    } finally { 
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
+// for device types n quantity by cid and dcid
+static async getDeviceTypesByCompanyIdAndDataCenter(company_id, dc) {
+    let connection;
+    try{
+        connection =  await sql.connect(dbConfig);
+        const sqlQuery = `
+        SELECT 
+            CASE 
+                WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
+                WHEN device_type LIKE 'Server Rack%' THEN 'server rack'
+                ELSE device_type 
+            END AS device_type_group,
+            COUNT(*) AS device_count
+        FROM devices
+        INNER JOIN data_centers ON data_centers.id = devices.data_center_id
+        INNER JOIN companies ON data_centers.company_id = companies.id
+        WHERE companies.id = @company_id AND data_centers.id = @dc
+        GROUP BY 
+            CASE 
+                WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
+                WHEN device_type LIKE 'Server Rack%' THEN 'server rack'
+                ELSE device_type 
+            END
+        ORDER BY device_count ASC;
+        `;
+        const request = connection.request();
+        request.input('company_id', company_id);
+        request.input('dc', dc);
+        const result = await request.query(sqlQuery);
+        return result.recordset.length > 0 ? result.recordset : null;
+    } catch (error) {
+        throw new Error("Error retrieving devices by company id and data center id");
+    } finally { 
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
 
 
         static async getAllSustainabilityGoalsData(company_id) {
