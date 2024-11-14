@@ -27,6 +27,31 @@
                 <a href="cellTowerDashboard.html">Cell Tower</a>
             </nav>
 
+             <!-- summary of sustainability -->
+             <div class="summary-container">
+                <h2>Overall Progress Towards Net Zero</h2>
+                <div class="overall-progress-bar-container">
+                    <div id="overallProgressBar" class="overall-progress-bar"></div>
+                </div>
+                <p id="overallProgressText">88.5% Complete</p>
+                <button id="toggleGoalsButton" onclick="toggleGoals()">View More</button>
+            </div>
+            
+            <div class="sustainability-goals-container" id="sustainabilityGoalsContainer" style="display: none;">
+                <h2>Sustainability Goals Progress</h2>
+            
+                <!-- Goal cards wrapper -->
+                <div id="goalsWrapper"></div>
+            
+                <!-- Pagination controls -->
+                <div class="pagination-container" id="paginationContainer">
+                    <button onclick="prevSlide()">Previous</button>
+                    <span id="paginationIndicator">1 / 8</span>
+                    <button onclick="nextSlide()">Next</button>
+                </div>
+            </div>
+            
+
             <!-- Overview Cards with Icons -->
             <section class="overview">
                 <div class="overview-card" id="highestDataCenter">
@@ -55,6 +80,9 @@
                     <p>Combined Emissions</p>
                 </div>
             </section>
+
+
+            
 
 
 
@@ -90,30 +118,7 @@
 
 
 
-            <!-- summary of sustainability -->
-            <div class="summary-container">
-                <h2>Overall Progress Towards Net Zero</h2>
-                <div class="overall-progress-bar-container">
-                    <div id="overallProgressBar" class="overall-progress-bar"></div>
-                </div>
-                <p id="overallProgressText">88.5% Complete</p>
-                <button id="toggleGoalsButton" onclick="toggleGoals()">View More</button>
-            </div>
-            
-            <div class="sustainability-goals-container" id="sustainabilityGoalsContainer" style="display: none;">
-                <h2>Sustainability Goals Progress</h2>
-            
-                <!-- Goal cards wrapper -->
-                <div id="goalsWrapper"></div>
-            
-                <!-- Pagination controls -->
-                <div class="pagination-container" id="paginationContainer">
-                    <button onclick="prevSlide()">Previous</button>
-                    <span id="paginationIndicator">1 / 8</span>
-                    <button onclick="nextSlide()">Next</button>
-                </div>
-            </div>
-            
+           
         
 
             
