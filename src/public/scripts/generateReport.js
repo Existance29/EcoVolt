@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const generateReportBtn = document.getElementById('generateReportBtn');
     const statusMessage = document.getElementById('statusMessage');
     const yearSelector = document.getElementById('yearSelector');
+    const reportTitle = document.getElementById('reportTitle');
     let reportChart = null;
     let company_id = null;
 
@@ -10,12 +11,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     function showLoading() {
         loadingScreen.style.display = 'block';
-        document.getElementById('reportContentWrapper').classList.add('hidden'); // Hide report content
+        document.getElementById('reportContentWrapper').classList.add('hidden');
     }
     
     function hideLoading() {
         loadingScreen.style.display = 'none';
-        document.getElementById('reportContentWrapper').classList.remove('hidden'); // Show report content
+        document.getElementById('reportContentWrapper').classList.remove('hidden');
     }
 
 
@@ -54,6 +55,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         })
         .then(response => response.json())
         .then(data => {
+            // Update company name and year in the report title
+            reportTitle.innerText = `${data.reportData[0]?.companyName || 'Company'} Sustainability Report ${year}`;
+
             document.getElementById('executiveSummary').innerText = data.executiveSummary;
             document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
             populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
@@ -88,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const element = document.getElementById('reportContent');
         const opt = {
             margin: 0,
-            filename: `Singtel_Report_${yearSelector.value || '2024'}.pdf`,
+            filename: `${data.reportData[0]?.companyName.innerText}_Report_${yearSelector.value || '2024'}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
