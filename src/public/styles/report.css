@@ -199,3 +199,10 @@ body, html {
 #yearSelector:focus {
     box-shadow: 0 0 5px rgba(79, 209, 197, 0.4);
 }
+/* Page break styling for printing */
+@media print {
+    .page-break {
+        display: table-row;
+        page-break-before: always;
+    }
+}

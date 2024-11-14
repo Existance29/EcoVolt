@@ -78,11 +78,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             filename: `Singtel_Report_${yearSelector.value || '2024'}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+            pagebreak: { before: '.page-break' } // Ensure page break before each .page-break row
         };
-
+    
         html2pdf().from(element).set(opt).save().then(() => {
-            chartContainer.replaceChild(chartCanvas, chartImage);
             statusMessage.innerText = "PDF report generated successfully.";
         }).catch(error => {
             console.error('Error generating PDF:', error);
@@ -147,10 +147,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    // Function to populate the data table
+    // Function to populate the data table with page breaks within rows
     function populateDataTable(reportData = []) {
-        dataTableBody.innerHTML = '';
-        reportData.forEach(row => {
+        dataTableBody.innerHTML = ''; // Clear existing content
+        const rowsPerPage = 33; // Define rows per page
+    
+        reportData.forEach((row, index) => {
             const date = new Date(row.date);
             const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${
                 (date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
@@ -165,9 +167,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <td>${row.co2EmissionsTons || 'N/A'}</td>
             `;
             dataTableBody.appendChild(tableRow);
+    
+            // Add page break after specified rows per page
+            if ((index + 1) % rowsPerPage === 0) {
+                tableRow.classList.add('page-break'); // Add page-break to row
+            }
         });
     }
-
     // Function to populate recommendations
     function populateRecommendations(recommendations) {
         const recommendationsSection = document.querySelector('.recommendations');
@@ -198,7 +204,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Add a page break every second recommendation, except after the last recommendation
             if ((index + 1) % 2 === 0 && index !== recommendations.length - 1) {
                 const pageBreak = document.createElement('div');
-                pageBreak.classList.add('page-break-container');
+                pageBreak.classList.add('page-break');
                 recommendationsSection.appendChild(pageBreak);
             }
         });
