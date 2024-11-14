@@ -2,11 +2,13 @@ const userController = require("../controllers/userController");
 const validateUser = require("../middlewares/validateUser");
 const authenticateToken = require("../middlewares/authenticateToken")
 const multer = require("multer");
+const path = require("path");
 
 const upload = multer({
-    dest: "./temp-uploads/profile-pictures"
-    // you might also want to set some limits: https://github.com/expressjs/multer#limits
+    dest: path.join(__dirname, "../uploads/profile-pictures")
+        // you might also want to set some limits: https://github.com/expressjs/multer#limits
 });
+
 
 // Create routes
 const userRoute = (app) => {
@@ -17,7 +19,7 @@ const userRoute = (app) => {
     app.get("/users/account/private", authenticateToken, userController.getPrivateUserById)
     app.put("/users/account/private", authenticateToken, validateUser.validateAccountUpdate, userController.updateUserAccountInfo)
     app.put("/users/password", authenticateToken, validateUser.validateNewPassword, userController.changePassword)
-    app.put("/users/profile-picture", upload.single("file"), userController.uploadProfilePicture)
+    app.post("/users/profile-picture", authenticateToken, upload.single("file"), userController.uploadProfilePicture);
     app.get("/users/profile-picture/public/:id", userController.getProfilePictureById)
 };
 

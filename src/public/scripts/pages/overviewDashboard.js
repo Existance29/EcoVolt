@@ -96,20 +96,33 @@ function displaySustainabilityGoals(goals) {
 
         currentGoals.forEach(goal => {
             let progressPercentage = 0;
-            let displayText = "0% toward target reduction";
-
-            if (goal.current_value > goal.target_value) {
-                const reductionRequired = goal.current_value - goal.target_value;
-                const progressTowardTarget = (reductionRequired / goal.current_value) * 100;
-                progressPercentage = Math.max(100 - progressTowardTarget, 0);
-                displayText = `${progressTowardTarget.toFixed(1)}% to reach target`;
-            } else {
-                progressPercentage = 100;
-                displayText = "Target achieved!";
+            let displayText = "";
+        
+            if (goal.goal_name === 'Renewable Energy Usage') { 
+                // Case 2: Higher current value means progress is better
+                if (goal.current_value >= goal.target_value) {
+                    progressPercentage = 100;
+                    displayText = "Target achieved!";
+                } else {
+                    const progressTowardTarget = (goal.current_value / goal.target_value) * 100;
+                    progressPercentage = Math.min(progressTowardTarget, 100);
+                    displayText = `${(100 - progressTowardTarget).toFixed(1)}% to reach target`;
+                }
+            } else { 
+                // Case 1: Lower current value means progress is better
+                if (goal.current_value <= goal.target_value) {
+                    progressPercentage = 100;
+                    displayText = "Target achieved!";
+                } else {
+                    const reductionRequired = goal.current_value - goal.target_value;
+                    const progressTowardTarget = (reductionRequired / goal.current_value) * 100;
+                    progressPercentage = Math.max(100 - progressTowardTarget, 0);
+                    displayText = `${progressTowardTarget.toFixed(1)}% to reach target`;
+                }
             }
-
+        
             const color = progressPercentage < 30 ? '#e74c3c' : (progressPercentage < 50 ? '#f1c40f' : '#4FD1C5');
-
+        
             const goalCard = document.createElement("div");
             goalCard.classList.add("goal-card");
             goalCard.innerHTML = `
@@ -123,6 +136,7 @@ function displaySustainabilityGoals(goals) {
             `;
             goalsContainer.appendChild(goalCard);
         });
+        
 
         document.getElementById("paginationIndicator").textContent = `${currentPage + 1} / ${Math.ceil(goals.length / goalsPerPage)}`;
     }
@@ -327,7 +341,7 @@ document.addEventListener("DOMContentLoaded", initializeDashboard);
 
 
 
-// view more for the chart dc 
+ // view more for the chart dc 
 
 
 
