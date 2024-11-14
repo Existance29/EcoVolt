@@ -14,7 +14,7 @@
         </aside>
 
         <!-- Main Content Area -->
-        <main class="main-content">
+        <main class="main-content" style="position: relative;">
             <!-- Header Section -->
             <header class="mainHeader" data-title="Cell Tower" data-breadcrumb="Pages / Dashboard">
             </header>
@@ -106,11 +106,11 @@
                 </div>
                 
                 <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; flex-grow: 1;">
-                    <div class="inter-semibold graph-container" style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <div class="inter-semibold graph-container" style="display: flex; flex-direction: column; align-items: center;">
                         <div class="inter-bold" style="margin-bottom: 1.2rem;">Energy Consumption Breakdown</div>
                             <!-- <div style="display: flex; justify-content: center; width: 100%;"> -->
-                                <div style="max-height: 75%; aspect-ratio: 1; max-width: 27%; justify-self: center; align-self: center;">
-                                    <canvas id="energyBreakdownChart"></canvas>
+                                <div style="max-height: 75%; aspect-ratio: 1; max-width: 27%;">
+                                    <canvas id="energyBreakdownChart" style="cursor: pointer;"></canvas>
                                 </div>
                             <!-- </div> -->
                             <div class="pie-chart-labels-container">
@@ -122,12 +122,21 @@
                     </div>
 
                     <div class="inter-semibold graph-container" style="flex-grow: 1;">
-                        <div class="inter-bold" style="margin-bottom: 1.2rem;">Renewable Energy Contribution</div>
+                        <div class="inter-bold" style="margin-bottom: 1.2rem; width: 100%; text-align: center;">Renewable Energy Contribution</div>
                         <div class="chart-container">
-                            <div class="chart inter-medium" id="renewable-energy-contribution-chart"></div>
+                            <div class="chart inter-medium" id="renewable-energy-contribution-chart" style="cursor: pointer;"></div>
                             <div class="inter-semibold" style="margin-top: 1rem;"></div>
                         </div>
                     </div>
+                </div>
+             </div>
+
+             <!--Drill down charts-->
+             <div id = "drill-down" class="blur">
+                <div class="popup-container">
+                    <span class="close" onclick="hideDrillDown()">x</span>
+                    <div class="inter-bold" style="margin-bottom: 1.2rem; font-size: 0.9rem; width: 100%; text-align: center; color: #464549;" id="title">Title</div>
+                    <canvas id="drillDownChart"></canvas>
                 </div>
              </div>
         </main>

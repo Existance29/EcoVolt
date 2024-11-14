@@ -1032,32 +1032,33 @@ VALUES
     (20, '2024-10-01', 3118.00, 12.0);
 
 
--- Insert sample data into company_sustainability_goals table
+-- Insert sample data into company_sustainability_goals table with CUE goals
 INSERT INTO company_sustainability_goals (company_id, goal_name, target_value, current_value, target_year, progress)
 VALUES
     -- Singtel goals
-    (1, 'CO₂e Reduction', 4000.00, 6000.00, 2025, 0.60),
-    (1, 'PUE Improvement', 1.40, 1.65, 2025, 0.85),
-    (1, 'Renewable Energy Usage', 30.00, 15.00, 2025, 0.50),
-    (1, 'Water Usage Reduction (WUE)', 1.10, 1.40, 2025, 0.78),
+    (1, 'CUE (Carbon Usage Effectiveness)', 1.40, 1.50, 2025, 0.60),  -- Target lower
+    (1, 'PUE (Power Usage Effectiveness)', 1.40, 1.55, 2025, 0.85),  -- Target lower
+    (1, 'Renewable Energy Usage', 30.00, 35.00, 2025, 1.00),  -- Target met (higher target)
+    (1, 'Water Usage Reduction (WUE)', 1.10, 1.30, 2025, 0.78),  -- Target lower
 
     -- M1 goals
-    (2, 'CO₂e Reduction', 3500.00, 4800.00, 2025, 0.73),
-    (2, 'PUE Improvement', 1.30, 1.67, 2025, 0.78),
-    (2, 'Renewable Energy Usage', 35.00, 22.00, 2025, 0.63),
-    (2, 'Water Usage Reduction (WUE)', 1.15, 1.32, 2025, 0.87),
+    (2, 'CUE (Carbon Usage Effectiveness)', 0.35, 0.46, 2025, 0.73),  -- Target lower
+    (2, 'PUE (Power Usage Effectiveness)', 1.30, 1.60, 2025, 0.78),  -- Target lower
+    (2, 'Renewable Energy Usage', 35.00, 40.00, 2025, 1.00),  -- Target met (higher target)
+    (2, 'Water Usage Reduction (WUE)', 1.15, 1.28, 2025, 0.87),  -- Target lower
 
     -- SIMBA goals
-    (3, 'CO₂e Reduction', 2000.00, 2900.00, 2025, 0.69),
-    (3, 'PUE Improvement', 1.50, 1.72, 2025, 0.87),
-    (3, 'Renewable Energy Usage', 40.00, 19.00, 2025, 0.48),
-    (3, 'Water Usage Reduction (WUE)', 1.20, 1.23, 2025, 0.98),
+    (3, 'CUE (Carbon Usage Effectiveness)', 0.30, 0.40, 2025, 0.69),  -- Target lower
+    (3, 'PUE (Power Usage Effectiveness)', 1.50, 1.68, 2025, 0.87),  -- Target lower
+    (3, 'Renewable Energy Usage', 40.00, 45.00, 2025, 1.00),  -- Target met (higher target)
+    (3, 'Water Usage Reduction (WUE)', 1.20, 1.22, 2025, 0.98),  -- Target lower
 
     -- StarHub goals
-    (4, 'CO₂e Reduction', 3000.00, 5600.00, 2025, 0.54),
-    (4, 'PUE Improvement', 1.35, 1.57, 2025, 0.86),
-    (4, 'Renewable Energy Usage', 20.00, 11.00, 2025, 0.55),
-    (4, 'Water Usage Reduction (WUE)', 1.05, 1.47, 2025, 0.71);
+    (4, 'CUE (Carbon Usage Effectiveness)', 0.45, 0.54, 2025, 0.54),  -- Target lower
+    (4, 'PUE (Power Usage Effectiveness)', 1.35, 1.50, 2025, 0.86),  -- Target lower
+    (4, 'Renewable Energy Usage', 20.00, 23.00, 2025, 1.00),  -- Target met (higher target)
+    (4, 'Water Usage Reduction (WUE)', 1.05, 1.45, 2025, 0.71);  -- Target lower
+
 
     
 -- Insert sample data into activity_feed table

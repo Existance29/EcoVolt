@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async () => {
+async function initializeDashboard() {
     await pageRequireSignIn(); // Ensure the user is signed in
 
     const company_id = sessionStorage.getItem("company_id") || localStorage.getItem("company_id");
@@ -16,41 +16,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const data = await response.json();
         console.log("Dashboard Data:", data);
+        console.log("Highest Emissions Data:", data.highestDataCenter, data.highestCellTower);
+console.log("Total Emissions Data:", data.totalDataCenterEmissions, data.totalCellTowerEmissions);
+console.log("Top 3 Avoided Emissions Data:", data.avoidedemission);  // <-- Focus on this
+
+        
 
         // Display data and render charts
         displayHighestEmissions(data);
         displayTotalEmissions(data);
+        displayOverallProgress(data.sustainabilityGoals);
         displaySustainabilityGoals(data.sustainabilityGoals);
         renderTop3YearsChart(data.top3Companies);
-        renderYearlyEnergyChart(data.yearlyEnergyConsumption, data.totalCellTowerEmissions);
+        renderTop3CellTowersByAvoidedEmissionsChart(data.avoidedCemission);
 
-        // Add event listener to totalDataCenter card for redirection
-        const totalDataCenterElement = document.getElementById("totalDataCenter");
-        if (totalDataCenterElement) {
-            totalDataCenterElement.addEventListener("click", () => {
-                window.location.href = "dataCenterDashboard.html";
-            });
-        }
-
-        const totalCellTowerElement = document.getElementById("totalCellTower"); 
-        if (totalCellTowerElement) { 
-            totalCellTowerElement.addEventListener("click", () => { 
-                window.location.href = "cellTowerDashboard.html"; // Redirect to cell tower dashboard 
-            }); 
-        } 
-
-        // Add event listener for yearly energy consumption container
-        const yearlyEnergyContainer = document.querySelector(".yearly-energy-container"); 
-        if (yearlyEnergyContainer && data.yearlyEnergyConsumption.length > 0) { 
-            const highestYear = data.yearlyEnergyConsumption[0].year; // Assuming the first item has the highest consumption year 
-            yearlyEnergyContainer.addEventListener("click", () => { 
-                window.location.href = `cellTowerDashboard.html?year=${highestYear}`; // Redirect with year as query parameter 
-            }); 
-        } 
+        // Add event listener for redirection on specific elements
+        addRedirectionListeners(data);
     } catch (error) {
         console.error("Error fetching dashboard data:", error);
     }
-});
+}
 
 // Function to display the highest emissions data center and cell tower
 function displayHighestEmissions(data) {
@@ -59,40 +44,28 @@ function displayHighestEmissions(data) {
     const highestDataCenterElement = document.getElementById("highestDataCenter");
     const highestCellTowerElement = document.getElementById("highestCellTower");
 
-    // Display the highest-emission data center and add click event
     if (highestDataCenter && highestDataCenterElement) {
         highestDataCenterElement.setAttribute("data-center-id", highestDataCenter.id);
-        document.getElementById("highestDataCenterName").textContent = `${highestDataCenter.data_center_name}`;
+        document.getElementById("highestDataCenterName").textContent = highestDataCenter.data_center_name;
         document.getElementById("highestDataCenterEmissions").textContent = `CO₂ Emissions: ${highestDataCenter.co2_emissions_tons} Tons`;
 
         highestDataCenterElement.addEventListener("click", () => {
             const dataCenterId = highestDataCenter.id;
-            // Redirect to data center dashboard with only the data center filter
             window.location.href = `dataCenterDashboard.html?data_center_id=${dataCenterId}`;
         });
-    } else {
-        console.error("Highest Data Center or element not found.");
     }
 
-    // Display the highest-emission cell tower and add click event
     if (highestCellTower && highestCellTowerElement) {
         highestCellTowerElement.setAttribute("data-tower-id", highestCellTower.id);
-        document.getElementById("highestCellTowerName").textContent = `${highestCellTower.cell_tower_name}`;
+        document.getElementById("highestCellTowerName").textContent = highestCellTower.cell_tower_name;
         document.getElementById("highestCellTowerEmissions").textContent = `CO₂ Emissions: ${highestCellTower.total_emissions} Tons`;
 
         highestCellTowerElement.addEventListener("click", () => {
             const cellTowerId = highestCellTower.id;
-            // Redirect to cell tower dashboard with only the cell tower filter
             window.location.href = `cellTowerDashboard.html?cell_tower_id=${cellTowerId}`;
         });
-    } else {
-        console.error("Highest Cell Tower or element not found.");
     }
 }
-
-
-
-
 
 // Function to display total emissions
 function displayTotalEmissions(data) {
@@ -117,15 +90,39 @@ function displaySustainabilityGoals(goals) {
 
     let currentPage = 0;
     const goalsPerPage = 2;
-
     function renderGoals() {
         goalsContainer.innerHTML = "";
         const currentGoals = goals.slice(currentPage * goalsPerPage, (currentPage + 1) * goalsPerPage);
 
         currentGoals.forEach(goal => {
-            const progressPercentage = Math.min((goal.current_value / goal.target_value) * 100, 100);
+            let progressPercentage = 0;
+            let displayText = "";
+        
+            if (goal.goal_name === 'Renewable Energy Usage') { 
+                // Case 2: Higher current value means progress is better
+                if (goal.current_value >= goal.target_value) {
+                    progressPercentage = 100;
+                    displayText = "Target achieved!";
+                } else {
+                    const progressTowardTarget = (goal.current_value / goal.target_value) * 100;
+                    progressPercentage = Math.min(progressTowardTarget, 100);
+                    displayText = `${(100 - progressTowardTarget).toFixed(1)}% to reach target`;
+                }
+            } else { 
+                // Case 1: Lower current value means progress is better
+                if (goal.current_value <= goal.target_value) {
+                    progressPercentage = 100;
+                    displayText = "Target achieved!";
+                } else {
+                    const reductionRequired = goal.current_value - goal.target_value;
+                    const progressTowardTarget = (reductionRequired / goal.current_value) * 100;
+                    progressPercentage = Math.max(100 - progressTowardTarget, 0);
+                    displayText = `${progressTowardTarget.toFixed(1)}% to reach target`;
+                }
+            }
+        
             const color = progressPercentage < 30 ? '#e74c3c' : (progressPercentage < 50 ? '#f1c40f' : '#4FD1C5');
-
+        
             const goalCard = document.createElement("div");
             goalCard.classList.add("goal-card");
             goalCard.innerHTML = `
@@ -133,12 +130,13 @@ function displaySustainabilityGoals(goals) {
                 <p>Target Value: ${goal.target_value}</p>
                 <p>Current Value: ${goal.current_value}</p>
                 <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: ${progressPercentage}%; background-color: ${color};"></div>
+                    <div class="progress-bar" style="width: ${Math.max(progressPercentage, 5)}%; background-color: ${color} !important; min-width: 5px;"></div>
                 </div>
-                <p>${progressPercentage.toFixed(1)}% Complete</p>
+                <p>${displayText}</p>
             `;
             goalsContainer.appendChild(goalCard);
         });
+        
 
         document.getElementById("paginationIndicator").textContent = `${currentPage + 1} / ${Math.ceil(goals.length / goalsPerPage)}`;
     }
@@ -160,7 +158,29 @@ function displaySustainabilityGoals(goals) {
     renderGoals();
 }
 
-// Function to render the Top 3 Years Chart with clickable bars for redirection
+// Function to display overall progress towards net zero by 2050
+function displayOverallProgress(goals) {
+    const overallProgressBar = document.getElementById("overallProgressBar");
+    const overallProgressText = document.getElementById("overallProgressText");
+
+    let totalProgress = 0;
+    goals.forEach(goal => {
+        if (goal.current_value > goal.target_value) {
+            const reductionRequired = goal.current_value - goal.target_value;
+            const progressTowardTarget = ((goal.current_value - goal.target_value) / goal.current_value) * 100;
+            totalProgress += Math.min(progressTowardTarget, 100);
+        } else {
+            totalProgress += 100;
+        }
+    });
+
+    const averageProgress = totalProgress / goals.length;
+    overallProgressText.textContent = `${averageProgress.toFixed(1)}% progress towards Net Zero by 2050`;
+    overallProgressBar.style.width = `${averageProgress}%`;
+    overallProgressBar.style.backgroundColor = averageProgress < 30 ? '#e74c3c' : (averageProgress < 50 ? '#f1c40f' : '#4FD1C5');
+}
+
+// Function to render the Top 3 Years Chart
 function renderTop3YearsChart(top3Years) {
     if (top3Years && top3Years.length) {
         const years = [];
@@ -176,13 +196,25 @@ function renderTop3YearsChart(top3Years) {
             type: 'bar',
             data: {
                 labels: years,
-                datasets: [{
-                    label: 'Total CO₂ Emissions (tons)',
-                    data: emissionsData,
-                    backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(255, 159, 64, 0.5)'],
-                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)'],
-                    borderWidth: 1
-                }]
+                datasets: [
+                    {
+                        label: 'Total CO₂ Emissions (tons)',
+                        data: emissionsData,
+                        backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(75, 192, 192, 0.5)', 'rgba(255, 159, 64, 0.5)'],
+                        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 159, 64, 1)'],
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Emission Trend',
+                        data: emissionsData,
+                        type: 'line',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 3
+                    }
+                ]
             },
             options: {
                 responsive: true,
@@ -208,60 +240,185 @@ function renderTop3YearsChart(top3Years) {
     }
 }
 
-// Function to render the Yearly Energy Consumption Doughnut Chart
-function renderYearlyEnergyChart(yearlyEnergyConsumption, totalCellTowerEmissions) {
-    if (yearlyEnergyConsumption && yearlyEnergyConsumption.length > 0 && totalCellTowerEmissions) {
-        const highestYearData = yearlyEnergyConsumption.reduce((max, item) => 
-            item.total_emissions > max.total_emissions ? item : max, yearlyEnergyConsumption[0]);
+function renderTop3CellTowersByAvoidedEmissionsChart(data) {
+    if (data && data.length > 0) {
+        const labels = data.map(item => item.cell_tower_name); // Cell tower names
+        const avoidedEmissions = data.map(item => item.avoided_emissions);
 
-        const ctx = document.getElementById("yearlyEnergyChart").getContext("2d");
+        const ctx = document.getElementById("avoidedEmissionsChart").getContext("2d");
 
-        if (window.yearlyEnergyChartInstance) {
-            window.yearlyEnergyChartInstance.destroy();
+        // Destroy previous chart instance if it exists
+        if (window.avoidedEmissionsChartInstance) {
+            window.avoidedEmissionsChartInstance.destroy();
         }
 
-        window.yearlyEnergyChartInstance = new Chart(ctx, {
-            type: 'doughnut',
+        // Create a new line chart with smooth curves and filled area
+        window.avoidedEmissionsChartInstance = new Chart(ctx, {
+            type: 'line',
             data: {
-                labels: [`${highestYearData.year} Energy Consumption`, 'Total Cell Tower Emissions'],
+                labels: labels,
                 datasets: [{
-                    label: 'Energy & Emissions Comparison',
-                    data: [highestYearData.total_emissions, totalCellTowerEmissions],
-                    backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 0.6)'],
-                    borderWidth: 1
+                    label: 'Avoided CO₂ Emissions (kg)',
+                    data: avoidedEmissions,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)', // Light fill color
+                    fill: true, // Fill the area under the line
+                    tension: 0.4, // Smoothness of the line (curve effect)
+                    pointRadius: 4, // Size of the data points
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Point color
+                    borderWidth: 2 // Thickness of the line
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
-                layout: { padding: { top: 20, bottom: 20 } },
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Avoided CO₂ Emissions (kg)',
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Cell Towers',
+                        }
+                    }
+                },
                 plugins: {
                     legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: { font: { size: 10 }, padding: 20 }
+                        labels: {
+                            font: { size: 12 },
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Avoided Emissions: ${context.raw.toFixed(2)} kg`;
+                            }
+                        }
                     }
                 }
-            },
-            plugins: [{
-                afterDraw: function(chart) {
-                    const { width, height, ctx } = chart;
-                    ctx.restore();
-                    const fontSize = (height / 300).toFixed(2);
-                    ctx.font = `${fontSize}em sans-serif`;
-                    ctx.textBaseline = "middle";
-                    ctx.textAlign = "center";
-                    const totalEnergyText = highestYearData.total_emissions 
-                        ? `${highestYearData.total_emissions.toLocaleString()} kWh` 
-                        : 'No Data';
-                    const textX = width / 2;
-                    const textY = height / 2;
-                    ctx.fillText(totalEnergyText, textX, textY);
-                    ctx.save();
-                }
-            }]
+            }
         });
     } else {
-        console.warn("No data available for energy and emissions comparison.");
+        console.warn("No data available for top 3 cell towers by avoided emissions.");
     }
 }
+
+
+
+
+// Function to add redirection event listeners
+function addRedirectionListeners(data) {
+    const totalDataCenterElement = document.getElementById("totalDataCenter");
+    if (totalDataCenterElement) {
+        totalDataCenterElement.addEventListener("click", () => {
+            window.location.href = "dataCenterDashboard.html";
+        });
+    }
+
+    const totalCellTowerElement = document.getElementById("totalCellTower"); 
+    if (totalCellTowerElement) { 
+        totalCellTowerElement.addEventListener("click", () => { 
+            window.location.href = "cellTowerDashboard.html";
+        }); 
+    } 
+
+    const yearlyEnergyContainer = document.querySelector(".yearly-energy-container"); 
+    if (yearlyEnergyContainer && data.yearlyEnergyConsumption.length > 0) { 
+        const highestYear = data.yearlyEnergyConsumption[0].year;
+        yearlyEnergyContainer.addEventListener("click", () => { 
+            window.location.href = `cellTowerDashboard.html?year=${highestYear}`;
+        });
+    }
+}
+
+// Initialize the dashboard when the page loads
+document.addEventListener("DOMContentLoaded", initializeDashboard);
+
+
+
+ // view more for the chart dc 
+
+
+
+// For Data Center Modal
+// const modalDc = document.getElementById("additionalContentModal");
+// const viewMoreBtnDc = document.getElementById("viewMoreBtnDc");
+// const closeModalBtnDc = document.getElementById("closeModalBtn");
+// const geminiSuggestionDc = document.getElementById("geminiSuggestionDc"); // Element to display suggestions
+
+// viewMoreBtnDc.addEventListener("click", async function() {
+//     try {
+//         const response = await fetch("/dashboard-overview", {
+//             headers: {
+//                 "Authorization": `Bearer ${sessionStorage.accessToken || localStorage.accessToken}`,
+//                 "Company-ID": sessionStorage.getItem("company_id") || localStorage.getItem("company_id")
+//             }
+//         });
+
+//         if (response.ok) {
+//             const data = await response.json();
+//             geminiSuggestionDc.textContent = data.suggestions || "No suggestions available for data centers.";
+//         } else {
+//             geminiSuggestionDc.textContent = "Failed to load suggestions for data centers.";
+//         }
+
+//         modalDc.style.display = "flex"; // Show modal
+//     } catch (error) {
+//         geminiSuggestionDc.textContent = "Error fetching suggestions.";
+//         console.error("Error fetching suggestions:", error);
+//     }
+// });
+
+// closeModalBtnDc.addEventListener("click", function() {
+//     modalDc.style.display = "none";
+// });
+
+// window.addEventListener("click", function(event) {
+//     if (event.target === modalDc) {
+//         modalDc.style.display = "none";
+//     }
+// });
+
+// // For Cell Tower Modal
+// const modalCt = document.getElementById("popupOverlay");
+// const viewMoreBtnCt = document.getElementById("viewMoreBtnCt");
+// const closeModalBtnCt = document.getElementById("closePopupBtn");
+// const geminiSuggestionCt = document.getElementById("geminiSuggestionCt"); // Element to display suggestions
+
+// viewMoreBtnCt.addEventListener("click", async function() {
+//     try {
+//         const response = await fetch("/dashboard-overview", {
+//             headers: {
+//                 "Authorization": `Bearer ${sessionStorage.accessToken || localStorage.accessToken}`,
+//                 "Company-ID": sessionStorage.getItem("company_id") || localStorage.getItem("company_id")
+//             }
+//         });
+
+//         if (response.ok) {
+//             const data = await response.json();
+//             geminiSuggestionCt.textContent = data.suggestions || "No suggestions available for cell towers.";
+//         } else {
+//             geminiSuggestionCt.textContent = "Failed to load suggestions for cell towers.";
+//         }
+
+//         modalCt.style.display = "flex"; // Show modal
+//     } catch (error) {
+//         geminiSuggestionCt.textContent = "Error fetching suggestions.";
+//         console.error("Error fetching suggestions:", error);
+//     }
+// });
+
+// closeModalBtnCt.addEventListener("click", function() {
+//     modalCt.style.display = "none";
+// });
+
+// window.addEventListener("click", function(event) {
+//     if (event.target === modalCt) {
+//         modalCt.style.display = "none";
+//     }
+// });

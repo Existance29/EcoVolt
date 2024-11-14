@@ -159,3 +159,55 @@ document.getElementById("reset-password-btn").addEventListener("click", async()=
     }
     return false
 })
+
+
+/* 
+=====================
+Profile Image 
+=====================
+*/
+
+document.getElementById("edit-profile-picture").addEventListener("change", async function () {
+    const formData = new FormData();
+    formData.append("file", this.files[0]);
+
+    try {
+        const response = await fetch("/users/profile-picture", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
+            }
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            document.getElementById("profile-img").src = `./uploads/profile-pictures/${result.fileName}`;
+        } else {
+            console.error("Failed to upload image");
+        }
+    } catch (error) {
+        console.error("Error uploading image:", error);
+    }
+});
+
+
+async function loadData() {
+    const accountData = await (await get("users/account/private")).json();
+
+    // Load inputs
+    accountTextFields.forEach(x => {
+        accountTextFieldValues[x] = accountData[x];
+        document.getElementById(x).value = accountData[x];
+    });
+
+    // load profile picture, check if `profile_picture_file_name` exists
+    const profileImg = document.getElementById("profile-img");
+    if (accountData.profile_picture_file_name) {
+        // try loading the custom profile picture
+        profileImg.src = `/uploads/profile-pictures/${accountData.profile_picture_file_name}`;
+    } else {
+        // fall back to the default profile picture if no custom picture is available
+        profileImg.src = "/assets/profile/defaultprofilepic.jpg";
+    }
+}

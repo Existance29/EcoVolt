@@ -10,7 +10,7 @@ const route = require("./routes/routes")
 // const route = require("./routes/routes")
 const bodyParser = require("body-parser");
 const overviewDashboardRoute = require("./routes/overviewRoutes");
-
+const path = require("path");
 
 app.use(cors());
 
@@ -29,6 +29,7 @@ app.use(session({
 //use parse middlewares
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use('/uploads/profile-pictures', express.static(path.join(__dirname, 'uploads/profile-pictures')));
 
 //setup routes
 route(app);
