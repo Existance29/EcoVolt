@@ -145,7 +145,23 @@
                     </div>
                 </div>
             </div>
-
+            <div id="tooltipModal" class="tooltip-modal">
+                <div class="tooltip-content">
+                    <span class="close" onclick="hideTooltip()">&times;</span>
+                    <h3 id="tooltipTitle">Metrics Information</h3>
+                    <div id="tooltipContent">
+                        <!-- Page content will be loaded here dynamically -->
+                    </div>
+                    
+                    <!-- Navigation Buttons -->
+                    <div class="tooltip-navigation">
+                        <button id="prevButton" onclick="changePage(-1)">Back</button>
+                        <button id="nextButton" onclick="changePage(1)">Next</button>
+                    </div>
+                </div>
+            </div>
+            
+            
             <!-- Popup Modal for Device Types Chart -->
             <div id="deviceTypesModal" class="popup-modal" style="display: none;">
                 <div class="popup-content">

@@ -1,10 +1,79 @@
+// Array holding the content for each page
+const tooltipPages = [
+    {
+        title: "PUE (Power Usage Effectiveness)",
+        content: `
+            <p>PUE is the ratio of total energy used by the data center to the energy used specifically by IT equipment. It measures the efficiency of energy usage, aiming to reduce energy wasted on cooling, lighting, and other non-IT processes.</p>
+            <p><strong>Ideal Value:</strong> 1.0 (indicating 100% energy efficiency with no waste)</p>
+            <p><strong>Strategies to Improve PUE:</strong></p>
+            <ul>
+                <li>Optimize cooling systems with advanced technologies like liquid cooling or free air cooling.</li>
+                <li>Use hot/cold aisle containment to improve airflow management and reduce cooling requirements.</li>
+                <li>Regularly maintain and upgrade cooling equipment to prevent inefficiencies.</li>
+                <li>Consider using renewable energy sources to power data centers.</li>
+            </ul>
+        `
+    },
+    {
+        title: "CUE (Carbon Usage Effectiveness)",
+        content: `
+            <p>CUE measures the amount of carbon emissions produced per unit of energy consumed by a data center. Lower CUE indicates lower carbon emissions, making the data center more environmentally friendly.</p>
+            <p><strong>Ideal Value:</strong> Close to 0 (indicating minimal or no carbon emissions)</p>
+            <p><strong>Strategies to Improve CUE:</strong></p>
+            <ul>
+                <li>Transition to renewable energy sources such as solar, wind, or hydro power.</li>
+                <li>Invest in carbon offset programs to compensate for emissions that cannot be eliminated.</li>
+                <li>Optimize power management in IT equipment to reduce unnecessary energy consumption.</li>
+            </ul>
+        `
+    },
+    {
+        title: "WUE (Water Usage Effectiveness)",
+        content: `
+            <p>WUE measures the amount of water used for cooling per unit of energy consumed by IT equipment. Reducing WUE improves water efficiency and decreases the environmental impact.</p>
+            <p><strong>Ideal Value:</strong> Close to 0 (indicating minimal water usage)</p>
+            <p><strong>Strategies to Improve WUE:</strong></p>
+            <ul>
+                <li>Implement air-based cooling systems that use less or no water.</li>
+                <li>Recycle and reuse water where possible, especially in areas with limited water resources.</li>
+                <li>Invest in cooling systems that rely on minimal or zero water usage, such as adiabatic or dry cooling.</li>
+            </ul>
+        `
+    }
+];
+
+// Track the current page index
+let currentPage = 0;
+
+// Function to show the tooltip modal and load the first page
 function showTooltip() {
     document.getElementById("tooltipModal").style.display = "block";
+    loadTooltipPage(currentPage);
 }
 
+// Function to hide the tooltip modal
 function hideTooltip() {
     document.getElementById("tooltipModal").style.display = "none";
 }
+
+// Function to load a specific page
+function loadTooltipPage(pageIndex) {
+    // Update title and content based on the current page
+    const page = tooltipPages[pageIndex];
+    document.getElementById("tooltipTitle").textContent = page.title;
+    document.getElementById("tooltipContent").innerHTML = page.content;
+
+    // Update button visibility
+    document.getElementById("prevButton").style.display = pageIndex === 0 ? "none" : "inline";
+    document.getElementById("nextButton").style.display = pageIndex === tooltipPages.length - 1 ? "none" : "inline";
+}
+
+// Function to change the page
+function changePage(direction) {
+    currentPage += direction;
+    loadTooltipPage(currentPage);
+}
+
 
 // Close the tooltip when clicking outside the modal content
 window.onclick = function(event) {
@@ -13,6 +82,32 @@ window.onclick = function(event) {
         modal.style.display = "none";
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const company_id = getCompanyId();
 
