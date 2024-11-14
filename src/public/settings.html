@@ -25,11 +25,15 @@
             <div style="background-color: white; width: 100%; padding-bottom: 2rem; border-radius: 15px; box-shadow: 0px 0 5px 1px rgba(0, 0, 0, 0.1);">
                 <form id = "account-settings" class="settings-container">
                     <div style="position: relative; display: inline-block;">
-                        <img src="./assets/profile/default-avatar-icon-of-social-media-user-vector.jpg" id="profile-img">
-                        <input type="file" id="edit-profile-picture" style="display: none;"/>
-                        <label for="edit-profile-picture" class="edit-profile-picture-label"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></label>
+                        <img src="/assets/profile/defaultprofilepic.jpg" id="profile-img" alt="profile-img"
+                             onerror="this.onerror=null; this.src='/assets/profile/defaultprofilepic.jpg';">
+                        <input type="file" id="edit-profile-picture" style="display: none;">
+                        <label for="edit-profile-picture" class="edit-profile-picture-label">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </label>
                     </div>
-
+                                
+                    
                     <div class="text-field">
                         <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                             <div class="title inter-semibold">Name</div>

@@ -112,30 +112,31 @@ class userController{
       }
     }
 
-    static async uploadProfilePicture(req, res){
-        const tempPath = req.file.path;
-        const targetPath = path.join(__dirname, "./uploads/image.png");
+    static async uploadProfilePicture(req, res) {
+      const userId = req.user.userId;
+      const tempPath = req.file.path;
+      const uniqueFileName = `${userId}_${Date.now()}.png`; // create a unique filename
+      const targetPath = path.join(__dirname, `../uploads/profile-pictures/${uniqueFileName}`);
+  
+      try {
+          if (path.extname(req.file.originalname).toLowerCase() === ".png") {
+              await fs.promises.rename(tempPath, targetPath);
+              
+              // Update the user's profile picture filename in db
+              await User.updateProfilePicture(userId, uniqueFileName);
+              
+              res.status(200).json({ message: "File uploaded!", fileName: uniqueFileName });
+          } else {
+              await fs.promises.unlink(tempPath);
+              res.status(403).send("Only .png files are allowed!");
+          }
+      } catch (error) {
+          console.error(error);
+          res.status(500).send("Error uploading profile picture");
+      }
+  }
+  
 
-        if (path.extname(req.file.originalname).toLowerCase() === ".png") {
-        fs.rename(tempPath, targetPath, err => {
-            if (err) console.log(err)
-
-            res
-            .status(200)
-            .contentType("text/plain")
-            .end("File uploaded!");
-        });
-        } else {
-        fs.unlink(tempPath, err => {
-            if (err) return handleError(err, res);
-
-            res
-            .status(403)
-            .contentType("text/plain")
-            .end("Only .png files are allowed!");
-        })
-        }
-    } 
     static async getProfilePictureById(req, res){
       try {
         const user = await User.getUserById(req.params.id)

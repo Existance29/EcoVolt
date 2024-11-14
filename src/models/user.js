@@ -46,6 +46,14 @@ class User{
         //return the updated hashed password
         return {password: newPassword}
     }
+
+    static async updateProfilePicture(id, fileName) {
+        await query.query("UPDATE Users SET profile_picture_file_name = @fileName WHERE id = @id", {
+            id,
+            fileName
+        });
+    }
+    
 }
 
 module.exports = User
