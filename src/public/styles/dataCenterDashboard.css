@@ -1,3 +1,11 @@
+html, body {
+  overflow: hidden; /* Prevent body from scrolling */
+}
+
+* {
+  overflow: visible !important; /* Ensure that no element causes scrolling */
+  box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+}
 body {
   font-family: Arial, sans-serif;
   background-color: #f4f4f9;
@@ -123,48 +131,50 @@ margin-bottom: 0.7rem;
   color: #C2C2C2;
 }
 
-.graph-container{
-background: white; 
-padding: 1.3rem 1.6rem; 
-border-radius: 10px; 
-color: #464549; 
-font-size: 0.97rem;
-}
 
 
-.chart-container{
-margin-top: 1.5rem;
-display: flex;
-flex-direction: column;
-align-items: center;
+
+.chart-container .carbon-emission-chart-container h2 {
+  text-align: left;
 }
 
-.chart {
-position: relative;
-display: flex;
-align-items: center;
-justify-content: center;
-text-align: center;
-font-size: 0.9rem;
+.graph-container {
+  background: white;
+  padding: 1.3rem 1.6rem;
+  border-radius: 10px;
+  color: #464549;
+  font-size: 0.97rem;
+  display: flex;
+  flex-direction: column;
 }
 
-.chart canvas {
-position: absolute;
-top: 0;
-left: 0;
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1000px; /* Set max width */
 }
+
 
 .carbon-emission-chart-container {
-  width: 100%; /* Set to 100% width of the parent */
-  max-width: 600px; /* Adjust this to control the max width */
-  height: 320px; /* Increase the height */
-  margin: 0 auto; /* Center it within the container */
+  width: 100%;
+  max-height: 400px; /* Set a max height for containment */
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .carbon-emission-chart-container canvas {
   width: 100% !important;
   height: 100% !important;
 }
+
+
+
+
 
 
 
@@ -643,4 +653,24 @@ left: 0;
   right: 15px;
   font-size: 20px;
   cursor: pointer;
+}
+
+
+.main-stat-container .icon {
+  font-size: 28px;        /* Adjust size */
+  color: #4FD1C5;         /* Adjust color */
+  margin-right: 10px;     /* Spacing between icon and text */
+  vertical-align: middle; /* Align with text vertically */
+  margin-bottom: 10px;
+}
+
+
+/* Hover effect for the Total Devices card */
+#totalDevicesContainer {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#totalDevicesContainer:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }

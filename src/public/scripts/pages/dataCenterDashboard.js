@@ -84,6 +84,7 @@ yearPicker.parentNode.insertBefore(yearErrorMessage, yearPicker.nextSibling); //
 // Initialize chart instances
 let carbonEmissionChart;
 let energyBreakdownChart;
+let deviceTypesChart;
 
 // Event listeners to handle changes in the date or data center dropdown
 // monthPicker.addEventListener("change", fetchData);
@@ -359,18 +360,24 @@ function renderChart(data) {
     const selectedMonth = monthPicker.value;
     const selectedYear = yearPicker.value;
     const isDailyView = selectedMonth && selectedYear;
+    const isFilteredByDate = selectedMonth || selectedYear;
 
     // Step 2: Process data to group by day if daily view is required; otherwise, by month-year
     const groupedData = data.reduce((acc, item) => {
         const date = new Date(item.date);
         let dateLabel;
 
-        if (isDailyView) {
-            // Group by day-month (e.g., 01-Jan, 02-Jan)
-            dateLabel = date.toLocaleDateString("en-US", { day: '2-digit', month: 'short' });
+        if (isFilteredByDate) {
+            if (selectedMonth && selectedYear) {
+                // Group by day-month (e.g., 01-Jan)
+                dateLabel = date.toLocaleDateString("en-US", { day: '2-digit', month: 'short' });
+            } else {
+                // Group by month-year (e.g., Jan-2024)
+                dateLabel = date.toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
+            }
         } else {
-            // Group by month-year (e.g., Jan-2024)
-            dateLabel = date.toLocaleDateString("en-US", { year: 'numeric', month: 'short' });
+            // No filter applied, group by year
+            dateLabel = date.getFullYear().toString();
         }
 
         if (!acc[dateLabel]) {
@@ -769,7 +776,6 @@ function renderEnergyBreakdownChart(data) {
 
 function openPopup(dataCenterId, year, month, selectedLabel, selectedColor) {
     popupModal.style.display = 'flex';
-
     // Only destroy if popupChart exists and is a Chart instance
     if (popupChart && typeof popupChart.destroy === 'function') {
         popupChart.destroy();
@@ -1105,6 +1111,169 @@ function renderGaugeChart(value, label) {
 
 
 
+// Function to fetch device count based on the selected data center
+async function fetchDeviceCount() {
+    const selectedDataCenter = dataCenterDropdown.value;
+    let apiUrl;
+    if (selectedDataCenter === "all" || !selectedDataCenter) {
+        // No specific data center selected, fetch count for all devices under the company
+        apiUrl = `/Dashboard/Data-Center/Devices/${company_id}`;
+    } else {
+        // Specific data center selected, fetch count for devices in that data center
+        apiUrl = `/Dashboard/Data-Center/Devices/${company_id}/${selectedDataCenter}`;
+    }
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch device count. Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log("Device count data:", data);
+
+        // Assuming you have an element to display device count
+        const deviceCountElement = document.getElementById("totalDevices");
+        deviceCountElement.textContent = `${data[0].device_count} Devices`;
+    } catch (error) {
+        console.error("Error fetching device count:", error);
+    }
+}
+
+// Call fetchDeviceCount whenever the data center dropdown changes
+dataCenterDropdown.addEventListener("change", fetchDeviceCount);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Function to fetch device types data
+async function fetchDeviceTypesData() {
+    const selectedDataCenter = document.getElementById('dataCenterDropdown').value;
+
+    let apiUrl;
+    // Determine the endpoint based on the selected data center
+    if (selectedDataCenter === "all" || !selectedDataCenter) {
+        apiUrl = `/Dashboard/Data-Center/DevicesTypes/${company_id}`;
+    } else {
+        apiUrl = `/Dashboard/Data-Center/DevicesTypes/${company_id}/${selectedDataCenter}`;
+    }
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch device types. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Device Types Data:", data);
+
+        const labels = data.map(item => item.device_type_group);
+        const counts = data.map(item => item.device_count);
+
+        renderDeviceTypesChart(labels, counts);
+    } catch (error) {
+        console.error("Error fetching device types:", error);
+    }
+}
+
+// Function to render the device types chart
+function renderDeviceTypesChart(labels, data) {
+    const ctx = document.getElementById("deviceTypesChart").getContext("2d");
+
+    // Destroy existing chart instance if it exists
+    if (deviceTypesChart) {
+        deviceTypesChart.destroy();
+    }
+
+    // Create a new vertical bar chart
+    deviceTypesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Device Count',
+                data: data,
+                borderColor: "#38B2AC",    // Solid border color
+                backgroundColor: "#38B2AC" + '80',    // Transparent background color
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Device Types in Data Center'
+                },
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Device Type'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Count'
+                    },
+                    ticks: {
+                        stepSize: 1 // Ensure only whole numbers are displayed
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Add an event listener to the "Total Number of Devices" container
+document.getElementById('totalDevicesContainer').addEventListener('click', () => {
+    fetchDeviceTypesData();
+    openDeviceTypesPopup();
+});
+
+
+// Function to open the device types modal
+function openDeviceTypesPopup() {
+    document.getElementById("deviceTypesModal").style.display = "flex";
+}
+
+// Function to close the device types modal
+function closeDeviceTypesPopup() {
+    document.getElementById("deviceTypesModal").style.display = "none";
+}
+
+
+document.getElementById("dataCenterDropdown").addEventListener("change", fetchDeviceTypesData);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1115,12 +1284,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load data center options
     await loadDataCenterOptions();
     await fetchTargetValues();
+    await fetchDeviceCount();
 
     // Extract parameters from the URL
     const urlParams = new URLSearchParams(window.location.search);
     const dataCenterIdFromUrl = urlParams.get('data_center_id');
     const dateFromUrl = urlParams.get('date');
-    const yearFromUrl = urlParams.get('year'); // Additional year parameter
+    const yearFromUrl = urlParams.get('year');
 
     // Set data center dropdown based on URL parameter if present
     if (dataCenterIdFromUrl) {

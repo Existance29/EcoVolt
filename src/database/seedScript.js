@@ -748,107 +748,162 @@ VALUES
 INSERT INTO devices (data_center_id, device_type)
 VALUES
     -- Data center 1 - Singtel
-    (1, 'Router'),
-    (1, 'Server'),
-    (1, 'Firewall'),
-    (1, 'Switch'),
+    (1, 'Server Rack 1'),
+    (1, 'Server Rack 2'),
+    (1, 'Cooling System 1'),
+    (1, 'Cooling System 2'),
+    (1, 'Backup Power Unit'),
+    (1, 'Lighting System'),
 
-    -- Data center 2 - Singtel
-    (2, 'Router'),
-    (2, 'Switch'),
-    (2, 'Server'),
+    (2, 'Server Rack 1'),
+    (2, 'Server Rack 2'),
+    (2, 'Cooling System 1'),
+    (2, 'Cooling System 2'),
+    (2, 'Backup Power Unit'),
+    (2, 'Lighting System'),
 
-    -- Data center 3 - Singtel
-    (3, 'Server'),
-    (3, 'Firewall'),
-    (3, 'Router'),
-    (3, 'Load Balancer'),
+    (3, 'Server Rack 1'),
+    (3, 'Server Rack 2'),
+    (3, 'Cooling System 1'),
+    (3, 'Cooling System 2'),
+    (3, 'Backup Power Unit'),
+    (3, 'Lighting System'),
 
-    -- Data center 4 - Singtel
-    (4, 'Switch'),
-    (4, 'Server'),
-    (4, 'Firewall'),
+    -- id 19-24
+    (4, 'Server Rack 1'),
+    (4, 'Server Rack 2'),
+    (4, 'Cooling System 1'),
+    (4, 'Cooling System 2'),
+    (4, 'Backup Power Unit'),
+    (4, 'Lighting System'),
 
-    -- Data center 5 - Singtel
-    (5, 'Router'),
-    (5, 'Server'),
-    (5, 'Switch'),
+    -- id 25-30
+    (5, 'Server Rack 1'),
+    (5, 'Server Rack 2'),
+    (5, 'Cooling System 1'),
+    (5, 'Cooling System 2'),
+    (5, 'Backup Power Unit'),
+    (5, 'Lighting System'),
 
-    -- Data center 6 - M1
-    (6, 'Server'),
-    (6, 'Load Balancer'),
-    (6, 'Firewall'),
+        -- Data center 6
+    (6, 'Server Rack 1'),
+    (6, 'Server Rack 2'),
+    (6, 'Cooling System 1'),
+    (6, 'Cooling System 2'),
+    (6, 'Backup Power Unit'),
+    (6, 'Lighting System'),
 
-    -- Data center 7 - M1
-    (7, 'Router'),
-    (7, 'Switch'),
-    (7, 'Server'),
+    -- Data center 7
+    (7, 'Server Rack 1'),
+    (7, 'Server Rack 2'),
+    (7, 'Cooling System 1'),
+    (7, 'Cooling System 2'),
+    (7, 'Backup Power Unit'),
+    (7, 'Lighting System'),
 
-    -- Data center 8 - M1
-    (8, 'Server'),
-    (8, 'Router'),
-    (8, 'Firewall'),
+    -- Data center 8
+    (8, 'Server Rack 1'),
+    (8, 'Server Rack 2'),
+    (8, 'Cooling System 1'),
+    (8, 'Cooling System 2'),
+    (8, 'Backup Power Unit'),
+    (8, 'Lighting System'),
 
-    -- Data center 9 - M1
-    (9, 'Switch'),
-    (9, 'Server'),
-    (9, 'Router'),
+    -- Data center 9
+    (9, 'Server Rack 1'),
+    (9, 'Server Rack 2'),
+    (9, 'Cooling System 1'),
+    (9, 'Cooling System 2'),
+    (9, 'Backup Power Unit'),
+    (9, 'Lighting System'),
 
-    -- Data center 10 - M1
-    (10, 'Firewall'),
-    (10, 'Server'),
-    (10, 'Load Balancer'),
+    -- Data center 10
+    (10, 'Server Rack 1'),
+    (10, 'Server Rack 2'),
+    (10, 'Cooling System 1'),
+    (10, 'Cooling System 2'),
+    (10, 'Backup Power Unit'),
+    (10, 'Lighting System'),
 
-    -- Data center 11 - Simba
-    (11, 'Router'),
-    (11, 'Switch'),
-    (11, 'Server'),
+    -- Data center 11
+    (11, 'Server Rack 1'),
+    (11, 'Server Rack 2'),
+    (11, 'Cooling System 1'),
+    (11, 'Cooling System 2'),
+    (11, 'Backup Power Unit'),
+    (11, 'Lighting System'),
 
-    -- Data center 12 - Simba
-    (12, 'Firewall'),
-    (12, 'Server'),
-    (12, 'Router'),
+    -- Data center 12
+    (12, 'Server Rack 1'),
+    (12, 'Server Rack 2'),
+    (12, 'Cooling System 1'),
+    (12, 'Cooling System 2'),
+    (12, 'Backup Power Unit'),
+    (12, 'Lighting System'),
 
-    -- Data center 13 - Simba
-    (13, 'Switch'),
-    (13, 'Server'),
-    (13, 'Router'),
+    -- Data center 13
+    (13, 'Server Rack 1'),
+    (13, 'Server Rack 2'),
+    (13, 'Cooling System 1'),
+    (13, 'Cooling System 2'),
+    (13, 'Backup Power Unit'),
+    (13, 'Lighting System'),
 
-    -- Data center 14 - Simba
-    (14, 'Router'),
-    (14, 'Load Balancer'),
-    (14, 'Server'),
+    -- Data center 14
+    (14, 'Server Rack 1'),
+    (14, 'Server Rack 2'),
+    (14, 'Cooling System 1'),
+    (14, 'Cooling System 2'),
+    (14, 'Backup Power Unit'),
+    (14, 'Lighting System'),
 
-    -- Data center 15 - Simba
-    (15, 'Firewall'),
-    (15, 'Switch'),
-    (15, 'Server'),
+    -- Data center 15
+    (15, 'Server Rack 1'),
+    (15, 'Server Rack 2'),
+    (15, 'Cooling System 1'),
+    (15, 'Cooling System 2'),
+    (15, 'Backup Power Unit'),
+    (15, 'Lighting System'),
 
-    -- Data center 16 - Starhub
-    (16, 'Router'),
-    (16, 'Server'),
-    (16, 'Firewall'),
+    -- Data center 16
+    (16, 'Server Rack 1'),
+    (16, 'Server Rack 2'),
+    (16, 'Cooling System 1'),
+    (16, 'Cooling System 2'),
+    (16, 'Backup Power Unit'),
+    (16, 'Lighting System'),
 
-    -- Data center 17 - Starhub
-    (17, 'Load Balancer'),
-    (17, 'Server'),
-    (17, 'Switch'),
+    -- Data center 17
+    (17, 'Server Rack 1'),
+    (17, 'Server Rack 2'),
+    (17, 'Cooling System 1'),
+    (17, 'Cooling System 2'),
+    (17, 'Backup Power Unit'),
+    (17, 'Lighting System'),
 
-    -- Data center 18 - Starhub
-    (18, 'Router'),
-    (18, 'Server'),
-    (18, 'Firewall'),
+    -- Data center 18
+    (18, 'Server Rack 1'),
+    (18, 'Server Rack 2'),
+    (18, 'Cooling System 1'),
+    (18, 'Cooling System 2'),
+    (18, 'Backup Power Unit'),
+    (18, 'Lighting System'),
 
-    -- Data center 19 - Starhub
-    (19, 'Switch'),
-    (19, 'Router'),
-    (19, 'Server'),
+    -- Data center 19
+    (19, 'Server Rack 1'),
+    (19, 'Server Rack 2'),
+    (19, 'Cooling System 1'),
+    (19, 'Cooling System 2'),
+    (19, 'Backup Power Unit'),
+    (19, 'Lighting System'),
 
-    -- Data center 20 - Starhub
-    (20, 'Server'),
-    (20, 'Router'),
-    (20, 'Load Balancer');
-
+    -- Data center 20
+    (20, 'Server Rack 1'),
+    (20, 'Server Rack 2'),
+    (20, 'Cooling System 1'),
+    (20, 'Cooling System 2'),
+    (20, 'Backup Power Unit'),
+    (20, 'Lighting System');
 
 -- Insert sample data into data center energy_consumption table
 INSERT INTO data_center_energy_consumption (data_center_id, date, total_energy_mwh, it_energy_mwh, cooling_energy_mwh, backup_power_energy_mwh, lighting_energy_mwh, pue, cue, wue)
