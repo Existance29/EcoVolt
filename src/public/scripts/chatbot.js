@@ -34,25 +34,26 @@ function displayMessage(message, className) {
 // Send user message to the backend and display the bot's response
 async function sendMessage() {
     const userMessage = document.getElementById("userMessage").value.trim();
-    if (!userMessage) return; // Do nothing if input is empty
+    if (!userMessage) return;
 
     displayMessage(userMessage, "user-message");
-    document.getElementById("userMessage").value = ""; // Clear the input
+    document.getElementById("userMessage").value = "";
 
     try {
         const response = await fetch("/chatbot", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Company-ID": sessionStorage.getItem("company_id")
+            },
             body: JSON.stringify({ userMessage }),
         });
 
         const data = await response.json();
-        const botReply = data.reply || "Sorry, I’m having trouble connecting to the server. Please try again later.";
-        displayMessage(botReply, "bot-message");
-
+        displayMessage(data.reply || "Server error. Please try again.", "bot-message");
     } catch (error) {
-        console.error("Error fetching response from the server:", error);
-        displayMessage("Sorry, I’m having trouble connecting to the server. Please try again later.", "bot-message");
+        console.error("Error:", error);
+        displayMessage("Server error. Please try again.", "bot-message");
     }
 }
 
