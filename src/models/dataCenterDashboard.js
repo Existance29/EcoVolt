@@ -417,16 +417,23 @@ static async getTotalEnergyConsumptionByCompanyIdAndYearAndMonth(company_id, yea
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
             SELECT 
-                id, data_center_id, date, total_energy_mwh, it_energy_mwh, 
-                cooling_energy_mwh, backup_power_energy_mwh, lighting_energy_mwh,
-                AVG(pue) AS pue_avg,
-                AVG(cue) AS cue_avg, 
-                AVG(wue) AS wue_avg
-            FROM data_center_energy_consumption
-            WHERE data_center_id = @dataCenterId
-            AND YEAR(date) = @year AND MONTH(date) = @month
-            GROUP BY id, data_center_id, date, total_energy_mwh, it_energy_mwh, 
-                     cooling_energy_mwh, backup_power_energy_mwh, lighting_energy_mwh
+                id, 
+                data_center_id, 
+                date, 
+                total_energy_mwh, 
+                it_energy_mwh, 
+                cooling_energy_mwh, 
+                backup_power_energy_mwh, 
+                lighting_energy_mwh,
+                pue, 
+                cue, 
+                wue
+            FROM 
+                data_center_energy_consumption
+            WHERE 
+                data_center_id = @dataCenterId
+                AND YEAR(date) = @year 
+                AND MONTH(date) = @month;
             `;
             const request = connection.request();
             request.input('dataCenterId', dataCenterId);
@@ -449,16 +456,20 @@ static async getTotalEnergyConsumptionByCompanyIdAndYearAndMonth(company_id, yea
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
             SELECT 
-                id, data_center_id, date, total_energy_mwh, it_energy_mwh, 
-                cooling_energy_mwh, backup_power_energy_mwh, lighting_energy_mwh,
-                AVG(pue) AS pue_avg,
-                AVG(cue) AS cue_avg, 
-                AVG(wue) AS wue_avg
+                id, 
+                data_center_id, 
+                date, 
+                total_energy_mwh, 
+                it_energy_mwh, 
+                cooling_energy_mwh, 
+                backup_power_energy_mwh, 
+                lighting_energy_mwh,
+                pue, 
+                cue, 
+                wue
             FROM data_center_energy_consumption
             WHERE data_center_id = @dataCenterId
             AND YEAR(date) = @year
-            GROUP BY id, data_center_id, date, total_energy_mwh, it_energy_mwh, 
-                     cooling_energy_mwh, backup_power_energy_mwh, lighting_energy_mwh
             `;
             const request = connection.request();
             request.input('dataCenterId', dataCenterId);

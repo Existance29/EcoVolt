@@ -627,10 +627,18 @@ async function fetchTotalCarbonEmissionByCompanyIdAndDate() {
 async function fetchTotalCarbonEmissionByDataCenterIdAndDate(data_center_id) {
     const selectedMonth = monthPicker.value;
     const selectedYear = yearPicker.value;
-    // Combine month and year if both are selected
-    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
+
+    // Construct selectedDate based on available inputs
+    let selectedDate;
+    if (selectedYear) {
+        selectedDate = selectedMonth ? `${selectedYear}-${selectedMonth}` : selectedYear;
+    } else {
+        // If neither year nor month is selected, return or handle the missing date scenario
+        console.error("Please select a year (and optionally a month) to fetch data.");
+        return;
+    }
     try {
-        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}/date?date=${selectedDate}`);
         const data = await response.json();
         console.log("Total Carbon Emission data for data center by date:", data);
 
@@ -702,7 +710,7 @@ async function fetchTotalEnergyConsumptionByDataCenterIdAndDate(data_center_id) 
     // Combine month and year if both are selected
     const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}/date?date=${selectedDate}`);
         const data = await response.json();
         console.log("Total Energy Consumption data for data center by date:", data);
 
