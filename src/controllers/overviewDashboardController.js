@@ -127,6 +127,30 @@ const getTop3CellTowersByAvoidedEmissions = async (req, res) => {
     }
 };
 
+const getDashboardSummaryDataOnly = async (company_id) => {
+    try {
+        const highestEmissions = await DashboardModel.getHighestEmissions(company_id);
+        const totalEmissions = await DashboardModel.getTotalEmissions(company_id);
+        const sustainabilityGoals = await DashboardModel.getSustainabilityGoals(company_id);
+        const top3Companies = await DashboardModel.getTop3YearsByEmissions(company_id);
+        const avoidedEmissions = await DashboardModel.getTop3CellTowersByAvoidedEmissions(company_id);
+
+        return {
+            highestDataCenter: highestEmissions.highestDataCenter,
+            highestCellTower: highestEmissions.highestCellTower,
+            totalDataCenterEmissions: totalEmissions.totalDataCenterEmissions,
+            totalCellTowerEmissions: totalEmissions.totalCellTowerEmissions,
+            overallTotal: totalEmissions.overallTotal,
+            sustainabilityGoals,
+            top3Companies,
+            avoidedEmissions,
+        };
+    } catch (error) {
+        console.error("Error fetching dashboard summary data:", error);
+        throw error;
+    }
+};
+
 
 
 
@@ -137,4 +161,5 @@ module.exports = {
     getSustainabilityGoals,
     getTop3YearsByEmissions,
     getTop3CellTowersByAvoidedEmissions,
+    getDashboardSummaryDataOnly
 };
