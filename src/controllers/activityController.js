@@ -3,16 +3,15 @@ const activityModel = require("../models/activityModel");
 const getAllPosts = async (req, res) => {
     try {
         const posts = await activityModel.getAllPosts();
-        // res.json(posts);
         res.status(200).json(posts);
     } catch (error) {
-        console.error(error);
+        console.error("Error fetching all posts: ", error);
         res.status(500).json({ error: "failed to fetch posts" });
     }
 }
 
 const toggleLike = async (req, res) => {
-    const { post_id, user_id } = req.body;
+    const { post_id, user_id, company_id } = req.body;
     console.log(`postId: ${post_id}, userID: ${user_id}`);
 
     try {
@@ -22,6 +21,7 @@ const toggleLike = async (req, res) => {
             await activityModel.removeLike(post_id, user_id);
         } else {
             await activityModel.addLike(post_id, user_id);
+            await activityModel.trackActivity(user_id, company_id, post_id, "like", 5);
         }
 
         const updatedLikeCount = await activityModel.getLikeCount(post_id);
@@ -34,7 +34,7 @@ const toggleLike = async (req, res) => {
 
 
 const toggleDislike = async (req, res) => {
-    const { post_id, user_id } = req.body;
+    const { post_id, user_id, company_id } = req.body;
     console.log(`postId: ${post_id}, userID: ${user_id}`);
 
     try {
@@ -44,6 +44,7 @@ const toggleDislike = async (req, res) => {
             await activityModel.removeDislike(post_id, user_id);
         } else {
             await activityModel.addDislike(post_id, user_id);
+            await activityModel.trackActivity(user_id, company_id, post_id, "dislike", 1);
         }
 
         const updatedDislikeCount = await activityModel.getDislikeCount(post_id);
@@ -76,6 +77,7 @@ const addNewComment = async (req, res) => {
         const updatedComments = await activityModel.getCommentsByPostId(post_id);
         if (newComment) {
             res.status(200).json({newComment, commentsCount: updatedComments.length});
+            await activityModel.trackActivity(user_id, company_id, post_id, "comment", 10);
         } else {
             res.status(500).json({ error: "Failed to add comment"})
         }
@@ -87,15 +89,16 @@ const addNewComment = async (req, res) => {
 };
 
 const addNewPost = async (req, res) => {
-    const { user_id, company_id, context, media_url, carbon_emission, energy_consumption, activity_type, location} = req.body;
-
+    const { user_id, company_id, context, media_url, carbon_emission, energy_consumption, category, location} = req.body;
     try {
         const newPost = await activityModel.addNewPost(
-            user_id, company_id, context, media_url, carbon_emission, energy_consumption, activity_type, location
+            user_id, company_id, context, media_url, carbon_emission, energy_consumption, category, location
         );
 
         if (newPost) {
             res.status(201).json({ message: "Post created successfully", post_id: newPost.post_id });
+            const postId = newPost.post_id;
+            await activityModel.trackActivity(user_id, company_id, postId, "posts", 20);
         } else {
             res.status(500).json({ error: "Failed to create post" });
         }
@@ -105,6 +108,62 @@ const addNewPost = async (req, res) => {
     }
 }
 
+const trackActivity = async (req, res) => {
+    const { user_id, company_id, post_id, activity_type, points } = req.body;
+    
+    try {
+        const activity = await activityModel.trackActivity(
+            user_id, company_id, post_id, activity_type, points
+        );
+
+        if (activity) {
+            res.status(201).json({ message: "Track activity successfully"});
+        } else {
+            res.status(500).json({ error: "Failed to track activity "});
+        }
+    } catch (error) {
+        console.error("Error tracking activity : ", error);
+        res.status(500).json({ error: "Failed to track activity" });
+    }
+}
+
+const getActivitySummary = async (req, res) => {
+    const { user_id, company_id } = req.body;
+
+    try {
+        const totalPoints = await activityModel.getTotalPoints(user_id, company_id);
+        const activitySummary = await activityModel.getActivitySummary(user_id, company_id);
+        console.log("Backend", totalPoints);
+        res.status(201).json({
+            totalPoints, 
+            activitySummary,
+        });
+    } catch (error) {
+        console.error("Error fetching activity summary: ", error);
+        res.status(500).json({ error: "Failed to fetch activity summary" });
+    }
+};
+
+const redeemReward = async (req, res) => {
+    const { user_id, company_id, reward_id } = req.body;
+
+    try {
+        const totalPoints = await activityModel.getTotalPoints(user_id, company_id);
+        const pointsRequired = 1000;
+
+        if (totalPoints >= pointsRequired) {
+            await activityModel.deductPoints(user_id, pointsRequired);
+            res.status(200).json({ message: "Reward redeemed successfully." });
+        } else {
+            res.status(400).json({ error: "Not enough points to redeem reward." });
+        }
+
+    } catch (error) {
+        console.error("Error redeeming reward:", error);
+        res.status(500).json({ error: "Failed to redeem reward." });
+    }
+};
+
 module.exports = {
     getAllPosts,
     toggleLike,
@@ -112,4 +171,7 @@ module.exports = {
     getCommentsByPostId,
     addNewComment,
     addNewPost,
+    trackActivity,
+    getActivitySummary,
+    redeemReward,
 }
