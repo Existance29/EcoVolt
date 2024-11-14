@@ -1,3 +1,11 @@
+html, body {
+  overflow: hidden; /* Prevent body from scrolling */
+}
+
+* {
+  overflow: visible !important; /* Ensure that no element causes scrolling */
+  box-sizing: border-box; /* Ensure padding and border are included in the element's total width and height */
+}
 body {
   font-family: Arial, sans-serif;
   background-color: #f4f4f9;
@@ -123,48 +131,50 @@ margin-bottom: 0.7rem;
   color: #C2C2C2;
 }
 
-.graph-container{
-background: white; 
-padding: 1.3rem 1.6rem; 
-border-radius: 10px; 
-color: #464549; 
-font-size: 0.97rem;
-}
 
 
-.chart-container{
-margin-top: 1.5rem;
-display: flex;
-flex-direction: column;
-align-items: center;
+
+.chart-container .carbon-emission-chart-container h2 {
+  text-align: left;
 }
 
-.chart {
-position: relative;
-display: flex;
-align-items: center;
-justify-content: center;
-text-align: center;
-font-size: 0.9rem;
+.graph-container {
+  background: white;
+  padding: 1.3rem 1.6rem;
+  border-radius: 10px;
+  color: #464549;
+  font-size: 0.97rem;
+  display: flex;
+  flex-direction: column;
 }
 
-.chart canvas {
-position: absolute;
-top: 0;
-left: 0;
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1000px; /* Set max width */
 }
+
 
 .carbon-emission-chart-container {
-  width: 100%; /* Set to 100% width of the parent */
-  max-width: 600px; /* Adjust this to control the max width */
-  height: 320px; /* Increase the height */
-  margin: 0 auto; /* Center it within the container */
+  width: 100%;
+  max-height: 400px; /* Set a max height for containment */
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .carbon-emission-chart-container canvas {
   width: 100% !important;
   height: 100% !important;
 }
+
+
+
+
 
 
 
@@ -271,6 +281,10 @@ left: 0;
   max-width: 25%; /* Adjust width for the desired number of columns */
 }
 
+.gauge-container h2 {
+  width: 100%; /* Ensure it takes full width of the container */
+  text-align: center; /* Center-align the text */
+}
 
 
 .gauge-container {
@@ -295,16 +309,11 @@ left: 0;
 }
 
 
-.gauge-container h2 {
-  align-self: flex-start;       /* Align the title to the left */
-  margin-top: 40px; /* Moves the title down by adding space above */
-}
-
 .button-container button {
   padding: 6px 12px;
   font-size: 14px;
   font-weight: bold;
-  margin-top: 20px; /* Moves the title down by adding space above */
+  margin-top: 10px; /* Moves the title down by adding space above */
   color: #4e5d63;
   background-color: #f4f4f9;
   border: 2px solid #4e5d63;
@@ -356,6 +365,14 @@ left: 0;
   transform: scale(1.2); /* Slightly bigger on hover */
 }
 
+
+
+
+
+
+
+
+
 /* Tooltip Modal Background */
 .tooltip-modal {
   display: none; /* Hidden by default */
@@ -372,16 +389,16 @@ left: 0;
 /* Tooltip Content */
 .tooltip-content {
   background-color: #fff;
-  margin: 10% auto; /* Center vertically */
-  padding: 25px 30px; /* More padding for text spacing */
-  border-radius: 12px; /* Rounded corners */
+  margin: 10% auto;
+  padding: 25px 30px;
+  border-radius: 12px;
   width: 90%;
-  max-width: 400px; /* Set a max width */
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2); /* Softer, more pronounced shadow */
+  max-width: 400px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
   font-family: Arial, sans-serif;
-  color: #333; /* Darker text color */
+  color: #333;
   text-align: left;
-  position: relative; /* Allows positioning of the close button */
+  position: relative;
 }
 
 /* Close Button */
@@ -397,7 +414,7 @@ left: 0;
 }
 
 .close:hover {
-  color: #333; /* Darker color on hover */
+  color: #333;
 }
 
 /* Tooltip Header */
@@ -418,7 +435,7 @@ left: 0;
 }
 
 .tooltip-content p strong {
-  color: #4FD1C5; /* Highlighted color for terms */
+  color: #4FD1C5;
   font-size: 16px;
   font-weight: bold;
 }
@@ -427,7 +444,50 @@ left: 0;
   margin-bottom: 15px;
 }
 
+/* Navigation Button Container */
+.tooltip-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
 
+/* Navigation Buttons */
+.tooltip-navigation button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #4FD1C5;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.tooltip-navigation button:hover {
+  background-color: #3AB0A3;
+}
+
+.tooltip-navigation #prevButton {
+  background-color: #3498db;
+}
+
+.tooltip-navigation #prevButton:hover {
+  background-color: #2980b9;
+}
+
+.tooltip-navigation #nextButton {
+  background-color: #FF6B6B;
+}
+
+.tooltip-navigation #nextButton:hover {
+  background-color: #E05A5A;
+}
+
+.tooltip-navigation button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
 
 
 
@@ -644,4 +704,24 @@ left: 0;
   right: 15px;
   font-size: 20px;
   cursor: pointer;
+}
+
+
+.main-stat-container .icon {
+  font-size: 28px;        /* Adjust size */
+  color: #4FD1C5;         /* Adjust color */
+  margin-right: 10px;     /* Spacing between icon and text */
+  vertical-align: middle; /* Align with text vertically */
+  margin-bottom: 10px;
+}
+
+
+/* Hover effect for the Total Devices card */
+#totalDevicesContainer {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#totalDevicesContainer:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }

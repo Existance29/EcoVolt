@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./styles/overviewDashboard.css">
     <link rel="stylesheet" href="./styles/common.css">
+    <link rel="stylesheet" href="./styles/garden.css">
     <title>Overview Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <!-- Chart.js Library -->
@@ -103,14 +104,96 @@
                     <canvas id="avoidedEmissionsChart" height="350px" ></canvas>
                 </div>
             
-              
+                 
             </div>
             
 
             
+
+
+
+
+
+
+
+            <div class="garden-container">
+                <!-- Lightbulb Tooltip -->
+                <div id="lightbulb-tooltip" class="lightbulb-tooltip">💡</div>
             
+                <!-- Left content wrapper -->
+                <div class="garden-info">
+                    <h2>Virtual Garden</h2>
+                    <p>Celebrate your sustainability achievements by planting a tree!</p>
+                
+                    <!-- New button to add badge -->
+                    <button id="add-badge-button" class="add-badge-button" disabled>
+                        Plant all 5 trees to unlock this feature
+                    </button>
+                </div>
+                
+                <!-- Right content for the 3D tree visualization -->
+                <div id="container-tree" class="tree-visualization"></div>
+            </div>
+                                    
+            <!-- Badge Modal -->
+            <div id="garden-badge-modal" class="garden-badge-modal">
+                <div class="garden-badge-modal-content">
+                    <span id="garden-close-modal-btn" class="garden-close-btn">×</span> <!-- Close button -->
+                    <img src="./assets/tree/banner.jpg" alt="Badge Image" class="garden-badge-image">
+                    <p>This badge has been added to your profile picture!</p>
+                    <button id="garden-view-profile-btn" class="garden-view-profile-btn">View Profile Page</button>
+                </div>
+            </div>
             
+            <!-- Garden Info Tooltip Cards (Hidden by default) -->
+            <div id="gardenInfoTooltipCards" class="garden-info-tooltip-cards">
+                <div class="tooltip-header">
+                    <h3>Virtual Garden Information</h3>
+                    <span id="tooltip-close-btn" class="tooltip-close-btn">×</span>
+                </div>
+                <div class="tooltip-content">
+                    <!-- Slide 1: Game Introduction -->
+                    <div class="tooltip-slide active">
+                        <p>Welcome to the Virtual Garden! Track your sustainability goals and watch your garden grow. For each goal that reaches 100%, a tree will be planted. When all five goals reach 100%, every employee earns a badge on their profile!</p>
+                    </div>
             
+                    <!-- Slide 2: Overall Progress Towards Net Zero -->
+                    <div class="tooltip-slide">
+                        <h4>Overall Progress Towards Net Zero</h4>
+                        <p>This goal tracks your company's journey towards achieving net zero emissions by 2050. The closer you get to 100%, the closer you are to a sustainable future!</p>
+                    </div>
+            
+                    <!-- Slide 3: CUE (Carbon Usage Effectiveness) -->
+                    <div class="tooltip-slide">
+                        <h4>Carbon Usage Effectiveness (CUE)</h4>
+                        <p>CUE measures the efficiency of your carbon usage. Lower values indicate better efficiency in minimizing carbon emissions from energy use in your data centers.</p>
+                    </div>
+            
+                    <!-- Slide 4: PUE (Power Usage Effectiveness) -->
+                    <div class="tooltip-slide">
+                        <h4>Power Usage Effectiveness (PUE)</h4>
+                        <p>PUE assesses the ratio of total facility energy to the energy used by IT equipment. A lower PUE indicates more efficient power usage.</p>
+                    </div>
+            
+                    <!-- Slide 5: Renewable Energy Usage -->
+                    <div class="tooltip-slide">
+                        <h4>Renewable Energy Usage</h4>
+                        <p>This goal reflects the percentage of your facility’s energy sourced from renewables. Higher percentages mean a stronger commitment to clean energy.</p>
+                    </div>
+            
+                    <!-- Slide 6: Water Usage Reduction (WUE) -->
+                    <div class="tooltip-slide">
+                        <h4>Water Usage Effectiveness (WUE)</h4>
+                        <p>WUE measures water efficiency in data centers. Lower values signify efficient water use, helping reduce the environmental impact.</p>
+                    </div>
+                </div>
+            
+                <!-- Navigation Buttons -->
+                <div class="tooltip-navigation">
+                    <button id="tooltip-prev" class="tooltip-nav-btn" disabled>Back</button>
+                    <button id="tooltip-next" class="tooltip-nav-btn">Next</button>
+                </div>
+            </div>
             
 
 
@@ -131,6 +214,7 @@
     <!-- Custom JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/@google/generative-ai@latest/dist/index.umd.js"></script>
     <script src="./scripts/pages/overviewDashboard.js"></script>
+    <script src="./scripts/garden.js" type="module"></script>
     <script src="./scripts/generateReport.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="./scripts/common.js"></script>
