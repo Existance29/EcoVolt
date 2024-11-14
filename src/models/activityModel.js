@@ -32,7 +32,7 @@ class Posts {
                 SELECT 
                     af.post_id, af.user_id, u.name AS user_name, af.company_id, af.context, af.location, af.date,
                     af.time, af.carbon_emission, af.energy_consumption, af.activity_type, 
-                    COUNT(DISTINCT l.like_id) AS totsal_likes,
+                    COUNT(DISTINCT l.like_id) AS total_likes,
                     COUNT(DISTINCT d.dislike_id) AS total_dislikes,
                     COUNT(DISTINCT c.comment_id) AS total_comments
                     FROM activity_feed af
@@ -274,12 +274,12 @@ class Posts {
             }
         }
 
-        static async addNewPost (user_id, company_id, context, media_url, carbon_emission, energy_consumption, activity_type, location) {
+        static async addNewPost (user_id, company_id, context, media_url, carbon_emission, energy_consumption, category, location) {
             try{
                 const connection = await sql.connect(dbConfig);
                 const query = `
                 INSERT INTO activity_feed (user_id, company_id, context, media_url, carbon_emission, energy_consumption, activity_type, location, date, time) 
-                VALUES (@user_id, @company_id, @context, @media_url, @carbon_emission, @energy_consumption, @activity_type, @location, GETDATE(), GETDATE());
+                VALUES (@user_id, @company_id, @context, @media_url, @carbon_emission, @energy_consumption, @category, @location, GETDATE(), GETDATE());
                 SELECT SCOPE_IDENTITY() AS post_id;`;
 
                 const request = connection.request();
@@ -289,7 +289,7 @@ class Posts {
                 request.input("media_url", media_url);
                 request.input("carbon_emission", carbon_emission);
                 request.input("energy_consumption", energy_consumption);
-                request.input("activity_type", activity_type);
+                request.input("category", category);
                 request.input("location", location);
 
                 const result = await request.query(query);
@@ -299,6 +299,92 @@ class Posts {
             } catch (error) {
                 console.error("Error adding new post: ", error);
                 throw error;
+            }
+        }
+
+        static async trackActivity (user_id, company_id, post_id, activity_type, points) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `INSERT INTO activity_points (user_id, company_id, post_id, activity_type, points_awarded) 
+                VALUES (@user_id, @company_id, @post_id, @activity_type, @points);`;
+
+                const request = connection.request();
+                request.input("user_id", user_id);
+                request.input("company_id", company_id);
+                request.input("post_id", post_id);
+                request.input("activity_type", activity_type);
+                request.input("points", sql.Int, points);
+
+                const result = await request.query(query);
+                connection.close();
+                console.log("REsult: ", result);
+                return result;
+            } catch (error) {
+                console.error("Error tracking activity : ", error);
+            }
+        }
+
+        static async getTotalPoints (user_id, company_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const sumQuery = `SELECT SUM(points_awarded) AS total_points FROM activity_points WHERE user_id = @user_id;`;
+                const sumRequest = connection.request();
+                sumRequest.input("user_id", user_id);
+                const sumResult = await sumRequest.query(sumQuery);
+                
+                const insertQuery = `INSERT INTO user_rewards (user_id, company_id, total_points) 
+                VALUES (@user_id, @company_id, @total_points);`;
+                const insertRequest = connection.request();
+                insertRequest.input("user_id", user_id);
+                insertRequest.input("company_id", company_id);
+                insertRequest.input("total_points", sumResult.recordset[0].total_points);
+                const insertResult = await insertRequest.query(insertQuery);
+
+                connection.close();
+                
+                return sumResult.recordset[0].total_points;
+
+            } catch (error) {
+                console.error("Error getting total points: ", error);
+                throw new Error("Error fetching total points.");
+            }
+        }
+
+        static async getActivitySummary(user_id, company_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `SELECT activity_type, COUNT(*) AS activity_count, SUM(points_awarded) AS points
+                FROM activity_points WHERE user_id = @user_id
+                GROUP BY activity_type;`;
+
+                const request = connection.request();
+                request.input("user_id", user_id);
+
+                const result = await request.query(query);
+                connection.close();
+                return result.recordset;
+            } catch (error) {
+                console.error("Error fetching activity summary: ", error);
+                throw new Error("Error fetching activity summary.");
+            }
+        }
+
+        static async deductPoints(user_id, company_id, pointsRequired) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `UPDATE user_rewards SET total_points = total_points - @points
+                WHERE user_id = @user_id;`;
+
+                const request = connection.request();
+                request.input("user_id", user_id);
+                request.input("points", pointsRequired);
+
+                const result = await request.query(query);
+                connection.close();
+
+            } catch (error) {
+                console.error("Error deducting points:", error);
+                throw new Error("Error deducting points.");
             }
         }
 }
