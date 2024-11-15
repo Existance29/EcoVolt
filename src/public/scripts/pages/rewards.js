@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    // Getting the user information from the storage 
     const accessToken = sessionStorage.accessToken || localStorage.accessToken;
 
     const payloadBase64Url = accessToken.split('.')[1];
@@ -7,16 +8,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const company_id = payload.companyId;
     let user_name = "";
 
+    // Loading the summary of the user activity for easier calculation of the total points
     loadActivitySummary(user_id, company_id);
 
 });
 
+// Decoding base64 URL-encoded string and parsing to JSON
 function decodeBase64Url(base64Url) {
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const decoded = atob(base64);
     return JSON.parse(decoded);
 }
 
+// Function to show user the summary of their interaction in the activity feed page
 async function loadActivitySummary(user_id, company_id) {
     try {
         const response = await fetch('http://localhost:3000/activitySummary', {
@@ -48,6 +52,7 @@ async function loadActivitySummary(user_id, company_id) {
 
         document.querySelector(".total-points span").textContent = activitySummary.totalPoints || 0;
 
+        // Reward system to allow redeemption 
         const redeemButton = document.querySelector(".redeem-button");
         if (activitySummary.totalPoints >= 1000) {
             redeemButton.disabled = false;
@@ -61,6 +66,7 @@ async function loadActivitySummary(user_id, company_id) {
     }
 }
 
+// Function that distribute rewards to act as a motivation for user to share and engage in social 
 async function redeemReward(user_id, company_id) {
     try {
         const response = await fetch('http://localhost:3000/redeemReward', {

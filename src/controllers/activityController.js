@@ -1,5 +1,7 @@
+// Import
 const activityModel = require("../models/activityModel");
 
+// Controller to fetch all posts
 const getAllPosts = async (req, res) => {
     try {
         const posts = await activityModel.getAllPosts();
@@ -10,9 +12,9 @@ const getAllPosts = async (req, res) => {
     }
 }
 
+// Controller to toggle like status of a post
 const toggleLike = async (req, res) => {
     const { post_id, user_id, company_id } = req.body;
-    console.log(`postId: ${post_id}, userID: ${user_id}`);
 
     try {
         const isLiked = await activityModel.isLiked(post_id, user_id);
@@ -33,9 +35,9 @@ const toggleLike = async (req, res) => {
 };
 
 
+// Controller to toggle dislike status of a post
 const toggleDislike = async (req, res) => {
     const { post_id, user_id, company_id } = req.body;
-    console.log(`postId: ${post_id}, userID: ${user_id}`);
 
     try {
         const isDisliked = await activityModel.isDisliked(post_id, user_id);
@@ -55,9 +57,11 @@ const toggleDislike = async (req, res) => {
     }
 };
 
+
+// Controller to fetch comments for a specific post by post ID
 const getCommentsByPostId = async (req, res) => {
     const post_id = parseInt(req.params.post_id);
-    console.log(`postId: ${post_id}`);
+
     try {
         const comments = await activityModel.getCommentsByPostId(post_id);
         if (!comments) {
@@ -70,6 +74,8 @@ const getCommentsByPostId = async (req, res) => {
     }
 };
 
+
+// Controller to add a new comment to a post
 const addNewComment = async (req, res) => {
     const { post_id, user_id, company_id, comment_text } = req.body;
     try {
@@ -88,6 +94,8 @@ const addNewComment = async (req, res) => {
     }
 };
 
+
+// Controller to add a new post
 const addNewPost = async (req, res) => {
     const { user_id, company_id, context, media_url, carbon_emission, energy_consumption, category, location} = req.body;
     try {
@@ -108,6 +116,7 @@ const addNewPost = async (req, res) => {
     }
 }
 
+// Controller to track an activity for reward system
 const trackActivity = async (req, res) => {
     const { user_id, company_id, post_id, activity_type, points } = req.body;
     
@@ -127,13 +136,13 @@ const trackActivity = async (req, res) => {
     }
 }
 
+// Controller to get the summary of the interactions and total points for a user
 const getActivitySummary = async (req, res) => {
     const { user_id, company_id } = req.body;
 
     try {
         const totalPoints = await activityModel.getTotalPoints(user_id, company_id);
         const activitySummary = await activityModel.getActivitySummary(user_id, company_id);
-        console.log("Backend", totalPoints);
         res.status(201).json({
             totalPoints, 
             activitySummary,
@@ -144,6 +153,7 @@ const getActivitySummary = async (req, res) => {
     }
 };
 
+// Controller to allow user to redeem a reward by working with points of a user
 const redeemReward = async (req, res) => {
     const { user_id, company_id, reward_id } = req.body;
 
@@ -164,6 +174,7 @@ const redeemReward = async (req, res) => {
     }
 };
 
+// Exports
 module.exports = {
     getAllPosts,
     toggleLike,
