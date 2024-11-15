@@ -539,3 +539,31 @@ document.getElementById("renewable-energy-contribution-chart").addEventListener(
         loadCellTowerRenewableEnergyTrend(cellTower, month, year)
     }
 })
+
+/*
+============================
+Tool tip
+============================
+*/
+
+
+function hideTooltip(){
+    document.getElementById("tooltip").style.display = "none"
+}
+
+function showTooltip(){
+    const tooltip = document.getElementById("tooltip")
+    tooltip.style.display = "flex"
+    return tooltip
+}
+
+window.onclick = function(event) {
+    if (event.target.id == "tooltip") hideTooltip()
+};
+
+document.getElementById("renewable-energy-contribution-tooltip").addEventListener("click", () => {
+    const tooltip = showTooltip()
+    document.querySelector("#tooltip #title").innerText = "Renewable Energy Contribution"
+    document.querySelector("#tooltip p").innerText = "Renewable Energy Contribution refers to the percentage of the total energy consumption that comes from renewable energy sources.\
+    \n\nUsing renewable energy helps decrease greenhouse gas emissions, lower operating costs and contribute to long-term energy security."
+})
