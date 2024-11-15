@@ -397,7 +397,6 @@ margin-bottom: 0.7rem;
 /* Tooltip Content */
 .tooltip-content {
   background-color: #fff;
-  margin: 10% auto;
   padding: 25px 30px;
   border-radius: 12px;
   width: 90%;
@@ -406,7 +405,10 @@ margin-bottom: 0.7rem;
   font-family: Arial, sans-serif;
   color: #333;
   text-align: left;
-  position: relative;
+  position: fixed; /* Ensure it stays in the same position relative to the viewport */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center horizontally and vertically */
 }
 
 /* Close Button */
