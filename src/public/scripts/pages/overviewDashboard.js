@@ -17,8 +17,8 @@ async function initializeDashboard() {
         const data = await response.json();
         console.log("Dashboard Data:", data);
         console.log("Highest Emissions Data:", data.highestDataCenter, data.highestCellTower);
-console.log("Total Emissions Data:", data.totalDataCenterEmissions, data.totalCellTowerEmissions);
-console.log("Top 3 Avoided Emissions Data:", data.avoidedemission);  // <-- Focus on this
+        console.log("Total Emissions Data:", data.totalDataCenterEmissions, data.totalCellTowerEmissions);
+        console.log("Top 3 Avoided Emissions Data:", data.avoidedemission);  // <-- Focus on this
 
         
 
@@ -47,7 +47,7 @@ function displayHighestEmissions(data) {
     if (highestDataCenter && highestDataCenterElement) {
         highestDataCenterElement.setAttribute("data-center-id", highestDataCenter.id);
         document.getElementById("highestDataCenterName").textContent = highestDataCenter.data_center_name;
-        document.getElementById("highestDataCenterEmissions").textContent = `CO₂ Emissions: ${highestDataCenter.co2_emissions_tons} Tons`;
+        document.getElementById("highestDataCenterEmissions").textContent = `Highest CO₂ Emissions: ${highestDataCenter.co2_emissions_tons} Tons`;
 
         highestDataCenterElement.addEventListener("click", () => {
             const dataCenterId = highestDataCenter.id;
@@ -58,7 +58,7 @@ function displayHighestEmissions(data) {
     if (highestCellTower && highestCellTowerElement) {
         highestCellTowerElement.setAttribute("data-tower-id", highestCellTower.id);
         document.getElementById("highestCellTowerName").textContent = highestCellTower.cell_tower_name;
-        document.getElementById("highestCellTowerEmissions").textContent = `CO₂ Emissions: ${highestCellTower.total_emissions} Tons`;
+        document.getElementById("highestCellTowerEmissions").textContent = `Highest CO₂ Emissions: ${highestCellTower.total_emissions} Tons`;
 
         highestCellTowerElement.addEventListener("click", () => {
             const cellTowerId = highestCellTower.id;
@@ -70,8 +70,8 @@ function displayHighestEmissions(data) {
 // Function to display total emissions
 function displayTotalEmissions(data) {
     document.getElementById("totalDataCenterEmissions").textContent = `${data.totalDataCenterEmissions} Tons`;
-    document.getElementById("totalCellTowerEmissions").textContent = `${data.totalCellTowerEmissions} kWh`;
-    document.getElementById("overallTotalEmissions").textContent = `${data.overallTotal} Tons/kWh`;
+    document.getElementById("totalCellTowerEmissions").textContent = `${data.totalCellTowerEmissions} Tons`;
+    document.getElementById("overallTotalEmissions").textContent = `${data.overallTotal} Tons`;
 }
 
 // Function to display the Sustainability Goals Slideshow
@@ -300,6 +300,17 @@ function renderTop3CellTowersByAvoidedEmissionsChart(data) {
                             }
                         }
                     }
+                },
+                // Add onClick event to navigate to filtered page
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const selectedTower = data[index];
+                        const cellTowerId = selectedTower.cell_tower_id;
+
+                        // Redirect to the filtered page with cell_tower_id in the URL
+                        window.location.href = `cellTowerDashboard.html?cell_tower_id=${cellTowerId}`;
+                    }
                 }
             }
         });
@@ -341,84 +352,3 @@ document.addEventListener("DOMContentLoaded", initializeDashboard);
 
 
 
- // view more for the chart dc 
-
-
-
-// For Data Center Modal
-// const modalDc = document.getElementById("additionalContentModal");
-// const viewMoreBtnDc = document.getElementById("viewMoreBtnDc");
-// const closeModalBtnDc = document.getElementById("closeModalBtn");
-// const geminiSuggestionDc = document.getElementById("geminiSuggestionDc"); // Element to display suggestions
-
-// viewMoreBtnDc.addEventListener("click", async function() {
-//     try {
-//         const response = await fetch("/dashboard-overview", {
-//             headers: {
-//                 "Authorization": `Bearer ${sessionStorage.accessToken || localStorage.accessToken}`,
-//                 "Company-ID": sessionStorage.getItem("company_id") || localStorage.getItem("company_id")
-//             }
-//         });
-
-//         if (response.ok) {
-//             const data = await response.json();
-//             geminiSuggestionDc.textContent = data.suggestions || "No suggestions available for data centers.";
-//         } else {
-//             geminiSuggestionDc.textContent = "Failed to load suggestions for data centers.";
-//         }
-
-//         modalDc.style.display = "flex"; // Show modal
-//     } catch (error) {
-//         geminiSuggestionDc.textContent = "Error fetching suggestions.";
-//         console.error("Error fetching suggestions:", error);
-//     }
-// });
-
-// closeModalBtnDc.addEventListener("click", function() {
-//     modalDc.style.display = "none";
-// });
-
-// window.addEventListener("click", function(event) {
-//     if (event.target === modalDc) {
-//         modalDc.style.display = "none";
-//     }
-// });
-
-// // For Cell Tower Modal
-// const modalCt = document.getElementById("popupOverlay");
-// const viewMoreBtnCt = document.getElementById("viewMoreBtnCt");
-// const closeModalBtnCt = document.getElementById("closePopupBtn");
-// const geminiSuggestionCt = document.getElementById("geminiSuggestionCt"); // Element to display suggestions
-
-// viewMoreBtnCt.addEventListener("click", async function() {
-//     try {
-//         const response = await fetch("/dashboard-overview", {
-//             headers: {
-//                 "Authorization": `Bearer ${sessionStorage.accessToken || localStorage.accessToken}`,
-//                 "Company-ID": sessionStorage.getItem("company_id") || localStorage.getItem("company_id")
-//             }
-//         });
-
-//         if (response.ok) {
-//             const data = await response.json();
-//             geminiSuggestionCt.textContent = data.suggestions || "No suggestions available for cell towers.";
-//         } else {
-//             geminiSuggestionCt.textContent = "Failed to load suggestions for cell towers.";
-//         }
-
-//         modalCt.style.display = "flex"; // Show modal
-//     } catch (error) {
-//         geminiSuggestionCt.textContent = "Error fetching suggestions.";
-//         console.error("Error fetching suggestions:", error);
-//     }
-// });
-
-// closeModalBtnCt.addEventListener("click", function() {
-//     modalCt.style.display = "none";
-// });
-
-// window.addEventListener("click", function(event) {
-//     if (event.target === modalCt) {
-//         modalCt.style.display = "none";
-//     }
-// });

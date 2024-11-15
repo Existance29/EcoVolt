@@ -461,7 +461,8 @@ button:focus {
 
 .avoided-emissions-container {
     flex: 1; /* Takes the remaining space */
-    max-width: 400px; /* Set a compact max width */
+    max-width: auto; /* Set a compact max width */
+    width: 400px;
     height: 400px;
     padding: 10px;
     border: 1px solid white;
@@ -499,7 +500,7 @@ button:focus {
     }
 
     .top3-container, .avoided-emissions-container{
-        max-width: 100%; /* Full width on small screens */
+        max-width: auto; /* Full width on small screens */
     }
 
     #top3EmissionsChart, #avoidedEmissionsChart {

@@ -13,7 +13,7 @@ const DashboardModel = {
                 SELECT TOP 1 dc.id, dc.data_center_name, SUM(dce.co2_emissions_tons) AS co2_emissions_tons
                 FROM data_center_carbon_emissions AS dce
                 JOIN data_centers AS dc ON dce.data_center_id = dc.id
-                WHERE dc.company_id = 1
+                WHERE dc.company_id = @company_id
                 GROUP BY dc.id, dc.data_center_name
                 ORDER BY co2_emissions_tons DESC;
                 `);
@@ -76,10 +76,11 @@ const DashboardModel = {
             const cellTowerResult = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
                 .query(`
-                    SELECT SUM(ctec.total_energy_kwh) AS total_emissions
+                    SELECT SUM(ctec.carbon_emission_kg) AS total_emissions
                     FROM cell_tower_energy_consumption AS ctec
                     JOIN cell_towers AS ct ON ctec.cell_tower_id = ct.id
                     WHERE ct.company_id = @company_id;
+
                 `);
             const totalCellTowerEmissions = cellTowerResult.recordset[0]?.total_emissions || 0;
 
@@ -165,7 +166,7 @@ const DashboardModel = {
             const result = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
                 .query(`
-                    SELECT TOP 3 
+                   SELECT 
                     ct.id AS cell_tower_id,
                     ct.cell_tower_name,
                     SUM(ctec.renewable_energy_kwh * 0.233) AS avoided_emissions
@@ -179,6 +180,7 @@ const DashboardModel = {
                     ct.id, ct.cell_tower_name
                 ORDER BY 
                     avoided_emissions DESC;
+
 
                 `);
     
