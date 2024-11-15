@@ -217,6 +217,7 @@ button {
   bottom: 20px;
   right: 40px; /* Move it 20px more to the left */
   z-index: 1000;
+  height: auto;
   width: 350px;
   display: flex;
   flex-direction: column;
@@ -250,6 +251,7 @@ button {
   position: relative;
   margin-top: 10px; /* Space between button and content */
   width: 100%;
+  height: fit-content;
 }
 
 .chatbot-header {
@@ -271,11 +273,12 @@ button {
 
 .chatbot-messages {
   padding: 10px;
-  height: 200px;
-  overflow-y: auto;
+  max-height: auto; /* Limit the max height */
+  overflow-y: scroll; /* Enable vertical scrolling */
   display: flex;
   flex-direction: column;
 }
+
 
 .message {
   padding: 8px 12px;
