@@ -131,7 +131,7 @@ label {
     position: sticky;
     top: 20px;
     right: 0;
-    background-color: #f1f1f1;
+    background-color: #3BCBBE;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -142,34 +142,16 @@ label {
     cursor: pointer;
 }
 
-.reward-progress-container h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
+.reward-progress-container:hover {
+    background-color: #34a6a6;
 }
 
-.progress-bar {
-    width: 70%;
-    background-color: #ddd;
-    border-radius: 5px;
-    height: 20px;
-    margin-bottom: 10px;
-    overflow: hidden;
-}
-
-.progress {
-    background-color: #4caf50; 
-    height: 100%;
-    width: 70%; 
-    transition: width 0.5s ease-in-out;
-}
-
-.reward-progress-container p {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-#total-points {
-    color: #4caf50; 
+.reward-progress-container h5 {
+    font-size: 100%;
+    color: white;
+    display: flex;
+    align-self: center;
+    text-align: center;
 }
 
 .comments-container {

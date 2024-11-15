@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    // Getting the user information from the storage 
     const accessToken = sessionStorage.accessToken || localStorage.accessToken;
 
     const payloadBase64Url = accessToken.split('.')[1];
@@ -8,20 +9,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     let user_name = "";
     
     try {
+        // Load all the fetched posts in the activity feed
         loadPosts(user_id, company_id);
+
+        // Leads to the reward page for more reward information 
         document.getElementById("reward-progress-container").addEventListener("click", function() {
             window.location.href = "../../rewards.html";
         })
+
+        // Post modal for adding a new post
         const addNewPostButton = document.getElementById("new-post-button");
         const closeModalButton = document.getElementById("closeModalBtn");
         const modal = document.getElementById("postModal");
 
+        // Show post modal when new post button is clicked
         addNewPostButton.addEventListener("click", () => {
             modal.style.display = "flex";
             document.getElementById('submitPostBtn').addEventListener("click", async () => {
                 await addNewPost(user_id, company_id);
             });
         });
+
+        // Close the post modal when the button is clicked
         closeModalButton.addEventListener("click", () => {
             modal.style.display = "none";
         });
@@ -33,12 +42,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 });
 
+// Decoding base64 URL-encoded string and parsing to JSON
 function decodeBase64Url(base64Url) {
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const decoded = atob(base64);
     return JSON.parse(decoded);
 }
 
+// Function to load all the post that is fetched from the database
 async function loadPosts(user_id, company_id) {
     try{
         const response = await fetch('http://localhost:3000/posts', { 
@@ -56,67 +67,72 @@ async function loadPosts(user_id, company_id) {
         const postsContainer = document.querySelector('.posts');
         postsContainer.innerHTML = '';
 
+        // Fetches and displays the posts
         if (posts.length > 0) {
-            console.log("post length", posts.length);
             posts.forEach((post) => {
-            const postElement = document.createElement("div");
-            postElement.classList.add("post");
-            postElement.setAttribute("data-post-id", post.post_id);
+                // Create an element for each post
+                const postElement = document.createElement("div");
+                postElement.classList.add("post");
+                postElement.setAttribute("data-post-id", post.post_id);
 
-            const postHeader = document.createElement("div");
-            postHeader.classList.add("post-header");
-            postHeader.innerHTML = `
-            <h3>${post.user_name || "Anonymous"}</h3>
-            <span class="timestamp">Posted on: ${post.date}</span>
-            `;
+                // Adding post header 
+                const postHeader = document.createElement("div");
+                postHeader.classList.add("post-header");
+                postHeader.innerHTML = `
+                <h3>${post.user_name || "Anonymous"}</h3>
+                <span class="timestamp">Posted on: ${post.date}</span>
+                `;
 
-            const postContent = document.createElement("p");
-            postContent.classList.add("post-content");
-            postContent.textContent = post.context || "No content available.";
+                // Adding in post contents
+                const postContent = document.createElement("p");
+                postContent.classList.add("post-content");
+                postContent.textContent = post.context || "No content available.";
 
-            const postFooter = document.createElement("div");
-            postFooter.classList.add("postfooter");
+                const postFooter = document.createElement("div");
+                postFooter.classList.add("postfooter");
 
-            const actionButtons = document.createElement("div");
-            actionButtons.classList.add("action-buttons");
+                // Adding in interaction buttons to a post
+                const actionButtons = document.createElement("div");
+                actionButtons.classList.add("action-buttons");
 
-            const likeButton = document.createElement("button");
-            likeButton.classList.add("action-btn", "like-button");
-            likeButton.innerHTML = `
-            <i class = "fa fa-thumbs-up"></i>
-            <span class="likes-count">${post.likes_count || 0} Likes</span>
-            `;
-            likeButton.addEventListener("click", () => updateLikes(user_id, company_id, post.post_id, likeButton));
+                const likeButton = document.createElement("button");
+                likeButton.classList.add("action-btn", "like-button");
+                likeButton.innerHTML = `
+                <i class = "fa fa-thumbs-up"></i>
+                <span class="likes-count">${post.likes_count || 0} Likes</span>
+                `;
+                likeButton.addEventListener("click", () => updateLikes(user_id, company_id, post.post_id, likeButton));
 
-            const dislikeButton = document.createElement("button");
-            dislikeButton.classList.add("action-btn", "dislike-button");
-            dislikeButton.innerHTML = `
-            <i class = "fa fa-thumbs-down"></i>
-            <span class="dislikes-count">${post.dislikes_count || 0} Dislikes</span>
-            `;
-            dislikeButton.addEventListener("click", () => updateDislikes(user_id, company_id, post.post_id, dislikeButton));
+                const dislikeButton = document.createElement("button");
+                dislikeButton.classList.add("action-btn", "dislike-button");
+                dislikeButton.innerHTML = `
+                <i class = "fa fa-thumbs-down"></i>
+                <span class="dislikes-count">${post.dislikes_count || 0} Dislikes</span>
+                `;
+                dislikeButton.addEventListener("click", () => updateDislikes(user_id, company_id, post.post_id, dislikeButton));
 
-            const commentButton = document.createElement("button");
-            commentButton.classList.add("action-btn", "comment-button");
-            commentButton.innerHTML = `
-            <i class = "fa fa-comment"></i>
-            <span class="comments-count">${post.comments_count || 0} Comments</span>
-            `;
-            commentButton.addEventListener("click", () => showComments(user_id, company_id, post.post_id, commentButton));
+                const commentButton = document.createElement("button");
+                commentButton.classList.add("action-btn", "comment-button");
+                commentButton.innerHTML = `
+                <i class = "fa fa-comment"></i>
+                <span class="comments-count">${post.comments_count || 0} Comments</span>
+                `;
+                commentButton.addEventListener("click", () => showComments(user_id, company_id, post.post_id, commentButton));
 
-            actionButtons.appendChild(likeButton)
-            actionButtons.appendChild(dislikeButton) 
-            actionButtons.appendChild(commentButton);
-            postFooter.appendChild(actionButtons);
+                // Append buttons and post elements
+                actionButtons.appendChild(likeButton)
+                actionButtons.appendChild(dislikeButton) 
+                actionButtons.appendChild(commentButton);
+                postFooter.appendChild(actionButtons);
 
-            const commentsContainer = document.createElement("div");
-            commentsContainer.classList.add("comments-container");
-            commentsContainer.style.display = "none";
+                const commentsContainer = document.createElement("div");
+                commentsContainer.classList.add("comments-container");
+                commentsContainer.style.display = "none";
 
-            postElement.append(postHeader, postContent, postFooter, commentsContainer);
+                postElement.append(postHeader, postContent, postFooter, commentsContainer);
 
-            postsContainer.appendChild(postElement);
-        });
+                postsContainer.appendChild(postElement);
+            });
         } else {
             postsContainer.innerHTML = '<p>No posts available.</p>';
         }
@@ -125,8 +141,8 @@ async function loadPosts(user_id, company_id) {
     }
 }
 
+// Function that helps to update like function of a post
 async function updateLikes(user_id, company_id, post_id, likeButton) {
-    console.log("user_id", user_id);
     try {
         const response = await fetch('http://localhost:3000/toggleLike', {
             method: 'POST',
@@ -154,7 +170,7 @@ async function updateLikes(user_id, company_id, post_id, likeButton) {
     }
 }
 
-
+// Function that helps to update dislike function of a post
 async function updateDislikes(user_id, company_id, post_id, dislikeButton) {
     try {
         const response = await fetch('http://localhost:3000/toggleDislike', {
@@ -183,17 +199,19 @@ async function updateDislikes(user_id, company_id, post_id, dislikeButton) {
     }
 }
 
+// Function that show all of the comments of a post
 async function showComments(user_id, company_id, postId, commentButton) {
-    console.log("postID: ", postId);
     const postElement = document.querySelector(`[data-post-id="${postId}"]`);
     const commentsContainer = postElement.querySelector('.comments-container');
     commentsContainer.style.display = commentsContainer.style.display === 'none' ? 'block' : 'none';
 
     if (commentsContainer.style.display === 'block') {
+        // loading all fetched comments
         loadComments(user_id, company_id, postId, commentsContainer, commentButton);
     }
 }
 
+// Function to take care of the incoming comment data
 async function loadComments(user_id, company_id, post_id, commentsContainer, commentButton) {
     try {
         const response = await fetch(`http://localhost:3000/comment/${post_id}`, {
@@ -208,16 +226,15 @@ async function loadComments(user_id, company_id, post_id, commentsContainer, com
         }
 
         const comments = await response.json();
-        console.log("Fetched comments: ", comments);
         commentsContainer.innerHTML = "";
 
         if (comments.length === 0) {
             commentsContainer.innerHTML = "<p>No comments yet.</p>";
         } else {
             comments.forEach(comment => {
+                // Creating and appending comment elements
                 const commentElement = document.createElement("div");
                 commentElement.classList.add("comment");
-                console.log("Comment: ", comment);
 
                 const userName = comment.name || "Anonymous";
                 const commentText = comment.comment_text || "No comment.";
@@ -229,6 +246,7 @@ async function loadComments(user_id, company_id, post_id, commentsContainer, com
             });
         }
 
+        // Adding a new comment function
         const newCommentDiv = document.createElement("div");
         newCommentDiv.classList.add("new-comment");
         newCommentDiv.innerHTML = `
@@ -238,7 +256,7 @@ async function loadComments(user_id, company_id, post_id, commentsContainer, com
         const postButton = newCommentDiv.querySelector('.add-comment-btn');
         postButton.addEventListener("click", () => {
             const commentInput = document.getElementById(`new-comment-${post_id}`);
-            console.log("comment input in text box : ", commentInput.value);
+            // Helps to call the function that add the new comment to the database
             addComment(post_id, company_id, user_id, commentInput.value, commentButton);
         });
 
@@ -249,8 +267,8 @@ async function loadComments(user_id, company_id, post_id, commentsContainer, com
     }
 }
 
+// Add the new comment to the database and ensure the comment counts is updated
 async function addComment(post_id, company_id, user_id, commentText, commentButton) {
-    console.log("Comment Text : ", commentText);
     if (!commentText) return;
 
     try {
@@ -262,16 +280,13 @@ async function addComment(post_id, company_id, user_id, commentText, commentButt
             body: JSON.stringify({ post_id, user_id, company_id, comment_text: commentText })
         });
 
-        console.log("Comment text in front-end: ", commentText);
-
         if(!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const newComment = await response.json();
 
-        console.log("New comment added: ", newComment);
-
+        // Creates and shows the new comment added with the username
         const commentsContainer = document.querySelector(`[data-post-id="${post_id}"] .comments-container`);
         const commentElement = document.createElement("div");
         commentElement.classList.add("comment");
@@ -279,6 +294,7 @@ async function addComment(post_id, company_id, user_id, commentText, commentButt
             <strong>${newComment.newComment.username || "Anonymous"}</strong>
             <p>${newComment.newComment.comment_text || "No comment."}</p>
         `;
+        // Updates the comment count
         const commentsCount = newComment.commentsCount;
         const commentCountElement = commentButton.querySelector('.comments-count');
         commentCountElement.textContent = `${commentsCount} Comments`;
@@ -292,6 +308,7 @@ async function addComment(post_id, company_id, user_id, commentText, commentButt
     }
 }
 
+// Add a new post to the database and fetch it to the activity page 
 async function addNewPost(user_id, company_id) {
     const postContext = document.getElementById('postContext').value || null;
     const postLocation = document.getElementById('postLocation').value || null;
@@ -328,7 +345,6 @@ async function addNewPost(user_id, company_id) {
         }
 
         const data = await response.json();
-        console.log("New post added successfully:", data);
 
         document.getElementById('postContext').value = '';
         document.getElementById('postLocation').value = '';
@@ -346,6 +362,7 @@ async function addNewPost(user_id, company_id) {
     }
 }
 
+// Function to track the user interaction in the activity page
 async function trackActivity(user_id, company_id, post_id, activity_type, points) {
     try {
         const response = await fetch('http://localhost:3000/trackActivity', {
@@ -360,20 +377,19 @@ async function trackActivity(user_id, company_id, post_id, activity_type, points
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const activity = await response.json();
-        console.log("activity: ", activity);
 
         if (activity) {
-            console.log("activity tracked successfully");
-            updateTotalPoints();
+            // Calls the function to update the total point of a user
+            updateTotalPoints(user_id);
         } else {
             console.log("Error tracking activity");
         }
     } catch (error) {
-        console.error("Error tracking activity : ", trackActivity)
+        console.error("Error tracking activity : ", error)
     } 
 }
 
-
+// Function to update the total point to help with the point calculation and reward system 
 async function updateTotalPoints(user_id) {
     try {
         const response = await fetch('http://localhost:3000/getTotalPoints', {
@@ -388,14 +404,14 @@ async function updateTotalPoints(user_id) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const totalPoint = await response.json();
-        console.log("total points", totalPoint);
 
-        if (totalPoint) {
-            console.log("Total points fetch successfully");
-        } else {
-            console.log("Error getting total points")
-        }
+        // if (totalPoint) {
+        //     console.log("Total points fetch successfully");
+        // } else {
+        //     console.log("Error getting total points")
+        // }
+
     } catch (error) {
-        console.log("Error fetching total points: ", error);
+        console.error("Error fetching total points: ", error);
     }
 }

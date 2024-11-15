@@ -224,15 +224,52 @@ const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
             );
         }
 
-        if (!data) {
+        if (!data || data.length === 0) {
             return res.status(404).send("No energy consumption data found for this data center in the specified date range.");
         }
-        res.status(200).json(data);
+
+        // Calculate the total sums for each energy metric
+        const total = data.reduce(
+            (acc, entry) => {
+                acc.total_energy_mwh += entry.total_energy_mwh || 0;
+                acc.it_energy_mwh += entry.it_energy_mwh || 0;
+                acc.cooling_energy_mwh += entry.cooling_energy_mwh || 0;
+                acc.backup_power_energy_mwh += entry.backup_power_energy_mwh || 0;
+                acc.lighting_energy_mwh += entry.lighting_energy_mwh || 0;
+                return acc;
+            },
+            { total_energy_mwh: 0, it_energy_mwh: 0, cooling_energy_mwh: 0, backup_power_energy_mwh: 0, lighting_energy_mwh: 0 }
+        );
+
+        // Calculate the averages for pue, cue, and wue
+        const averages = data.reduce(
+            (acc, entry) => {
+                acc.pue_sum += entry.pue || 0;
+                acc.cue_sum += entry.cue || 0;
+                acc.wue_sum += entry.wue || 0;
+                acc.count += 1;
+                return acc;
+            },
+            { pue_sum: 0, cue_sum: 0, wue_sum: 0, count: 0 }
+        );
+
+        const avgMetrics = {
+            pue_avg: averages.count ? averages.pue_sum / averages.count : 0,
+            cue_avg: averages.count ? averages.cue_sum / averages.count : 0,
+            wue_avg: averages.count ? averages.wue_sum / averages.count : 0
+        };
+
+        // Combine sums and averages into a single object
+        const result = { ...total, ...avgMetrics };
+
+        
+        res.status(200).json([result]);
     } catch (error) {
         console.error("Error in getAllEnergyConsumptionByDataCenterIdAndDate:", error.message);
         res.status(500).send("Failed to retrieve energy consumption data: Internal Server Error.");
     }
 };
+
 
 const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
     const company_id = parseInt(req.params.company_id);
