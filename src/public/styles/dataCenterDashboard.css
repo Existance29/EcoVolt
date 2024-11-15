@@ -134,18 +134,16 @@ margin-bottom: 0.7rem;
 
 
 
-.chart-container .carbon-emission-chart-container h2 {
-  text-align: left;
-}
 
-.graph-container {
-  background: white;
-  padding: 1.3rem 1.6rem;
-  border-radius: 10px;
-  color: #464549;
-  font-size: 0.97rem;
-  display: flex;
-  flex-direction: column;
+
+
+
+
+
+#carbonEmissionChart {
+  width: 100%; /* Ensure the chart spans the container width */
+  height: auto; /* Let height scale automatically */
+  min-height: 400px; /* Set a minimum height */
 }
 
 .chart-container {
@@ -158,18 +156,17 @@ margin-bottom: 0.7rem;
   max-width: 1000px; /* Set max width */
 }
 
-
 .carbon-emission-chart-container {
   width: 100%;
-  max-height: 400px; /* Set a max height for containment */
-  margin: 0;
+  max-height: none; /* Allow height to grow as needed */
+  margin: 0 auto;
   padding: 20px;
   box-sizing: border-box;
 }
 
 .carbon-emission-chart-container canvas {
-  width: 100% !important;
-  height: 100% !important;
+  width: 100% !important; /* Ensure the canvas spans the container width */
+  height: 400px !important; /* Set a fixed or dynamic height */
 }
 
 
@@ -179,29 +176,40 @@ margin-bottom: 0.7rem;
 
 
 
-.energy-breakdown-container {
+
+
+
+
+.graph-container {
+  background: white;
+  padding: 1.3rem 1.6rem;
+  border-radius: 10px;
+  color: #464549;
+  font-size: 0.97rem;
   display: flex;
-  justify-content: center; /* Center the canvas */
-  align-items: center;
-  margin: 0 auto; /* Center within the container */
-  width: 100%; /* Set to full width */
-  padding: 10px;
+  flex-direction: column;
 }
 
-.energy-breakdown-container canvas {
-  width: 100px !important; /* Set a defined width */
-  height: 100px !important; /* Set a defined height */
+
+
+
+
+
+
+#energyBreakdownChart {
+  max-width: 40%;
+  height: auto;
+  margin: 0 auto;
 }
 
 .pie-chart-labels-container {
   display: flex;
-  flex-direction: column;
-  align-items: center; /* Center the entire legend below the chart */
-  gap: 8px;
-  font-size: 12px;
-  margin-top: 10px;
-  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  justify-content: center;
 }
+
 
 .legend-item {
   display: flex;
