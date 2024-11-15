@@ -1,6 +1,8 @@
+// Imports
 const sql = require("mssql"); 
 const dbConfig = require("../database/dbConfig.js");
 
+// Constructor for post object
 class Posts {
     constructor (post_id, user_id, user_name, company_id, 
         data_center_id, context, media_url, 
@@ -25,6 +27,7 @@ class Posts {
             this.comments_count = comments_count;
         }
     
+        // Function to get all posts
         static async getAllPosts() {
             try {
                 const connection = await sql.connect(dbConfig)
@@ -53,12 +56,14 @@ class Posts {
                         row.data_center_id, row.context, row.media_url, row.carbon_emission, 
                         row.energy_consumption, row.activity_type, row.location, 
                         formattedDate, row.time, row.total_likes, row.total_dislikes, row.total_comments)
-            });
+                    }
+                );
             } catch (error) {
                 console.error("Error getting all posts", error);
             }
         }
 
+        // Function to check whether a post is liked
         static async isLiked(post_id, user_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -78,6 +83,7 @@ class Posts {
             }
         }
 
+        // Function to add likes data into database
         static async addLike(post_id, user_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -88,7 +94,6 @@ class Posts {
                 request.input("user_id", user_id);
                 
                 const result = await request.query(query);
-                console.log("Like added: ", result);
 
                 connection.close();
             } catch (error) {
@@ -96,6 +101,7 @@ class Posts {
             }  
         }
 
+        // Function to remove like data from database
         static async removeLike(post_id, user_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -106,7 +112,6 @@ class Posts {
                 request.input("user_id", user_id);
                 
                 const result = await request.query(query);
-                console.log("Like removed: ", result);
 
                 connection.close();
             } catch (error) {
@@ -114,6 +119,7 @@ class Posts {
             }
         }
 
+        // Function to get the number of likes on a post
         static async getLikeCount(post_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -129,6 +135,7 @@ class Posts {
             }
         }
 
+        // Function to check whether a post is disliked
         static async isDisliked(post_id, user_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -148,6 +155,7 @@ class Posts {
             }
         }
 
+        // Function to add dislikes data into database
         static async addDislike(post_id, user_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -158,7 +166,6 @@ class Posts {
                 request.input("user_id", user_id);
                 
                 const result = await request.query(query);
-                console.log("Dislike added: ", result);
 
                 connection.close();
             } catch (error) {
@@ -166,6 +173,7 @@ class Posts {
             }  
         }
 
+        // Function to remove dislike data from database
         static async removeDislike(post_id, user_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -176,7 +184,6 @@ class Posts {
                 request.input("user_id", user_id);
                 
                 const result = await request.query(query);
-                console.log("Dislike removed: ", result);
 
                 connection.close();
             } catch (error) {
@@ -184,6 +191,7 @@ class Posts {
             }
         }
 
+        // Function to get the number of dislikes on a post
         static async getDislikeCount(post_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -199,6 +207,7 @@ class Posts {
             }
         }
 
+        // Function to get all comments of a specific post
         static async getCommentsByPostId(post_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -220,11 +229,10 @@ class Posts {
             }
         }
 
+        // Function to add new comment to a post
         static async addNewComment(post_id, user_id, company_id, comment_text) {
             try {
                 const connection = await sql.connect(dbConfig);
-
-                console.log("Received comment text: ", comment_text);
 
                 const companyid = `SELECT company_id, name FROM users WHERE id = @user_id`;
                 const companyIdRequest = connection.request();
@@ -233,8 +241,6 @@ class Posts {
                 const companyResult = await companyIdRequest.query(companyid);
                 company_id = companyResult.recordset[0].company_id;
                 const username = companyResult.recordset[0].name;
-                console.log("CompanyID : ", company_id);
-                console.log("Username: ", username);
 
                 if (company_id === null || company_id === undefined) {
                     console.log("Not connected to company.");
@@ -250,7 +256,6 @@ class Posts {
                 request.input("comment_text", comment_text);
 
                 const result = await request.query(query);
-                console.log("json result: ", result);
                 connection.close();
 
                 return result.rowsAffected[0] > 0 ? { post_id, user_id, username, company_id, comment_text } : null;
@@ -259,6 +264,7 @@ class Posts {
             }
         }
 
+        // Function to get the number of comments on a post
         static async getCommentCount(post_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -274,6 +280,7 @@ class Posts {
             }
         }
 
+        // Function to add post to the activity page
         static async addNewPost (user_id, company_id, context, media_url, carbon_emission, energy_consumption, category, location) {
             try{
                 const connection = await sql.connect(dbConfig);
@@ -302,6 +309,7 @@ class Posts {
             }
         }
 
+        // Function to add the activity of the user interaction to the database
         static async trackActivity (user_id, company_id, post_id, activity_type, points) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -317,13 +325,13 @@ class Posts {
 
                 const result = await request.query(query);
                 connection.close();
-                console.log("REsult: ", result);
                 return result;
             } catch (error) {
                 console.error("Error tracking activity : ", error);
             }
         }
 
+        // Function to get the total points gained by the user
         static async getTotalPoints (user_id, company_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -350,6 +358,7 @@ class Posts {
             }
         }
 
+        // Function to get the summary of the user interaction for the reward system
         static async getActivitySummary(user_id, company_id) {
             try {
                 const connection = await sql.connect(dbConfig);
@@ -369,6 +378,7 @@ class Posts {
             }
         }
 
+        // Function to work with the points for reward redeemption
         static async deductPoints(user_id, company_id, pointsRequired) {
             try {
                 const connection = await sql.connect(dbConfig);
