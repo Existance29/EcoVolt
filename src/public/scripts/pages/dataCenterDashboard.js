@@ -823,6 +823,7 @@ function renderEnergyBreakdownChart(data) {
         options: {
             responsive: true,
             maintainAspectRatio: true,
+            cutout: '55%',
             hoverOffset: 15,
             plugins: {
                 legend: { display: false },

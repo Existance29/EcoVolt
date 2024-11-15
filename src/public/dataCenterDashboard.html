@@ -120,30 +120,29 @@
                     </div>
                 </div>
 
-                <!-- Right Column with Energy Consumption Breakdown and Gauge Chart -->
-                <div class="right-column" style="width: 35%; display: flex; flex-direction: column; gap: 1rem;">
+                <div class="right-column">
                     <div class="inter-semibold graph-container">
-                        <h2 style="margin: 0.5rem; text-align: center;">Energy Consumption Breakdown</h2>
-                        <div class="energy-breakdown-container">
-                            <canvas id="energyBreakdownChart"></canvas>
-                        </div>
-                        <div class="pie-chart-labels-container"></div>
+                      <h2 style="text-align: center;">Energy Consumption Breakdown</h2>
+                      <div class="energy-breakdown-container">
+                        <canvas id="energyBreakdownChart"></canvas>
+                      </div>
+                      <div class="pie-chart-labels-container"></div>
                     </div>
-
-                    <!-- Metrics Gauge Chart -->
+                  
                     <div class="gauge-container">
-                        <div class="title-container">
-                            <h2>Energy Efficiency<br>Performance vs. Goals</h2>
-                            <span class="info-icon" onclick="showTooltip()">💡</span>
-                        </div>
-                        <div class="button-container">
-                            <button id="pueButton">PUE</button>
-                            <button id="cueButton">CUE</button>
-                            <button id="wueButton">WUE</button>
-                        </div>
-                        <canvas id="gaugeChart"></canvas>
+                      <div class="title-container">
+                        <h2>Energy Efficiency<br>Performance vs. Goals</h2>
+                        <span class="info-icon" onclick="showTooltip()">💡</span>
+                      </div>
+                      <div class="button-container">
+                        <button id="pueButton">PUE</button>
+                        <button id="cueButton">CUE</button>
+                        <button id="wueButton">WUE</button>
+                      </div>
+                      <canvas id="gaugeChart"></canvas>
                     </div>
-                </div>
+                  </div>
+                  
             </div>
             <div id="tooltipModal" class="tooltip-modal">
                 <div class="tooltip-content">
