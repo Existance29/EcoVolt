@@ -6,7 +6,10 @@ const dataCenterDashboard = require('../models/dataCenterDashboard');
 
 
 const getAllDataCenter = async (req, res) => {
-    const company_id = parseInt(req.params.company_id); // convert string to integer
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     try {
         const data = await dataCenterDashboard.getAllDataCenter(company_id);
         if (!data) {
@@ -22,9 +25,9 @@ const getAllDataCenter = async (req, res) => {
 
 const getAllDates = async (req, res) => {
     const dc = req.params.dc ? parseInt(req.params.dc) : null;
-    const company_id = parseInt(req.params.company_id);
+    const company_id = req.user.companyId
     if (!company_id) {
-        return res.status(400).send("company_id is required.");
+        return res.status(400).json({ error: "Company ID is required" });
     }
 
     try {
@@ -50,10 +53,9 @@ const getAllDates = async (req, res) => {
 
 // --------------------------------------------------------------------------------------------------- fix
 const getTotalEnergyConsumptionByCompanyId = async (req, res) => {
-    const company_id = parseInt(req.params.company_id);
-
+    const company_id = req.user.companyId
     if (!company_id) {
-        return res.status(400).send("company_id is required.");
+        return res.status(400).json({ error: "Company ID is required" });
     }
 
     try {
@@ -69,6 +71,10 @@ const getTotalEnergyConsumptionByCompanyId = async (req, res) => {
 };
 
 const getTotalEnergyConsumptionByDataCenterId = async (req, res) => {
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const dataCenterId = parseInt(req.params.data_center_id);
 
     if (!dataCenterId) {
@@ -88,6 +94,10 @@ const getTotalEnergyConsumptionByDataCenterId = async (req, res) => {
 };
 
 const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => { // wrong need change
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const dataCenterId = parseInt(req.params.data_center_id);
     const date = req.query.date;
 
@@ -125,7 +135,10 @@ const getTotalEnergyConsumptionByDataCenterIdAndDate = async (req, res) => { // 
 };
 
 const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => { // wrong need change // not passing thru back end 
-    const company_id = parseInt(req.params.company_id);
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const date = req.query.date;
 
     if (!company_id || !date) {
@@ -168,7 +181,10 @@ const getTotalEnergyConsumptionByCompanyIdAndDate = async (req, res) => { // wro
 // --------------------------------------------------------------------------------------------------- fix
 // purpose: if user selects ALL DATA CENTER, it shows all the production and usage from the start til the end
 const getAllEnergyConsumptionByCompanyId = async (req, res) => {
-    const company_id = parseInt(req.params.company_id);
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     try {
         const data = await dataCenterDashboard.getAllEnergyConsumptionByCompanyId(company_id);
         if (!data) {
@@ -183,6 +199,10 @@ const getAllEnergyConsumptionByCompanyId = async (req, res) => {
 
 // purpose: if user doesnt select all data center, there will options of data center for user to select which one to see for comparison
 const getAllEnergyConsumptionByDataCenterId = async (req, res) => {
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const dataCenterId = parseInt(req.params.data_center_id);
     try {
         const data = await dataCenterDashboard.getAllEnergyConsumptionByDataCenterId(dataCenterId);
@@ -198,6 +218,10 @@ const getAllEnergyConsumptionByDataCenterId = async (req, res) => {
 };
 
 const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const dataCenterId = parseInt(req.params.data_center_id);
     const date = req.query.date;
 
@@ -272,7 +296,10 @@ const getAllEnergyConsumptionByDataCenterIdAndDate = async (req, res) => {
 
 
 const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
-    const company_id = parseInt(req.params.company_id);
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const date = req.query.date;
 
     if (!company_id || !date) {
@@ -328,7 +355,10 @@ const getAllEnergyConsumptionByCompanyIdAndDate = async (req, res) => {
 
 // --------------------------------------------------------------------------------------------------- fix
 const getTotalCarbonEmissionByCompanyId = async (req, res) => {
-    const company_id = parseInt(req.params.company_id);
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     try {
         const totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByCompanyId(company_id);
         if (totalCO2Emissions === null) {
@@ -342,6 +372,10 @@ const getTotalCarbonEmissionByCompanyId = async (req, res) => {
 };
 
 const getTotalCarbonEmissionByDataCenterId = async (req, res) => {
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const data_center_id = parseInt(req.params.data_center_id);
     try {
         const totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByDataCenterId(data_center_id);
@@ -356,9 +390,12 @@ const getTotalCarbonEmissionByDataCenterId = async (req, res) => {
 };
 
 const getTotalCarbonEmissionByCompanyIdAndDate = async (req, res) => {
-    const companyId = parseInt(req.params.company_id);
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const date = req.query.date;
-    if (!companyId || !date) {
+    if (!company_id || !date) {
         return res.status(400).send("companyId and date (in YYYY-MM or YYYY format) are required.");
     }
 
@@ -369,14 +406,14 @@ const getTotalCarbonEmissionByCompanyIdAndDate = async (req, res) => {
         if (month) {
             // If month is provided, get data by year and month
             totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByCompanyIdAndYearMonth(
-                companyId,
+                company_id,
                 parseInt(year),
                 parseInt(month)
             );
         } else {
             // If only year is provided, get data by year
             totalCO2Emissions = await dataCenterDashboard.getTotalCarbonEmissionByCompanyIdAndYear(
-                companyId,
+                company_id,
                 parseInt(year)
             );
         }
@@ -391,6 +428,10 @@ const getTotalCarbonEmissionByCompanyIdAndDate = async (req, res) => {
 };
 
 const getTotalCarbonEmissionByDataCenterIdAndDate = async (req, res) => {
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const data_center_id = parseInt(req.params.data_center_id);
     const date = req.query.date;
 
@@ -438,7 +479,10 @@ const getTotalCarbonEmissionByDataCenterIdAndDate = async (req, res) => {
 
 // --------------------------------------------------------------------------------------------------- fix
 const getAllCarbonEmissionByCompanyId = async (req, res) => {
-    const company_id = parseInt(req.params.company_id);
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     try {
         const data = await dataCenterDashboard.getAllCarbonEmissionByCompanyId(company_id);
         if (!data) {
@@ -452,6 +496,10 @@ const getAllCarbonEmissionByCompanyId = async (req, res) => {
 };
 
 const getAllCarbonEmissionByDataCenterId = async (req, res) => {
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const data_center_id = parseInt(req.params.data_center_id);
     try {
         const data = await dataCenterDashboard.getAllCarbonEmissionByDataCenterId(data_center_id);
@@ -466,13 +514,11 @@ const getAllCarbonEmissionByDataCenterId = async (req, res) => {
 };
 
 const getAllCarbonEmissionByCompanyIdAndDate = async (req, res) => {
-    const companyId = parseInt(req.params.company_id);
-    const date = req.query.date;
-
-    if (!companyId || !date) {
-        return res.status(400).send("companyId and date (in YYYY-MM or YYYY format) are required.");
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
     }
-
+    const date = req.query.date;
     try {
         let data;
         const [year, month] = date.split('-');
@@ -480,14 +526,14 @@ const getAllCarbonEmissionByCompanyIdAndDate = async (req, res) => {
         if (month) {
             // Call model function for data by year and month
             data = await dataCenterDashboard.getAllCarbonEmissionByCompanyIdAndYearMonth(
-                companyId,
+                company_id,
                 parseInt(year),
                 parseInt(month)
             );
         } else {
             // Call model function for data by year only
             data = await dataCenterDashboard.getAllCarbonEmissionByCompanyIdAndYear(
-                companyId,
+                company_id,
                 parseInt(year)
             );
         }
@@ -503,6 +549,10 @@ const getAllCarbonEmissionByCompanyIdAndDate = async (req, res) => {
 };
 
 const getAllCarbonEmissionByDataCenterAndDate = async (req, res) => {
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const dataCenterId = parseInt(req.params.data_center_id);
     const date = req.query.date;
 
@@ -548,12 +598,10 @@ const getAllCarbonEmissionByDataCenterAndDate = async (req, res) => {
 // --------------------------------------------------------------------------------------------------- fix
 // Controller function to get total renewable energy contribution by company ID
 const getTotalRenewableEnergyByCompanyId = async (req, res) => {
-    const company_id = parseInt(req.params.company_id);
-
+    const company_id = req.user.companyId
     if (!company_id) {
-        return res.status(400).send("company_id is required.");
+        return res.status(400).json({ error: "Company ID is required" });
     }
-
     try {
         const totalRenewableEnergy = await dataCenterDashboard.getTotalRenewableEnergyByCompanyId(company_id);
 
@@ -569,6 +617,10 @@ const getTotalRenewableEnergyByCompanyId = async (req, res) => {
 };
 
 const getTotalRenewableEnergyByDataCenterId = async (req, res) => {
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const data_center_id = parseInt(req.params.data_center_id);
 
     if (!data_center_id) {
@@ -590,6 +642,10 @@ const getTotalRenewableEnergyByDataCenterId = async (req, res) => {
 };
 
 const getTotalRenewableEnergyByDataCenterIdAndDate = async (req, res) => {
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const data_center_id = parseInt(req.params.data_center_id);
     const date = req.query.date;
 
@@ -627,12 +683,11 @@ const getTotalRenewableEnergyByDataCenterIdAndDate = async (req, res) => {
 };
 
 const getTotalRenewableEnergyByCompanyIdAndDate = async (req, res) => {
-    const company_id = parseInt(req.params.company_id);
-    const date = req.query.date;
-
-    if (!company_id || !date) {
-        return res.status(400).send("company_id and date (in YYYY-MM or YYYY format) are required.");
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
     }
+    const date = req.query.date;
 
     try {
         let totalRenewableEnergy;
@@ -670,7 +725,10 @@ const getTotalRenewableEnergyByCompanyIdAndDate = async (req, res) => {
 
 
 const getEnergyConsumptionGroupByDc = async (req, res) => {
-    const company_id = parseInt(req.params.company_id);
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const data_center_id = req.params.data_center_id ? parseInt(req.params.data_center_id) : null;
     const year = req.query.year ? parseInt(req.query.year) : null;
     const month = req.query.month ? parseInt(req.query.month) : null;
@@ -719,7 +777,10 @@ const getEnergyConsumptionGroupByDc = async (req, res) => {
 
 
 const getDevicesCountByCompanyId = async (req, res) => {
-    const company_id = parseInt(req.params.company_id);
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     try {
         const data = await dataCenterDashboard.getDevicesCountByCompanyId(company_id);
         if (!data) {
@@ -733,7 +794,10 @@ const getDevicesCountByCompanyId = async (req, res) => {
 };
 
 const getDevicesCountByCompanyIdAndDc = async (req, res) => {
-    const company_id = parseInt(req.params.company_id); 
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const dc = parseInt(req.params.data_center_id); 
     try {
         const data = await dataCenterDashboard.getDevicesCountByCompanyIdAndDc(company_id, dc);
@@ -750,7 +814,10 @@ const getDevicesCountByCompanyIdAndDc = async (req, res) => {
 
 
 const getDeviceTypesByCompanyId = async (req, res) => {
-    const company_id = parseInt(req.params.company_id); // convert string to integer
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     try {
         const data = await dataCenterDashboard.getDeviceTypesByCompanyId(company_id);
         if (!data) {
@@ -765,7 +832,10 @@ const getDeviceTypesByCompanyId = async (req, res) => {
 
 
 const getDeviceTypesByCompanyIdAndDataCenter = async (req, res) => {
-    const company_id = parseInt(req.params.company_id); // convert string to integer
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     const dc = parseInt(req.params.data_center_id); 
     try {
         const data = await dataCenterDashboard.getDeviceTypesByCompanyIdAndDataCenter(company_id, dc);
@@ -792,7 +862,10 @@ const getDeviceTypesByCompanyIdAndDataCenter = async (req, res) => {
 
 
 const getAllSustainabilityGoalsData = async (req, res) => {
-    const company_id = parseInt(req.params.company_id); // convert string to integer
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
     try {
         const data = await dataCenterDashboard.getAllSustainabilityGoalsData(company_id);
         if (!data) {

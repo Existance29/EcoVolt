@@ -1,3 +1,4 @@
+pageRequireSignIn();
 // Array holding the content for each page
 const tooltipPages = [
     {
@@ -223,7 +224,7 @@ async function loadDataCenterOptions() {
 
     try {
         // Fetch data centers for the company
-        const response = await fetch(`/Dashboard/Data-Center/${company_id}`);
+        const response = await get(`/Dashboard/Data-Center`);
         if (!response.ok) {
             throw new Error(`Failed to load data centers. Status: ${response.status}`);
         }
@@ -256,7 +257,7 @@ async function loadDataCenterOptions() {
 
 async function fetchAvailableDates() {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/AvailableDates/${company_id}`);
+        const response = await get(`/Dashboard/Data-Center/AvailableDates`);
         const data = await response.json();
         console.log("Full fetched data:", data);
 
@@ -362,8 +363,8 @@ async function fetchData() {
     } else if (selectedDate && selectedDataCenter !== "all") {
         // With date, fetch totals for a specific data center by date
         await fetchAllCarbonEmissionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
-        await fetchTotalCarbonEmissionByDataCenterIdAndDate(selectedDataCenter);
-        await fetchTotalEnergyConsumptionByDataCenterIdAndDate(selectedDataCenter); // Fetch energy consumption for the data center by date
+        await fetchTotalCarbonEmissionByDataCenterIdAndDate(selectedDataCenter, selectedDate);
+        await fetchTotalEnergyConsumptionByDataCenterIdAndDate(selectedDataCenter, selectedDate); // Fetch energy consumption for the data center by date
         await fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(selectedDataCenter, selectedDate); // Fetch energy breakdown for the data center by date
         await fetchTotalRenewableEnergyByDataCenterIdAndDate(selectedDataCenter, selectedDate); // Fetch total renewable energy for the data center by date
     }
@@ -377,7 +378,7 @@ async function fetchData() {
 // Case 1: Fetch carbon emissions for all data centers under the company
 async function fetchAllCarbonEmissionByCompanyId() {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/company/${company_id}`);
+        const response = await get(`/Dashboard/Data-Center/CarbonEmission/company`);
         const data = await response.json();
         console.log("Data received from fetchAllCarbonEmissionByCompanyId:", data);
         renderChart(data);
@@ -388,7 +389,7 @@ async function fetchAllCarbonEmissionByCompanyId() {
 // Case 2: Fetch carbon emissions for a specific data center
 async function fetchAllCarbonEmissionByDataCenterId(data_center_id) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/data-center/${data_center_id}`);
+        const response = await get(`/Dashboard/Data-Center/CarbonEmission/data-center/${data_center_id}`);
         const data = await response.json();
         console.log("Data received from fetchAllCarbonEmissionByDataCenterId:", data);
         renderChart(data);
@@ -400,11 +401,11 @@ async function fetchAllCarbonEmissionByDataCenterId(data_center_id) {
 // Case 3: Fetch carbon emissions for all data centers under the company for a specific date - fix
 async function fetchAllCarbonEmissionByCompanyIdAndDate(date) {
     try {
-        const url = `/Dashboard/Data-Center/CarbonEmission/company/${company_id}/date?date=${encodeURIComponent(date)}`;
+        const url = `/Dashboard/Data-Center/CarbonEmission/company/date?date=${encodeURIComponent(date)}`;
         
         console.log("Request URL for company by date:", url);
         
-        const response = await fetch(url);
+        const response = await get(url);
         if (!response.ok) {
             throw new Error(`Failed to fetch data. Status: ${response.status}`);
         }
@@ -429,7 +430,7 @@ async function fetchAllCarbonEmissionByDataCenterIdAndDate(data_center_id, date)
         
         console.log("Request URL for data center by date:", url);
         
-        const response = await fetch(url);
+        const response = await get(url);
         if (!response.ok) {
             throw new Error(`Failed to fetch data. Status: ${response.status}`);
         }
@@ -560,7 +561,7 @@ function renderChart(data) {
 // Function to fetch total carbon emissions for the company
 async function fetchTotalCarbonEmissionByCompanyId() {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/company/${company_id}`);
+        const response = await get(`/Dashboard/Data-Center/CarbonEmission/Sum/company`);
         const data = await response.json();
         console.log("Total Carbon Emission data for company:", data);
         
@@ -576,7 +577,7 @@ async function fetchTotalCarbonEmissionByCompanyId() {
 // Function to fetch total carbon emissions for a specific data center
 async function fetchTotalCarbonEmissionByDataCenterId(data_center_id) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}`);
+        const response = await get(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}`);
         const data = await response.json();
         console.log("Total Carbon Emission data for data center:", data);
         
@@ -605,7 +606,7 @@ async function fetchTotalCarbonEmissionByCompanyIdAndDate() {
     }
 
     try {
-        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
+        const response = await get(`/Dashboard/Data-Center/CarbonEmission/Sum/company/date?date=${encodeURIComponent(selectedDate)}`);
         if (!response.ok) {
             console.error("Failed to fetch data. Server response:", response.statusText);
             return;
@@ -624,21 +625,9 @@ async function fetchTotalCarbonEmissionByCompanyIdAndDate() {
 }
 
 // Function to fetch total carbon emissions for a specific data center using the selected date
-async function fetchTotalCarbonEmissionByDataCenterIdAndDate(data_center_id) {
-    const selectedMonth = monthPicker.value;
-    const selectedYear = yearPicker.value;
-
-    // Construct selectedDate based on available inputs
-    let selectedDate;
-    if (selectedYear) {
-        selectedDate = selectedMonth ? `${selectedYear}-${selectedMonth}` : selectedYear;
-    } else {
-        // If neither year nor month is selected, return or handle the missing date scenario
-        console.error("Please select a year (and optionally a month) to fetch data.");
-        return;
-    }
+async function fetchTotalCarbonEmissionByDataCenterIdAndDate(data_center_id,date) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}/date?date=${selectedDate}`);
+        const response = await get(`/Dashboard/Data-Center/CarbonEmission/Sum/data-center/${data_center_id}/date?date=${date}`);
         const data = await response.json();
         console.log("Total Carbon Emission data for data center by date:", data);
 
@@ -661,7 +650,7 @@ async function fetchTotalCarbonEmissionByDataCenterIdAndDate(data_center_id) {
 // Function to fetch total energy consumption for the company
 async function fetchTotalEnergyConsumptionByCompanyId() {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/${company_id}`);
+        const response = await get(`/Dashboard/Data-Center/EnergyConsumption/Sum/company`);
         const data = await response.json();
         console.log("Total Energy Consumption data for company:", data);
         
@@ -677,7 +666,7 @@ async function fetchTotalEnergyConsumptionByCompanyId() {
 // Function to fetch total energy consumption for a specific data center
 async function fetchTotalEnergyConsumptionByDataCenterId(data_center_id) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}`);
+        const response = await get(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}`);
         const data = await response.json();
         console.log("Total Energy Consumption data for data center:", data);
         
@@ -692,7 +681,7 @@ async function fetchTotalEnergyConsumptionByDataCenterId(data_center_id) {
 // Function to fetch total energy consumption for the company using the selected date
 async function fetchTotalEnergyConsumptionByCompanyIdAndDate(selectedDate) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/${company_id}/date?date=${selectedDate}`);
+        const response = await get(`/Dashboard/Data-Center/EnergyConsumption/Sum/company/date?date=${selectedDate}`);
         const data = await response.json();
         console.log("Total energy consumption data for company by date:", data);
         // Update the total energy consumption display in the stat-value element
@@ -704,13 +693,9 @@ async function fetchTotalEnergyConsumptionByCompanyIdAndDate(selectedDate) {
     }
 }
 // Function to fetch total energy consumption for a specific data center using the selected date
-async function fetchTotalEnergyConsumptionByDataCenterIdAndDate(data_center_id) {
-    const selectedMonth = monthPicker.value;
-    const selectedYear = yearPicker.value;
-    // Combine month and year if both are selected
-    const selectedDate = selectedMonth && selectedYear ? `${selectedYear}-${selectedMonth}` : null;
+async function fetchTotalEnergyConsumptionByDataCenterIdAndDate(data_center_id, date) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}/date?date=${selectedDate}`);
+        const response = await get(`/Dashboard/Data-Center/EnergyConsumption/Sum/data-center/${data_center_id}/date?date=${date}`);
         const data = await response.json();
         console.log("Total Energy Consumption data for data center by date:", data);
 
@@ -733,7 +718,7 @@ async function fetchTotalEnergyConsumptionByDataCenterIdAndDate(data_center_id) 
 // Function to fetch energy consumption breakdown for the company
 async function fetchEnergyConsumptionBreakdownByCompanyId() {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}`);
+        const response = await get(`/Dashboard/Data-Center/EnergyConsumption/company`);
         const data = await response.json();
         console.log("Energy Breakdown data for company:", data);
         renderEnergyBreakdownChart(data); // Render the doughnut chart with the fetched data
@@ -745,7 +730,7 @@ async function fetchEnergyConsumptionBreakdownByCompanyId() {
 // Function to fetch energy consumption breakdown for a specific data center
 async function fetchEnergyConsumptionBreakdownByDataCenterId(data_center_id) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${data_center_id}`);
+        const response = await get(`/Dashboard/Data-Center/EnergyConsumption/data-center/${data_center_id}`);
         const data = await response.json();
         console.log("Energy Breakdown data for data center:", data);
         renderEnergyBreakdownChart(data);
@@ -757,7 +742,7 @@ async function fetchEnergyConsumptionBreakdownByDataCenterId(data_center_id) {
 // Function to fetch energy consumption breakdown for the company using the selected date
 async function fetchEnergyConsumptionBreakdownByCompanyIdAndDate(date) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}/date?date=${date}`);
+        const response = await get(`/Dashboard/Data-Center/EnergyConsumption/company/date?date=${date}`);
         const data = await response.json();
         console.log("Energy Breakdown data for company by date:", data);
         renderEnergyBreakdownChart(data);
@@ -769,7 +754,7 @@ async function fetchEnergyConsumptionBreakdownByCompanyIdAndDate(date) {
 // Function to fetch energy consumption breakdown for a specific data center using the selected date
 async function fetchEnergyConsumptionBreakdownByDataCenterIdAndDate(data_center_id, date) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${data_center_id}/date?date=${date}`);
+        const response = await get(`/Dashboard/Data-Center/EnergyConsumption/data-center/${data_center_id}/date?date=${date}`);
         const data = await response.json();
         console.log("Energy Breakdown data for data center by date:", data);
         renderEnergyBreakdownChart(data);
@@ -890,7 +875,7 @@ function openPopup(dataCenterId, year, month, selectedLabel, selectedColor) {
     const chartType = isDataCenterFiltered ? 'line' : 'bar';
 
     // Construct API URL based on filters
-    let apiUrl = `/Dashboard/Data-Center/EnergyConsumption/GroupByDc/${company_id}`;
+    let apiUrl = `/Dashboard/Data-Center/EnergyConsumption/GroupByDc`;
     if (isDataCenterFiltered) apiUrl += `/${dataCenterId}`;
 
     const queryParams = [];
@@ -899,7 +884,7 @@ function openPopup(dataCenterId, year, month, selectedLabel, selectedColor) {
     if (queryParams.length > 0) apiUrl += `?${queryParams.join('&')}`;
 
     // Fetch data and render the chart
-    fetch(apiUrl)
+    get(apiUrl)
         .then(response => {
             if (!response.ok) throw new Error("Network response was not ok");
             return response.json();
@@ -989,7 +974,7 @@ function closePopup() {
 // Function to fetch and display total renewable energy for the company
 async function fetchTotalRenewableEnergyByCompanyId() {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/company/${company_id}`);
+        const response = await get(`/Dashboard/Data-Center/RenewableEnergy/Total/company`);
         const data = await response.json();
         console.log("Total Renewable Energy data for company:", data);
         
@@ -1006,7 +991,7 @@ async function fetchTotalRenewableEnergyByCompanyId() {
 // Function to fetch and display total renewable energy for a specific data center
 async function fetchTotalRenewableEnergyByDataCenterId(data_center_id) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/data-center/${data_center_id}`);
+        const response = await get(`/Dashboard/Data-Center/RenewableEnergy/Total/data-center/${data_center_id}`);
         const data = await response.json();
         console.log("Total Renewable Energy data for data center:", data);
         
@@ -1023,7 +1008,7 @@ async function fetchTotalRenewableEnergyByDataCenterId(data_center_id) {
 // Function to fetch and display total renewable energy for the company with date
 async function fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/company/${company_id}/date?date=${selectedDate}`);
+        const response = await get(`/Dashboard/Data-Center/RenewableEnergy/Total/company/date?date=${selectedDate}`);
         const data = await response.json();
         console.log("Total Renewable Energy data for company by date:", data);
 
@@ -1040,7 +1025,7 @@ async function fetchTotalRenewableEnergyByCompanyIdAndDate(selectedDate) {
 // Function to fetch and display total renewable energy for a specific data center with date
 async function fetchTotalRenewableEnergyByDataCenterIdAndDate(data_center_id, selectedDate) {
     try {
-        const response = await fetch(`/Dashboard/Data-Center/RenewableEnergy/Total/data-center/${data_center_id}/date?date=${selectedDate}`);
+        const response = await get(`/Dashboard/Data-Center/RenewableEnergy/Total/data-center/${data_center_id}/date?date=${selectedDate}`);
         const data = await response.json();
         console.log("Total Renewable Energy data for data center by date:", data);
 
@@ -1060,7 +1045,7 @@ let targetValues = {};
 // Function to fetch target values for each metric
 async function fetchTargetValues() {
     try {
-        const response = await fetch(`/Dashboard/sustainability-goals/${company_id}`);
+        const response = await get(`/Dashboard/sustainability-goals`);
         const goalsData = await response.json();
 
         // Map target values based on key phrases in `goal_name`
@@ -1093,13 +1078,13 @@ async function fetchMetricData(metric) {
     try {
         // Determine the endpoint based on filters
         if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
-            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}`);
+            response = await get(`/Dashboard/Data-Center/EnergyConsumption/company`);
         } else if (!selectedDate && selectedDataCenter !== "all") {
-            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${selectedDataCenter}`);
+            response = await get(`/Dashboard/Data-Center/EnergyConsumption/data-center/${selectedDataCenter}`);
         } else if (selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
-            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/company/${company_id}/date?date=${encodeURIComponent(selectedDate)}`);
+            response = await get(`/Dashboard/Data-Center/EnergyConsumption/company/date?date=${encodeURIComponent(selectedDate)}`);
         } else if (selectedDate && selectedDataCenter !== "all") {
-            response = await fetch(`/Dashboard/Data-Center/EnergyConsumption/data-center/${selectedDataCenter}/date?date=${encodeURIComponent(selectedDate)}`);
+            response = await get(`/Dashboard/Data-Center/EnergyConsumption/data-center/${selectedDataCenter}/date?date=${encodeURIComponent(selectedDate)}`);
         }
 
         const data = await response.json();
@@ -1221,14 +1206,14 @@ async function fetchDeviceCount() {
     let apiUrl;
     if (selectedDataCenter === "all" || !selectedDataCenter) {
         // No specific data center selected, fetch count for all devices under the company
-        apiUrl = `/Dashboard/Data-Center/Devices/${company_id}`;
+        apiUrl = `/Dashboard/Data-Center/Devices`;
     } else {
         // Specific data center selected, fetch count for devices in that data center
-        apiUrl = `/Dashboard/Data-Center/Devices/${company_id}/${selectedDataCenter}`;
+        apiUrl = `/Dashboard/Data-Center/Devices/${selectedDataCenter}`;
     }
 
     try {
-        const response = await fetch(apiUrl);
+        const response = await get(apiUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch device count. Status: ${response.status}`);
         }
@@ -1267,13 +1252,13 @@ async function fetchDeviceTypesData() {
     let apiUrl;
     // Determine the endpoint based on the selected data center
     if (selectedDataCenter === "all" || !selectedDataCenter) {
-        apiUrl = `/Dashboard/Data-Center/DevicesTypes/${company_id}`;
+        apiUrl = `/Dashboard/Data-Center/DevicesTypes`;
     } else {
-        apiUrl = `/Dashboard/Data-Center/DevicesTypes/${company_id}/${selectedDataCenter}`;
+        apiUrl = `/Dashboard/Data-Center/DevicesTypes/${selectedDataCenter}`;
     }
 
     try {
-        const response = await fetch(apiUrl);
+        const response = await get(apiUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch device types. Status: ${response.status}`);
         }
