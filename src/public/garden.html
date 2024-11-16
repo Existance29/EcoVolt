@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/garden.css">
+    <link rel="stylesheet" href="./styles/overviewDashboard.css">
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Afacad' rel='stylesheet'>
+    <title>Virtual Garden</title>
+</head>
+<body>
+    <aside class="sidebar">
+    </aside>
+
+    <main class="main-content">
+        <h1 id="virtual-garden-title">Virtual Garden</h1>
+        <div class="page-navigation">
+            <button id="activityFeedButton" class="nav-button active">Activity Feed</button>
+            <button id="virtualGardenButton" class="nav-button">Virtual Garden</button>
+        </div>
+    
+        <!-- Main Garden Container -->
+        <div class="garden-container">
+            <div class="carousel-container">
+                <!-- External Heading -->
+                <h4 id="carousel-heading"></h4>
+            
+                <button id="carousel-prev" class="carousel-button">‹</button>
+                <div class="carousel-track-container">
+                    <div class="carousel-track">
+                        <!-- Card 1 -->
+                        <div class="info-card" data-heading="Game Introduction">
+                            <p>Welcome to the Virtual Garden! Track your sustainability goals and watch your garden grow. For each goal that reaches 100%, a tree will be planted. When all five goals reach 100%, every employee earns a badge on their profile!</p>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="info-card" data-heading="Overall Progress Towards Net Zero">
+                            <p>This goal tracks your company's journey towards achieving net zero emissions by 2050. The closer you get to 100%, the closer you are to a sustainable future!</p>
+                            <br><br>
+                            <p id="goal-status-1">Status: </p>
+                        </div>
+                        <!-- Card 3 -->
+                        <div class="info-card" data-heading="Carbon Usage Effectiveness (CUE)">
+                            <p>CUE measures the efficiency of your carbon usage. Lower values indicate better efficiency in minimizing carbon emissions from energy use in your data centers.</p>
+                            <br><br>
+                            <p id="goal-status-2">Status: </p>
+                        </div>
+                        <!-- Card 4 -->
+                        <div class="info-card" data-heading="Power Usage Effectiveness (PUE)">
+                            <p>PUE assesses the ratio of total facility energy to the energy used by IT equipment. A lower PUE indicates more efficient power usage.</p>
+                            <br><br>
+                            <p id="goal-status-3">Status: </p>
+                        </div>
+                        <!-- Card 5 -->
+                        <div class="info-card" data-heading="Renewable Energy Usage">
+                            <p>This goal reflects the percentage of your facility’s energy sourced from renewables. Higher percentages mean a stronger commitment to clean energy.</p>
+                            <br><br>
+                            <p id="goal-status-4">Status: </p>
+                        </div>
+                        <!-- Card 6 -->
+                        <div class="info-card" data-heading="Water Usage Effectiveness (WUE)">
+                            <p>WUE measures water efficiency in data centers. Lower values signify efficient water use, helping reduce the environmental impact.</p>
+                            <br><br>
+                            <p id="goal-status-5">Status: </p>
+                        </div>
+                    </div>
+                </div>
+                <button id="carousel-next" class="carousel-button">›</button>
+            </div>
+            
+        
+            <!-- Tree Visualization Section -->
+            <div id="container-tree" class="tree-visualization"></div>
+
+            <!-- Garden Info Section -->
+            <div class="garden-info">
+                <p>Celebrate your sustainability achievements by planting a tree!</p>
+            
+                <!-- Button to add badge -->
+                <button id="add-badge-button" class="add-badge-button" disabled>
+                    Plant all 5 trees to unlock this feature
+                </button>
+            </div>
+        </div>
+                                    
+        <!-- Badge Modal -->
+        <div id="garden-badge-modal" class="garden-badge-modal">
+            <div class="garden-badge-modal-content">
+                <span id="garden-close-modal-btn" class="garden-close-btn">×</span> <!-- Close button -->
+                <img src="./assets/tree/banner.jpg" alt="Badge Image" class="garden-badge-image">
+                <p>This badge has been added to your profile picture!</p>
+                <button id="garden-view-profile-btn" class="garden-view-profile-btn">View Profile Page</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="./scripts/common.js"></script>
+    <script src="./scripts/garden.js" type="module"></script>
+</body>
+</html>

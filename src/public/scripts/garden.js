@@ -62,11 +62,22 @@ async function fetchGoalsAndPlantTrees(scene) {
                 target_value: 100
             });
 
-            goals.forEach(goal => {
+            goals.forEach((goal, index)=> {
                 // plantTree(scene, goalCoordinates[treesPlanted]);
                 // treesPlanted++;
                 console.log("Checking goal:", goal);
+                const statusElement = document.getElementById(`goal-status-${index + 1}`);
+                if (statusElement) {
+                    const progressPercentage = goal.goal_name === "Renewable Energy Usage" || goal.goal_name === "Overall Progress"
+                        ? (goal.current_value / goal.target_value) * 100
+                        : (goal.target_value / goal.current_value) * 100;
 
+                    if (progressPercentage >= 100) {
+                        statusElement.textContent = "Status: Completed";
+                    } else {
+                        statusElement.textContent = "Status: In Progress";
+                    }
+                }
                 // Determine if the goal is "higher is better" or "lower is better"
                 const isHigherBetter = ['Renewable Energy Usage', 'Overall Progress'].includes(goal.goal_name);
 
@@ -185,69 +196,84 @@ document.getElementById("garden-view-profile-btn").addEventListener("click", fun
 
 
 
+// Function to fetch the company name and update the title
+async function fetchCompanyNameAndUpdateTitle() {
+    try {
+        const company_id = sessionStorage.getItem("company_id") || localStorage.getItem("company_id");
+        const response = await fetch(`/VirtualGarden/CompanyName/${company_id}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken')}`,
+                'Company-ID': company_id
+            }
+        });
 
+        if (!response.ok) {
+            throw new Error(`Failed to fetch company name: ${response.statusText}`);
+        }
 
+        const data = await response.json();
 
-
-
-
-
-// GARDEN INFORMATION CARDS WHICH R IN TOOLTIP-------------------------------------------------------------------
-
-// Initialize the tooltip slides and navigation
-let currentSlide = 0;
-const slides = document.querySelectorAll(".tooltip-slide");
-const nextBtn = document.getElementById("tooltip-next");
-const prevBtn = document.getElementById("tooltip-prev");
-const closeBtn = document.getElementById("tooltip-close-btn");
-const tooltipCards = document.getElementById("gardenInfoTooltipCards");
-const lightbulbTooltip = document.getElementById("lightbulb-tooltip");
-
-// Function to update slide visibility
-function updateSlides() {
-    slides.forEach((slide, index) => {
-        slide.classList.toggle("active", index === currentSlide);
-    });
-    prevBtn.disabled = currentSlide === 0;
-    nextBtn.disabled = currentSlide === slides.length - 1;
+        // Check if the response is an array and has at least one element
+        if (Array.isArray(data) && data.length > 0 && data[0].name) {
+            const titleElement = document.getElementById('virtual-garden-title');
+            titleElement.textContent = `${data[0].name}'s Virtual Garden`;
+        } else {
+            console.error("Company name not found in response:", data);
+        }
+    } catch (error) {
+        console.error("Error fetching company name:", error);
+    }
 }
 
-// Event listeners for navigation buttons
-nextBtn.addEventListener("click", () => {
-    if (currentSlide < slides.length - 1) {
-        currentSlide++;
-        updateSlides();
-    }
-});
+// Call the function to fetch the company name and update the title
+fetchCompanyNameAndUpdateTitle();
 
-prevBtn.addEventListener("click", () => {
-    if (currentSlide > 0) {
-        currentSlide--;
-        updateSlides();
-    }
-});
 
-// Event listener to close the modal
-closeBtn.addEventListener("click", () => {
-    tooltipCards.style.display = "none";
-    document.body.removeChild(document.getElementById("blurBackground"));
-});
 
-// Open the modal when clicking the lightbulb icon
-lightbulbTooltip.addEventListener("click", () => {
-    tooltipCards.style.display = "block";
-    currentSlide = 0; // Start from the first slide
-    updateSlides();
 
-    // Create and add blurred background
-    const blurBackground = document.createElement("div");
-    blurBackground.className = "garden-blur-background";
-    blurBackground.id = "blurBackground";
-    document.body.appendChild(blurBackground);
 
-    // Close the modal when clicking outside
-    blurBackground.addEventListener("click", () => {
-        tooltipCards.style.display = "none";
-        document.body.removeChild(blurBackground);
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.querySelector('.carousel-track');
+    const cards = Array.from(track.children);
+    const prevButton = document.getElementById('carousel-prev');
+    const nextButton = document.getElementById('carousel-next');
+    const headingElement = document.getElementById('carousel-heading');
+
+    let currentIndex = 0;
+
+    // Update heading based on the current card
+    const updateHeading = (index) => {
+        const currentCard = cards[index];
+        const headingText = currentCard.getAttribute('data-heading');
+        headingElement.textContent = headingText;
+    };
+
+    // Move to the next or previous card
+    const moveToCard = (index) => {
+        const cardWidth = cards[0].getBoundingClientRect().width;
+        track.style.transform = `translateX(-${index * cardWidth}px)`;
+        currentIndex = index;
+        updateHeading(currentIndex);
+        updateButtons();
+    };
+
+    // Enable/disable navigation buttons
+    const updateButtons = () => {
+        prevButton.disabled = currentIndex === 0;
+        nextButton.disabled = currentIndex === cards.length - 1;
+    };
+
+    // Event Listeners
+    prevButton.addEventListener('click', () => {
+        if (currentIndex > 0) moveToCard(currentIndex - 1);
     });
+
+    nextButton.addEventListener('click', () => {
+        if (currentIndex < cards.length - 1) moveToCard(currentIndex + 1);
+    });
+
+    // Initialize the first card and heading
+    updateHeading(currentIndex);
+    updateButtons();
 });

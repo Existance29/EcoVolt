@@ -12,20 +12,18 @@ body {
     line-height: 1.6;
 }
 
-.content {
-    margin-left: 240px;
-    padding: 20px;
-    box-sizing: border-box;
+h1 {
+    color: #4FD1C5;
+    margin: 0;
+    font-size: 2.5rem;
+    text-align: left; /* Aligns the text to the left */
+    display: flex;
+    justify-content: flex-start; /* Aligns the flex content to the start */
     align-items: center;
+    padding-left: 50.5%; /* Adjust the value to move it further right */
+    height: 150px; /* Adjust the height as needed */
 }
 
-h1 {
-    margin-left: 240px;
-    text-align: center;
-    color: #3BCBBE;
-    margin: 20px 0;
-    font-size: 2.5em;
-}
 
 
 /* Filter and sort styles */
@@ -65,22 +63,6 @@ h1 {
 
 label {
     font-weight: bold;
-}
-
-/* Main content area */
-.content {
-    margin-left: 270px; 
-    padding: 20px 30px;
-    margin-top: 50px;
-    transition: margin-left 0.3s ease-in-out;
-}
-
-/* Header Styles */
-h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #4FD1C5;
-    margin-bottom: 20px;
 }
 
 h2.subtitle {
