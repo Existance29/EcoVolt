@@ -120,9 +120,7 @@ CREATE TABLE company_sustainability_goals (
     company_id INT NOT NULL,
     goal_name VARCHAR(255) NOT NULL,
     target_value DECIMAL(10, 2),
-    current_value DECIMAL(10, 2),
     target_year INT NOT NULL,
-    progress DECIMAL(4, 2),
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
@@ -1888,32 +1886,29 @@ VALUES
     (20, '2021-10-01', 900.00, 39.0);
 
 
--- Insert sample data into company_sustainability_goals table with CUE goals
-INSERT INTO company_sustainability_goals (company_id, goal_name, target_value, current_value, target_year, progress)
+INSERT INTO company_sustainability_goals (company_id, goal_name, target_value, target_year)
 VALUES
-    -- Singtel goals
-    (1, 'CUE (Carbon Usage Effectiveness)', 1.40, 1.50, 2025, 0.60),  -- Target lower
-    (1, 'PUE (Power Usage Effectiveness)', 1.40, 1.55, 2025, 0.85),  -- Target lower
-    (1, 'Renewable Energy Usage', 30.00, 35.00, 2025, 1.00),  -- Target met (higher target)
-    (1, 'Water Usage Reduction (WUE)', 1.10, 1.30, 2025, 0.78),  -- Target lower
+    (1, 'CUE (Carbon Usage Effectiveness)', 0.25, 2025),
+    (1, 'PUE (Power Usage Effectiveness)', 1.10, 2025),
+    (1, 'Renewable Energy Usage', 50.00, 2025),
+    (1, 'Water Usage Reduction (WUE)', 0.90, 2025),
 
-    -- M1 goals
-    (2, 'CUE (Carbon Usage Effectiveness)', 0.35, 0.46, 2025, 0.73),  -- Target lower
-    (2, 'PUE (Power Usage Effectiveness)', 1.30, 1.60, 2025, 0.78),  -- Target lower
-    (2, 'Renewable Energy Usage', 35.00, 40.00, 2025, 1.00),  -- Target met (higher target)
-    (2, 'Water Usage Reduction (WUE)', 1.15, 1.28, 2025, 0.87),  -- Target lower
+    (2, 'CUE (Carbon Usage Effectiveness)', 0.30, 2025),
+    (2, 'PUE (Power Usage Effectiveness)', 1.20, 2025),
+    (2, 'Renewable Energy Usage', 55.00, 2025),
+    (2, 'Water Usage Reduction (WUE)', 0.85, 2025),
 
-    -- SIMBA goals
-    (3, 'CUE (Carbon Usage Effectiveness)', 0.30, 0.40, 2025, 0.69),  -- Target lower
-    (3, 'PUE (Power Usage Effectiveness)', 1.50, 1.68, 2025, 0.87),  -- Target lower
-    (3, 'Renewable Energy Usage', 40.00, 45.00, 2025, 1.00),  -- Target met (higher target)
-    (3, 'Water Usage Reduction (WUE)', 1.20, 1.22, 2025, 0.98),  -- Target lower
+    (3, 'CUE (Carbon Usage Effectiveness)', 0.20, 2025),
+    (3, 'PUE (Power Usage Effectiveness)', 1.00, 2025),
+    (3, 'Renewable Energy Usage', 70.00, 2025),
+    (3, 'Water Usage Reduction (WUE)', 0.80, 2025),
 
-    -- StarHub goals
-    (4, 'CUE (Carbon Usage Effectiveness)', 0.45, 0.54, 2025, 0.54),  -- Target lower
-    (4, 'PUE (Power Usage Effectiveness)', 1.35, 1.50, 2025, 0.86),  -- Target lower
-    (4, 'Renewable Energy Usage', 20.00, 23.00, 2025, 1.00),  -- Target met (higher target)
-    (4, 'Water Usage Reduction (WUE)', 1.05, 1.45, 2025, 0.71);  -- Target lower
+    (4, 'CUE (Carbon Usage Effectiveness)', 0.40, 2025),
+    (4, 'PUE (Power Usage Effectiveness)', 1.15, 2025),
+    (4, 'Renewable Energy Usage', 60.00, 2025),
+    (4, 'Water Usage Reduction (WUE)', 0.95, 2025);
+
+
 
 
     
