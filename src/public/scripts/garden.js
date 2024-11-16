@@ -10,21 +10,31 @@ const goalCoordinates = [
     { x: 5.61514304939320275, y: 2.5, z: -9.102356010995563 }
 ];
 
-// Function to display overall progress towards net zero by 2050
+// Function to calculate overall progress towards net zero by 2050
 function calculateOverallProgress(goals) {
     let totalProgress = 0;
 
     goals.forEach(goal => {
-        if (goal.current_value > goal.target_value) {
-            const progressTowardTarget = ((goal.current_value - goal.target_value) / goal.current_value) * 100;
-            totalProgress += Math.min(progressTowardTarget, 100);
+        let progressPercentage = 0;
+
+        if (goal.goal_name === "Renewable Energy Usage") {
+            // Higher current value means better progress
+            progressPercentage = goal.current_value >= goal.target_value
+                ? 100
+                : (goal.current_value / goal.target_value) * 100;
         } else {
-            totalProgress += 100;
+            // Lower current value means better progress
+            progressPercentage = goal.current_value <= goal.target_value
+                ? 100
+                : (goal.target_value / goal.current_value) * 100;
         }
+
+        totalProgress += Math.min(progressPercentage, 100);
     });
 
     return totalProgress / goals.length; // Return the average progress
 }
+
 
 
 // Function to fetch sustainability goals and plant trees if goals are completed
