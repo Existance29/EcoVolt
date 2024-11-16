@@ -105,16 +105,99 @@ const DashboardModel = {
             const result = await new sql.Request()
                 .input("company_id", sql.Int, company_id)
                 .query(`
-                    SELECT 
-                        goal_name, 
-                        target_value, 
-                        current_value,
-                        CASE 
-                            WHEN target_value = 0 THEN 0
-                            ELSE (current_value / target_value) * 100 
-                        END AS progress
-                    FROM company_sustainability_goals
-                    WHERE company_id = @company_id;
+                   WITH DataCenterRenewableEnergy AS (
+    SELECT
+        dc.data_center_id,
+        c.company_id,
+        dc.date,
+        dc.total_energy_mwh * 1000 AS total_energy_kwh, -- Convert MWh to kWh
+        (dc.total_energy_mwh * 1000 * ce.renewable_energy_percentage / 100) AS renewable_energy_kwh, -- Calculate renewable energy in kWh
+        dc.pue,
+        dc.cue,
+        dc.wue
+    FROM
+        data_center_energy_consumption dc
+    INNER JOIN
+        data_centers c ON dc.data_center_id = c.id
+    INNER JOIN
+        data_center_carbon_emissions ce ON dc.data_center_id = ce.data_center_id AND dc.date = ce.date
+    WHERE
+        c.company_id = @company_id -- Filter by company_id
+),
+CellTowerEnergy AS (
+    SELECT
+        ct.cell_tower_id,
+        t.company_id,
+        ct.date,
+        ct.total_energy_kwh,
+        ct.renewable_energy_kwh,
+        ROUND(ct.total_energy_kwh / NULLIF(ct.radio_equipment_energy_kwh, 0), 2) AS pue, -- PUE calculation
+        ROUND(ct.carbon_emission_kg / NULLIF(ct.total_energy_kwh, 0), 2) AS cue, -- CUE calculation
+        NULL AS wue -- No WUE for cell towers
+    FROM
+        cell_tower_energy_consumption ct
+    INNER JOIN
+        cell_towers t ON ct.cell_tower_id = t.id
+    WHERE
+        t.company_id = @company_id -- Filter by company_id
+),
+CombinedData AS (
+    SELECT
+        company_id,
+        total_energy_kwh,
+        renewable_energy_kwh,
+        pue,
+        cue,
+        wue
+    FROM
+        DataCenterRenewableEnergy
+    UNION ALL
+    SELECT
+        company_id,
+        total_energy_kwh,
+        renewable_energy_kwh,
+        pue,
+        cue,
+        wue
+    FROM
+        CellTowerEnergy
+),
+AggregatedData AS (
+    SELECT
+        company_id,
+        CAST(AVG(pue) AS DECIMAL(5, 2)) AS avg_pue,
+        CAST(AVG(cue) AS DECIMAL(5, 2)) AS avg_cue,
+        CAST(AVG(wue) AS DECIMAL(5, 2)) AS avg_wue,
+        CAST(SUM(renewable_energy_kwh) / NULLIF(SUM(total_energy_kwh), 0) * 100 AS DECIMAL(5, 2)) AS avg_renewable_energy_percentage
+    FROM
+        CombinedData
+    GROUP BY
+        company_id
+)
+SELECT
+    g.company_id,
+    g.goal_name,
+    g.target_value,
+    CASE
+        WHEN g.goal_name = 'Renewable Energy Usage' THEN ad.avg_renewable_energy_percentage
+        WHEN g.goal_name = 'PUE (Power Usage Effectiveness)' THEN ad.avg_pue
+        WHEN g.goal_name = 'CUE (Carbon Usage Effectiveness)' THEN ad.avg_cue
+        WHEN g.goal_name = 'Water Usage Reduction (WUE)' THEN ad.avg_wue
+    END AS current_value,
+    CASE
+        WHEN g.goal_name = 'Renewable Energy Usage' THEN (ad.avg_renewable_energy_percentage / g.target_value) * 100
+        WHEN g.goal_name = 'PUE (Power Usage Effectiveness)' THEN (g.target_value / NULLIF(ad.avg_pue, 0)) * 100
+        WHEN g.goal_name = 'CUE (Carbon Usage Effectiveness)' THEN (g.target_value / NULLIF(ad.avg_cue, 0)) * 100
+        WHEN g.goal_name = 'Water Usage Reduction (WUE)' THEN (g.target_value / NULLIF(ad.avg_wue, 0)) * 100
+    END AS progress_percentage
+FROM
+    company_sustainability_goals g
+LEFT JOIN
+    AggregatedData ad ON g.company_id = ad.company_id
+WHERE
+    g.company_id = @company_id; -- Filter for the specific company
+
+
                 `);
     
             return result.recordset;
