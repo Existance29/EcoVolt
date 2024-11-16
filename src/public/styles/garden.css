@@ -115,6 +115,8 @@ h1 {
     height: auto;  /* Maintain aspect ratio */
     max-width: 100%; /* Prevents overflow */
     margin-bottom: 15px;
+    margin-left: 5%;
+    justify-content: center;
 }
 
 /* Base button styling */
@@ -331,12 +333,12 @@ button.add-badge-button:focus {
     box-sizing: border-box;
 }
 
-#carousel-heading {
-    font-size: 2em;
-    font-weight: bold;
-    color: #4FD1C5; /* Black text for better readability */
-    text-align: center;
-    margin-bottom: 20px; /* Space between heading and carousel */
+.info-card h4.card-heading {
+    font-size: 1.5em; /* Set a reasonable font size */
+    font-weight: bold; /* Make it bold */
+    color: #4FD1C5; /* Black color for better readability */
+    text-align: center; /* Center-align the heading */
+    margin-bottom: 25px; /* Add space below the heading */
 }
 
 
