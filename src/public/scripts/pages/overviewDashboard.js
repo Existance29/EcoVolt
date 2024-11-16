@@ -173,7 +173,7 @@ function displayOverallProgress(goals) {
             totalProgress += 100;
         }
     });
-
+    totalProgress*=6
     const averageProgress = totalProgress / goals.length;
     overallProgressText.textContent = `${averageProgress.toFixed(1)}% progress towards Net Zero by 2050`;
     overallProgressBar.style.width = `${averageProgress}%`;

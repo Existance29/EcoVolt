@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const reportTitle = document.getElementById('reportTitle');
     let reportChart = null;
     let company_id = null;
+    let reportData = null; // Define reportData globally to access it later in PDF generation
 
     const loadingScreen = document.getElementById('loading-screen');
 
@@ -18,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         loadingScreen.style.display = 'none';
         document.getElementById('reportContentWrapper').classList.remove('hidden');
     }
-
 
     // Initialize company_id before calling fetchReportData
     async function initializeCompanyId() {
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         })
         .then(response => response.json())
         .then(data => {
-            // Update company name and year in the report title
+            reportData = data; // Store data globally for access in PDF generation
             reportTitle.innerText = `${data.reportData[0]?.companyName || 'Company'} Sustainability Report ${year}`;
 
             document.getElementById('executiveSummary').innerText = data.executiveSummary;
@@ -77,22 +77,20 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     await initializeCompanyId();
 
+    // Generate PDF report on button click
     generateReportBtn.addEventListener('click', function () {
+        if (!reportData) {
+            statusMessage.innerText = "No data available for generating PDF.";
+            return;
+        }
+
         statusMessage.innerText = "Generating PDF report...";
         showLoading();
-
-        const chartCanvas = document.getElementById('dataChart');
-        const chartContainer = document.getElementById('chart-container');
-        const chartImage = new Image();
-        chartImage.src = chartCanvas.toDataURL('image/png');
-        chartImage.style.width = chartCanvas.style.width;
-        chartImage.style.height = chartCanvas.style.height;
-        chartContainer.replaceChild(chartImage, chartCanvas);
 
         const element = document.getElementById('reportContent');
         const opt = {
             margin: 0,
-            filename: `${data.reportData[0]?.companyName.innerText}_Report_${yearSelector.value || '2024'}.pdf`,
+            filename: `${reportData.reportData[0]?.companyName || 'Company'}_Report_${yearSelector.value || '2024'}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
