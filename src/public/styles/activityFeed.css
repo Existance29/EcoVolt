@@ -1,12 +1,15 @@
-body {
+body, html {
     margin: 0;
-    font-family: 'Afacad', sans-serif;
-    background-color: #F0F4F7;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    padding: 20px;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Global Styles */
+body {
+    background-color: #f5f8fa; 
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
 }
 
 .content {
@@ -16,13 +19,14 @@ body {
     align-items: center;
 }
 
-/* Main title styles */
 h1 {
+    margin-left: 240px;
     text-align: center;
     color: #3BCBBE;
     margin: 20px 0;
     font-size: 2.5em;
 }
+
 
 /* Filter and sort styles */
 .filter-sort {
@@ -63,37 +67,95 @@ label {
     font-weight: bold;
 }
 
-.subtitle {
-    margin: 20px;
+/* Main content area */
+.content {
+    margin-left: 270px; 
+    padding: 20px 30px;
+    margin-top: 50px;
+    transition: margin-left 0.3s ease-in-out;
 }
-/* Post styles */
+
+/* Header Styles */
+h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #4FD1C5;
+    margin-bottom: 20px;
+}
+
+h2.subtitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #4FD1C5;
+    margin-top: 20px;
+    text-align: left;
+}
+
+/* Reward Progress Container */
+.reward-progress-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reward-progress-container h5 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #4FD1C5;
+    margin-bottom: 10px;
+}
+
+.reward-progress-container {
+    width: 100%;
+    background-color: #eee;
+    border-radius: 8px;
+    height: 8px;
+    margin-top: 10px;
+}
+
+/* Posts Section */
 .posts {
-    width: 70%;
-    margin-right: 30px;
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .post {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
 .post-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    margin-bottom: 15px;
+}
+
+.post-header h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
 }
 
 .timestamp {
-    font-size: 0.9em;
-    color: gray;
+    font-size: 0.9rem;
+    color: #888;
 }
 
 .post-content {
-    margin: 10px 0;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    line-height: 1.8;
 }
 
 .post-footer {
@@ -103,116 +165,126 @@ label {
     padding: 5px;
 }
 
-.action-buttons {
+.post-footer .action-btn {
     display: flex;
-    gap: 5px;
+    gap: 15px; 
 }
 
 .action-btn {
-    background: none;  
-    border: none;      
+    background: none;
+    border: none;
+    color: #4FD1C5;
     cursor: pointer;
-    font-size: 1.0 em;
-    color: #3BCBBE;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .action-btn:hover {
-    color: #34a6a6;
-    transform: scale(1.1);  /* Slight zoom effect */
+    color: #1dc1b0; 
+}
+
+.like-button, .dislike-button, .comment-button {
+    display: flex;
+    align-items: center;
+}
+
+.like-button i, .dislike-button i, .comment-button i {
+    margin-right: 8px;
+    font-size: 1.3rem;
+}
+
+
+.like-button i {
+    color: #99e093;
+}
+
+.dislike-button i {
+    color: #f78f8c;
+}
+
+.comment-button i {
+    color: #5ad7fd;
+}
+
+.like-button:hover i, .dislike-button:hover i, .comment-button:hover i {
+    transform: scale(1.4);
 }
 
 .fa-thumbs-up, .fa-thumbs-down, .fa-comment {
     padding: 5px;
 }
 
-.reward-progress-container {
-    width: 20%;
-    position: -webkit-sticky; 
-    position: sticky;
-    top: 20px;
-    right: 0;
-    background-color: #3BCBBE;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column; 
-    align-items: flex-end; 
-    z-index: 10;
-    cursor: pointer;
-}
-
-.reward-progress-container:hover {
-    background-color: #34a6a6;
-}
-
-.reward-progress-container h5 {
-    font-size: 100%;
-    color: white;
-    display: flex;
-    align-self: center;
-    text-align: center;
-}
-
-.comments-container {
-    margin-top: 10px;
-    padding: 15px;
-    background-color: #f1f1f1;
-    border-top: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-.comment {
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 6=50%;
+    transform: translate(-50%, -50%);
     background-color: #fff;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1001;
+    max-width: 500px;
+    width: 100%;
 }
 
-.new-comment {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-top: 10px;
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+
 }
 
-#new-comment {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #c0e0de;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    font-size: 1em;
-    color: #333;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: border-color 0.3s, box-shadow 0.3s;
+.modal-content input,
+.modal-content select {
+    margin: 15px 0;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ddd;
 }
 
-#new-comment::placeholder {
-    color: #a3c3be; 
+#submitPostBtn {
+padding: 12px 25px;
+background-color: #4FD1C5;
+color: white;
+border: none;
+border-radius: 6px;
+cursor: pointer;
+font-size: 1.2rem;
+font-weight: 600;
 }
 
-#new-comment:focus {
-    border-color: #3BCBBE;
-    outline: none;
-    background-color: #e7fcfa;
-    box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.15);
+#submitPostBtn:hover {
+background-color: #1dc1b0;
 }
 
-.add-comment-btn {
-    padding: 8px 12px;
-    background-color: #3BCBBE;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+/* Close button in modal */
+#closeModalBtn {
+font-size: 1.8rem;
+color: #888;
+cursor: pointer;
+align-self: flex-end;
 }
 
-.add-comment-btn:hover {
-    background-color: #34a6a6;
+#closeModalBtn:hover {
+color: #4FD1C5;
 }
+
+/* Floating Add New Post Button */
 .new-post-button {
     position: fixed;
     bottom: 30px;
@@ -237,70 +309,37 @@ label {
     background-color: #34a6a6;
 }
 
-.modal {
-    display: none; 
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); 
-    z-index: 1000; 
-    justify-content: center;
-    align-items: center;
+
+/* Comments Section */
+.comments-container {
+display: none;
+padding: 20px;
+background-color: #fff;
+border-radius: 10px;
+box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
 }
 
-.modal.show {
-    display: flex;
-    flex-direction: column;
-} 
-
-
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    max-width: 90%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    position: relative;
+.comments-container h3 {
+font-size: 1.3rem;
+font-weight: 600;
+color: #333;
 }
 
-.close {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
-    cursor: pointer;
+.comment {
+background-color: #e0f7fa;
+padding: 12px;
+border-radius: 6px;
+margin-bottom: 10px;
+transition: background-color 0.3s ease;
 }
 
-.modal-content input[type="text"],
-.modal-content input[type="number"],
-.modal-content select {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 16px;
+.comment-header {
+display: flex;
+justify-content: space-between;
+margin-bottom: 8px;
 }
 
-#submitPostBtn {
-    background-color: #3BCBBE;
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    width: 70%;
-    margin: 20px auto 0px;
-    transition: background-color 0.3s;
-    display: block;
-    text-align: center;
-}
-
-#submitPostBtn:hover {
-    background-color: #34a6a6;
+.comment-content {
+font-size: 1.1rem;
+line-height: 1.6;
 }
