@@ -1423,6 +1423,39 @@ static async getDeviceTypesByCompanyIdAndDataCenter(company_id, dc) {
 }
 
 
+
+
+
+
+
+static async getCompanyName(company_id) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const sqlQuery = `
+        select name from companies WHERE id = @company_id
+        `; 
+        const request = connection.request();
+        request.input('company_id', company_id);
+        const result = await request.query(sqlQuery);
+        if(result.recordset.length === 0) {
+            return null;
+        }
+        return result.recordset;
+    } catch (error) {
+        throw new Error("Error retrieving Company Name");
+    } finally { 
+        if (connection) {
+            await connection.close();
+        }
+    }
+}
+
+
+
+
+
+
         static async getAllSustainabilityGoalsData(company_id) {
         let connection;
         try {

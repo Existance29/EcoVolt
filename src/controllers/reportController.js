@@ -306,6 +306,22 @@ const getAvailableMonthsAndYears = async (req, res) => {
 };
 
 
+// Get all available years for reports
+const getAllYearsReport = async (req, res) => {
+    const { company_id } = req.query; // Pass company_id as query parameter
+
+    try {
+        const years = await Report.getAllYearsReport(company_id);
+        res.status(200).json({ years });
+    } catch (error) {
+        console.error("Error retrieving available years:", error);
+        res.status(500).json({ error: "Failed to retrieve available years" });
+    }
+};
+
+
+
+
 
 module.exports = {
     getAllReport,
@@ -313,4 +329,5 @@ module.exports = {
     forceGenerateReportData,
     generateReportPDF,
     getAvailableMonthsAndYears,
+    getAllYearsReport,
 };
