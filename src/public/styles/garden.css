@@ -396,6 +396,7 @@ button.add-badge-button:focus {
 
 .contribution-container {
     margin: 40px auto; /* Center the container */
+    max-width: auto;
     font-family: Arial, sans-serif;
     color: #333;
     max-width: 100%; /* Take up almost the entire width of the main content */
