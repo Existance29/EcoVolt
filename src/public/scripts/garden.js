@@ -63,8 +63,8 @@ async function fetchGoalsAndPlantTrees(scene) {
             });
 
             goals.forEach((goal, index)=> {
-                plantTree(scene, goalCoordinates[treesPlanted]);
-                treesPlanted++;
+                // plantTree(scene, goalCoordinates[treesPlanted]);
+                // treesPlanted++;
                 console.log("Checking goal:", goal);
                 const statusElement = document.getElementById(`goal-status-${index + 1}`);
                 if (statusElement) {
@@ -78,21 +78,21 @@ async function fetchGoalsAndPlantTrees(scene) {
                         statusElement.textContent = "Status: In Progress";
                     }
                 }
-                // // Determine if the goal is "higher is better" or "lower is better"
-                // const isHigherBetter = ['Renewable Energy Usage', 'Overall Progress'].includes(goal.goal_name);
+                // Determine if the goal is "higher is better" or "lower is better"
+                const isHigherBetter = ['Renewable Energy Usage', 'Overall Progress'].includes(goal.goal_name);
 
-                // // Check if the goal is achieved
-                // const isGoalAchieved = isHigherBetter
-                //     ? goal.current_value >= goal.target_value
-                //     : goal.current_value <= goal.target_value;
+                // Check if the goal is achieved
+                const isGoalAchieved = isHigherBetter
+                    ? goal.current_value >= goal.target_value
+                    : goal.current_value <= goal.target_value;
 
-                // console.log(`Goal Name: ${goal.goal_name}, Target Achieved: ${isGoalAchieved}`);
+                console.log(`Goal Name: ${goal.goal_name}, Target Achieved: ${isGoalAchieved}`);
 
-                // if (isGoalAchieved && treesPlanted < goalCoordinates.length) {
-                //     // Plant a tree if the goal is achieved and positions are available
-                //     plantTree(scene, goalCoordinates[treesPlanted]);
-                //     treesPlanted++;
-                // }
+                if (isGoalAchieved && treesPlanted < goalCoordinates.length) {
+                    // Plant a tree if the goal is achieved and positions are available
+                    plantTree(scene, goalCoordinates[treesPlanted]);
+                    treesPlanted++;
+                }
             });
 
             // Unlock the button if all trees have been planted
@@ -231,7 +231,6 @@ fetchCompanyNameAndUpdateTitle();
 
 
 
-
 document.addEventListener('DOMContentLoaded', () => {
     const track = document.querySelector('.carousel-track');
     const cards = Array.from(track.children);
@@ -254,25 +253,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateHeading = (index) => {
         const currentCard = cards[index];
         const headingText = currentCard.getAttribute('data-heading');
-        headingElement.textContent = headingText; // Update external carousel heading
+        if (headingElement) {
+            headingElement.textContent = headingText; // Update external carousel heading
+        }
     };
 
     // Move to the next or previous card
     const moveToCard = (index) => {
         const cardWidth = cards[0].getBoundingClientRect().width;
-        track.style.transform = `translateX(-${index * cardWidth}px)`;
+        track.style.transform = `translateX(-${index * cardWidth}px)`;  // Move to the selected card
         currentIndex = index;
-        updateHeading(currentIndex);
-        updateButtons();
+        updateHeading(currentIndex);  // Update the external heading
+        updateButtons();  // Update the buttons based on the current index
     };
 
     // Enable/disable navigation buttons
     const updateButtons = () => {
-        prevButton.disabled = currentIndex === 0;
-        nextButton.disabled = currentIndex === cards.length - 1;
+        prevButton.disabled = currentIndex === 0;  // Disable previous button if on the first card
+        nextButton.disabled = currentIndex === cards.length - 1;  // Disable next button if on the last card
     };
 
-    // Event Listeners
+    // Event Listeners for prev and next buttons
     prevButton.addEventListener('click', () => {
         if (currentIndex > 0) moveToCard(currentIndex - 1);
     });
