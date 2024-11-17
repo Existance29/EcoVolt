@@ -10,7 +10,6 @@ const goalCoordinates = [
     { x: 5.61514304939320275, y: 2.5, z: -9.102356010995563 }
 ];
 
-// Function to fetch sustainability goals and plant trees if goals are completed
 async function fetchGoalsAndPlantTrees(scene) {
     const company_id = sessionStorage.getItem("company_id") || localStorage.getItem("company_id");
     try {
@@ -29,6 +28,47 @@ async function fetchGoalsAndPlantTrees(scene) {
         if (Array.isArray(goals)) {
             console.log("Fetched Sustainability Goals:", goals);
 
+            // Map the correct IDs
+            const goalIdMapping = [
+                "goal-status-cue",
+                "goal-status-pue",
+                "goal-status-reu",
+                "goal-status-wue"
+            ];
+
+            // Calculate Overall Progress
+            const overallProgressElement = document.getElementById("goal-status-overallProgress");
+            let totalProgress = 0;
+
+            goals.forEach((goal) => {
+                let progressPercentage = 0;
+
+                if (goal.goal_name === "Renewable Energy Usage") {
+                    // Higher current value means better progress
+                    progressPercentage = goal.current_value >= goal.target_value
+                        ? 100
+                        : (goal.current_value / goal.target_value) * 100;
+                } else {
+                    // Lower current value means better progress
+                    progressPercentage = goal.current_value <= goal.target_value
+                        ? 100
+                        : (goal.target_value / goal.current_value) * 100;
+                }
+
+                totalProgress += Math.min(progressPercentage, 100);
+            });
+
+            const averageProgress = totalProgress / goals.length;
+
+            if (overallProgressElement) {
+                overallProgressElement.textContent = 
+                    averageProgress >= 100
+                        ? "Status: Completed"
+                        : `Status: In Progress`;
+                        // : `Status: In Progress (${averageProgress.toFixed(1)}%)`;
+            }
+
+            // Handle Individual Goals
             goals.forEach((goal, index) => {
                 console.log(`Goal: ${goal.goal_name}, Progress: ${goal.progress_percentage}%`);
 
@@ -39,12 +79,14 @@ async function fetchGoalsAndPlantTrees(scene) {
                 }
 
                 // Update goal status dynamically in the DOM
-                const statusElement = document.getElementById(`goal-status-${index + 1}`);
+                const statusElementId = goalIdMapping[index];
+                const statusElement = document.getElementById(statusElementId);
                 if (statusElement) {
                     statusElement.textContent =
                         goal.progress_percentage >= 100
                             ? "Status: Completed"
-                            : `Status: In Progress (${goal.progress_percentage.toFixed(1)}%)`;
+                            : `Status: In Progress`;
+                            // : `Status: In Progress (${goal.progress_percentage.toFixed(1)}%)`;
                 }
             });
 
@@ -59,6 +101,7 @@ async function fetchGoalsAndPlantTrees(scene) {
         console.error("Error fetching goals:", error);
     }
 }
+
 
 function plantTree(scene, position) {
     console.log("Planting a new tree at:", position);
@@ -170,13 +213,13 @@ async function fetchCompanyNameAndUpdateTitle() {
 // Call the function to fetch the company name and update the title
 fetchCompanyNameAndUpdateTitle();
 
-// Carousel functionality
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const track = document.querySelector('.carousel-track');
     const cards = Array.from(track.children);
     const prevButton = document.getElementById('carousel-prev');
     const nextButton = document.getElementById('carousel-next');
-    const headingElement = document.getElementById('carousel-heading');
 
     let currentIndex = 0;
 
@@ -189,19 +232,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Update carousel heading based on the current card
-    const updateHeading = (index) => {
-        const currentCard = cards[index];
-        const headingText = currentCard.getAttribute('data-heading');
-        headingElement.textContent = headingText; // Update external carousel heading
-    };
-
     // Move to the next or previous card
     const moveToCard = (index) => {
         const cardWidth = cards[0].getBoundingClientRect().width;
         track.style.transform = `translateX(-${index * cardWidth}px)`;
         currentIndex = index;
-        updateHeading(currentIndex);
         updateButtons();
     };
 
@@ -220,7 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentIndex < cards.length - 1) moveToCard(currentIndex + 1);
     });
 
-    // Initialize the first card and heading
-    updateHeading(currentIndex);
+    // Initialize the first card and buttons
     updateButtons();
 });
