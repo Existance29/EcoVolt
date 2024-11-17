@@ -25,4 +25,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
   
 
+// Activity Feed and Garden Navigation
+document.getElementById('activityFeedButton').addEventListener('click', () => {
+  window.location.href = 'activityFeed.html'; // Redirect to Activity Feed page
+});
 
+document.getElementById('virtualGardenButton').addEventListener('click', () => {
+  window.location.href = 'garden.html'; // Redirect to Virtual Garden page
+});
+
+// Dynamically set the active class based on the current page
+const currentPage = window.location.pathname;
+
+if (currentPage.includes('activityFeed.html')) {
+  document.getElementById('activityFeedButton').classList.add('active');
+  document.getElementById('virtualGardenButton').classList.remove('active');
+} else if (currentPage.includes('garden.html')) {
+  document.getElementById('virtualGardenButton').classList.add('active');
+  document.getElementById('activityFeedButton').classList.remove('active');
+}

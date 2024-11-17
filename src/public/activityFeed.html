@@ -18,76 +18,86 @@
     <aside class="sidebar">
     </aside>
  
-    <div class="content">
-        <div class="filter-sort">
-            <div class="filter">
-                <label for="filter">Filter by: </label>
-                <select id="filter">
-                    <option value="all">All</option>
-                    <option value="sustainability">Sustainability</option>
-                    <option value="energy">Energy Consumption</option>
-                    <option value="emissions">Carbon Emissions</option>
-                </select>
-            </div>
-            <div class="sort">
-                <label for="sort">Sort by: </label>
-                <select id="sort">
-                    <option value="recent">Most Recent</option>
-                    <option value="popular">Most Liked</option>
-                </select>
-            </div>
-        </div>
-        
-        <h2 class="subtitle">Posts</h2>
-
-        <div class="posts">
-            <!-- Example Post -->
-            <div class="post">
-                <div class="post-header">
-                    <h3>User Name</h3>
-                    <span class="timestamp">Posted on: YYYY-MM-DD</span>
+    <main class="main-content">
+        <div class="content">
+            <div class="filter-sort">
+                <div class="filter">
+                    <label for="filter">Filter by: </label>
+                    <select id="filter">
+                        <option value="all">All</option>
+                        <option value="sustainability">Sustainability</option>
+                        <option value="energy">Energy Consumption</option>
+                        <option value="emissions">Carbon Emissions</option>
+                    </select>
                 </div>
-                <p class="post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                <div class="post-footer">
-                    <div class="action-buttons">
-                        <button class="action-btn like-button"><i class="fa fa-thumbs-up"></i><span class="likes-count">0 Likes</span></button>
-                        <button class="action-btn dislike-button"><i class="fa fa-thumbs-down"></i><span class="dislikes-count">0 Dislikes</span></button>
-                        <button class="action-btn comment-button"><i class="fa fa-comment"></i><span class="comments-count">0 Comments</span></button>
+                <div class="sort">
+                    <label for="sort">Sort by: </label>
+                    <select id="sort">
+                        <option value="recent">Most Recent</option>
+                        <option value="popular">Most Liked</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="page-navigation">
+                <button id="activityFeedButton" class="nav-button active">Activity Feed</button>
+                <button id="virtualGardenButton" class="nav-button">Virtual Garden</button>
+            </div>
+
+            
+            <h2 class="subtitle">Posts</h2>
+
+            <div class="posts">
+                <!-- Example Post -->
+                <div class="post">
+                    <div class="post-header">
+                        <h3>User Name</h3>
+                        <span class="timestamp">Posted on: YYYY-MM-DD</span>
+                    </div>
+                    <p class="post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <div class="post-footer">
+                        <div class="action-buttons">
+                            <button class="action-btn like-button"><i class="fa fa-thumbs-up"></i><span class="likes-count">0 Likes</span></button>
+                            <button class="action-btn dislike-button"><i class="fa fa-thumbs-down"></i><span class="dislikes-count">0 Dislikes</span></button>
+                            <button class="action-btn comment-button"><i class="fa fa-comment"></i><span class="comments-count">0 Comments</span></button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Comments section -->
-        <div class="comments-container" style="display: none;"></div>
-        <div class="reward-progress-container" id="reward-progress-container"> 
-            <h5>Reward</h5>
-        </div>
-        <button class="new-post-button" id="new-post-button">+</button>
-
-        <div id="postModal" class="modal">
-            <div class="modal-content">
-                <span id="closeModalBtn" class="close">&times;</span>
-                <h2>Create New Post</h2>
-                <input type="text" id="postContext" placeholder="What's on your mind?" required />
-                <input type="text" id="postLocation" placeholder="Location" />
-                <input type="number" id="postCarbonEmission" placeholder="Carbon Emission" />
-                <input type="number" id="postEnergyConsumption" placeholder="Energy Consumption" />
-                <input type="file" id="postMediaUrl" placeholder="Image" />
-                <select id="postCategory">
-                    <option value="Sustainability">Sustainability</option>
-                    <option value="Energy">Energy</option>
-                    <option value="Emission">Carbon Emission</option>
-                    <!-- more -->
-                </select>
-
-                <button id="submitPostBtn">Post</button>
+            <!-- Comments section -->
+            <div class="comments-container" style="display: none;"></div>
+            <div class="reward-progress-container" id="reward-progress-container"> 
+                <h5>Reward</h5>
             </div>
-        </div>
+            <button class="new-post-button" id="new-post-button">+</button>
+
+            <div id="postModal" class="modal">
+                <div class="modal-content">
+                    <span id="closeModalBtn" class="close">&times;</span>
+                    <h2>Create New Post</h2>
+                    <input type="text" id="postContext" placeholder="What's on your mind?" required />
+                    <input type="text" id="postLocation" placeholder="Location" />
+                    <input type="number" id="postCarbonEmission" placeholder="Carbon Emission" />
+                    <input type="number" id="postEnergyConsumption" placeholder="Energy Consumption" />
+                    <input type="file" id="postMediaUrl" placeholder="Image" />
+                    <select id="postCategory">
+                        <option value="Sustainability">Sustainability</option>
+                        <option value="Energy">Energy</option>
+                        <option value="Emission">Carbon Emission</option>
+                        <!-- more -->
+                    </select>
+
+                    <button id="submitPostBtn">Post</button>
+                </div>
+            </div>
+        </main>
 
         <!-- Linking js to html -->
         <script src="scripts/pages/activityFeed.js"></script>
         <script src="./scripts/common.js"></script>
+        <script src="./scripts/garden.js" type="module"></script>
     </div>
 </body>
 </html>
