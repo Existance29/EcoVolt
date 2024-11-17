@@ -29,17 +29,32 @@ const handleChatbotMessage = async (req, res) => {
                 contextData = `The total emissions are ${totalDataCenterEmissions || 0} tons for data centers and ${totalCellTowerEmissions || 0} kWh for cell towers, with an overall total of ${overallTotal || 0} tons/kWh.`;
 
             } else if (/net zero|sustainability|progress/i.test(userMessage)) {
-                // Calculate net zero progress based on sustainability goals
-                let totalProgress = 0;
+                // Calculate net zero progress using the updated method
+                let weightedTotalProgress = 0;
+                let totalWeight = 0;
+
                 sustainabilityGoals.forEach(goal => {
-                    if (goal.current_value > goal.target_value) {
-                        const progressTowardTarget = ((goal.current_value - goal.target_value) / goal.current_value) * 100;
-                        totalProgress += Math.min(progressTowardTarget, 100);
+                    let progressPercentage = 0;
+
+                    if (goal.goal_name === "Renewable Energy Usage") {
+                        // Higher current value means better progress
+                        progressPercentage = goal.current_value >= goal.target_value
+                            ? 100
+                            : (goal.current_value / goal.target_value) * 100;
                     } else {
-                        totalProgress += 100;
+                        // Lower current value means better progress
+                        progressPercentage = goal.current_value <= goal.target_value
+                            ? 100
+                            : (goal.target_value / goal.current_value) * 100;
                     }
+
+                    // Calculate weighted contribution
+                    const weight = goal.weight || 1; // Default weight is 1
+                    weightedTotalProgress += Math.min(progressPercentage, 100) * weight;
+                    totalWeight += weight;
                 });
-                const averageProgress = (totalProgress / sustainabilityGoals.length).toFixed(1);
+
+                const averageProgress = (weightedTotalProgress / totalWeight).toFixed(1);
                 contextData = `The current progress towards net zero is at ${averageProgress}%.`;
 
             } else if (/fix|solution|improve/i.test(userMessage)) {
