@@ -170,13 +170,13 @@ async function fetchCompanyNameAndUpdateTitle() {
 // Call the function to fetch the company name and update the title
 fetchCompanyNameAndUpdateTitle();
 
-// Carousel functionality
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const track = document.querySelector('.carousel-track');
     const cards = Array.from(track.children);
     const prevButton = document.getElementById('carousel-prev');
     const nextButton = document.getElementById('carousel-next');
-    const headingElement = document.getElementById('carousel-heading');
 
     let currentIndex = 0;
 
@@ -189,19 +189,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Update carousel heading based on the current card
-    const updateHeading = (index) => {
-        const currentCard = cards[index];
-        const headingText = currentCard.getAttribute('data-heading');
-        headingElement.textContent = headingText; // Update external carousel heading
-    };
-
     // Move to the next or previous card
     const moveToCard = (index) => {
         const cardWidth = cards[0].getBoundingClientRect().width;
         track.style.transform = `translateX(-${index * cardWidth}px)`;
         currentIndex = index;
-        updateHeading(currentIndex);
         updateButtons();
     };
 
@@ -220,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentIndex < cards.length - 1) moveToCard(currentIndex + 1);
     });
 
-    // Initialize the first card and heading
-    updateHeading(currentIndex);
+    // Initialize the first card and buttons
     updateButtons();
 });
