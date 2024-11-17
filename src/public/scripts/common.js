@@ -35,12 +35,12 @@ document.getElementById('virtualGardenButton').addEventListener('click', () => {
 });
 
 // Dynamically set the active class based on the current page
-const currentPage = window.location.pathname;
+const currentPage1 = window.location.pathname;
 
-if (currentPage.includes('activityFeed.html')) {
+if (currentPage1.includes('activityFeed.html')) {
   document.getElementById('activityFeedButton').classList.add('active');
   document.getElementById('virtualGardenButton').classList.remove('active');
-} else if (currentPage.includes('garden.html')) {
+} else if (currentPage1.includes('garden.html')) {
   document.getElementById('virtualGardenButton').classList.add('active');
   document.getElementById('activityFeedButton').classList.remove('active');
 }

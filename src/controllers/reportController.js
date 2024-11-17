@@ -242,7 +242,7 @@ async function generateConclusion(totalEnergy, totalCO2, recommendations) {
                 model: "gpt-3.5-turbo",
                 messages: [{ role: "user", content: `
                     Provide a final, structured conclusion for the Singtel Sustainability Report, including:
-                    - Total energy consumption and CO2 emissions.
+                    - Total energy consumption ${totalEnergy.toLocaleString()} kWh and CO2 emissions ${totalCO2.toFixed(2)} tons
                     - Highlights of recommendations and their intended impact.
                     - Predictive actions to achieve net-zero goals by adopting renewables, enhancing energy efficiency, and reducing emissions.
                 ` }],
