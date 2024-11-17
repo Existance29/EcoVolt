@@ -861,6 +861,31 @@ const getDeviceTypesByCompanyIdAndDataCenter = async (req, res) => {
 
 
 
+
+
+
+
+const getCompanyName = async (req, res) => {
+    const company_id = parseInt(req.params.company_id);
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
+    try {
+        const data = await dataCenterDashboard.getCompanyName(company_id);
+        if (!data) {
+            return res.status(404).send('Company Name not found.');
+        }
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Failed to retrieve Company Name: Internal Server Error.');
+    }
+};
+
+
+
+
+
 const getAllSustainabilityGoalsData = async (req, res) => {
     const company_id = req.user.companyId
     if (!company_id) {
@@ -987,5 +1012,6 @@ module.exports = {
     getDeviceTypesByCompanyIdAndDataCenter,
     // getChatbotResponse,
 
+    getCompanyName,
     getAllSustainabilityGoalsData
 }

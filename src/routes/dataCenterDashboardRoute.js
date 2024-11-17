@@ -46,6 +46,7 @@ const dataCenterDashboardRoute = (app) => {
 
     // app.post('/chat', dataCenterDashboardController.getChatbotResponse);
     // overview page
+    app.get('/VirtualGarden/CompanyName/:company_id', dataCenterDashboardController.getCompanyName);
     app.get('/Dashboard/sustainability-goals', authenticateToken, dataCenterDashboardController.getAllSustainabilityGoalsData);
 }
 

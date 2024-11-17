@@ -1,30 +1,75 @@
-/* Container Tree - Align to the Right */
-#container-tree {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 50%; /* Set width for better alignment */
-    height: 350px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    background-color: #ffffff;
-    background-image: url('/assets/tree/garden.jpg');
-    background-size: cover;
-    background-position: center;
-    overflow: hidden;
+/* General Styles */
+body {
+    font-family: 'Afacad', Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
 }
 
+.main-content {
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    justify-content: flex-start; /* Adjust if needed */
+    align-items: center; /* Center items horizontally */
+    width: 85%; /* Full width of the parent */
+    height: auto; /* Adjust height as needed */
+    padding: 20px; /* Add padding around the content */
+}
+
+h1 {
+    color: #4FD1C5;
+    margin: 0;
+    font-size: 2.5rem;
+    text-align: center; /* Center-align the text horizontally */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 150px; /* Keep the height for the header area */
+}
+
+
+
+#container-tree {
+    display: flex; /* Maintain flex layout */
+    justify-content: center; /* Center tree content horizontally */
+    align-items: center; /* Center tree content vertically */
+    width: 50%; /* Limit the width to align with the right side */
+    height: 350px; /* Fix the height */
+    border-radius: 10px; /* Smooth edges */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    background-color: #ffffff; /* White background as fallback */
+    background-image: url('/assets/tree/garden.jpg'); /* Background image */
+    background-size: cover; /* Ensure the image covers the container */
+    background-position: center; /* Center the image within the container */
+    margin-left: auto; /* Push the tree container to the right */
+    overflow: hidden; /* Ensure content doesn’t overflow */
+    margin-top: 2%;
+}
+
+
 .garden-container {
-    margin-top: 30px; /* Adds spacing above the container */
+    margin-top: 30px;
     padding: 20px;
-    background-color: #ffffff; /* Set background to white */
+    background-color: #ffffff;
     border-radius: 8px;
-    text-align: left; /* Align content to the left by default */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
     display: flex;
-    justify-content: space-between; /* Space between elements */
-    align-items: center; /* Center items vertically */
+    flex-wrap: wrap; /* Wraps elements to stack properly */
+    justify-content: space-between; /* Aligns items evenly */
+    align-items: flex-start;
+    gap: 20px; /* Spacing between sections */
+}
+
+
+.garden-info {
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
 }
 
 .garden-info h2 {
@@ -39,6 +84,7 @@
     font-size: 1em;
     color: #555;
 }
+
 
 .tree-visualization {
     width: 100%;
@@ -69,6 +115,8 @@
     height: auto;  /* Maintain aspect ratio */
     max-width: 100%; /* Prevents overflow */
     margin-bottom: 15px;
+    margin-left: 5%;
+    justify-content: center;
 }
 
 /* Base button styling */
@@ -165,23 +213,6 @@ button.add-badge-button:focus {
 
 
 
-
-
-
-.garden-container {
-    position: relative; /* Ensure positioning context */
-}
-/* Lightbulb Tooltip Position */
-.lightbulb-tooltip {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 10; /* Ensure it appears above other elements */
-    background-color: white;
-}
-
 /* Blurred Background */
 .garden-blur-background {
     position: fixed;
@@ -194,76 +225,168 @@ button.add-badge-button:focus {
     z-index: 1000;
 }
 
-/* Tooltip Modal Styling */
-.garden-info-tooltip-cards {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 400px;
-    max-width: 90%;
-    padding: 20px;
-    background: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    z-index: 1001;
+
+.garden-container {
+    position: relative; /* Ensure positioning context */
 }
 
-.tooltip-header {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.garden-container {
+    display: flex; /* Ensure elements are side-by-side */
+    justify-content: space-between; /* Space between carousel and tree */
+    align-items: center; /* Vertically align items */
+    gap: 20px; /* Add spacing between sections */
+    width: 100%; /* Use full width of the container */
+}
+
+.carousel-container {
+    flex: 0 0 48%; /* Occupy 48% of the width */
+    max-width: 48%; /* Prevent it from growing beyond 48% */
     display: flex;
-    justify-content: space-between;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center; /* Center items vertically */
+    align-items: flex-start; /* Align content to the left */
+    padding: 10px; /* Add padding */
+    box-sizing: border-box; /* Include padding in dimensions */
+}
+
+#container-tree {
+    flex: 0 0 48%; /* Occupy 48% of the width */
+    max-width: 48%; /* Prevent it from growing beyond 48% */
+    display: flex;
+    justify-content: center; /* Center the tree content horizontally */
+    align-items: center; /* Center the tree content vertically */
+    height: 350px; /* Fixed height */
+    border-radius: 10px; /* Smooth edges */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    background-color: #ffffff; /* Fallback background */
+    background-image: url('/assets/tree/garden.jpg'); /* Tree background */
+    background-size: cover; /* Ensure background covers container */
+    background-position: center; /* Center the background image */
+    overflow: hidden; /* Hide overflowing content */
+}
+
+
+
+
+
+
+
+.carousel-container {
+    display: flex;
     align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    margin-top: 4%;
+    margin-left: 6%;
 }
 
-.tooltip-close-btn {
-    font-size: 24px;
-    color: #333;
-    cursor: pointer;
+.carousel-track-container {
+    overflow: hidden;
+    width: 100%;
+    max-width: 600px;
+    height: 250px; /* Set a fixed height for the carousel container */
+    position: relative;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.tooltip-content .tooltip-slide {
-    display: none;
-}
-
-.tooltip-content .active {
-    display: block;
-}
-
-.tooltip-navigation {
+.carousel-track {
     display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
+    transition: transform 0.3s ease-in-out;
+    height: 100%; /* Match the height of the container */
 }
 
-.tooltip-nav-btn {
-    padding: 8px 16px;
-    background-color: #4FD1C5;
-    color: white;
+.info-card {
+    min-width: 100%; /* Ensure the card fills the container width */
+    height: 100%; /* Stretch to container height */
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 
+                0 1px 3px rgba(0, 0, 0, 0.06); /* Modern layered shadow */
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.info-card h4.card-heading {
+    font-size: 1.5em; /* Set a reasonable font size */
+    font-weight: bold; /* Make it bold */
+    color: #4FD1C5; /* Black color for better readability */
+    text-align: center; /* Center-align the heading */
+    margin-bottom: 25px; /* Add space below the heading */
+}
+
+
+.info-card p {
+    font-size: 1.1em;          /* Adjust the font size */
+    color: #000000;          /* Set the text color to black */
+    margin: 0;               /* Remove default margins */
+    line-height: 1.6;        /* Improve readability */
+    text-align: center;      /* Center the text */
+    word-wrap: break-word;   /* Ensure long words wrap properly */
+}
+
+.carousel-button {
+    background: #4FD1C5;
+    color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    transition: background 0.2s ease-in-out;
 }
 
-.tooltip-nav-btn:disabled {
-    background-color: #e0e0e0;
+.carousel-button:hover {
+    background: #38b2ac;
+}
+
+#carousel-prev {
+    left: -50px;
+}
+
+#carousel-next {
+    right: -50px;
+}
+
+.carousel-button:disabled {
+    background: #ccc;
     cursor: not-allowed;
 }
 
-
-
-.garden-info-tooltip-cards h3 {
-    font-size: 1.4em;
-    color: #2c5f2d; /* Dark green for a sustainable theme */
-    text-align: center;
-    margin-bottom: 15px;
-    font-weight: bold;
-}
-
-.garden-info-tooltip-cards p {
-    font-size: 1em;
-    color: #333; /* Dark color for readability */
-    line-height: 1.6;
-    text-align: left;
-    margin-bottom: 10px;
+.current-card {
+    outline: 2px solid #38b2ac;
 }
