@@ -12,7 +12,7 @@ body {
     flex-direction: column; /* Stack children vertically */
     justify-content: flex-start; /* Adjust if needed */
     align-items: center; /* Center items horizontally */
-    width: 85%; /* Full width of the parent */
+    width: 90%; /* Full width of the parent */
     height: auto; /* Adjust height as needed */
     padding: 20px; /* Add padding around the content */
 }
