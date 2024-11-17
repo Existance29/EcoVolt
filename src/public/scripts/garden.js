@@ -10,7 +10,6 @@ const goalCoordinates = [
     { x: 5.61514304939320275, y: 2.5, z: -9.102356010995563 }
 ];
 
-// Function to fetch sustainability goals and plant trees if goals are completed
 async function fetchGoalsAndPlantTrees(scene) {
     const company_id = sessionStorage.getItem("company_id") || localStorage.getItem("company_id");
     try {
@@ -29,6 +28,47 @@ async function fetchGoalsAndPlantTrees(scene) {
         if (Array.isArray(goals)) {
             console.log("Fetched Sustainability Goals:", goals);
 
+            // Map the correct IDs
+            const goalIdMapping = [
+                "goal-status-cue",
+                "goal-status-pue",
+                "goal-status-reu",
+                "goal-status-wue"
+            ];
+
+            // Calculate Overall Progress
+            const overallProgressElement = document.getElementById("goal-status-overallProgress");
+            let totalProgress = 0;
+
+            goals.forEach((goal) => {
+                let progressPercentage = 0;
+
+                if (goal.goal_name === "Renewable Energy Usage") {
+                    // Higher current value means better progress
+                    progressPercentage = goal.current_value >= goal.target_value
+                        ? 100
+                        : (goal.current_value / goal.target_value) * 100;
+                } else {
+                    // Lower current value means better progress
+                    progressPercentage = goal.current_value <= goal.target_value
+                        ? 100
+                        : (goal.target_value / goal.current_value) * 100;
+                }
+
+                totalProgress += Math.min(progressPercentage, 100);
+            });
+
+            const averageProgress = totalProgress / goals.length;
+
+            if (overallProgressElement) {
+                overallProgressElement.textContent = 
+                    averageProgress >= 100
+                        ? "Status: Completed"
+                        : `Status: In Progress`;
+                        // : `Status: In Progress (${averageProgress.toFixed(1)}%)`;
+            }
+
+            // Handle Individual Goals
             goals.forEach((goal, index) => {
                 console.log(`Goal: ${goal.goal_name}, Progress: ${goal.progress_percentage}%`);
 
@@ -39,12 +79,14 @@ async function fetchGoalsAndPlantTrees(scene) {
                 }
 
                 // Update goal status dynamically in the DOM
-                const statusElement = document.getElementById(`goal-status-${index + 1}`);
+                const statusElementId = goalIdMapping[index];
+                const statusElement = document.getElementById(statusElementId);
                 if (statusElement) {
                     statusElement.textContent =
                         goal.progress_percentage >= 100
                             ? "Status: Completed"
-                            : `Status: In Progress (${goal.progress_percentage.toFixed(1)}%)`;
+                            : `Status: In Progress`;
+                            // : `Status: In Progress (${goal.progress_percentage.toFixed(1)}%)`;
                 }
             });
 
@@ -59,6 +101,7 @@ async function fetchGoalsAndPlantTrees(scene) {
         console.error("Error fetching goals:", error);
     }
 }
+
 
 function plantTree(scene, position) {
     console.log("Planting a new tree at:", position);
