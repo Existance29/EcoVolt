@@ -52,7 +52,7 @@ function decodeBase64Url(base64Url) {
 // Function to load all the post that is fetched from the database
 async function loadPosts(user_id, company_id) {
     try{
-        const response = await fetch('http://localhost:3000/posts', { 
+        const response = await fetch('/posts', { 
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -144,7 +144,7 @@ async function loadPosts(user_id, company_id) {
 // Function that helps to update like function of a post
 async function updateLikes(user_id, company_id, post_id, likeButton) {
     try {
-        const response = await fetch('http://localhost:3000/toggleLike', {
+        const response = await fetch('/toggleLike', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -173,7 +173,7 @@ async function updateLikes(user_id, company_id, post_id, likeButton) {
 // Function that helps to update dislike function of a post
 async function updateDislikes(user_id, company_id, post_id, dislikeButton) {
     try {
-        const response = await fetch('http://localhost:3000/toggleDislike', {
+        const response = await fetch('/toggleDislike', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -214,7 +214,7 @@ async function showComments(user_id, company_id, postId, commentButton) {
 // Function to take care of the incoming comment data
 async function loadComments(user_id, company_id, post_id, commentsContainer, commentButton) {
     try {
-        const response = await fetch(`http://localhost:3000/comment/${post_id}`, {
+        const response = await fetch(`/comment/${post_id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -272,7 +272,7 @@ async function addComment(post_id, company_id, user_id, commentText, commentButt
     if (!commentText) return;
 
     try {
-        const response = await fetch('http://localhost:3000/newComments', {
+        const response = await fetch('/newComments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -323,7 +323,7 @@ async function addNewPost(user_id, company_id) {
     }
 
     try {
-        const response = await fetch('http://localhost:3000/addPost', {
+        const response = await fetch('/addPost', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -365,7 +365,7 @@ async function addNewPost(user_id, company_id) {
 // Function to track the user interaction in the activity page
 async function trackActivity(user_id, company_id, post_id, activity_type, points) {
     try {
-        const response = await fetch('http://localhost:3000/trackActivity', {
+        const response = await fetch('/trackActivity', {
             method: 'POST', 
             headers: {
                 'Content-Type': 'application/json'
@@ -392,7 +392,7 @@ async function trackActivity(user_id, company_id, post_id, activity_type, points
 // Function to update the total point to help with the point calculation and reward system 
 async function updateTotalPoints(user_id) {
     try {
-        const response = await fetch('http://localhost:3000/getTotalPoints', {
+        const response = await fetch('/getTotalPoints', {
             method: 'GET', 
             headers: {
                 'Content-Type': 'application/json'

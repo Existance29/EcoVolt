@@ -10,40 +10,13 @@ const goalCoordinates = [
     { x: 5.61514304939320275, y: 2.5, z: -9.102356010995563 }
 ];
 
-// Function to calculate overall progress towards net zero by 2050
-function calculateOverallProgress(goals) {
-    let totalProgress = 0;
-
-    goals.forEach(goal => {
-        let progressPercentage = 0;
-
-        if (goal.goal_name === "Renewable Energy Usage") {
-            // Higher current value means better progress
-            progressPercentage = goal.current_value >= goal.target_value
-                ? 100
-                : (goal.current_value / goal.target_value) * 100;
-        } else {
-            // Lower current value means better progress
-            progressPercentage = goal.current_value <= goal.target_value
-                ? 100
-                : (goal.target_value / goal.current_value) * 100;
-        }
-
-        totalProgress += Math.min(progressPercentage, 100);
-    });
-
-    return totalProgress / goals.length; // Return the average progress
-}
-
-
-
 // Function to fetch sustainability goals and plant trees if goals are completed
 async function fetchGoalsAndPlantTrees(scene) {
     const company_id = sessionStorage.getItem("company_id") || localStorage.getItem("company_id");
     try {
         const response = await fetch("/dashboard-overview", {
             headers: {
-                "Authorization": `Bearer ${sessionStorage.accessToken || localStorage.accessToken}`,
+                "Authorization": `Bearer ${sessionStorage.getItem("accessToken") || localStorage.getItem("accessToken")}`,
                 "Company-ID": company_id
             }
         });
@@ -54,60 +27,38 @@ async function fetchGoalsAndPlantTrees(scene) {
         const goals = data.sustainabilityGoals;
 
         if (Array.isArray(goals)) {
-            // Calculate overall progress and add as a virtual goal
-            const overallProgress = calculateOverallProgress(goals);
-            goals.push({
-                goal_name: "Overall Progress",
-                current_value: overallProgress,
-                target_value: 100
-            });
+            console.log("Fetched Sustainability Goals:", goals);
 
-            goals.forEach((goal, index)=> {
-                plantTree(scene, goalCoordinates[treesPlanted]);
-                treesPlanted++;
-                console.log("Checking goal:", goal);
+            goals.forEach((goal, index) => {
+                console.log(`Goal: ${goal.goal_name}, Progress: ${goal.progress_percentage}%`);
+
+                // Plant a tree for goals that are 100% complete
+                if (goal.progress_percentage >= 100 && treesPlanted < goalCoordinates.length) {
+                    plantTree(scene, goalCoordinates[treesPlanted]);
+                    treesPlanted++;
+                }
+
+                // Update goal status dynamically in the DOM
                 const statusElement = document.getElementById(`goal-status-${index + 1}`);
                 if (statusElement) {
-                    const progressPercentage = goal.goal_name === "Renewable Energy Usage" || goal.goal_name === "Overall Progress"
-                        ? (goal.current_value / goal.target_value) * 100
-                        : (goal.target_value / goal.current_value) * 100;
-
-                    if (progressPercentage >= 100) {
-                        statusElement.textContent = "Status: Completed";
-                    } else {
-                        statusElement.textContent = "Status: In Progress";
-                    }
+                    statusElement.textContent =
+                        goal.progress_percentage >= 100
+                            ? "Status: Completed"
+                            : `Status: In Progress (${goal.progress_percentage.toFixed(1)}%)`;
                 }
-                // // Determine if the goal is "higher is better" or "lower is better"
-                // const isHigherBetter = ['Renewable Energy Usage', 'Overall Progress'].includes(goal.goal_name);
-
-                // // Check if the goal is achieved
-                // const isGoalAchieved = isHigherBetter
-                //     ? goal.current_value >= goal.target_value
-                //     : goal.current_value <= goal.target_value;
-
-                // console.log(`Goal Name: ${goal.goal_name}, Target Achieved: ${isGoalAchieved}`);
-
-                // if (isGoalAchieved && treesPlanted < goalCoordinates.length) {
-                //     // Plant a tree if the goal is achieved and positions are available
-                //     plantTree(scene, goalCoordinates[treesPlanted]);
-                //     treesPlanted++;
-                // }
             });
 
-            // Unlock the button if all trees have been planted
+            // Unlock the badge button if all trees are planted
             if (treesPlanted === goalCoordinates.length) {
                 unlockButton();
             }
         } else {
-            console.error("Sustainability goals data is not an array:", goals);
+            console.error("Sustainability goals data is not in the expected format:", goals);
         }
-        
     } catch (error) {
         console.error("Error fetching goals:", error);
     }
 }
-
 
 function plantTree(scene, position) {
     console.log("Planting a new tree at:", position);
@@ -172,29 +123,20 @@ function unlockButton() {
 }
 
 // Handle click event on the button
-document.getElementById("add-badge-button").addEventListener("click", function() {
+document.getElementById("add-badge-button").addEventListener("click", function () {
     document.getElementById("garden-badge-modal").style.display = "flex";
 });
 
 // Handle close modal
-document.getElementById("garden-close-modal-btn").addEventListener("click", function() {
+document.getElementById("garden-close-modal-btn").addEventListener("click", function () {
     document.getElementById("garden-badge-modal").style.display = "none";
 });
 
 // Handle view profile button
-document.getElementById("garden-view-profile-btn").addEventListener("click", function() {
+document.getElementById("garden-view-profile-btn").addEventListener("click", function () {
     localStorage.setItem("badgeUnlocked", "true");
     window.location.href = "settings.html";
 });
-
-
-
-
-
-
-
-
-
 
 // Function to fetch the company name and update the title
 async function fetchCompanyNameAndUpdateTitle() {
@@ -214,7 +156,6 @@ async function fetchCompanyNameAndUpdateTitle() {
 
         const data = await response.json();
 
-        // Check if the response is an array and has at least one element
         if (Array.isArray(data) && data.length > 0 && data[0].name) {
             const titleElement = document.getElementById('virtual-garden-title');
             titleElement.textContent = `${data[0].name}'s Virtual Garden`;
@@ -229,9 +170,7 @@ async function fetchCompanyNameAndUpdateTitle() {
 // Call the function to fetch the company name and update the title
 fetchCompanyNameAndUpdateTitle();
 
-
-
-
+// Carousel functionality
 document.addEventListener('DOMContentLoaded', () => {
     const track = document.querySelector('.carousel-track');
     const cards = Array.from(track.children);
