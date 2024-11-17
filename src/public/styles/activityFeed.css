@@ -75,27 +75,46 @@ h2.subtitle {
 
 /* Reward Progress Container */
 .reward-progress-container {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: fixed; 
+    bottom: 100px; 
+    right: 30px; 
+    padding: 20px; 
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+    width: 5px; 
+    height: 60px;
+    max-width: 15%; 
+    cursor: pointer;
+    text-align: center; 
+    z-index: 1002; 
+    transition: transform 0.3s, opacity 0.3s; 
+    transform: translateY(0); 
+    opacity: 1; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .reward-progress-container h5 {
     font-size: 1.3rem;
     font-weight: 600;
-    color: #4FD1C5;
-    margin-bottom: 10px;
+    color: white;
+    margin-bottom: 0px;
 }
 
 .reward-progress-container {
     width: 100%;
-    background-color: #eee;
+    background-color: #4FD1C5;
     border-radius: 8px;
     height: 8px;
     margin-top: 10px;
 }
+
+.reward-progress-container:hover {
+    background-color: #34a6a6;
+    transform: scale(1.1);
+}
+
 
 /* Posts Section */
 .posts {
@@ -144,12 +163,6 @@ h2.subtitle {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 5px;
-}
-
-.post-footer .action-btn {
-    display: flex;
-    gap: 15px; 
 }
 
 .action-btn {
@@ -163,7 +176,6 @@ h2.subtitle {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
 }
 
 .action-btn:hover {
@@ -179,7 +191,6 @@ h2.subtitle {
     margin-right: 8px;
     font-size: 1.3rem;
 }
-
 
 .like-button i {
     color: #99e093;
@@ -207,63 +218,78 @@ h2.subtitle {
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 100%;
-    height: 6=50%;
     transform: translate(-50%, -50%);
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    z-index: 1001;
+    width: 90%;
     max-width: 500px;
-    width: 100%;
+    z-index: 1001;
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-content {
     background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    max-width: 90%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 25px;
+    border-radius: 10px;
+    width: 100%;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     position: relative;
-
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-sizing: border-box;
 }
 
 .modal-content input,
 .modal-content select {
-    margin: 15px 0;
-    padding: 12px;
+    padding: 15px 15px;
     font-size: 1rem;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid #ddd;
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.3s;
 }
 
+.modal-content input:focus,
+.modal-content select:focus {
+    border-color: #4FD1C5;
+}
+
+/* Submit Button */
 #submitPostBtn {
-padding: 12px 25px;
-background-color: #4FD1C5;
-color: white;
-border: none;
-border-radius: 6px;
-cursor: pointer;
-font-size: 1.2rem;
-font-weight: 600;
+    padding: 12px 20px;
+    background-color: #4FD1C5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 #submitPostBtn:hover {
-background-color: #1dc1b0;
+    background-color: #1dc1b0;
+    transform: scale(1.05);
 }
 
-/* Close button in modal */
+/* Close Button */
 #closeModalBtn {
-font-size: 1.8rem;
-color: #888;
-cursor: pointer;
-align-self: flex-end;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    background: none;
+    border: none;
+    outline: none;
 }
 
 #closeModalBtn:hover {
-color: #4FD1C5;
+    color: #4FD1C5;
 }
 
 /* Floating Add New Post Button */
@@ -289,39 +315,93 @@ color: #4FD1C5;
 
 .new-post-button:hover {
     background-color: #34a6a6;
+    transform: scale(1.1);
 }
 
 
 /* Comments Section */
 .comments-container {
-display: none;
-padding: 20px;
-background-color: #fff;
-border-radius: 10px;
-box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    margin-top: 20px;
 }
 
+
 .comments-container h3 {
-font-size: 1.3rem;
-font-weight: 600;
-color: #333;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
 }
 
 .comment {
-background-color: #e0f7fa;
-padding: 12px;
-border-radius: 6px;
-margin-bottom: 10px;
-transition: background-color 0.3s ease;
+    background-color: #e0f7fa;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
 }
 
 .comment-header {
-display: flex;
-justify-content: space-between;
-margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
 }
 
 .comment-content {
-font-size: 1.1rem;
-line-height: 1.6;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+.new-comment {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    align-items: center;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.new-comment input[type="text"] {
+    flex-grow: 1;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background-color: #f5f8fa;
+    color: #333;
+    transition: border-color 0.3s ease;
+}
+
+.new-comment input[type="text"]:focus {
+    border-color: #4FD1C5;
+    outline: none;
+}
+
+.add-comment-btn {
+    padding: 12px 25px;
+    background-color: #4FD1C5;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.add-comment-btn:hover {
+    background-color: #1dc1b0;
+    transform: scale(1.05);
+}
+
+.add-comment-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
