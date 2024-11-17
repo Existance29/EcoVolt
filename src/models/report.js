@@ -34,9 +34,7 @@ class Report {
                     MAX(CTec.carbon_emission_kg) AS co2EmissionsTons,
                     MAX(sg.goal_name) AS goal_name, 
                     MAX(sg.target_value) AS target_value, 
-                    MAX(sg.current_value) AS current_value, 
                     MAX(sg.target_year) AS target_year, 
-                    MAX(sg.progress) AS progress,
                     NULL AS dataCenterId
                 FROM companies c
                 INNER JOIN cell_tower_energy_consumption CTec ON c.id = CTec.cell_tower_id
@@ -57,9 +55,7 @@ class Report {
                     MAX(DCce.co2_emissions_tons) AS co2EmissionsTons,
                     MAX(sg.goal_name) AS goal_name, 
                     MAX(sg.target_value) AS target_value, 
-                    MAX(sg.current_value) AS current_value, 
                     MAX(sg.target_year) AS target_year, 
-                    MAX(sg.progress) AS progress,
                     dct.id AS dataCenterId
                 FROM companies c
                 INNER JOIN data_centers dct ON c.id = dct.company_id
@@ -84,7 +80,6 @@ class Report {
                         targetValue: row.target_value,
                         currentValue: row.current_value,
                         targetYear: row.target_year,
-                        progress: row.progress
                     }],
                     row.radioEquipmentEnergy,
                     row.coolingEnergy,
@@ -121,9 +116,7 @@ class Report {
                     CTec.carbon_emission_kg AS co2EmissionsTons,
                     sg.goal_name AS goal_name, 
                     sg.target_value AS target_value, 
-                    sg.current_value AS current_value, 
                     sg.target_year AS target_year, 
-                    sg.progress AS progress,
                     NULL AS dataCenterId
                 FROM companies c
                 INNER JOIN cell_tower_energy_consumption CTec ON c.id = CTec.cell_tower_id
@@ -143,9 +136,7 @@ class Report {
                     DCce.co2_emissions_tons AS co2EmissionsTons,
                     sg.goal_name AS goal_name, 
                     sg.target_value AS target_value, 
-                    sg.current_value AS current_value, 
                     sg.target_year AS target_year, 
-                    sg.progress AS progress,
                     dct.id AS dataCenterId
                 FROM companies c
                 INNER JOIN data_centers dct ON c.id = dct.company_id
@@ -169,9 +160,7 @@ class Report {
                               {
                                   goalName: row.goal_name,
                                   targetValue: row.target_value,
-                                  currentValue: row.current_value,
                                   targetYear: row.target_year,
-                                  progress: row.progress,
                               },
                           ]
                         : [],
