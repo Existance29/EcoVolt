@@ -9,10 +9,11 @@ body {
 
 .main-content {
     display: flex;
+    margin: 20px;
     flex-direction: column; /* Stack children vertically */
     justify-content: flex-start; /* Adjust if needed */
     align-items: center; /* Center items horizontally */
-    width: 90%; /* Full width of the parent */
+    width: 85.5%; /* Full width of the parent */
     height: auto; /* Adjust height as needed */
     padding: 20px; /* Add padding around the content */
 }
@@ -54,7 +55,7 @@ h1 {
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
+    width: auto;
     display: flex;
     flex-wrap: wrap; /* Wraps elements to stack properly */
     justify-content: space-between; /* Aligns items evenly */
