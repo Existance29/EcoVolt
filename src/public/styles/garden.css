@@ -336,7 +336,7 @@ button.add-badge-button:focus {
 .info-card h4.card-heading {
     font-size: 1.5em; /* Set a reasonable font size */
     font-weight: bold; /* Make it bold */
-    color: #4FD1C5; /* Black color for better readability */
+    color: black; /* Black color for better readability */
     text-align: center; /* Center-align the heading */
     margin-bottom: 25px; /* Add space below the heading */
 }
@@ -389,4 +389,102 @@ button.add-badge-button:focus {
 
 .current-card {
     outline: 2px solid #38b2ac;
+}
+
+
+
+
+.contribution-container {
+    margin: 40px auto; /* Center the container */
+    font-family: Arial, sans-serif;
+    color: #333;
+    max-width: 100%; /* Take up almost the entire width of the main content */
+    text-align: center;
+}
+
+.contribution-container h2 {
+    font-size: 30px; /* Larger heading */
+    font-weight: bold;
+    color: #4FD1C5;
+    margin-bottom: 20px;
+}
+
+.contribution-container p {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 18px;
+    color: #555;
+    line-height: 1.8;
+}
+
+.impact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+    gap: 30px; /* Space between grid items */
+}
+
+.impact-section {
+    display: flex;
+    align-items: center;
+    padding: 30px; /* Add more padding */
+    border: 1px solid #e0e0e0; /* Softer border color */
+    border-radius: 10px; /* Rounded corners */
+    background-color: #ffffff;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); /* Soft shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hover effects */
+    height: 320px; /* Increased height for better spacing */
+    overflow: hidden;
+}
+
+.impact-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+}
+
+.impact-image {
+    flex: 0 0 35%; /* Ensure images take up 35% of the section */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.impact-image img {
+    max-width: 100%;
+    max-height: 90%;
+    border-radius: 8px;
+    object-fit: contain;
+    transition: transform 0.3s ease; /* Hover zoom effect */
+}
+
+.impact-image:hover img {
+    transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+.impact-content {
+    flex: 0 0 60%; /* Allow text to take 60% of the section width */
+    text-align: right;
+    padding-right: 30px; /* Add more spacing for balance */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px; /* Add space between heading and paragraph */
+}
+
+.impact-content h3 {
+    font-size: 24px; /* Larger heading size */
+    font-weight: bold;
+    color: black;
+    text-align: center;
+    margin: 0;
+}
+
+.impact-content p {
+    font-size: 18px; /* Larger text for readability */
+    color: #555;
+    line-height: 1.8;
+    text-align: center;
+    margin: 0;
 }
