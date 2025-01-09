@@ -45,6 +45,8 @@ const generatePredictionToNetZero = async (req, res) => {
     console.log('Request params:', req.params);
 
     const { company_id } = req.params;
+    const emissionFactor = 0.5; // Example emission factor (kg CO2e per kWh)
+
     if (!company_id) {
         return res.status(400).json({ error: 'Company ID is required in the route parameter.' });
     }
@@ -59,6 +61,7 @@ const generatePredictionToNetZero = async (req, res) => {
         const years = [];
         const yearlyEnergy = [];
         const yearlyCO2 = [];
+        const yearlyCarbonEmissions = [];
 
         // Aggregate actual data by year
         reports.forEach(report => {
@@ -67,11 +70,15 @@ const generatePredictionToNetZero = async (req, res) => {
 
             if (yearIndex === -1) {
                 years.push(year);
-                yearlyEnergy.push(report.totalEnergyKWH || 0);
+                const energy = report.totalEnergyKWH || 0;
+                const carbonEmissions = (energy * emissionFactor) / 1000; // Convert to tons
+                yearlyEnergy.push(energy);
                 yearlyCO2.push(report.co2EmissionsTons || 0);
+                yearlyCarbonEmissions.push(carbonEmissions);
             } else {
                 yearlyEnergy[yearIndex] += report.totalEnergyKWH || 0;
                 yearlyCO2[yearIndex] += report.co2EmissionsTons || 0;
+                yearlyCarbonEmissions[yearIndex] += (report.totalEnergyKWH || 0) * emissionFactor / 1000;
             }
         });
 
@@ -80,16 +87,17 @@ const generatePredictionToNetZero = async (req, res) => {
             year,
             totalEnergyKWH: yearlyEnergy[index],
             co2EmissionsTons: yearlyCO2[index],
+            carbonEmissionsTons: yearlyCarbonEmissions[index],
         }));
 
         // Send data to OpenAI for prediction
         const prompt = `
-You are an AI trained in sustainability data analysis. Based on the following historical energy and CO2 emission data, predict the yearly trend until the company reaches net-zero emissions. Provide the results as an array of JSON objects with "year", "predictedEnergyKWH", and "predictedCO2Tons".
+You are an AI trained in sustainability data analysis. Based on the following historical energy and carbon emission data, predict the yearly trend until the company reaches net-zero carbon emissions. Provide the results as an array of JSON objects with "year" and "predictedCarbonEmissionsTons".
 
 Historical data:
 ${JSON.stringify(historicalData, null, 2)}
 
-Ensure the CO2 emissions reach near zero in the predictions and consider a gradual reduction rate.`;
+Ensure the carbon emissions reach near zero in the predictions and consider a gradual reduction rate.`;
 
         const aiResponse = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
@@ -102,11 +110,9 @@ Ensure the CO2 emissions reach near zero in the predictions and consider a gradu
         // Combine actual and predicted data
         const result = {
             actualYears: years,
-            actualEnergy: yearlyEnergy,
-            actualCO2: yearlyCO2,
+            actualCarbonEmissions: yearlyCarbonEmissions,
             predictedYears: predictions.map(item => item.year),
-            predictedEnergy: predictions.map(item => item.predictedEnergyKWH),
-            predictedCO2: predictions.map(item => item.predictedCO2Tons),
+            predictedCarbonEmissions: predictions.map(item => item.predictedCarbonEmissionsTons),
         };
 
         res.status(200).json(result);
@@ -362,35 +368,6 @@ async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEn
     }
 }
 
-// Function to get all available reports based on year and month
-const getAvailableMonthsAndYears = async (req, res) => {
-    try {
-        const reports = await Report.getAllReport(req.query.year); // Fetch reports filtered by year
-        const monthsAndYears = reports.map(report => {
-            const year = moment(report.date).year();
-            const month = moment(report.date).month() + 1;
-            return { year, month };
-        });
-        res.status(200).json({ monthsAndYears: [...new Set(monthsAndYears)] });
-    } catch (error) {
-        console.error("Error fetching available months and years:", error);
-        res.status(500).json({ error: 'Failed to fetch available months and years' });
-    }
-};
-
-
-// Get all available years for reports
-const getAllYearsReport = async (req, res) => {
-    const { company_id } = req.query; // Pass company_id as query parameter
-
-    try {
-        const years = await Report.getAllYearsReport(company_id);
-        res.status(200).json({ years });
-    } catch (error) {
-        console.error("Error retrieving available years:", error);
-        res.status(500).json({ error: "Failed to retrieve available years" });
-    }
-};
 
 
 

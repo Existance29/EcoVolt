@@ -176,63 +176,46 @@ document.addEventListener('DOMContentLoaded', async function () {
     function populatePredictionChart(data) {
         const ctx = document.getElementById('predictionChart').getContext('2d');
         const chartLabels = [...data.actualYears, ...data.predictedYears];
-        const chartActualEnergy = data.actualEnergy;
-        const chartActualCO2 = data.actualCO2;
-        const chartPredictedEnergy = Array(data.actualYears.length).fill(null).concat(data.predictedEnergy);
-        const chartPredictedCO2 = Array(data.actualYears.length).fill(null).concat(data.predictedCO2);
-
+        const chartActualCarbonEmissions = data.actualCarbonEmissions;
+        const chartPredictedCarbonEmissions = Array(data.actualYears.length).fill(null).concat(data.predictedCarbonEmissions);
+    
         if (predictionChart) {
             predictionChart.destroy();
         }
-
+    
         predictionChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: chartLabels,
                 datasets: [
                     {
-                        label: 'Actual Energy (kWh)',
-                        data: chartActualEnergy,
+                        label: 'Actual Net Carbon Emissions (tons)',
+                        data: chartActualCarbonEmissions,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         fill: false,
                         borderWidth: 2,
                     },
                     {
-                        label: 'Predicted Energy (kWh)',
-                        data: chartPredictedEnergy,
+                        label: 'Predicted Net Carbon Emissions (tons)',
+                        data: chartPredictedCarbonEmissions,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderDash: [5, 5],
                         fill: false,
                         borderWidth: 2,
                     },
-                    {
-                        label: 'Actual CO2 (tons)',
-                        data: chartActualCO2,
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        fill: false,
-                        borderWidth: 2,
-                    },
-                    {
-                        label: 'Predicted CO2 (tons)',
-                        data: chartPredictedCO2,
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderDash: [5, 5],
-                        fill: false,
-                        borderWidth: 2,
-                    }
-                ]
+                ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    title: { display: true, text: 'Actual and Predicted Energy/CO2 Emissions' },
+                    title: { display: true, text: 'Actual and Predicted Net Carbon Emissions' },
                 },
                 scales: {
                     x: { title: { display: true, text: 'Years' } },
-                    y: { beginAtZero: true, title: { display: true, text: 'Values (kWh / tons)' } }
-                }
-            }
+                    y: { beginAtZero: true, title: { display: true, text: 'Carbon Emissions (tons)' } },
+                },
+            },
         });
     }
 
