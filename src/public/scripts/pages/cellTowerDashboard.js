@@ -8,8 +8,11 @@ function formatDecimals(n){
     return Math.round(n).toLocaleString()
 }   
 
-function formatNum(num, month){
-   
+function formatNum(num, month, year){
+    if (year == "all"){
+        return num
+    }
+    //by month
     numToMonth = {
         "1": "Jan",
         "2": "Feb", 
@@ -279,7 +282,7 @@ async function loadData(){
     //deal with trends
     const trendData = data.trends
     const carbonEmissionTrends = trendData.map(item => item.carbon_emission);
-    const trendLabels = trendData.map(item => formatNum(item.num, month));
+    const trendLabels = trendData.map(item => formatNum(item.num, month, year));
     //carbon emission
     renderLineChart(document.getElementById('carbonEmissionChart'), carbonEmissionTrends, trendLabels, "#4FD1C5")
 
@@ -434,7 +437,7 @@ async function loadCellTowersEnergyConsumption(cat, month, year, color){
 async function loadCellTowerEnergyConsumptionTrend(id, cat, month, year, color){
     const data = await (await get(`/Dashboard/Cell-Tower/Energy-Consumption-Trend/${id}/${cat}/${month}/${year}`)).json()
     console.log(data)
-    renderLineChart(document.getElementById('drillDownChart'), data.map(x => x.data), data.map(x => formatNum(x.num, month)), color, true, 0.4)
+    renderLineChart(document.getElementById('drillDownChart'), data.map(x => x.data), data.map(x => formatNum(x.num, month, year)), color, true, 0.4)
 }
 
 function energyConsumptionClick(event, elements, chart){
@@ -522,7 +525,7 @@ async function loadCellTowerRenewableEnergyTrend(id, month, year){
         }
     ]
 
-    renderMultiLineChart(document.getElementById('drillDownChart'), data.map(x => formatNum(x.num, month)), datasets)
+    renderMultiLineChart(document.getElementById('drillDownChart'), data.map(x => formatNum(x.num, month, year)), datasets)
 
 }
 

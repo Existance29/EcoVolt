@@ -73,16 +73,16 @@ def generate_insert_statements(data):
 
 # Parameters
 num_towers = 18
-start_year = 2023
+start_year = 2022
 end_year = 2023
 
 # Generate data
 data = generate_data_for_towers(num_towers, start_year, end_year)
 
 # Generate SQL Insert Statement
-insert_prefix = "INSERT INTO cell_tower_energy_consumption (cell_tower_id, date, total_energy_kwh, radio_equipment_energy_kwh, cooling_energy_kwh, backup_power_energy_kwh, misc_energy_kwh, renewable_energy_kwh, carbon_emission_kg)\nVALUES\n"
+insert_prefix = "INSERT cell_tower_energy_consumption (cell_tower_id, date, total_energy_kwh, radio_equipment_energy_kwh, cooling_energy_kwh, backup_power_energy_kwh, misc_energy_kwh, renewable_energy_kwh, carbon_emission_kg)\nSELECT * FROM (VALUES\n"
 insert_data = generate_insert_statements(data)
-sql_insert_statement = insert_prefix + insert_data + ";"
+sql_insert_statement = insert_prefix + insert_data + ") AS temp (cell_tower_id, date, total_energy_kwh, radio_equipment_energy_kwh, cooling_energy_kwh, backup_power_energy_kwh, misc_energy_kwh, renewable_energy_kwh, carbon_emission_kg);"
 
 # Print the generated SQL statement
 pyperclip.copy(sql_insert_statement)
