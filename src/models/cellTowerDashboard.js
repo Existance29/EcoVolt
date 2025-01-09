@@ -51,7 +51,8 @@ class cellTowerDashboard{
         }
         let trendSQL = `SELECT SUM(carbon_emission_kg) AS carbon_emission, ${groupBySQL} AS num
         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}
-        GROUP BY ${groupBySQL}`
+        GROUP BY ${groupBySQL}
+        ORDER BY ${groupBySQL}`
 
         const trendResults = (await query.query(trendSQL, params)).recordset
         result["trends"] = trendResults //add trend to results
