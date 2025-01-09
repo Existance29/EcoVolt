@@ -79,7 +79,9 @@ class cellTowerDashboard{
                         WHEN @cat = 'Misc' THEN ec.misc_energy_kwh
                         ELSE 0 END) AS data
                         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID ${this.filterByMonthAndYear(month, year)}
-                        GROUP BY ct.cell_tower_name, ct.id`
+                        GROUP BY ct.cell_tower_name, ct.id
+                        ORDER BY ct.id
+                        `
 
         const result = (await query.query(queryStr, params)).recordset
         return result.length ? result : null
@@ -129,7 +131,9 @@ class cellTowerDashboard{
                         SUM(renewable_energy_kwh) AS renewable_energy,
                         SUM(total_energy_kwh) - SUM(renewable_energy_kwh) AS nonrenewable_energy
                         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID ${this.filterByMonthAndYear(month, year)}
-                        GROUP BY ct.cell_tower_name, ct.id`
+                        GROUP BY ct.cell_tower_name, ct.id
+                        ORDER BY ct.id
+                        `
 
         const result = (await query.query(queryStr, params)).recordset
         return result.length ? result : null
@@ -153,7 +157,7 @@ class cellTowerDashboard{
         }else{
             groupBySQL = "DAY(date)"
         }
-        
+
         const queryStr = `SELECT ${groupBySQL} as num, 
                         SUM(renewable_energy_kwh) AS renewable_energy,
                         SUM(total_energy_kwh) AS total_energy
