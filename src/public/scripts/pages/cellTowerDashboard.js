@@ -26,7 +26,7 @@ function formatNum(num, month){
     }
     
     if (month == "all"){
-        return `${numToMonth[num]} 2024`
+        return `${numToMonth[num]} ${yearPicker.value ? yearPicker.value : 2024}`
     }
 
     return `${num} ${numToMonth[month]}`
