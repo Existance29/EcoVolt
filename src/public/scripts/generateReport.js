@@ -5,8 +5,9 @@ document.addEventListener('DOMContentLoaded', async function () {
     const yearSelector = document.getElementById('yearSelector');
     const reportTitle = document.getElementById('reportTitle');
     let reportChart = null;
+    let predictionChart = null;
     let company_id = null;
-    let reportData = null; // Define reportData globally to access it later in PDF generation
+    let reportData = null;
 
     const loadingScreen = document.getElementById('loading-screen');
 
@@ -14,18 +15,18 @@ document.addEventListener('DOMContentLoaded', async function () {
         loadingScreen.style.display = 'block';
         document.getElementById('reportContentWrapper').classList.add('hidden');
     }
-    
+
     function hideLoading() {
         loadingScreen.style.display = 'none';
         document.getElementById('reportContentWrapper').classList.remove('hidden');
     }
 
-    // Initialize company_id before calling fetchReportData
     async function initializeCompanyId() {
         company_id = await getCompanyId();
         if (company_id) {
             console.log("Company ID:", company_id);
             fetchReportData();
+            fetchPredictionData();
         } else {
             console.error("Company ID could not be initialized.");
             statusMessage.innerText = "Failed to load company information.";
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     yearSelector.addEventListener('change', fetchReportData);
 
-    function fetchReportData() {
+    async function fetchReportData() {
         if (!company_id) {
             console.error("Company ID is not available.");
             return;
@@ -45,39 +46,55 @@ document.addEventListener('DOMContentLoaded', async function () {
         statusMessage.innerText = "Loading report data...";
         showLoading();
 
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            reportData = data; // Store data globally for access in PDF generation
-            reportTitle.innerText = `${data.reportData[0]?.companyName || 'Company'} Sustainability Report ${year}`;
+        try {
+            const response = await fetch(url, { method: 'GET', headers: { 'Cache-Control': 'no-cache' } });
+            const data = await response.json();
+            reportData = data;
 
+            reportTitle.innerText = `${data.reportData[0]?.companyName || 'Company'} Sustainability Report ${year}`;
             document.getElementById('executiveSummary').innerText = data.executiveSummary;
             document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
+
             populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
             populateDataTable(data.reportData);
             populateRecommendations(data.recommendations);
             document.getElementById('conclusion').innerText = data.conclusion;
+
             statusMessage.innerText = "Report data loaded successfully.";
-        })
-        .catch(error => {
+        } catch (error) {
             console.error('Error fetching report data:', error);
             statusMessage.innerText = "Failed to load report data.";
-        })
-        .finally(() => {
+        } finally {
             hideLoading();
-        });
+        }
+    }
+
+    async function fetchPredictionData() {
+        if (!company_id) {
+            console.error("Company ID is not available.");
+            return;
+        }
+
+        const url = `/reports/${company_id}/predictNetZero`;
+        statusMessage.innerText = "Loading prediction data...";
+        showLoading();
+
+        try {
+            const response = await fetch(url, { method: 'GET', headers: { 'Cache-Control': 'no-cache' } });
+            const data = await response.json();
+
+            populatePredictionChart(data);
+            statusMessage.innerText = "Prediction data loaded successfully.";
+        } catch (error) {
+            console.error('Error fetching prediction data:', error);
+            statusMessage.innerText = "Failed to load prediction data.";
+        } finally {
+            hideLoading();
+        }
     }
 
     await initializeCompanyId();
 
-    // Generate PDF report on button click
     generateReportBtn.addEventListener('click', function () {
         if (!reportData) {
             statusMessage.innerText = "No data available for generating PDF.";
@@ -111,6 +128,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (reportChart) {
             reportChart.destroy();
         }
+
         const ctx = document.getElementById('dataChart').getContext('2d');
         reportChart = new Chart(ctx, {
             type: 'bar',
@@ -140,21 +158,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                     y1: {
                         type: 'linear',
                         position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Total Energy (kWh)'
-                        }
+                        title: { display: true, text: 'Total Energy (kWh)' }
                     },
                     y2: {
                         type: 'linear',
                         position: 'right',
-                        title: {
-                            display: true,
-                            text: 'CO2 Emissions (tons)'
-                        },
-                        grid: {
-                            drawOnChartArea: false
-                        }
+                        title: { display: true, text: 'CO2 Emissions (tons)' },
+                        grid: { drawOnChartArea: false }
                     }
                 },
                 responsive: true,
@@ -163,10 +173,71 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    function populateDataTable(reportData = []) {
-        dataTableBody.innerHTML = ''; // Clear existing content
-        const rowsPerPage = 33; // Define rows per page
+    function populatePredictionChart(data) {
+        const ctx = document.getElementById('predictionChart').getContext('2d');
+        const chartLabels = [...data.actualYears, ...data.predictedYears];
+        const chartActualEnergy = data.actualEnergy;
+        const chartActualCO2 = data.actualCO2;
+        const chartPredictedEnergy = Array(data.actualYears.length).fill(null).concat(data.predictedEnergy);
+        const chartPredictedCO2 = Array(data.actualYears.length).fill(null).concat(data.predictedCO2);
 
+        if (predictionChart) {
+            predictionChart.destroy();
+        }
+
+        predictionChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [
+                    {
+                        label: 'Actual Energy (kWh)',
+                        data: chartActualEnergy,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        fill: false,
+                        borderWidth: 2,
+                    },
+                    {
+                        label: 'Predicted Energy (kWh)',
+                        data: chartPredictedEnergy,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderDash: [5, 5],
+                        fill: false,
+                        borderWidth: 2,
+                    },
+                    {
+                        label: 'Actual CO2 (tons)',
+                        data: chartActualCO2,
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        fill: false,
+                        borderWidth: 2,
+                    },
+                    {
+                        label: 'Predicted CO2 (tons)',
+                        data: chartPredictedCO2,
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderDash: [5, 5],
+                        fill: false,
+                        borderWidth: 2,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: 'Actual and Predicted Energy/CO2 Emissions' },
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Years' } },
+                    y: { beginAtZero: true, title: { display: true, text: 'Values (kWh / tons)' } }
+                }
+            }
+        });
+    }
+
+    function populateDataTable(reportData = []) {
+        dataTableBody.innerHTML = '';
         reportData.forEach((row, index) => {
             const date = new Date(row.date);
             const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${
@@ -182,41 +253,19 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <td>${row.co2EmissionsTons || 'N/A'}</td>
             `;
             dataTableBody.appendChild(tableRow);
-
-            if ((index + 1) % rowsPerPage === 0) {
-                tableRow.classList.add('page-break');
-            }
         });
     }
 
     function populateRecommendations(recommendations) {
         const recommendationsSection = document.querySelector('.recommendations');
         recommendationsSection.innerHTML = '';
-
         recommendations.forEach((recommendation, index) => {
             const recDiv = document.createElement('div');
-            recDiv.classList.add('recommendation');
-
             recDiv.innerHTML = `
                 <h3>Recommendation ${index + 1}:</h3>
-                <p><strong>Recommendation:</strong> ${recommendation.recommendation}</p>
-                <ol>
-                    ${recommendation.actions.map(action => `
-                        <li>
-                            <strong>Action:</strong> ${action.description}<br>
-                            <strong>Explanation:</strong> ${action.explanation}
-                        </li>
-                    `).join('')}
-                </ol>
-                <p class="intended-impact"><strong>Intended Impact:</strong> ${recommendation.intendedImpact}</p>
+                <p>${recommendation.recommendation}</p>
             `;
             recommendationsSection.appendChild(recDiv);
-
-            if ((index + 1) % 2 === 0 && index !== recommendations.length - 1) {
-                const pageBreak = document.createElement('div');
-                pageBreak.classList.add('page-break');
-                recommendationsSection.appendChild(pageBreak);
-            }
         });
     }
 });

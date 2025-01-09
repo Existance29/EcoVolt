@@ -9,12 +9,11 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 const getAllReport = async (company_id, year = null) => {
     try {
-        // Call the Report model method, allowing `year` to be optional
         const reports = await Report.getAllReport(company_id, year);
-        return reports; // Return data directly
+        return reports;
     } catch (error) {
         console.error("Error fetching all report data:", error);
-        throw error; // Let the calling function handle the error
+        throw error;
     }
 };
 
@@ -41,6 +40,82 @@ async function generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName) {
     }
 }
 
+// Function to generate predictions using OpenAI
+const generatePredictionToNetZero = async (req, res) => {
+    console.log('Request params:', req.params);
+
+    const { company_id } = req.params;
+    if (!company_id) {
+        return res.status(400).json({ error: 'Company ID is required in the route parameter.' });
+    }
+
+    try {
+        const reports = await Report.getAllReport(company_id);
+
+        if (reports.length === 0) {
+            return res.status(404).json({ error: 'No report data found for the specified company.' });
+        }
+
+        const years = [];
+        const yearlyEnergy = [];
+        const yearlyCO2 = [];
+
+        // Aggregate actual data by year
+        reports.forEach(report => {
+            const year = moment(report.date).format('YYYY');
+            const yearIndex = years.indexOf(year);
+
+            if (yearIndex === -1) {
+                years.push(year);
+                yearlyEnergy.push(report.totalEnergyKWH || 0);
+                yearlyCO2.push(report.co2EmissionsTons || 0);
+            } else {
+                yearlyEnergy[yearIndex] += report.totalEnergyKWH || 0;
+                yearlyCO2[yearIndex] += report.co2EmissionsTons || 0;
+            }
+        });
+
+        // Format historical data for OpenAI
+        const historicalData = years.map((year, index) => ({
+            year,
+            totalEnergyKWH: yearlyEnergy[index],
+            co2EmissionsTons: yearlyCO2[index],
+        }));
+
+        // Send data to OpenAI for prediction
+        const prompt = `
+You are an AI trained in sustainability data analysis. Based on the following historical energy and CO2 emission data, predict the yearly trend until the company reaches net-zero emissions. Provide the results as an array of JSON objects with "year", "predictedEnergyKWH", and "predictedCO2Tons".
+
+Historical data:
+${JSON.stringify(historicalData, null, 2)}
+
+Ensure the CO2 emissions reach near zero in the predictions and consider a gradual reduction rate.`;
+
+        const aiResponse = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 1500,
+        });
+
+        const predictions = JSON.parse(aiResponse.choices[0].message.content);
+
+        // Combine actual and predicted data
+        const result = {
+            actualYears: years,
+            actualEnergy: yearlyEnergy,
+            actualCO2: yearlyCO2,
+            predictedYears: predictions.map(item => item.year),
+            predictedEnergy: predictions.map(item => item.predictedEnergyKWH),
+            predictedCO2: predictions.map(item => item.predictedCO2Tons),
+        };
+
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Error generating prediction data:", error);
+        res.status(500).json({ error: 'Failed to generate prediction data.' });
+    }
+};
+
 // Generate report data with optional caching in session
 const generateReportData = async (req, res) => {
     const { company_id } = req.params;
@@ -48,7 +123,7 @@ const generateReportData = async (req, res) => {
     const currentTime = new Date();
     const oneHour = 60 * 60 * 1000;
 
-    // Check if cached data exists for the requested year and if it’s within the cache duration
+    // Check for cached data
     if (req.session.reportData && req.session.reportData[year] && req.session.reportData[year].timestamp) {
         const reportAge = currentTime - new Date(req.session.reportData[year].timestamp);
         if (reportAge < oneHour) {
@@ -57,8 +132,6 @@ const generateReportData = async (req, res) => {
         }
     }
 
-    console.log(`Generating new report data for year ${year}...`);
-
     try {
         const reports = await Report.getAllReport(company_id, year);
 
@@ -66,7 +139,7 @@ const generateReportData = async (req, res) => {
             return res.status(404).json({ error: 'No report data found for the specified company and year.' });
         }
 
-        const companyName = reports[0].companyName; // Get companyName from reports data
+        const companyName = reports[0].companyName;
         const months = [];
         const monthlyEnergy = [];
         const monthlyCO2 = [];
@@ -82,8 +155,8 @@ const generateReportData = async (req, res) => {
                 monthlyEnergy.push(report.totalEnergyKWH || 0);
                 monthlyCO2.push(report.co2EmissionsTons || 0);
             } else {
-                monthlyEnergy[monthIndex] += (report.totalEnergyKWH || 0);
-                monthlyCO2[monthIndex] += (report.co2EmissionsTons || 0);
+                monthlyEnergy[monthIndex] += report.totalEnergyKWH || 0;
+                monthlyCO2[monthIndex] += report.co2EmissionsTons || 0;
             }
 
             totalEnergy += report.totalEnergyKWH || 0;
@@ -93,9 +166,9 @@ const generateReportData = async (req, res) => {
         const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2, companyName);
         const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName);
         const recommendations = await getAllAIRecommendations({
-            totalEnergy: totalEnergy,
+            totalEnergy,
             co2Emissions: totalCO2,
-            currentProgress: (totalCO2 / (totalEnergy * 0.2)) * 100
+            currentProgress: (totalCO2 / (totalEnergy * 0.2)) * 100,
         });
         const conclusion = await generateConclusion(totalEnergy, totalCO2, recommendations);
 
@@ -104,8 +177,8 @@ const generateReportData = async (req, res) => {
             monthlyEnergy,
             monthlyCO2,
             totalEnergy,
-            executiveSummary,
             totalCO2,
+            executiveSummary,
             dataAnalysis,
             recommendations,
             conclusion,
@@ -118,7 +191,7 @@ const generateReportData = async (req, res) => {
         res.status(200).json(reportData);
     } catch (error) {
         console.error("Error fetching report data:", error);
-        res.status(500).json({ error: 'Failed to fetch report data' });
+        res.status(500).json({ error: 'Failed to fetch report data.' });
     }
 };
 
@@ -131,22 +204,22 @@ const forceGenerateReportData = async (req, res) => {
 // Generate PDF report
 const generateReportPDF = async (req, res) => {
     const { company_id } = req.params;
-    console.log("Generating PDF with Puppeteer...");
 
     try {
         const reports = await Report.getAllReport(company_id);
-        
+
         if (reports.length === 0) {
             return res.status(404).json({ error: 'No report data found for the specified company.' });
         }
 
-        const companyName = reports[0].companyName; // Get companyName from reports data
+        const companyName = reports[0].companyName;
 
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
 
         // Pass companyName as a query parameter to the report HTML path
         const reportHtmlPath = `file://${path.resolve(__dirname, '..', 'public', 'report.html')}?companyName=${encodeURIComponent(companyName)}`;
+
         await page.goto(reportHtmlPath, { waitUntil: 'networkidle0' });
 
         const pdfBuffer = await page.pdf({
@@ -328,6 +401,5 @@ module.exports = {
     generateReportData,
     forceGenerateReportData,
     generateReportPDF,
-    getAvailableMonthsAndYears,
-    getAllYearsReport,
+    generatePredictionToNetZero,
 };
