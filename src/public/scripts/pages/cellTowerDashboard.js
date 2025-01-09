@@ -290,7 +290,7 @@ async function loadData(){
     renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors, energyConsumptionClick)
 
     //renewable energy contribution
-    renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 100, "#4FD1C5", "#CAC9CA80")
+    renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 115, "#4FD1C5", "#CAC9CA80")
 }
 
 
