@@ -288,13 +288,13 @@ async function loadData(){
     renderLineChart(document.getElementById('carbonEmissionChart'), carbonEmissionTrends, trendLabels, "#4FD1C5")
 
     //energy breakdown
-    const energyBreakdownColors = ["#263332","#485251","#4FD1C5","#95D1CB","#5BA79F"]
+    const energyBreakdownColors = ["#4FD1C5", "#29A297","#146D65","#0D514B"]
     const energyBreakdownLabels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"]
     const energyBreakdownData = [data.radio_equipment_energy, data.cooling_energy, data.backup_power_energy, data.misc_energy]
     renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors, energyConsumptionClick)
 
     //renewable energy contribution
-    renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 115, "#4FD1C5", "#CAC9CA80")
+    renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 115, "#4FD1C5", "#4FD1C54D")
 }
 
 
@@ -565,29 +565,31 @@ document.getElementById("prediction-tooltip").addEventListener("click",async () 
     showDrillDown(`Carbon Emissions Trend Prediction`) 
     const color1 = "#4FD1C5"
     const tension = 0.4
-    const color2 = "#485251"
+    const color2 = "#AE85FF"
     const datasets = [
         {
             label: 'Current Trend',
-            data: data,
             borderColor: color1,
+        },
+        {
+            label: 'Predicted Trend',
+            data: data.concat(predictionData),
+            segment: {
+                borderColor: (ctx) => ctx.p0.parsed.x < data.length-1 ? color1 : color2,
+            }, 
+            pointBorderColor: (ctx) => ctx.dataIndex < data.length ? color1 : color2,
             tension: tension,
             fill: {
                 target: 'origin',
                 above: (context) => {
                     const {ctx, chartArea} = context.chart
-                    let gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top)
+                    let gradient = ctx.createLinearGradient(0, chartArea.bottom, 1, chartArea.top)
                     gradient.addColorStop(0, color1+"00")
                     gradient.addColorStop(1, color1+"80")
                     return gradient
                 }
             }
-        },
-        {
-            label: 'Predicted Trend',
-            data: data.concat(predictionData),
-            borderColor: color2,
-            tension: tension,
+            
         }
     ]
 
