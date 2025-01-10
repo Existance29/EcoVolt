@@ -40,17 +40,20 @@ class cellTowerDashboard{
         //set the trend sql statement
         //if month is not selected, trend by months
         //if month is selected, trend by days in that month
-        let trendSQL;
-        if (month == "all"){
-            trendSQL = `SELECT SUM(carbon_emission_kg) AS carbon_emission, MONTH(date) AS num
-                FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}
-                GROUP BY MONTH(date)`
+        let groupBySQL;
+        if (month == "all" && year == "all"){
+            groupBySQL = "YEAR(date)"
         }
-        else{
-            trendSQL = `SELECT SUM(carbon_emission_kg) AS carbon_emission, DAY(date) AS num
-                FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}
-                GROUP BY DAY(date)`
+        else if (month == "all"){
+            groupBySQL = "MONTH(date)"
+        }else{
+            groupBySQL = "DAY(date)"
         }
+        let trendSQL = `SELECT SUM(carbon_emission_kg) AS carbon_emission, ${groupBySQL} AS num
+        FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}
+        GROUP BY ${groupBySQL}
+        ORDER BY ${groupBySQL}`
+
         const trendResults = (await query.query(trendSQL, params)).recordset
         result["trends"] = trendResults //add trend to results
         
@@ -77,7 +80,9 @@ class cellTowerDashboard{
                         WHEN @cat = 'Misc' THEN ec.misc_energy_kwh
                         ELSE 0 END) AS data
                         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID ${this.filterByMonthAndYear(month, year)}
-                        GROUP BY ct.cell_tower_name, ct.id`
+                        GROUP BY ct.cell_tower_name, ct.id
+                        ORDER BY ct.id
+                        `
 
         const result = (await query.query(queryStr, params)).recordset
         return result.length ? result : null
@@ -94,7 +99,10 @@ class cellTowerDashboard{
 
         const filterStr = this.filterByMonthAndYear(month, year)
         let groupBySQL;
-        if (month == "all"){
+        if (month == "all" && year == "all"){
+            groupBySQL = "YEAR(date)"
+        }
+        else if (month == "all"){
             groupBySQL = "MONTH(date)"
         }else{
             groupBySQL = "DAY(date)"
@@ -124,7 +132,9 @@ class cellTowerDashboard{
                         SUM(renewable_energy_kwh) AS renewable_energy,
                         SUM(total_energy_kwh) - SUM(renewable_energy_kwh) AS nonrenewable_energy
                         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID ${this.filterByMonthAndYear(month, year)}
-                        GROUP BY ct.cell_tower_name, ct.id`
+                        GROUP BY ct.cell_tower_name, ct.id
+                        ORDER BY ct.id
+                        `
 
         const result = (await query.query(queryStr, params)).recordset
         return result.length ? result : null
@@ -140,11 +150,15 @@ class cellTowerDashboard{
 
         const filterStr = this.filterByMonthAndYear(month, year)
         let groupBySQL;
-        if (month == "all"){
+        if (month == "all" && year == "all"){
+            groupBySQL = "YEAR(date)"
+        }
+        else if (month == "all"){
             groupBySQL = "MONTH(date)"
         }else{
             groupBySQL = "DAY(date)"
         }
+
         const queryStr = `SELECT ${groupBySQL} as num, 
                         SUM(renewable_energy_kwh) AS renewable_energy,
                         SUM(total_energy_kwh) AS total_energy
