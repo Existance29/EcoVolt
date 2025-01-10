@@ -18,7 +18,8 @@ module.exports = {
     options: {
       port: 1433, 
       connectionTimeout: 60000, 
-      requestTimeout: 300000
+      requestTimeout: 300000,
+      encrypt: false
     },
   }
 ```
