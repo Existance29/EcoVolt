@@ -274,6 +274,8 @@ async function loadData(){
     document.getElementById("noDataMessage").style.display = "none"
     document.getElementById("dashboard").style.display = "flex"
     const data = await response.json()
+    //global var to be accessed by other functions
+    globalOverallTrendData = data
     //main stats
     document.getElementById("grid-type").innerText = data.grid_type
     document.getElementById("total-carbon-emission").innerText = `${formatDecimals(data.carbon_emission)} Tons`
@@ -542,6 +544,18 @@ document.getElementById("renewable-energy-contribution-chart").addEventListener(
         loadCellTowerRenewableEnergyTrend(cellTower, month, year)
     }
 })
+
+/*
+============================
+Prediction
+============================
+*/
+
+document.getElementById("prediction-tooltip").addEventListener("click",() => {
+    const {month, year, cellTower} = getFilters()
+    showDrillDown(`Carbon Emissions Trend Prediction`) 
+})
+
 
 /*
 ============================
