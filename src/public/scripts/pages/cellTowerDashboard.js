@@ -1,7 +1,6 @@
 Chart.defaults.font.size = 13
 Chart.defaults.color = "#8A8A8A"
-var hourArray = [10, 20, 30, 40, 50]
-var honeyPerMin = [5,10,15,20, 13]
+var globalOverallTrendData;
 
 //round the decimals and add commas
 function formatDecimals(n){
@@ -551,9 +550,48 @@ Prediction
 ============================
 */
 
-document.getElementById("prediction-tooltip").addEventListener("click",() => {
+document.getElementById("prediction-tooltip").addEventListener("click",async () => {
     const {month, year, cellTower} = getFilters()
+    const data = globalOverallTrendData.trends.map(x => x.carbon_emission)
+    const allLabels = globalOverallTrendData.trends.map(x => x.num)
+
+    let start = allLabels[allLabels.length - 1]; // Get the last element to continue incrementally
+
+    for (let i = 1; i <= 5; i++) {
+        allLabels.push(start + i); // Add the next incremental value
+    }
+
+    const predictionData = await (await post(`/Dashboard/Forecast/holt-linear/5`, {data: JSON.stringify(data)})).json()
     showDrillDown(`Carbon Emissions Trend Prediction`) 
+    const color1 = "#4FD1C5"
+    const tension = 0.4
+    const color2 = "#485251"
+    const datasets = [
+        {
+            label: 'Current Trend',
+            data: data,
+            borderColor: color1,
+            tension: tension,
+            fill: {
+                target: 'origin',
+                above: (context) => {
+                    const {ctx, chartArea} = context.chart
+                    let gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top)
+                    gradient.addColorStop(0, color1+"00")
+                    gradient.addColorStop(1, color1+"80")
+                    return gradient
+                }
+            }
+        },
+        {
+            label: 'Predicted Trend',
+            data: data.concat(predictionData),
+            borderColor: color2,
+            tension: tension,
+        }
+    ]
+
+    renderMultiLineChart(document.getElementById('drillDownChart'), allLabels, datasets)
 })
 
 

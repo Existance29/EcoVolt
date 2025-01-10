@@ -10,6 +10,7 @@ class forecastController{
         }
 
         try {
+            console.log(data)
             const timeSeries = JSON.parse(data)
             res.status(201).json(forecast.holtLinear(timeSeries, forecastPeriods));
         } catch (error) {
