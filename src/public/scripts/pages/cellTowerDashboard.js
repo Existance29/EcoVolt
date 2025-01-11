@@ -32,25 +32,29 @@ function formatNum(num, month, year){
     }
     //by month
     numToMonth = {
-        "1": "Jan",
-        "2": "Feb", 
-        "3": "Mar", 
-        "4": "Apr", 
-        "5": "May", 
-        "6": "Jun", 
-        "7": "Jul", 
-        "8": "Aug",
-        "9": "Sep", 
-        "10": "Oct", 
-        "11": "Nov",
-        "12": "Dec"
+        1: "Jan",
+        2: "Feb", 
+        3: "Mar", 
+        4: "Apr", 
+        5: "May", 
+        6: "Jun", 
+        7: "Jul", 
+        8: "Aug",
+        9: "Sep", 
+        10: "Oct", 
+        11: "Nov",
+        0: "Dec"
     }
     
     if (month == "all"){
-        return `${numToMonth[num]} ${yearPicker.value ? yearPicker.value : 2024}`
+        r = num%12
+        q = Math.floor(num/12)
+        return `${numToMonth[r]} ${yearPicker.value ? parseInt(yearPicker.value)+q : 2024+q}`
     }
-
-    return `${num} ${numToMonth[month]}`
+    month = parseInt(month)
+    r = num%31
+    q = Math.floor(num/31)
+    return `${r} ${numToMonth[(month+q)%12]}`
 
 
 }
@@ -396,12 +400,13 @@ async function loadData(){
     renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 115, "#4FD1C5", "#4FD1C54D")
 
     //forecast
-    const allLabels = data.trends.map(x => x.num)
+    let allLabels = data.trends.map(x => x.num)
     let start = allLabels[allLabels.length - 1]; // Get the last element to continue incrementally
 
     for (let i = 1; i <= 5; i++) {
         allLabels.push(start + i); // Add the next incremental value
     }
+    allLabels = allLabels.map(x => formatNum(x, month, year))
     const color1 = "#4FD1C5"
     const color2 = "#AE85FF"
 
