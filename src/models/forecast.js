@@ -13,7 +13,7 @@ class Forecast{
         }
     
         for (let h = 1; h <= forecastPeriods; h++) {
-            out.push(L + h * T)
+            out.push(Math.max(0, L + h * T))
         }
         return out
     }

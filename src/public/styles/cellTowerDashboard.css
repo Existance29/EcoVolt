@@ -424,3 +424,32 @@ body {
   font-size: 0.85rem;
   font-weight: 500;
 }
+
+#forecast-period{
+  padding: 6px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background-color: #f5f8fa;
+  color: #333;
+  transition: border-color 0.3s ease;
+  width: 10%;
+}
+
+#forecast-period:focus {
+  border-color: #AE85FF;
+  outline: none;
+}
+
+#forecast-period-btn{
+  color: #AE85FF;
+  font-size: 0.9rem;
+  border: 1px solid #AE85FF;
+  padding: 6px 1.4rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+#forecast-period-btn:hover{
+  background-color: #AE85FF26;
+}

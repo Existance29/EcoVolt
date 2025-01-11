@@ -49,7 +49,7 @@ function formatNum(num, month, year){
     if (month == "all"){
         r = num%12
         q = Math.floor(num/12)
-        return `${numToMonth[r]} ${yearPicker.value ? parseInt(yearPicker.value)+q : 2024+q}`
+        return `${numToMonth[r]} ${yearPicker.value ? parseInt(yearPicker.value)+(r ? q : q-1) : 2024 + (r ? q : q-1)}`
     }
     month = parseInt(month)
     r = num%31
@@ -400,10 +400,11 @@ async function loadData(){
     renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 115, "#4FD1C5", "#4FD1C54D")
 
     //forecast
+    const forecastPeriod = parseInt(document.getElementById("forecast-period").value)
     let allLabels = data.trends.map(x => x.num)
     let start = allLabels[allLabels.length - 1]; // Get the last element to continue incrementally
 
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= forecastPeriod; i++) {
         allLabels.push(start + i); // Add the next incremental value
     }
     allLabels = allLabels.map(x => formatNum(x, month, year))
@@ -411,21 +412,23 @@ async function loadData(){
     const color2 = "#AE85FF"
 
     const carbonEmissionData = data.trends.map(x => x.carbon_emission)
-    const carbonEmissionPredictionData = await (await post(`/Dashboard/Forecast/holt-linear/5`, {data: JSON.stringify(carbonEmissionData)})).json()
+    const carbonEmissionPredictionData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(carbonEmissionData)})).json()
     renderForecastLineChart(document.getElementById('carbonEmissionForecastChart'), carbonEmissionData, carbonEmissionPredictionData, allLabels, color1, color2)
 
     const energyConsumptionData = data.trends.map(x => x.total_energy)
-    const energyConsumptionForecastData = await (await post(`/Dashboard/Forecast/holt-linear/5`, {data: JSON.stringify(energyConsumptionData)})).json()
+    const energyConsumptionForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(energyConsumptionData)})).json()
     renderForecastLineChart(document.getElementById('energyConsumptionForecastChart'), energyConsumptionData, energyConsumptionForecastData, allLabels, color1, color2)
     
     const renewableEnergyContributionData = []
     data.trends.forEach(x => {
         renewableEnergyContributionData.push(x.renewable_energy/x.total_energy*100)
     })
-    const renewableEnergyContributionForecastData = await (await post(`/Dashboard/Forecast/holt-linear/5`, {data: JSON.stringify(renewableEnergyContributionData)})).json()
+    const renewableEnergyContributionForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(renewableEnergyContributionData)})).json()
     renderForecastLineChart(document.getElementById('renewableEnergyContributionForecastChart'), renewableEnergyContributionData, renewableEnergyContributionForecastData, allLabels, color1, color2, "%")
 
 }
+
+document.getElementById("forecast-period-btn").addEventListener("click", ()=> loadData())
 
 
 async function onLoad() {
@@ -458,6 +461,8 @@ async function onLoad() {
 
     // Update date picker label based on URL parameters 
     updateDatePickerToggleLabel(); 
+
+    document.getElementById("forecast-period").value = 5
 
     // Load data based on initial parameters 
     loadData(); 
