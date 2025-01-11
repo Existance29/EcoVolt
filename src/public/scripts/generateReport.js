@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             populateDataTable(data.reportData);
             populateRecommendations(data.recommendations);
             populatePerformanceSummary(data.performanceSummary); // Populate performance summary
+            populateEfficiencyMetrics(data.performanceSummary.efficiencyMetrics);
             document.getElementById('conclusion').innerText = data.conclusion;
 
             statusMessage.innerText = "Report data loaded successfully.";
@@ -90,14 +91,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                 yearSelector.appendChild(option);
             });
     
-            // Set default year to the latest one
             if (years.length > 0) {
                 yearSelector.value = years[0];
                 fetchReportData(); // Load the report for the latest year
             }
         } catch (error) {
             console.error('Error fetching available years:', error);
-            statusMessage.innerText = 'Failed to load available years.';
         }
     }
 
@@ -253,12 +252,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     function populateDataTable(reportData = []) {
-        dataTableBody.innerHTML = '';
-        reportData.forEach((row, index) => {
+        dataTableBody.innerHTML = ''; // Clear existing rows
+    
+        if (reportData.length === 0) {
+            // Add a message to indicate no data is available
+            dataTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No data available for this year</td></tr>`;
+            return;
+        }
+    
+        reportData.forEach((row) => {
             const date = new Date(row.date);
             const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${
                 (date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-
+    
             const tableRow = document.createElement('tr');
             tableRow.innerHTML = `
                 <td>${formattedDate}</td>
@@ -280,9 +286,23 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
 
         performanceSummarySection.innerHTML = `
-            <h3>Performance Summary</h3>
+            <h2>Performance Summary</h2>
             <p>Total Energy Consumption: ${summary.totalEnergy.current.toLocaleString()} kWh (<b>${summary.totalEnergy.percentageChange.toFixed(2)}%</b> from last year)</p>
             <p>CO2 Emissions: ${summary.co2Emissions.current.toFixed(2)} tons (<b>${summary.co2Emissions.percentageChange.toFixed(2)}%</b> from last year)</p>
+        `;
+    }
+
+    function populateEfficiencyMetrics(metrics) {
+        const metricsSection = document.getElementById('efficiencyMetrics');
+        if (!metrics) {
+            metricsSection.innerHTML = `<p>PUE, CUE, and WUE data are not available.</p>`;
+            return;
+        }
+        
+        metricsSection.innerHTML = `
+            <p>PUE: <b>${metrics.PUE.current || 'N/A'}</b> (<b>${metrics.PUE.percentageChange?.toFixed(2) || 'N/A'}</b>% from last year)</p>
+            <p>CUE: <b>${metrics.CUE.current || 'N/A'}</b> (<b>${metrics.CUE.percentageChange?.toFixed(2) || 'N/A'}</b>% from last year)</p>
+            <p>WUE: <b>${metrics.WUE.current || 'N/A'}</b> (<b>${metrics.WUE.percentageChange?.toFixed(2) || 'N/A'}</b>% from last year)</p>
         `;
     }
 
