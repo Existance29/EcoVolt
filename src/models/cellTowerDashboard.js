@@ -49,7 +49,7 @@ class cellTowerDashboard{
         }else{
             groupBySQL = "DAY(date)"
         }
-        let trendSQL = `SELECT SUM(carbon_emission_kg) AS carbon_emission, ${groupBySQL} AS num
+        let trendSQL = `SELECT SUM(carbon_emission_kg) AS carbon_emission, SUM(total_energy_kwh) AS total_energy, SUM(renewable_energy_kwh) AS renewable_energy, ${groupBySQL} AS num
         FROM cell_tower_energy_consumption AS ec INNER JOIN cell_towers AS ct ON ec.cell_tower_id=ct.id WHERE ct.company_id=@companyID${filterStr}
         GROUP BY ${groupBySQL}
         ORDER BY ${groupBySQL}`

@@ -2,6 +2,25 @@ Chart.defaults.font.size = 13
 Chart.defaults.color = "#8A8A8A"
 var globalOverallTrendData;
 
+//tab switching
+var currentDashboard;
+const dashboardTabs = Array.from(document.getElementById("dashboard-tabs").children)
+function getDashboardByTabId(tabID){
+    return document.getElementById(`${tabID.split("-")[0]}-dashboard`)
+}
+
+function dashboardTabClicked(tabEle){
+    dashboardTabs.forEach(y => {
+        y.classList.remove("active")
+        getDashboardByTabId(y.id).style.display = "none"
+    })
+    tabEle.classList.add("active")
+    currentDashboard = getDashboardByTabId(tabEle.id)
+    currentDashboard.style.display = "flex"
+}
+dashboardTabs.forEach(x => x.addEventListener("click", ()=> dashboardTabClicked(x)))
+dashboardTabClicked(document.getElementById("review-tab-btn"))
+
 //round the decimals and add commas
 function formatDecimals(n){
     return Math.round(n).toLocaleString()
@@ -118,7 +137,8 @@ function renderLineChart(canvasElement, xData, yData, lineColor, maintainAspectR
                 },
                 x: {
                     grid: {
-                        display: false
+                        color: "#E2E8F0",
+                        borderDash: [8, 4],
                     }
                 }
             },
@@ -143,6 +163,7 @@ function renderMultiLineChart(canvasElement, xData, datasets){
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             interaction: {
                 mode: 'index',
                 intersect: false,
@@ -161,7 +182,8 @@ function renderMultiLineChart(canvasElement, xData, datasets){
                 },
                 x: {
                     grid: {
-                        display: false
+                        color: "#E2E8F0",
+                        borderDash: [8, 4],
                     }
                 }
             }
@@ -240,6 +262,83 @@ function renderCircleProgressBar(element, currentValue, totalValue, chartSize, b
     labelDiv.innerHTML = `<span style="color: ${barColor};">${formatDecimals(currentValue)}</span> / ${formatDecimals(totalValue)} kWh`
 }
 
+function renderForecastLineChart(canvasElement, originalData, forecastData, labels, color1, color2, yTickUnit=""){
+    if(Chart.getChart(canvasElement.id)) {
+        Chart.getChart(canvasElement.id)?.destroy()
+    }
+
+    const datasets = [
+        {
+            label: '',
+            data: originalData.concat(forecastData),
+            segment: {
+                borderColor: ctx => ctx.p0.parsed.x < originalData.length-1 ? color1 : color2,
+                borderDash: ctx => ctx.p0.parsed.x < originalData.length-1 ? undefined : [4,4],
+                backgroundColor: ctx => {
+                    let canvasContext = canvasElement.getContext("2d")
+                    let gradient = canvasContext.createLinearGradient(0, 0, 0, canvasElement.height)
+                    if (ctx.p0.parsed.x < originalData.length-1){
+                        gradient.addColorStop(0, color1+"80")
+                        gradient.addColorStop(1, color1+"00")
+                        return gradient
+                    }else{
+                        gradient.addColorStop(0, color2+"80")
+                        gradient.addColorStop(1, color2+"00")
+                        return gradient
+                    }
+                },
+            }, 
+            pointBorderColor: (ctx) => ctx.dataIndex < originalData.length ? color1 : color2,
+            tension: 0.4,
+            fill: true
+
+        }
+    ]
+
+    new Chart(canvasElement, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    grid: {
+                        color: "#E2E8F0",
+                        borderDash: [8, 4],
+                    },
+                    ticks: {
+                        maxTicksLimit: 8,
+                        autoSkip: false,
+                        callback: (value, index, values) => `${value}${yTickUnit}`
+                    },
+                    beginAtZero: true
+                },
+                x: {
+                    grid: {
+                        color: "#E2E8F0",
+                        borderDash: [8, 4],
+                    },
+
+                    
+                }
+            },
+            plugins:{
+                legend: {
+                    display: false
+                }
+            },
+        }
+    })
+}
+
 const monthPicker = document.getElementById("monthPicker")
 const yearPicker = document.getElementById("yearPicker")
 const cellTowerPicker = document.getElementById("cellTowerDropdown")
@@ -267,11 +366,11 @@ async function loadData(){
     //check if the data exists
     if (response.status == 404){
         document.getElementById("noDataMessage").style.display = "block"
-        document.getElementById("dashboard").style.display = "none"
+        currentDashboard.style.display = "none"
         return
     }
     document.getElementById("noDataMessage").style.display = "none"
-    document.getElementById("dashboard").style.display = "flex"
+    currentDashboard.style.display = "flex"
     const data = await response.json()
     //global var to be accessed by other functions
     globalOverallTrendData = data
@@ -288,13 +387,39 @@ async function loadData(){
     renderLineChart(document.getElementById('carbonEmissionChart'), carbonEmissionTrends, trendLabels, "#4FD1C5")
 
     //energy breakdown
-    const energyBreakdownColors = ["#4FD1C5", "#29A297","#146D65","#0D514B"]
+    const energyBreakdownColors = ['#2F3E46', '#4E5D63', '#38B2AC', '#A8DADC'].reverse()
     const energyBreakdownLabels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"]
     const energyBreakdownData = [data.radio_equipment_energy, data.cooling_energy, data.backup_power_energy, data.misc_energy]
     renderDoughnutChart(document.getElementById('energyBreakdownChart'), energyBreakdownLabels, energyBreakdownData, energyBreakdownColors, energyConsumptionClick)
 
     //renewable energy contribution
     renderCircleProgressBar(document.getElementById("renewable-energy-contribution-chart"), data.renewable_energy, data.total_energy, 115, "#4FD1C5", "#4FD1C54D")
+
+    //forecast
+    const allLabels = data.trends.map(x => x.num)
+    let start = allLabels[allLabels.length - 1]; // Get the last element to continue incrementally
+
+    for (let i = 1; i <= 5; i++) {
+        allLabels.push(start + i); // Add the next incremental value
+    }
+    const color1 = "#4FD1C5"
+    const color2 = "#AE85FF"
+
+    const carbonEmissionData = data.trends.map(x => x.carbon_emission)
+    const carbonEmissionPredictionData = await (await post(`/Dashboard/Forecast/holt-linear/5`, {data: JSON.stringify(carbonEmissionData)})).json()
+    renderForecastLineChart(document.getElementById('carbonEmissionForecastChart'), carbonEmissionData, carbonEmissionPredictionData, allLabels, color1, color2)
+
+    const energyConsumptionData = data.trends.map(x => x.total_energy)
+    const energyConsumptionForecastData = await (await post(`/Dashboard/Forecast/holt-linear/5`, {data: JSON.stringify(energyConsumptionData)})).json()
+    renderForecastLineChart(document.getElementById('energyConsumptionForecastChart'), energyConsumptionData, energyConsumptionForecastData, allLabels, color1, color2)
+    
+    const renewableEnergyContributionData = []
+    data.trends.forEach(x => {
+        renewableEnergyContributionData.push(x.renewable_energy/x.total_energy*100)
+    })
+    const renewableEnergyContributionForecastData = await (await post(`/Dashboard/Forecast/holt-linear/5`, {data: JSON.stringify(renewableEnergyContributionData)})).json()
+    renderForecastLineChart(document.getElementById('renewableEnergyContributionForecastChart'), renewableEnergyContributionData, renewableEnergyContributionForecastData, allLabels, color1, color2, "%")
+
 }
 
 
@@ -546,59 +671,6 @@ document.getElementById("renewable-energy-contribution-chart").addEventListener(
 
 /*
 ============================
-Prediction
-============================
-*/
-
-document.getElementById("prediction-tooltip").addEventListener("click",async () => {
-    const {month, year, cellTower} = getFilters()
-    const data = globalOverallTrendData.trends.map(x => x.carbon_emission)
-    const allLabels = globalOverallTrendData.trends.map(x => x.num)
-
-    let start = allLabels[allLabels.length - 1]; // Get the last element to continue incrementally
-
-    for (let i = 1; i <= 5; i++) {
-        allLabels.push(start + i); // Add the next incremental value
-    }
-
-    const predictionData = await (await post(`/Dashboard/Forecast/holt-linear/5`, {data: JSON.stringify(data)})).json()
-    showDrillDown(`Carbon Emissions Trend Prediction`) 
-    const color1 = "#4FD1C5"
-    const tension = 0.4
-    const color2 = "#AE85FF"
-    const datasets = [
-        {
-            label: 'Current Trend',
-            borderColor: color1,
-        },
-        {
-            label: 'Predicted Trend',
-            data: data.concat(predictionData),
-            segment: {
-                borderColor: (ctx) => ctx.p0.parsed.x < data.length-1 ? color1 : color2,
-            }, 
-            pointBorderColor: (ctx) => ctx.dataIndex < data.length ? color1 : color2,
-            tension: tension,
-            fill: {
-                target: 'origin',
-                above: (context) => {
-                    const {ctx, chartArea} = context.chart
-                    let gradient = ctx.createLinearGradient(0, chartArea.bottom, 1, chartArea.top)
-                    gradient.addColorStop(0, color1+"00")
-                    gradient.addColorStop(1, color1+"80")
-                    return gradient
-                }
-            }
-            
-        }
-    ]
-
-    renderMultiLineChart(document.getElementById('drillDownChart'), allLabels, datasets)
-})
-
-
-/*
-============================
 Tool tip
 ============================
 */
@@ -624,3 +696,65 @@ document.getElementById("renewable-energy-contribution-tooltip").addEventListene
     document.querySelector("#tooltip p").innerText = "Renewable Energy Contribution refers to the percentage of the total energy consumption that comes from renewable energy sources.\
     \n\nUsing renewable energy helps decrease greenhouse gas emissions, lower operating costs and contribute to long-term energy security."
 })
+
+/*
+============================
+Prediction
+============================
+*/
+
+// document.getElementById("prediction-tooltip").addEventListener("click",async () => {
+//     const {month, year, cellTower} = getFilters()
+//     const data = globalOverallTrendData.trends.map(x => x.carbon_emission)
+//     const allLabels = globalOverallTrendData.trends.map(x => x.num)
+
+//     let start = allLabels[allLabels.length - 1]; // Get the last element to continue incrementally
+
+//     for (let i = 1; i <= 5; i++) {
+//         allLabels.push(start + i); // Add the next incremental value
+//     }
+
+//     const predictionData = await (await post(`/Dashboard/Forecast/holt-linear/5`, {data: JSON.stringify(data)})).json()
+//     showDrillDown(`Carbon Emissions Forecast`) 
+//     const color1 = "#4FD1C5"
+//     const tension = 0.4
+//     const color2 = "#AE85FF"
+//     const datasets = [
+//         {
+//             label: 'Current Trend',
+//             borderColor: color1,
+//             fill: {
+//                 target: 'origin',
+//                 above: (context) => {
+//                     const {ctx, chartArea} = context.chart
+//                     let gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top)
+//                     gradient.addColorStop(0, color1+"00")
+//                     gradient.addColorStop(1, color1+"80")
+//                     return gradient
+//                 }
+//             }
+//         },
+//         {
+//             label: 'Predicted Trend',
+//             data: data.concat(predictionData),
+//             segment: {
+//                 borderColor: (ctx) => ctx.p0.parsed.x < data.length-1 ? color1 : color2,
+//             }, 
+//             pointBorderColor: (ctx) => ctx.dataIndex < data.length ? color1 : color2,
+//             tension: tension,
+//             fill: {
+//                 target: 'origin',
+//                 above: (context) => {
+//                     const {ctx, chartArea} = context.chart
+//                     let gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top)
+//                     gradient.addColorStop(0, color1+"00")
+//                     gradient.addColorStop(1, color1+"80")
+//                     return gradient
+//                 }
+//             }
+            
+//         }
+//     ]
+
+//     renderMultiLineChart(document.getElementById('drillDownChart'), allLabels, datasets)
+// })
