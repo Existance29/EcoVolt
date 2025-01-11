@@ -68,6 +68,37 @@ document.addEventListener('DOMContentLoaded', async function () {
             hideLoading();
         }
     }
+    async function fetchAvailableYears() {
+        if (!company_id) {
+            console.error("Company ID is not available.");
+            return;
+        }
+    
+        try {
+            const response = await fetch(`/reports/${company_id}/years`);
+            const years = await response.json();
+    
+            const yearSelector = document.getElementById('yearSelector');
+            yearSelector.innerHTML = ''; // Clear existing options
+    
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelector.appendChild(option);
+            });
+    
+            // Set default year to the latest one
+            if (years.length > 0) {
+                yearSelector.value = years[0];
+                fetchReportData(); // Load the report for the latest year
+            }
+        } catch (error) {
+            console.error('Error fetching available years:', error);
+            statusMessage.innerText = 'Failed to load available years.';
+        }
+    }
+    
 
     async function fetchPredictionData() {
         if (!company_id) {
@@ -94,6 +125,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     await initializeCompanyId();
+    await fetchAvailableYears();
 
     generateReportBtn.addEventListener('click', function () {
         if (!reportData) {
@@ -269,5 +301,15 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
         });
     }
+
+    if (data.performanceSummary) {
+        const summary = data.performanceSummary;
     
+        document.getElementById('performanceSummary').innerHTML = `
+            <h3>Performance Summary</h3>
+            <p>Total Energy Consumption: ${summary.totalEnergy.current.toLocaleString()} kWh (${summary.totalEnergy.percentageChange.toFixed(2)}% from last year)</p>
+            <p>Renewable Energy Usage: ${summary.renewableEnergy.current.toLocaleString()} kWh (${summary.renewableEnergy.percentageChange.toFixed(2)}% from last year)</p>
+            <p>CO2 Emissions: ${summary.co2Emissions.current.toFixed(2)} tons (${summary.co2Emissions.percentageChange.toFixed(2)}% from last year)</p>
+        `;
+    }
 });

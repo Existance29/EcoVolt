@@ -181,6 +181,40 @@ class Report {
         }
     }
 
+    static async getDistinctYears(company_id) {
+        try {
+            const connection = await sql.connect(dbConfig);
+            const companyFilter = company_id ? `AND c.id = ${company_id}` : '';
+    
+            const query = `
+                SELECT DISTINCT YEAR(date) AS year
+                FROM (
+                    SELECT CTec.date
+                    FROM cell_tower_energy_consumption CTec
+                    INNER JOIN companies c ON c.id = CTec.cell_tower_id
+                    WHERE 1=1 ${companyFilter}
+
+                    UNION ALL
+
+                    SELECT DCec.date
+                    FROM data_center_energy_consumption DCec
+                    INNER JOIN data_centers dct ON dct.id = DCec.data_center_id
+                    INNER JOIN companies c ON c.id = dct.company_id
+                    WHERE 1=1 ${companyFilter}
+                ) AS combined
+                ORDER BY year DESC;
+            `;
+    
+            const result = await connection.query(query);
+            return result.recordset.map(row => row.year);
+        } catch (error) {
+            console.error("Error fetching distinct years:", error);
+            throw error;
+        } finally {
+            await sql.close();
+        }
+    }
+
     
 }
 

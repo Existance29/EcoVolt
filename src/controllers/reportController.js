@@ -369,6 +369,17 @@ async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEn
 }
 
 
+const getAvailableYears = async (req, res) => {
+    const { company_id } = req.params;
+
+    try {
+        const years = await Report.getDistinctYears(company_id);
+        res.status(200).json(years);
+    } catch (error) {
+        console.error("Error fetching available years:", error);
+        res.status(500).json({ error: 'Failed to fetch available years.' });
+    }
+};
 
 
 
@@ -379,4 +390,5 @@ module.exports = {
     forceGenerateReportData,
     generateReportPDF,
     generatePredictionToNetZero,
+    getAvailableYears
 };
