@@ -139,11 +139,15 @@ const generateReportData = async (req, res) => {
     }
 
     try {
+        // Fetch current year data
         const reports = await Report.getAllReport(company_id, year);
-
         if (reports.length === 0) {
-            return res.status(404).json({ error: 'No report data found for the specified company and year.' });
+            return res.status(404).json({ error: `No report data found for the year ${year}.` });
         }
+
+        // Fetch previous year data
+        const previousYear = parseInt(year) - 1;
+        const previousYearReports = await Report.getAllReport(company_id, previousYear);
 
         const companyName = reports[0].companyName;
         const months = [];
@@ -152,6 +156,7 @@ const generateReportData = async (req, res) => {
         let totalEnergy = 0;
         let totalCO2 = 0;
 
+        // Process current year data
         reports.forEach(report => {
             const month = moment(report.date).format('MMM YYYY');
             const monthIndex = months.indexOf(month);
@@ -169,6 +174,30 @@ const generateReportData = async (req, res) => {
             totalCO2 += report.co2EmissionsTons || 0;
         });
 
+        // Calculate performance summary if previous year data exists
+        let performanceSummary = null;
+        if (previousYearReports.length > 0) {
+            const previousTotalEnergy = previousYearReports.reduce((sum, report) => sum + (report.totalEnergyKWH || 0), 0);
+            const previousTotalCO2 = previousYearReports.reduce((sum, report) => sum + (report.co2EmissionsTons || 0), 0);
+
+            const energyChangePercentage = ((totalEnergy - previousTotalEnergy) / previousTotalEnergy) * 100;
+            const co2ChangePercentage = ((totalCO2 - previousTotalCO2) / previousTotalCO2) * 100;
+
+            performanceSummary = {
+                totalEnergy: {
+                    current: totalEnergy,
+                    previous: previousTotalEnergy,
+                    percentageChange: energyChangePercentage,
+                },
+                co2Emissions: {
+                    current: totalCO2,
+                    previous: previousTotalCO2,
+                    percentageChange: co2ChangePercentage,
+                },
+            };
+        }
+
+        // Generate executive summary and other sections
         const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2, companyName);
         const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName);
         const recommendations = await getAllAIRecommendations({
@@ -188,6 +217,7 @@ const generateReportData = async (req, res) => {
             dataAnalysis,
             recommendations,
             conclusion,
+            performanceSummary, // Add performance summary to the report data
             reportData: reports,
         };
 

@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
             populateDataTable(data.reportData);
             populateRecommendations(data.recommendations);
+            populatePerformanceSummary(data.performanceSummary); // Populate performance summary
             document.getElementById('conclusion').innerText = data.conclusion;
 
             statusMessage.innerText = "Report data loaded successfully.";
@@ -68,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             hideLoading();
         }
     }
+
     async function fetchAvailableYears() {
         if (!company_id) {
             console.error("Company ID is not available.");
@@ -98,7 +100,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             statusMessage.innerText = 'Failed to load available years.';
         }
     }
-    
 
     async function fetchPredictionData() {
         if (!company_id) {
@@ -271,6 +272,20 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
+    function populatePerformanceSummary(summary) {
+        const performanceSummarySection = document.getElementById('performanceSummary');
+        if (!summary) {
+            performanceSummarySection.innerHTML = `<p>No performance comparison available with previous year.</p>`;
+            return;
+        }
+
+        performanceSummarySection.innerHTML = `
+            <h3>Performance Summary</h3>
+            <p>Total Energy Consumption: ${summary.totalEnergy.current.toLocaleString()} kWh (<b>${summary.totalEnergy.percentageChange.toFixed(2)}%</b> from last year)</p>
+            <p>CO2 Emissions: ${summary.co2Emissions.current.toFixed(2)} tons (<b>${summary.co2Emissions.percentageChange.toFixed(2)}%</b> from last year)</p>
+        `;
+    }
+
     function populateRecommendations(recommendations) {
         const recommendationsSection = document.querySelector('.recommendations');
         recommendationsSection.innerHTML = '';
@@ -300,16 +315,5 @@ document.addEventListener('DOMContentLoaded', async function () {
                 recommendationsSection.appendChild(pageBreak);
             }
         });
-    }
-
-    if (data.performanceSummary) {
-        const summary = data.performanceSummary;
-    
-        document.getElementById('performanceSummary').innerHTML = `
-            <h3>Performance Summary</h3>
-            <p>Total Energy Consumption: ${summary.totalEnergy.current.toLocaleString()} kWh (${summary.totalEnergy.percentageChange.toFixed(2)}% from last year)</p>
-            <p>Renewable Energy Usage: ${summary.renewableEnergy.current.toLocaleString()} kWh (${summary.renewableEnergy.percentageChange.toFixed(2)}% from last year)</p>
-            <p>CO2 Emissions: ${summary.co2Emissions.current.toFixed(2)} tons (${summary.co2Emissions.percentageChange.toFixed(2)}% from last year)</p>
-        `;
     }
 });
