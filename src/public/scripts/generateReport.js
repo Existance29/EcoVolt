@@ -242,13 +242,32 @@ document.addEventListener('DOMContentLoaded', async function () {
     function populateRecommendations(recommendations) {
         const recommendationsSection = document.querySelector('.recommendations');
         recommendationsSection.innerHTML = '';
+
         recommendations.forEach((recommendation, index) => {
             const recDiv = document.createElement('div');
+            recDiv.classList.add('recommendation');
+
             recDiv.innerHTML = `
                 <h3>Recommendation ${index + 1}:</h3>
-                <p>${recommendation.recommendation}</p>
+                <p><strong>Recommendation:</strong> ${recommendation.recommendation}</p>
+                <ol>
+                    ${recommendation.actions.map(action => `
+                        <li>
+                            <strong>Action:</strong> ${action.description}<br>
+                            <strong>Explanation:</strong> ${action.explanation}
+                        </li>
+                    `).join('')}
+                </ol>
+                <p class="intended-impact"><strong>Intended Impact:</strong> ${recommendation.intendedImpact}</p>
             `;
             recommendationsSection.appendChild(recDiv);
+
+            if ((index + 1) % 2 === 0 && index !== recommendations.length - 1) {
+                const pageBreak = document.createElement('div');
+                pageBreak.classList.add('page-break');
+                recommendationsSection.appendChild(pageBreak);
+            }
         });
     }
+    
 });
