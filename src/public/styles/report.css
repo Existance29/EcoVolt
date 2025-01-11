@@ -217,11 +217,108 @@ body, html {
     display: none;
 }
 
+.performance-summary {
+    display: flex;
+    gap: 15px; /* Reduced gap for tighter spacing */
+    justify-content: center; /* Center-align all cards */
+    flex-wrap: nowrap; /* Prevent wrapping to the next row */
+    padding: 20px;
+    background-color: #f7f9fc;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin: 20px 0;
+}
+
+/* Individual Performance Card */
+.performance-card {
+    flex: 1 1 calc(18% - 10px); /* Reduced card size for all five to fit */
+    max-width: 180px; /* Ensure fixed max width for cards */
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 15px; /* Reduced padding for compact layout */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 220px; /* Reduced height for compact design */
+}
+
+/* Card Hover Effect */
+.performance-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Icon */
+.performance-card .icon {
+    font-size: 28px; /* Slightly smaller icon size */
+    color: #4FD1C5;
+    margin-bottom: 10px;
+}
+
+/* Card Title */
+.performance-card h3 {
+    font-size: 14px; /* Slightly smaller text size */
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+/* Card Value */
+.performance-card p {
+    margin: 0;
+    font-size: 12px; /* Adjust font size for compactness */
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+/* Stat Change Styling */
+.stat-change {
+    font-weight: bold;
+    font-size: 12px; /* Slightly smaller font size */
+    display: block;
+    margin-top: auto;
+    padding: 4px 8px; /* Reduced padding */
+    border-radius: 4px;
+    text-align: center;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Increase and Decrease Colors */
+.stat-change.increase {
+    color: #28a745;
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.stat-change.decrease {
+    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+
 
 /* Page break styling for printing */
 @media print {
     .page-break {
         display: table-row;
         page-break-before: always;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .performance-summary {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .performance-card {
+        max-width: 100%;
+        margin-bottom: 20px;
     }
 }
