@@ -270,16 +270,24 @@ fetchLeaderboard();
 
 
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const stravaLoginContainer = document.getElementById('strava-login-container');
     const fitnessImage = document.querySelector('.fitness-image');
 
     if (stravaLoginContainer) stravaLoginContainer.style.visibility = 'hidden';
     if (fitnessImage) fitnessImage.style.visibility = 'hidden';
+
+    // Ensure the user is signed in
+    const signedIn = await isSignedIn(); // Check if the user is signed in
+    console.log('Is user signed in?', signedIn);
+    if (!signedIn) {
+        await pageRequireSignIn(); // Redirect if not signed in
+        return;
+    }
 });
 
 function applySpecialLayoutInline(isLoggedIn) {
-    console.log("Applying layout. Is logged in:", isLoggedIn);
+    console.log("Applying layout. Is not logged in:", isLoggedIn);
 
     const stravaLoginContainer = document.getElementById('strava-login-container');
     const fitnessImage = document.querySelector('.fitness-image');
@@ -332,7 +340,7 @@ function applySpecialLayoutInline(isLoggedIn) {
             const podiumHeight = podium.offsetHeight; // Height of the podium
             const leaderboardHeight = leaderboard.offsetHeight; // Total height of the leaderboard container
 
-            leaderboardItems.style.marginTop = `-${podiumHeight - 350}px`; // Bring leaderboard-items closer to the podium
+            leaderboardItems.style.marginTop = `-${podiumHeight - 330}px`; // Bring leaderboard-items closer to the podium
             leaderboardItems.style.maxHeight = `${leaderboardHeight}px`; // Adjust height dynamically (add padding if needed)
             leaderboardItems.style.overflowY = 'auto'; // Add scrolling for overflowing items
         }
