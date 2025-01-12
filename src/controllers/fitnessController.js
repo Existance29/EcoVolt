@@ -1,7 +1,9 @@
+const fitness = require("../models/fitness")
 const axios = require('axios');
 require('dotenv').config();
 
 class FitnessController {
+
     static async redirectToStravaAuth(req, res) {
         const authUrl = `https://www.strava.com/oauth/authorize?client_id=${process.env.CLIENT_ID}&redirect_uri=${process.env.REDIRECT_URI}&response_type=code&scope=activity:read_all`;
         res.redirect(authUrl);
@@ -59,6 +61,77 @@ class FitnessController {
             res.status(500).send('Failed to fetch athlete stats');
         }
     }
+
+
+    static async saveUserStats(req, res) {
+        const data = req.body;
+        const userid = parseInt(req.user.userId);
+        // console.log("Data received for saving user stats:", userid, data);
+        try {
+            const checkUser = await fitness.getUserStats(userid);
+            let success;
+            if (checkUser) {
+                success = await fitness.updateUserStats(userid, data);
+            }
+            else {
+                success = await fitness.saveUserStats(userid, data);
+            }
+            if (!success) {
+                return res.status(400).json({ error: "Failed to save user's stats" });
+            }
+            res.status(200).json({ message: "Saved user's stats successfully" });
+        } catch (error) {
+            console.error("Error saving user stats:", error);
+            res.status(500).json({ error: "Error saving user's records" });
+        }
+    }
+       
+    
+    static async displayLeaderboard(req, res) {
+        const company_id = parseInt(req.params.company_id);
+        if (!company_id) {
+            return res.status(400).json({ error: "Company ID is required" });
+        }
+        try {
+            const data = await fitness.displayLeaderboard(company_id);
+            if (!data) {
+                return res.status(404).send("No records available");
+            }
+            res.json(data);
+        } catch (error) {
+            console.error(error)
+            res.status(500).send("Error retrieving users' records")
+        }
+    }
+
+
+
+    static async getUserRank(req, res) {
+        const userid = parseInt(req.user.userId);
+        try {
+            const data = await fitness.getUserRank(userid);
+            if (!data) {
+                return res.status(404).send("No records available");
+            }
+    
+            const { rank, total_users } = data;
+    
+            // Calculate percentage
+            const percentage = total_users > 1 
+                ? ((total_users - rank) / (total_users )) * 100 
+                : 0;
+    
+            res.json({
+                rank,
+                totalUsers: total_users,
+                percentage: percentage.toFixed(2), // Ensure 2 decimal places
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Error retrieving user's rank and percentage");
+        }
+    }
+    
 }
 
 module.exports = FitnessController;
