@@ -137,125 +137,91 @@ document.addEventListener('DOMContentLoaded', async function () {
             hideLoading();
         }
     }
-    // async function fetchPredictionData() {
-    //     const forecastPeriod = 4;
     
-    //     try {
-    //         const allYears = Array.from(yearSelector.options).map(option => parseInt(option.value, 10));
-    //         const recentYears = allYears.slice(0, 4).reverse();
-    
-    //         if (recentYears.length === 0) {
-    //             console.error("No years available for prediction.");
-    //             statusMessage.innerText = "Failed to load prediction data: no years available.";
-    //             return;
-    //         }
-    
-    //         const historicalCO2Promises = recentYears.map(async year => {
-    //             try {
-    //                 const response = await fetch(`/reports/${company_id}/generate?year=${year}`);
-    //                 const report = await response.json();
-    //                 return report.totalCO2 || null; // Return CO2 or null
-    //             } catch (error) {
-    //                 console.error(`Error fetching data for year ${year}:`, error);
-    //                 return null;
-    //             }
-    //         });
-    
-    //         const historicalCO2 = (await Promise.all(historicalCO2Promises)).filter(val => val !== null);
-    //         console.log("Cleaned Historical CO₂ data for prediction:", historicalCO2);
-    
-    //         if (historicalCO2.length < 2) {
-    //             console.error("Insufficient data for prediction.");
-    //             statusMessage.innerText = "Failed to load prediction data: insufficient historical data.";
-    //             return;
-    //         }
-    
-    //         console.log("Sending forecast data:", historicalCO2);
-    //         const response = await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {
-    //             data: JSON.stringify(historicalCO2),
-    //         });
-    
-    //         const carbonEmissionPredictionData = await response.json();
-    //         console.log("Forecast Data:", carbonEmissionPredictionData);
-    
-    //         // Generate labels for the chart
-    //         let allLabels = recentYears.map(year => year.toString()); // Labels for historical data
-    //         let start = parseInt(allLabels[allLabels.length - 1], 10); // Last year as the starting point
-    
-    //         for (let i = 1; i <= forecastPeriod; i++) {
-    //             allLabels.push((start + i).toString()); // Add future years incrementally
-    //         }
-    
-    //         const color1 = "#4FD1C5";
-    //         const color2 = "#AE85FF";
-    
-    //         renderForecastLineChart(
-    //             document.getElementById('predictionChart'),
-    //             historicalCO2,
-    //             carbonEmissionPredictionData, // Replace with correct key
-    //             allLabels,
-    //             color1,
-    //             color2
-    //         );
-    
-    //         statusMessage.innerText = "Prediction data loaded successfully.";
-    //     } catch (error) {
-    //         console.error("Error fetching prediction data:", error);
-    //         statusMessage.innerText = "Failed to load prediction data.";
-    //     } finally {
-    //         hideLoading();
-    //     }
-    // }
     async function fetchPredictionData() {
         const forecastPeriod = 4;
     
         try {
             const allYears = Array.from(yearSelector.options).map(option => parseInt(option.value, 10));
-            const recentYears = allYears.slice(0, 4).reverse();
+            const recentYears = allYears.slice(0, 4).reverse(); // Take the latest 4 years and reverse them
     
             if (recentYears.length === 0) {
                 throw new Error("No years available for prediction.");
             }
     
-            const historicalCO2Promises = recentYears.map(async year => {
-                try {
-                    const response = await fetch(`/reports/${company_id}/generate?year=${year}`);
-                    const report = await response.json();
-                    console.log(`Fetched data for year ${year}:`, report);
-                    return report.totalCO2 || null;
-                } catch (error) {
-                    console.error(`Error fetching data for year ${year}:`, error);
-                    return null;
-                }
-            });
+            let historicalCO2 = [];
     
-            const historicalCO2 = (await Promise.all(historicalCO2Promises)).filter(val => val !== null);
+            // Function to fetch data for missing years
+            async function fetchMissingYears(yearsToFetch) {
+                const results = [];
+                for (const year of yearsToFetch) {
+                    try {
+                        const response = await fetch(`/reports/${company_id}/generate?year=${year}`);
+                        const report = await response.json();
+                        if (report.totalCO2) {
+                            console.log(`Fetched data for year ${year}:`, report);
+                            results.push({ year, totalCO2: report.totalCO2 });
+                        } else {
+                            console.warn(`No CO2 data available for year ${year}`);
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching data for year ${year}:`, error);
+                    }
+                }
+                return results;
+            }
+    
+            // Retry mechanism to ensure all years' data is fetched
+            while (historicalCO2.length < recentYears.length) {
+                const missingYears = recentYears.filter(
+                    year => !historicalCO2.some(data => data.year === year)
+                );
+    
+                console.log("Retrying for missing years:", missingYears);
+    
+                if (missingYears.length === 0) break;
+    
+                const fetchedData = await fetchMissingYears(missingYears);
+                historicalCO2 = historicalCO2.concat(fetchedData);
+            }
     
             if (historicalCO2.length < 2) {
                 throw new Error("Insufficient data for prediction.");
             }
     
+            // Sort data by year (in ascending order)
+            historicalCO2.sort((a, b) => a.year - b.year);
+    
+            console.log("Cleaned Historical CO₂ data for prediction:", historicalCO2);
+    
+            // Extract CO2 values for prediction
+            const historicalCO2Values = historicalCO2.map(data => data.totalCO2);
+    
+            // Fetch forecast data
             const response = await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {
-                data: JSON.stringify(historicalCO2),
+                data: JSON.stringify(historicalCO2Values),
             });
             const carbonEmissionPredictionData = await response.json();
+            console.log("Forecast Data:", carbonEmissionPredictionData);
     
             // Generate labels for the chart
-            let allLabels = recentYears.map(year => year.toString());
-            const lastYear = parseInt(allLabels[allLabels.length - 1], 10);
+            let allLabels = historicalCO2.map(data => data.year.toString());
+            const lastHistoricalYear = parseInt(allLabels[allLabels.length - 1], 10);
     
             for (let i = 1; i <= forecastPeriod; i++) {
-                allLabels.push((lastYear + i).toString());
+                allLabels.push((lastHistoricalYear + i).toString());
             }
     
             renderForecastLineChart(
                 document.getElementById('predictionChart'),
-                historicalCO2,
+                historicalCO2Values,
                 carbonEmissionPredictionData,
                 allLabels,
                 "#4FD1C5",
                 "#AE85FF"
             );
+    
+            statusMessage.innerText = "Prediction data loaded successfully.";
         } catch (error) {
             console.error("Error fetching prediction data:", error);
             statusMessage.innerText = "Failed to load prediction data.";
