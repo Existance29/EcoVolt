@@ -53,13 +53,19 @@ def generate_random_data(cell_tower_id, start_date, end_date, num_entries):
 
     return data
 
-# Generate data for specific months and days
-def generate_data_for_towers(num_towers, start_date, end_date):
+def generate_data_for_towers(num_towers, start_year, end_year):
     all_data = []
+
     for tower_id in range(1, num_towers + 1):
-        tower_data = generate_random_data(tower_id, start_date, end_date, 1)
-        all_data.extend(tower_data)
+        for year in range(start_year, end_year + 1):
+            for month in range(8, 13):  # August (8) to December (12)
+                for day in range(1, 11):  # First 10 days of each month
+                    current_date = f"{year}-{month:02d}-{day:02d}"
+                    tower_data = generate_random_data(tower_id, current_date, current_date, 1)
+                    all_data.extend(tower_data)
+
     return all_data
+
 
 # Insert statement generation
 def generate_insert_statements(data):
@@ -71,11 +77,11 @@ def generate_insert_statements(data):
 
 # Parameters
 num_towers = 20
-start_date = "2021-01-01"
-end_date = "2024-12-31"
+start_year = 2021
+end_year = 2024
 
 # Generate data
-data = generate_data_for_towers(num_towers, start_date, end_date)
+data = generate_data_for_towers(num_towers, start_year, end_year)
 
 # Generate SQL Insert Statement
 insert_prefix = "INSERT cell_tower_energy_consumption (cell_tower_id, date, total_energy_kwh, radio_equipment_energy_kwh, cooling_energy_kwh, backup_power_energy_kwh, misc_energy_kwh, renewable_energy_kwh, carbon_emission_kg)\nSELECT * FROM (VALUES\n"
