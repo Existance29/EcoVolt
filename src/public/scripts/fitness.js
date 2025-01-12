@@ -1,5 +1,5 @@
-const treeThreshold = 21; // 21 kg of carbon avoided = 1 tree
-const TREE_DISTANCE_GOAL = 175; // 175 km to offset 1 tree's annual CO₂ absorption
+const treeThreshold = 24.62; // 24.62 kg of carbon avoided = 1 tree
+const TREE_DISTANCE_GOAL = 227.5; // 227.5 km to offset 1 tree's annual CO₂ absorption
 // Select containers
 const stravaLoginContainer = document.getElementById('strava-login-container');
 const combinedContainer = document.getElementById('combined-container');
@@ -36,7 +36,7 @@ fetch('/fitness/stats')
 
 
     function updateStats(data) {
-        const carbonEmissionPerKm = 0.12; // 120 grams/km = 0.12 kg/km
+        const carbonEmissionPerKm = 0.1082;
     
         // Extract stats from the data
         const totalDistance = Number((data.totalDistance / 1000).toFixed(2)); // Convert meters to kilometers

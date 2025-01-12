@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await pageRequireSignIn(); // Redirect to sign-in page if not logged in
     
     let treesPlanted = 0; // Track trees planted
-    const treeThreshold = 21; // 21 kg of carbon avoided = 1 tree
+    const treeThreshold = 24.62; // 24.62 kg of carbon avoided = 1 tree
 
     // Function to calculate a random position within the container
     function getRandomPositionWithinImage(container) {
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // uncomment the code below to test
                 // totalDistance = 500;
 
-                const carbonEmissionPerKm = 0.12; // 120 grams/km = 0.12 kg/km
+                const carbonEmissionPerKm = 0.1082;
                 const carbonReduced = totalDistance * carbonEmissionPerKm;
 
                 // Update carbon emission text
