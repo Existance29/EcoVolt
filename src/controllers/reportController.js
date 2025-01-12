@@ -145,15 +145,29 @@ const generateReportData = async (req, res) => {
             return res.status(404).json({ error: `No report data found for the year ${year}.` });
         }
 
-        // Fetch previous year data
         const previousYear = parseInt(year) - 1;
-        const previousYearReports = await Report.getAllReport(company_id, previousYear);
+        let previousYearReports = [];
+        let previousYearMetrics = {};
 
-        // Fetch efficiency metrics for current and previous years
+        try {
+            previousYearReports = await Report.getAllReport(company_id, previousYear);
+            if (previousYearReports.length > 0) {
+                previousYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, previousYear);
+            }
+        } catch (error) {
+            console.warn(`No data available for the year ${previousYear}. Skipping comparison.`);
+            previousYearReports = [];
+            previousYearMetrics = {};
+        }
+
+        // Fetch efficiency metrics for the current year
         const currentYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, year);
-        const previousYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, previousYear);
         
-
+        if (previousYearReports.length === 0) {
+            performanceSummary.totalEnergy.percentageChange = null;
+            performanceSummary.co2Emissions.percentageChange = null;
+        }
+        
         // Process data
         const companyName = reports[0]?.companyName || 'Company';
         const months = [];
@@ -182,48 +196,48 @@ const generateReportData = async (req, res) => {
             totalEnergy: {
                 current: totalEnergy,
                 previous: previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0),
-                percentageChange:
-                    ((totalEnergy -
+                percentageChange: previousYearReports.length > 0
+                    ? ((totalEnergy -
                         previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0)) /
                         (previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0) || 1)) *
-                    100,
+                        100
+                    : null,
             },
             co2Emissions: {
                 current: totalCO2,
                 previous: previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0),
-                percentageChange:
-                    ((totalCO2 -
+                percentageChange: previousYearReports.length > 0
+                    ? ((totalCO2 -
                         previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0)) /
                         (previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0) || 1)) *
-                    100,
+                        100
+                    : null,
             },
             efficiencyMetrics: {
                 PUE: {
                     current: currentYearMetrics.PUE || null,
                     previous: previousYearMetrics.PUE || null,
-                    percentageChange:
-                        currentYearMetrics.PUE && previousYearMetrics.PUE
-                            ? ((currentYearMetrics.PUE - previousYearMetrics.PUE) / previousYearMetrics.PUE) * 100
-                            : null,
+                    percentageChange: currentYearMetrics.PUE && previousYearMetrics.PUE
+                        ? ((currentYearMetrics.PUE - previousYearMetrics.PUE) / previousYearMetrics.PUE) * 100
+                        : null,
                 },
                 CUE: {
                     current: currentYearMetrics.CUE || null,
                     previous: previousYearMetrics.CUE || null,
-                    percentageChange:
-                        currentYearMetrics.CUE && previousYearMetrics.CUE
-                            ? ((currentYearMetrics.CUE - previousYearMetrics.CUE) / previousYearMetrics.CUE) * 100
-                            : null,
+                    percentageChange: currentYearMetrics.CUE && previousYearMetrics.CUE
+                        ? ((currentYearMetrics.CUE - previousYearMetrics.CUE) / previousYearMetrics.CUE) * 100
+                        : null,
                 },
                 WUE: {
                     current: currentYearMetrics.WUE || null,
                     previous: previousYearMetrics.WUE || null,
-                    percentageChange:
-                        currentYearMetrics.WUE && previousYearMetrics.WUE
-                            ? ((currentYearMetrics.WUE - previousYearMetrics.WUE) / previousYearMetrics.WUE) * 100
-                            : null,
+                    percentageChange: currentYearMetrics.WUE && previousYearMetrics.WUE
+                        ? ((currentYearMetrics.WUE - previousYearMetrics.WUE) / previousYearMetrics.WUE) * 100
+                        : null,
                 },
             },
-        };
+        };  
+        console.log("Year:", year,performanceSummary)
 
         // Generate other sections
         const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2, companyName);
@@ -425,10 +439,14 @@ async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEn
 
 
 const getAvailableYears = async (req, res) => {
-    const { company_id } = req.params;
-
     try {
-        const years = await Report.getDistinctYears(company_id);
+        const { company_id } = req.params;
+
+        if (!company_id) {
+            return res.status(400).json({ error: 'Company ID is required in the route parameter.' });
+        }
+
+        const years = await Report.getDistinctYears(company_id); // Ensure Report.getDistinctYears is implemented correctly
         res.status(200).json(years);
     } catch (error) {
         console.error("Error fetching available years:", error);

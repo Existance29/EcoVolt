@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         company_id = await getCompanyId();
         if (company_id) {
             console.log("Company ID:", company_id);
-            fetchReportData();
-            fetchPredictionData();
+            await fetchAvailableYears();
+            await fetchPredictionData();
         } else {
             console.error("Company ID could not be initialized.");
             statusMessage.innerText = "Failed to load company information.";
@@ -36,32 +36,27 @@ document.addEventListener('DOMContentLoaded', async function () {
     yearSelector.addEventListener('change', fetchReportData);
 
     async function fetchReportData() {
-        if (!company_id) {
-            console.error("Company ID is not available.");
-            return;
-        }
-
         const year = yearSelector.value || '2024';
         const url = `/reports/${company_id}/generate?year=${year}`;
         statusMessage.innerText = "Loading report data...";
         showLoading();
-
+        
         try {
             const response = await fetch(url, { method: 'GET', headers: { 'Cache-Control': 'no-cache' } });
             const data = await response.json();
-            reportData = data;
-
+        
+            console.log('Performance Summary Data:', data.performanceSummary); // Debugging log
+        
             reportTitle.innerText = `${data.reportData[0]?.companyName || 'Company'} Sustainability Report ${year}`;
             document.getElementById('executiveSummary').innerText = data.executiveSummary;
             document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
-
+        
             populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
             populateDataTable(data.reportData);
             populateRecommendations(data.recommendations);
-            populatePerformanceSummary(data.performanceSummary); // Populate performance summary
-            populateEfficiencyMetrics(data.performanceSummary.efficiencyMetrics);
+            populatePerformanceSummaryAndMetrics(data.performanceSummary); // Single call for summary and metrics
             document.getElementById('conclusion').innerText = data.conclusion;
-
+        
             statusMessage.innerText = "Report data loaded successfully.";
         } catch (error) {
             console.error('Error fetching report data:', error);
@@ -76,24 +71,22 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error("Company ID is not available.");
             return;
         }
-    
+
         try {
             const response = await fetch(`/reports/${company_id}/years`);
             const years = await response.json();
-    
-            const yearSelector = document.getElementById('yearSelector');
-            yearSelector.innerHTML = ''; // Clear existing options
-    
+
+            yearSelector.innerHTML = '';
             years.forEach(year => {
                 const option = document.createElement('option');
                 option.value = year;
                 option.textContent = year;
                 yearSelector.appendChild(option);
             });
-    
+
             if (years.length > 0) {
                 yearSelector.value = years[0];
-                fetchReportData(); // Load the report for the latest year
+                await fetchReportData(); // Load the report for the latest year
             }
         } catch (error) {
             console.error('Error fetching available years:', error);
@@ -125,7 +118,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     await initializeCompanyId();
-    await fetchAvailableYears();
 
     generateReportBtn.addEventListener('click', function () {
         if (!reportData) {
@@ -206,15 +198,20 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     function populatePredictionChart(data) {
+        if (!data || !data.actualYears || !data.predictedYears) {
+            console.error("Prediction data is missing or incomplete:", data);
+            return;
+        }
+
         const ctx = document.getElementById('predictionChart').getContext('2d');
         const chartLabels = [...data.actualYears, ...data.predictedYears];
-        const chartActualCarbonEmissions = data.actualCarbonEmissions;
-        const chartPredictedCarbonEmissions = Array(data.actualYears.length).fill(null).concat(data.predictedCarbonEmissions);
-    
+        const chartActualCarbonEmissions = data.actualCarbonEmissions || [];
+        const chartPredictedCarbonEmissions = Array(data.actualYears.length).fill(null).concat(data.predictedCarbonEmissions || []);
+
         if (predictionChart) {
             predictionChart.destroy();
         }
-    
+
         predictionChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -252,19 +249,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     function populateDataTable(reportData = []) {
-        dataTableBody.innerHTML = ''; // Clear existing rows
-    
+        dataTableBody.innerHTML = '';
+
         if (reportData.length === 0) {
-            // Add a message to indicate no data is available
             dataTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No data available for this year</td></tr>`;
             return;
         }
-    
+
         reportData.forEach((row) => {
             const date = new Date(row.date);
-            const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${
-                (date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
-    
+            const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+                .toString()
+                .padStart(2, '0')}/${date.getFullYear()}`;
+
             const tableRow = document.createElement('tr');
             tableRow.innerHTML = `
                 <td>${formattedDate}</td>
@@ -278,31 +275,79 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    function populatePerformanceSummary(summary) {
+    function populatePerformanceSummaryAndMetrics(summary) {
         const performanceSummarySection = document.getElementById('performanceSummary');
+    
+        // Clear old data to prevent duplication
+        performanceSummarySection.innerHTML = '';
+    
         if (!summary) {
-            performanceSummarySection.innerHTML = `<p>No performance comparison available with previous year.</p>`;
+            performanceSummarySection.innerHTML = '<p>No performance summary available for this year.</p>';
             return;
         }
-
+    
+        // Generate the HTML for Total Energy
+        const totalEnergyHtml = `
+            <div class="performance-card">
+                <i class="fas fa-bolt icon"></i>
+                <h3>Total Energy Consumption</h3>
+                <p><strong>${summary.totalEnergy.current.toLocaleString()} kWh</strong></p>
+                <p class="stat-change ${summary.totalEnergy.percentageChange > 0 ? 'increase' : 'decrease'}">
+                    ${summary.totalEnergy.percentageChange > 0 ? '+' : ''}${summary.totalEnergy.percentageChange.toFixed(2)}% from last year
+                </p>
+            </div>`;
+    
+        // Generate the HTML for CO2 Emissions
+        const co2EmissionsHtml = `
+            <div class="performance-card">
+                <i class="fas fa-cloud icon"></i>
+                <h3>CO₂ Emissions</h3>
+                <p><strong>${summary.co2Emissions.current.toFixed(2)} tons</strong></p>
+                <p class="stat-change ${summary.co2Emissions.percentageChange > 0 ? 'increase' : 'decrease'}">
+                    ${summary.co2Emissions.percentageChange > 0 ? '+' : ''}${summary.co2Emissions.percentageChange.toFixed(2)}% from last year
+                </p>
+            </div>`;
+    
+        // Generate the HTML for PUE
+        const pueHtml = `
+            <div class="performance-card">
+                <i class="fas fa-cogs icon"></i>
+                <h3>PUE</h3>
+                <p><strong>${summary.efficiencyMetrics.PUE.current || 'N/A'}</strong></p>
+                <p class="stat-change ${summary.efficiencyMetrics.PUE.percentageChange < 0 ? 'decrease' : 'increase'}">
+                    ${summary.efficiencyMetrics.PUE.percentageChange < 0 ? '' : '+'}${summary.efficiencyMetrics.PUE.percentageChange?.toFixed(2) || 'N/A'}% from last year
+                </p>
+            </div>`;
+    
+        // Generate the HTML for CUE
+        const cueHtml = `
+            <div class="performance-card">
+                <i class="fas fa-industry icon"></i>
+                <h3>CUE</h3>
+                <p><strong>${summary.efficiencyMetrics.CUE.current || 'N/A'}</strong></p>
+                <p class="stat-change ${summary.efficiencyMetrics.CUE.percentageChange < 0 ? 'decrease' : 'increase'}">
+                    ${summary.efficiencyMetrics.CUE.percentageChange < 0 ? '' : '+'}${summary.efficiencyMetrics.CUE.percentageChange?.toFixed(2) || 'N/A'}% from last year
+                </p>
+            </div>`;
+    
+        // Generate the HTML for WUE
+        const wueHtml = `
+            <div class="performance-card">
+                <i class="fas fa-tint icon"></i>
+                <h3>WUE</h3>
+                <p><strong>${summary.efficiencyMetrics.WUE.current || 'N/A'}</strong></p>
+                <p class="stat-change ${summary.efficiencyMetrics.WUE.percentageChange < 0 ? 'decrease' : 'increase'}">
+                    ${summary.efficiencyMetrics.WUE.percentageChange < 0 ? '' : '+'}${summary.efficiencyMetrics.WUE.percentageChange?.toFixed(2) || 'N/A'}% from last year
+                </p>
+            </div>`;
+    
+        // Append all cards to the performance summary section
         performanceSummarySection.innerHTML = `
-            <h2>Performance Summary</h2>
-            <p>Total Energy Consumption: ${summary.totalEnergy.current.toLocaleString()} kWh (<b>${summary.totalEnergy.percentageChange.toFixed(2)}%</b> from last year)</p>
-            <p>CO2 Emissions: ${summary.co2Emissions.current.toFixed(2)} tons (<b>${summary.co2Emissions.percentageChange.toFixed(2)}%</b> from last year)</p>
-        `;
-    }
-
-    function populateEfficiencyMetrics(metrics) {
-        const metricsSection = document.getElementById('efficiencyMetrics');
-        if (!metrics) {
-            metricsSection.innerHTML = `<p>PUE, CUE, and WUE data are not available.</p>`;
-            return;
-        }
-        
-        metricsSection.innerHTML = `
-            <p>PUE: <b>${metrics.PUE.current || 'N/A'}</b> (<b>${metrics.PUE.percentageChange?.toFixed(2) || 'N/A'}</b>% from last year)</p>
-            <p>CUE: <b>${metrics.CUE.current || 'N/A'}</b> (<b>${metrics.CUE.percentageChange?.toFixed(2) || 'N/A'}</b>% from last year)</p>
-            <p>WUE: <b>${metrics.WUE.current || 'N/A'}</b> (<b>${metrics.WUE.percentageChange?.toFixed(2) || 'N/A'}</b>% from last year)</p>
+            ${totalEnergyHtml}
+            ${co2EmissionsHtml}
+            ${pueHtml}
+            ${cueHtml}
+            ${wueHtml}
         `;
     }
 
