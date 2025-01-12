@@ -95,11 +95,9 @@ class Fitness {
             number_of_rides, time_travelled_hours, trees_planted 
             from leaderboard inner join users 
             on leaderboard.user_id = users.id
-            where users.company_id = @company_id
             ORDER BY distance_cycled_km DESC;
             `;
             const request = connection.request();
-            request.input('company_id', company_id);
             const result = await request.query(sqlQuery);
             if (result.recordset.length === 0) {
                 return null;

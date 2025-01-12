@@ -88,12 +88,8 @@ class FitnessController {
        
     
     static async displayLeaderboard(req, res) {
-        const company_id = parseInt(req.params.company_id);
-        if (!company_id) {
-            return res.status(400).json({ error: "Company ID is required" });
-        }
         try {
-            const data = await fitness.displayLeaderboard(company_id);
+            const data = await fitness.displayLeaderboard();
             if (!data) {
                 return res.status(404).send("No records available");
             }

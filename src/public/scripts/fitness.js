@@ -155,9 +155,9 @@ fetch('/fitness/stats')
 
 
 // Fetch leaderboard data and populate podium and leaderboard
-async function fetchLeaderboard(companyId) {
+async function fetchLeaderboard() {
     try {
-        const response = await get(`/fitness/display-leaderboard/${companyId}`);
+        const response = await get(`/fitness/display-leaderboard`);
         if (!response.ok) {
             throw new Error(`Error fetching leaderboard: ${response.status}`);
         }
@@ -263,11 +263,7 @@ async function populateLeaderboard(data) {
 
 
 
-
-// Call the function with the appropriate company ID
-const companyId = getCompanyId();
-console.log("Company ID:", companyId);
-fetchLeaderboard(companyId);
+fetchLeaderboard();
 
 
 
