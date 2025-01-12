@@ -40,87 +40,6 @@ async function generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName) {
     }
 }
 
-// Function to generate predictions using OpenAI
-const generatePredictionToNetZero = async (req, res) => {
-    console.log('Request params:', req.params);
-
-    const { company_id } = req.params;
-    const emissionFactor = 0.5; // Example emission factor (kg CO2e per kWh)
-
-    if (!company_id) {
-        return res.status(400).json({ error: 'Company ID is required in the route parameter.' });
-    }
-
-    try {
-        const reports = await Report.getAllReport(company_id);
-
-        if (reports.length === 0) {
-            return res.status(404).json({ error: 'No report data found for the specified company.' });
-        }
-
-        const years = [];
-        const yearlyEnergy = [];
-        const yearlyCO2 = [];
-        const yearlyCarbonEmissions = [];
-
-        // Aggregate actual data by year
-        reports.forEach(report => {
-            const year = moment(report.date).format('YYYY');
-            const yearIndex = years.indexOf(year);
-
-            if (yearIndex === -1) {
-                years.push(year);
-                const energy = report.totalEnergyKWH || 0;
-                const carbonEmissions = (energy * emissionFactor) / 1000; // Convert to tons
-                yearlyEnergy.push(energy);
-                yearlyCO2.push(report.co2EmissionsTons || 0);
-                yearlyCarbonEmissions.push(carbonEmissions);
-            } else {
-                yearlyEnergy[yearIndex] += report.totalEnergyKWH || 0;
-                yearlyCO2[yearIndex] += report.co2EmissionsTons || 0;
-                yearlyCarbonEmissions[yearIndex] += (report.totalEnergyKWH || 0) * emissionFactor / 1000;
-            }
-        });
-
-        // Format historical data for OpenAI
-        const historicalData = years.map((year, index) => ({
-            year,
-            totalEnergyKWH: yearlyEnergy[index],
-            co2EmissionsTons: yearlyCO2[index],
-            carbonEmissionsTons: yearlyCarbonEmissions[index],
-        }));
-
-        // Send data to OpenAI for prediction
-        const prompt = `
-You are an AI trained in sustainability data analysis. Based on the following historical energy and carbon emission data, predict the yearly trend until the company reaches net-zero carbon emissions. Provide the results as an array of JSON objects with "year" and "predictedCarbonEmissionsTons".
-
-Historical data:
-${JSON.stringify(historicalData, null, 2)}
-
-Ensure the carbon emissions reach near zero in the predictions and consider a gradual reduction rate.`;
-
-        const aiResponse = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: [{ role: "user", content: prompt }],
-            max_tokens: 1500,
-        });
-
-        const predictions = JSON.parse(aiResponse.choices[0].message.content);
-
-        // Combine actual and predicted data
-        const result = {
-            actualYears: years,
-            actualCarbonEmissions: yearlyCarbonEmissions,
-            predictedYears: predictions.map(item => item.year),
-            predictedCarbonEmissions: predictions.map(item => item.predictedCarbonEmissionsTons),
-        };
-
-        res.status(200).json(result);
-    } catch (error) {
-        console.error("Error generating prediction data:", error);
-        res.status(500).json({ error: 'Failed to generate prediction data.' });
-    }
-};
 
 // Generate report data with optional caching in session
 const generateReportData = async (req, res) => {
@@ -456,6 +375,5 @@ module.exports = {
     generateReportData,
     forceGenerateReportData,
     generateReportPDF,
-    generatePredictionToNetZero,
     getAvailableYears,
 };

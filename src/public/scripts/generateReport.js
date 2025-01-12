@@ -22,13 +22,17 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     async function initializeCompanyId() {
-        company_id = await getCompanyId();
-        if (company_id) {
+        try {
+            company_id = await getCompanyId();
+            if (!company_id) {
+                throw new Error("Company ID could not be initialized.");
+            }
             console.log("Company ID:", company_id);
+    
+            // Fetch available years after initializing company_id
             await fetchAvailableYears();
-            await fetchPredictionData();
-        } else {
-            console.error("Company ID could not be initialized.");
+        } catch (error) {
+            console.error(error);
             statusMessage.innerText = "Failed to load company information.";
         }
     }
@@ -71,11 +75,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.error("Company ID is not available.");
             return;
         }
-
+    
         try {
             const response = await fetch(`/reports/${company_id}/years`);
             const years = await response.json();
-
+    
             yearSelector.innerHTML = '';
             years.forEach(year => {
                 const option = document.createElement('option');
@@ -83,34 +87,177 @@ document.addEventListener('DOMContentLoaded', async function () {
                 option.textContent = year;
                 yearSelector.appendChild(option);
             });
-
+    
             if (years.length > 0) {
                 yearSelector.value = years[0];
-                await fetchReportData(); // Load the report for the latest year
+                // Ensure report data is fetched after years are populated
+                await fetchReportData();
             }
         } catch (error) {
             console.error('Error fetching available years:', error);
         }
     }
 
-    async function fetchPredictionData() {
-        if (!company_id) {
-            console.error("Company ID is not available.");
-            return;
-        }
-
-        const url = `/reports/${company_id}/predictNetZero`;
-        statusMessage.innerText = "Loading prediction data...";
+    async function fetchReportData() {
+        const year = yearSelector.value || '2024';
+        const url = `/reports/${company_id}/generate?year=${year}`;
+        statusMessage.innerText = "Loading report data...";
         showLoading();
-
+        
         try {
             const response = await fetch(url, { method: 'GET', headers: { 'Cache-Control': 'no-cache' } });
             const data = await response.json();
-
-            populatePredictionChart(data);
-            statusMessage.innerText = "Prediction data loaded successfully.";
+            
+            if (!data || !data.reportData || data.reportData.length === 0) {
+                console.error("No report data returned from the server.");
+                statusMessage.innerText = "No data available for the selected year.";
+                return;
+            }
+    
+            reportData = data; // Assign the fetched data to the global variable
+            console.log("Updated global reportData:", reportData);
+    
+            // Update the UI with the data
+            reportTitle.innerText = `${data.reportData[0]?.companyName || 'Company'} Sustainability Report ${year}`;
+            document.getElementById('executiveSummary').innerText = data.executiveSummary;
+            document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
+    
+            populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
+            populateDataTable(data.reportData);
+            populateRecommendations(data.recommendations);
+            populatePerformanceSummaryAndMetrics(data.performanceSummary);
+            document.getElementById('conclusion').innerText = data.conclusion;
+            await fetchPredictionData(data);
+    
+            statusMessage.innerText = "Report data loaded successfully.";
         } catch (error) {
-            console.error('Error fetching prediction data:', error);
+            console.error('Error fetching report data:', error);
+            statusMessage.innerText = "Failed to load report data.";
+        } finally {
+            hideLoading();
+        }
+    }
+    // async function fetchPredictionData() {
+    //     const forecastPeriod = 4;
+    
+    //     try {
+    //         const allYears = Array.from(yearSelector.options).map(option => parseInt(option.value, 10));
+    //         const recentYears = allYears.slice(0, 4).reverse();
+    
+    //         if (recentYears.length === 0) {
+    //             console.error("No years available for prediction.");
+    //             statusMessage.innerText = "Failed to load prediction data: no years available.";
+    //             return;
+    //         }
+    
+    //         const historicalCO2Promises = recentYears.map(async year => {
+    //             try {
+    //                 const response = await fetch(`/reports/${company_id}/generate?year=${year}`);
+    //                 const report = await response.json();
+    //                 return report.totalCO2 || null; // Return CO2 or null
+    //             } catch (error) {
+    //                 console.error(`Error fetching data for year ${year}:`, error);
+    //                 return null;
+    //             }
+    //         });
+    
+    //         const historicalCO2 = (await Promise.all(historicalCO2Promises)).filter(val => val !== null);
+    //         console.log("Cleaned Historical CO₂ data for prediction:", historicalCO2);
+    
+    //         if (historicalCO2.length < 2) {
+    //             console.error("Insufficient data for prediction.");
+    //             statusMessage.innerText = "Failed to load prediction data: insufficient historical data.";
+    //             return;
+    //         }
+    
+    //         console.log("Sending forecast data:", historicalCO2);
+    //         const response = await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {
+    //             data: JSON.stringify(historicalCO2),
+    //         });
+    
+    //         const carbonEmissionPredictionData = await response.json();
+    //         console.log("Forecast Data:", carbonEmissionPredictionData);
+    
+    //         // Generate labels for the chart
+    //         let allLabels = recentYears.map(year => year.toString()); // Labels for historical data
+    //         let start = parseInt(allLabels[allLabels.length - 1], 10); // Last year as the starting point
+    
+    //         for (let i = 1; i <= forecastPeriod; i++) {
+    //             allLabels.push((start + i).toString()); // Add future years incrementally
+    //         }
+    
+    //         const color1 = "#4FD1C5";
+    //         const color2 = "#AE85FF";
+    
+    //         renderForecastLineChart(
+    //             document.getElementById('predictionChart'),
+    //             historicalCO2,
+    //             carbonEmissionPredictionData, // Replace with correct key
+    //             allLabels,
+    //             color1,
+    //             color2
+    //         );
+    
+    //         statusMessage.innerText = "Prediction data loaded successfully.";
+    //     } catch (error) {
+    //         console.error("Error fetching prediction data:", error);
+    //         statusMessage.innerText = "Failed to load prediction data.";
+    //     } finally {
+    //         hideLoading();
+    //     }
+    // }
+    async function fetchPredictionData() {
+        const forecastPeriod = 4;
+    
+        try {
+            const allYears = Array.from(yearSelector.options).map(option => parseInt(option.value, 10));
+            const recentYears = allYears.slice(0, 4).reverse();
+    
+            if (recentYears.length === 0) {
+                throw new Error("No years available for prediction.");
+            }
+    
+            const historicalCO2Promises = recentYears.map(async year => {
+                try {
+                    const response = await fetch(`/reports/${company_id}/generate?year=${year}`);
+                    const report = await response.json();
+                    console.log(`Fetched data for year ${year}:`, report);
+                    return report.totalCO2 || null;
+                } catch (error) {
+                    console.error(`Error fetching data for year ${year}:`, error);
+                    return null;
+                }
+            });
+    
+            const historicalCO2 = (await Promise.all(historicalCO2Promises)).filter(val => val !== null);
+    
+            if (historicalCO2.length < 2) {
+                throw new Error("Insufficient data for prediction.");
+            }
+    
+            const response = await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {
+                data: JSON.stringify(historicalCO2),
+            });
+            const carbonEmissionPredictionData = await response.json();
+    
+            // Generate labels for the chart
+            let allLabels = recentYears.map(year => year.toString());
+            const lastYear = parseInt(allLabels[allLabels.length - 1], 10);
+    
+            for (let i = 1; i <= forecastPeriod; i++) {
+                allLabels.push((lastYear + i).toString());
+            }
+    
+            renderForecastLineChart(
+                document.getElementById('predictionChart'),
+                historicalCO2,
+                carbonEmissionPredictionData,
+                allLabels,
+                "#4FD1C5",
+                "#AE85FF"
+            );
+        } catch (error) {
+            console.error("Error fetching prediction data:", error);
             statusMessage.innerText = "Failed to load prediction data.";
         } finally {
             hideLoading();
@@ -197,52 +344,90 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    function populatePredictionChart(data) {
-        if (!data || !data.actualYears || !data.predictedYears) {
-            console.error("Prediction data is missing or incomplete:", data);
+    function renderForecastLineChart(canvasElement, originalData, forecastData, labels, color1, color2, yTickUnit = "") {
+        // Validate canvas element
+        if (!canvasElement || !canvasElement.getContext) {
+            console.error("Invalid canvas element provided:", canvasElement);
             return;
         }
-
-        const ctx = document.getElementById('predictionChart').getContext('2d');
-        const chartLabels = [...data.actualYears, ...data.predictedYears];
-        const chartActualCarbonEmissions = data.actualCarbonEmissions || [];
-        const chartPredictedCarbonEmissions = Array(data.actualYears.length).fill(null).concat(data.predictedCarbonEmissions || []);
-
-        if (predictionChart) {
-            predictionChart.destroy();
+    
+        // Validate data
+        if (!originalData.length || !forecastData.length || !labels.length) {
+            console.error("Data arrays are empty or invalid:", { originalData, forecastData, labels });
+            return;
         }
-
-        predictionChart = new Chart(ctx, {
+    
+        // Clear existing chart
+        if (Chart.getChart(canvasElement.id)) {
+            Chart.getChart(canvasElement.id)?.destroy();
+        }
+    
+        // Prepare datasets
+        const datasets = [
+            {
+                label: '',
+                data: originalData.concat(forecastData),
+                segment: {
+                    borderColor: ctx => ctx.p0.parsed.x < originalData.length - 1 ? color1 : color2,
+                    borderDash: ctx => ctx.p0.parsed.x < originalData.length - 1 ? undefined : [4, 4],
+                    backgroundColor: ctx => {
+                        const canvasContext = canvasElement.getContext("2d");
+                        const gradient = canvasContext.createLinearGradient(0, 0, 0, canvasElement.height);
+                        if (ctx.p0.parsed.x < originalData.length - 1) {
+                            gradient.addColorStop(0, color1 + "80");
+                            gradient.addColorStop(1, color1 + "00");
+                            return gradient;
+                        } else {
+                            gradient.addColorStop(0, color2 + "80");
+                            gradient.addColorStop(1, color2 + "00");
+                            return gradient;
+                        }
+                    },
+                },
+                pointBorderColor: ctx => ctx.dataIndex < originalData.length ? color1 : color2,
+                tension: 0.4,
+                fill: true,
+            }
+        ];
+    
+        // Create the chart
+        new Chart(canvasElement, {
             type: 'line',
             data: {
-                labels: chartLabels,
-                datasets: [
-                    {
-                        label: 'Actual Net Carbon Emissions (tons)',
-                        data: chartActualCarbonEmissions,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        fill: false,
-                        borderWidth: 2,
-                    },
-                    {
-                        label: 'Predicted Net Carbon Emissions (tons)',
-                        data: chartPredictedCarbonEmissions,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderDash: [5, 5],
-                        fill: false,
-                        borderWidth: 2,
-                    },
-                ],
+                labels: labels,
+                datasets: datasets,
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    title: { display: true, text: 'Actual and Predicted Net Carbon Emissions' },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
                 },
                 scales: {
-                    x: { title: { display: true, text: 'Years' } },
-                    y: { beginAtZero: true, title: { display: true, text: 'Carbon Emissions (tons)' } },
+                    y: {
+                        grid: {
+                            color: "#E2E8F0",
+                            borderDash: [8, 4],
+                        },
+                        ticks: {
+                            maxTicksLimit: 8,
+                            autoSkip: false,
+                            callback: (value) => `${value}${yTickUnit}`,
+                        },
+                        beginAtZero: true,
+                    },
+                    x: {
+                        grid: {
+                            color: "#E2E8F0",
+                            borderDash: [8, 4],
+                        },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
                 },
             },
         });
