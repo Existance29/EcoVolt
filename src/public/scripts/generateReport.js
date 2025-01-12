@@ -22,13 +22,17 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     async function initializeCompanyId() {
-        company_id = await getCompanyId();
-        if (company_id) {
+        try {
+            company_id = await getCompanyId();
+            if (!company_id) {
+                throw new Error("Company ID could not be initialized.");
+            }
             console.log("Company ID:", company_id);
-            fetchReportData();
-            fetchPredictionData();
-        } else {
-            console.error("Company ID could not be initialized.");
+    
+            // Fetch available years after initializing company_id
+            await fetchAvailableYears();
+        } catch (error) {
+            console.error(error);
             statusMessage.innerText = "Failed to load company information.";
         }
     }
@@ -36,30 +40,27 @@ document.addEventListener('DOMContentLoaded', async function () {
     yearSelector.addEventListener('change', fetchReportData);
 
     async function fetchReportData() {
-        if (!company_id) {
-            console.error("Company ID is not available.");
-            return;
-        }
-
         const year = yearSelector.value || '2024';
         const url = `/reports/${company_id}/generate?year=${year}`;
         statusMessage.innerText = "Loading report data...";
         showLoading();
-
+        
         try {
             const response = await fetch(url, { method: 'GET', headers: { 'Cache-Control': 'no-cache' } });
             const data = await response.json();
-            reportData = data;
-
+        
+            console.log('Performance Summary Data:', data.performanceSummary); // Debugging log
+        
             reportTitle.innerText = `${data.reportData[0]?.companyName || 'Company'} Sustainability Report ${year}`;
             document.getElementById('executiveSummary').innerText = data.executiveSummary;
             document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
-
+        
             populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
             populateDataTable(data.reportData);
             populateRecommendations(data.recommendations);
+            populatePerformanceSummaryAndMetrics(data.performanceSummary); // Single call for summary and metrics
             document.getElementById('conclusion').innerText = data.conclusion;
-
+        
             statusMessage.innerText = "Report data loaded successfully.";
         } catch (error) {
             console.error('Error fetching report data:', error);
@@ -69,24 +70,160 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
-    async function fetchPredictionData() {
+    async function fetchAvailableYears() {
         if (!company_id) {
             console.error("Company ID is not available.");
             return;
         }
+    
+        try {
+            const response = await fetch(`/reports/${company_id}/years`);
+            const years = await response.json();
+    
+            yearSelector.innerHTML = '';
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelector.appendChild(option);
+            });
+    
+            if (years.length > 0) {
+                yearSelector.value = years[0];
+                // Ensure report data is fetched after years are populated
+                await fetchReportData();
+            }
+        } catch (error) {
+            console.error('Error fetching available years:', error);
+        }
+    }
 
-        const url = `/reports/${company_id}/predictNetZero`;
-        statusMessage.innerText = "Loading prediction data...";
+    async function fetchReportData() {
+        const year = yearSelector.value || '2024';
+        const url = `/reports/${company_id}/generate?year=${year}`;
+        statusMessage.innerText = "Loading report data...";
         showLoading();
-
+        
         try {
             const response = await fetch(url, { method: 'GET', headers: { 'Cache-Control': 'no-cache' } });
             const data = await response.json();
-
-            populatePredictionChart(data);
+            
+            if (!data || !data.reportData || data.reportData.length === 0) {
+                console.error("No report data returned from the server.");
+                statusMessage.innerText = "No data available for the selected year.";
+                return;
+            }
+    
+            reportData = data; // Assign the fetched data to the global variable
+            console.log("Updated global reportData:", reportData);
+    
+            // Update the UI with the data
+            reportTitle.innerText = `${data.reportData[0]?.companyName || 'Company'} Sustainability Report ${year}`;
+            document.getElementById('executiveSummary').innerText = data.executiveSummary;
+            document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
+    
+            populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
+            populateDataTable(data.reportData);
+            populateRecommendations(data.recommendations);
+            populatePerformanceSummaryAndMetrics(data.performanceSummary);
+            document.getElementById('conclusion').innerText = data.conclusion;
+            await fetchPredictionData(data);
+    
+            statusMessage.innerText = "Report data loaded successfully.";
+        } catch (error) {
+            console.error('Error fetching report data:', error);
+            statusMessage.innerText = "Failed to load report data.";
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    async function fetchPredictionData() {
+        const forecastPeriod = 4;
+    
+        try {
+            const allYears = Array.from(yearSelector.options).map(option => parseInt(option.value, 10));
+            const recentYears = allYears.slice(0, 4).reverse(); // Take the latest 4 years and reverse them
+    
+            if (recentYears.length === 0) {
+                throw new Error("No years available for prediction.");
+            }
+    
+            let historicalCO2 = [];
+    
+            // Function to fetch data for missing years
+            async function fetchMissingYears(yearsToFetch) {
+                const results = [];
+                for (const year of yearsToFetch) {
+                    try {
+                        const response = await fetch(`/reports/${company_id}/generate?year=${year}`);
+                        const report = await response.json();
+                        if (report.totalCO2) {
+                            console.log(`Fetched data for year ${year}:`, report);
+                            results.push({ year, totalCO2: report.totalCO2 });
+                        } else {
+                            console.warn(`No CO2 data available for year ${year}`);
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching data for year ${year}:`, error);
+                    }
+                }
+                return results;
+            }
+    
+            // Retry mechanism to ensure all years' data is fetched
+            while (historicalCO2.length < recentYears.length) {
+                const missingYears = recentYears.filter(
+                    year => !historicalCO2.some(data => data.year === year)
+                );
+    
+                console.log("Retrying for missing years:", missingYears);
+    
+                if (missingYears.length === 0) break;
+    
+                const fetchedData = await fetchMissingYears(missingYears);
+                historicalCO2 = historicalCO2.concat(fetchedData);
+            }
+    
+            if (historicalCO2.length < 2) {
+                throw new Error("Insufficient data for prediction.");
+            }
+    
+            // Sort data by year (in ascending order)
+            historicalCO2.sort((a, b) => a.year - b.year);
+    
+            console.log("Cleaned Historical CO₂ data for prediction:", historicalCO2);
+    
+            // Extract CO2 values for prediction
+            const historicalCO2Values = historicalCO2.map(data => data.totalCO2);
+    
+            // Fetch forecast data
+            const response = await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {
+                data: JSON.stringify(historicalCO2Values),
+            });
+            const carbonEmissionPredictionData = await response.json();
+            console.log("Forecast Data:", carbonEmissionPredictionData);
+    
+            // Generate labels for the chart
+            let allLabels = historicalCO2.map(data => data.year.toString());
+            const lastHistoricalYear = parseInt(allLabels[allLabels.length - 1], 10);
+    
+            for (let i = 1; i <= forecastPeriod; i++) {
+                allLabels.push((lastHistoricalYear + i).toString());
+            }
+    
+            renderForecastLineChart(
+                document.getElementById('predictionChart'),
+                historicalCO2Values,
+                carbonEmissionPredictionData,
+                allLabels,
+                "#4FD1C5",
+                "#AE85FF"
+            );
+    
             statusMessage.innerText = "Prediction data loaded successfully.";
         } catch (error) {
-            console.error('Error fetching prediction data:', error);
+            console.error("Error fetching prediction data:", error);
             statusMessage.innerText = "Failed to load prediction data.";
         } finally {
             hideLoading();
@@ -173,47 +310,90 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    function populatePredictionChart(data) {
-        const ctx = document.getElementById('predictionChart').getContext('2d');
-        const chartLabels = [...data.actualYears, ...data.predictedYears];
-        const chartActualCarbonEmissions = data.actualCarbonEmissions;
-        const chartPredictedCarbonEmissions = Array(data.actualYears.length).fill(null).concat(data.predictedCarbonEmissions);
-    
-        if (predictionChart) {
-            predictionChart.destroy();
+    function renderForecastLineChart(canvasElement, originalData, forecastData, labels, color1, color2, yTickUnit = "") {
+        // Validate canvas element
+        if (!canvasElement || !canvasElement.getContext) {
+            console.error("Invalid canvas element provided:", canvasElement);
+            return;
         }
     
-        predictionChart = new Chart(ctx, {
+        // Validate data
+        if (!originalData.length || !forecastData.length || !labels.length) {
+            console.error("Data arrays are empty or invalid:", { originalData, forecastData, labels });
+            return;
+        }
+    
+        // Clear existing chart
+        if (Chart.getChart(canvasElement.id)) {
+            Chart.getChart(canvasElement.id)?.destroy();
+        }
+    
+        // Prepare datasets
+        const datasets = [
+            {
+                label: '',
+                data: originalData.concat(forecastData),
+                segment: {
+                    borderColor: ctx => ctx.p0.parsed.x < originalData.length - 1 ? color1 : color2,
+                    borderDash: ctx => ctx.p0.parsed.x < originalData.length - 1 ? undefined : [4, 4],
+                    backgroundColor: ctx => {
+                        const canvasContext = canvasElement.getContext("2d");
+                        const gradient = canvasContext.createLinearGradient(0, 0, 0, canvasElement.height);
+                        if (ctx.p0.parsed.x < originalData.length - 1) {
+                            gradient.addColorStop(0, color1 + "80");
+                            gradient.addColorStop(1, color1 + "00");
+                            return gradient;
+                        } else {
+                            gradient.addColorStop(0, color2 + "80");
+                            gradient.addColorStop(1, color2 + "00");
+                            return gradient;
+                        }
+                    },
+                },
+                pointBorderColor: ctx => ctx.dataIndex < originalData.length ? color1 : color2,
+                tension: 0.4,
+                fill: true,
+            }
+        ];
+    
+        // Create the chart
+        new Chart(canvasElement, {
             type: 'line',
             data: {
-                labels: chartLabels,
-                datasets: [
-                    {
-                        label: 'Actual Net Carbon Emissions (tons)',
-                        data: chartActualCarbonEmissions,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        fill: false,
-                        borderWidth: 2,
-                    },
-                    {
-                        label: 'Predicted Net Carbon Emissions (tons)',
-                        data: chartPredictedCarbonEmissions,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderDash: [5, 5],
-                        fill: false,
-                        borderWidth: 2,
-                    },
-                ],
+                labels: labels,
+                datasets: datasets,
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    title: { display: true, text: 'Actual and Predicted Net Carbon Emissions' },
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
                 },
                 scales: {
-                    x: { title: { display: true, text: 'Years' } },
-                    y: { beginAtZero: true, title: { display: true, text: 'Carbon Emissions (tons)' } },
+                    y: {
+                        grid: {
+                            color: "#E2E8F0",
+                            borderDash: [8, 4],
+                        },
+                        ticks: {
+                            maxTicksLimit: 8,
+                            autoSkip: false,
+                            callback: (value) => `${value}${yTickUnit}`,
+                        },
+                        beginAtZero: true,
+                    },
+                    x: {
+                        grid: {
+                            color: "#E2E8F0",
+                            borderDash: [8, 4],
+                        },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
                 },
             },
         });
@@ -221,10 +401,17 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     function populateDataTable(reportData = []) {
         dataTableBody.innerHTML = '';
-        reportData.forEach((row, index) => {
+
+        if (reportData.length === 0) {
+            dataTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No data available for this year</td></tr>`;
+            return;
+        }
+
+        reportData.forEach((row) => {
             const date = new Date(row.date);
-            const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${
-                (date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+            const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
+                .toString()
+                .padStart(2, '0')}/${date.getFullYear()}`;
 
             const tableRow = document.createElement('tr');
             tableRow.innerHTML = `
@@ -239,16 +426,118 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
+    function populatePerformanceSummaryAndMetrics(summary) {
+        const performanceSummarySection = document.getElementById('performanceSummary');
+        
+        // Clear old data to prevent duplication
+        performanceSummarySection.innerHTML = '';
+        
+        if (!summary) {
+            performanceSummarySection.innerHTML = '<p>No performance summary available for this year.</p>';
+            return;
+        }
+        
+        // Handle "Not Applicable" values or valid percentage changes
+        const formatChange = (change) => {
+            if (change === "Not Applicable") {
+                return "Not Applicable";
+            }
+            return `${change > 0 ? '+' : ''}${change.toFixed(2)}% from last year`;
+        };
+    
+        // Generate the HTML for Total Energy
+        const totalEnergyHtml = `
+            <div class="performance-card">
+                <i class="fas fa-bolt icon"></i>
+                <h3>Total Energy Consumption</h3>
+                <p><strong>${summary.totalEnergy.current.toLocaleString()} kWh</strong></p>
+                <p class="stat-change ${summary.totalEnergy.percentageChange > 0 ? 'increase' : 'decrease'}">
+                    ${formatChange(summary.totalEnergy.percentageChange)}
+                </p>
+            </div>`;
+    
+        // Generate the HTML for CO2 Emissions
+        const co2EmissionsHtml = `
+            <div class="performance-card">
+                <i class="fas fa-cloud icon"></i>
+                <h3>CO₂ Emissions</h3>
+                <p><strong>${summary.co2Emissions.current.toFixed(2)} tons</strong></p>
+                <p class="stat-change ${summary.co2Emissions.percentageChange > 0 ? 'increase' : 'decrease'}">
+                    ${formatChange(summary.co2Emissions.percentageChange)}
+                </p>
+            </div>`;
+    
+        // Generate the HTML for PUE
+        const pueHtml = `
+            <div class="performance-card">
+                <i class="fas fa-cogs icon"></i>
+                <h3>PUE</h3>
+                <p><strong>${summary.efficiencyMetrics.PUE.current || 'N/A'}</strong></p>
+                <p class="stat-change ${summary.efficiencyMetrics.PUE.percentageChange < 0 ? 'decrease' : 'increase'}">
+                    ${formatChange(summary.efficiencyMetrics.PUE.percentageChange)}
+                </p>
+            </div>`;
+    
+        // Generate the HTML for CUE
+        const cueHtml = `
+            <div class="performance-card">
+                <i class="fas fa-industry icon"></i>
+                <h3>CUE</h3>
+                <p><strong>${summary.efficiencyMetrics.CUE.current || 'N/A'}</strong></p>
+                <p class="stat-change ${summary.efficiencyMetrics.CUE.percentageChange < 0 ? 'decrease' : 'increase'}">
+                    ${formatChange(summary.efficiencyMetrics.CUE.percentageChange)}
+                </p>
+            </div>`;
+    
+        // Generate the HTML for WUE
+        const wueHtml = `
+            <div class="performance-card">
+                <i class="fas fa-tint icon"></i>
+                <h3>WUE</h3>
+                <p><strong>${summary.efficiencyMetrics.WUE.current || 'N/A'}</strong></p>
+                <p class="stat-change ${summary.efficiencyMetrics.WUE.percentageChange < 0 ? 'decrease' : 'increase'}">
+                    ${formatChange(summary.efficiencyMetrics.WUE.percentageChange)}
+                </p>
+            </div>`;
+    
+        // Append all cards to the performance summary section
+        performanceSummarySection.innerHTML = `
+            ${totalEnergyHtml}
+            ${co2EmissionsHtml}
+            ${pueHtml}
+            ${cueHtml}
+            ${wueHtml}
+        `;
+    }
+
     function populateRecommendations(recommendations) {
         const recommendationsSection = document.querySelector('.recommendations');
         recommendationsSection.innerHTML = '';
+
         recommendations.forEach((recommendation, index) => {
             const recDiv = document.createElement('div');
+            recDiv.classList.add('recommendation');
+
             recDiv.innerHTML = `
                 <h3>Recommendation ${index + 1}:</h3>
-                <p>${recommendation.recommendation}</p>
+                <p><strong>Recommendation:</strong> ${recommendation.recommendation}</p>
+                <ol>
+                    ${recommendation.actions.map(action => `
+                        <li>
+                            <strong>Action:</strong> ${action.description}<br>
+                            <strong>Explanation:</strong> ${action.explanation}
+                        </li>
+                    `).join('')}
+                </ol>
+                <p class="intended-impact"><strong>Intended Impact:</strong> ${recommendation.intendedImpact}</p>
             `;
             recommendationsSection.appendChild(recDiv);
+
+            if ((index + 1) % 2 === 0 && index !== recommendations.length - 1) {
+                const pageBreak = document.createElement('div');
+                pageBreak.classList.add('page-break');
+                recommendationsSection.appendChild(pageBreak);
+            }
         });
     }
 });

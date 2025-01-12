@@ -181,6 +181,82 @@ class Report {
         }
     }
 
+    static async getDistinctYears(company_id) {
+        try {
+            const connection = await sql.connect(dbConfig);
+            const companyFilter = company_id ? `AND c.id = ${company_id}` : '';
+    
+            const query = `
+                SELECT DISTINCT YEAR(date) AS year
+                FROM (
+                    SELECT CTec.date
+                    FROM cell_tower_energy_consumption CTec
+                    INNER JOIN companies c ON c.id = CTec.cell_tower_id
+                    WHERE 1=1 ${companyFilter}
+
+                    UNION ALL
+
+                    SELECT DCec.date
+                    FROM data_center_energy_consumption DCec
+                    INNER JOIN data_centers dct ON dct.id = DCec.data_center_id
+                    INNER JOIN companies c ON c.id = dct.company_id
+                    WHERE 1=1 ${companyFilter}
+                ) AS combined
+                ORDER BY year DESC;
+            `;
+    
+            const result = await connection.query(query);
+            return result.recordset.map(row => row.year);
+        } catch (error) {
+            console.error("Error fetching distinct years:", error);
+            throw error;
+        } finally {
+            await sql.close();
+        }
+    }
+
+    static async getEfficiencyMetricsComparison(company_id, year) {
+        try {
+            const connection = await sql.connect(dbConfig);
+    
+            const query = `
+                SELECT 
+                    YEAR(DCec.date) AS year,
+                    AVG(DCec.pue) AS avgPUE,
+                    AVG(DCec.cue) AS avgCUE,
+                    AVG(DCec.wue) AS avgWUE
+                FROM data_center_energy_consumption DCec
+                INNER JOIN data_centers dct ON dct.id = DCec.data_center_id
+                INNER JOIN companies c ON c.id = dct.company_id
+                WHERE c.id = @company_id AND YEAR(DCec.date) = @year
+                GROUP BY YEAR(DCec.date);
+            `;
+    
+            const request = connection.request();
+            request.input('company_id', sql.Int, company_id);
+            request.input('year', sql.Int, year);
+    
+            const result = await request.query(query);
+    
+            if (result.recordset.length === 0) {
+                console.log(`No efficiency metrics found for year: ${year}`); // Debug log
+                return null;
+            }
+    
+            const row = result.recordset[0];
+            return {
+                PUE: row.avgPUE || null,
+                CUE: row.avgCUE || null,
+                WUE: row.avgWUE || null,
+            };
+        } catch (error) {
+            console.error('Error fetching efficiency metrics:', error);
+            throw error;
+        } finally {
+            await sql.close();
+        }
+    }
+
     
 }
 
