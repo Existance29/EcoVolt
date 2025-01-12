@@ -277,14 +277,22 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     function populatePerformanceSummaryAndMetrics(summary) {
         const performanceSummarySection = document.getElementById('performanceSummary');
-    
+        
         // Clear old data to prevent duplication
         performanceSummarySection.innerHTML = '';
-    
+        
         if (!summary) {
             performanceSummarySection.innerHTML = '<p>No performance summary available for this year.</p>';
             return;
         }
+        
+        // Handle "Not Applicable" values or valid percentage changes
+        const formatChange = (change) => {
+            if (change === "Not Applicable") {
+                return "Not Applicable";
+            }
+            return `${change > 0 ? '+' : ''}${change.toFixed(2)}% from last year`;
+        };
     
         // Generate the HTML for Total Energy
         const totalEnergyHtml = `
@@ -293,7 +301,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <h3>Total Energy Consumption</h3>
                 <p><strong>${summary.totalEnergy.current.toLocaleString()} kWh</strong></p>
                 <p class="stat-change ${summary.totalEnergy.percentageChange > 0 ? 'increase' : 'decrease'}">
-                    ${summary.totalEnergy.percentageChange > 0 ? '+' : ''}${summary.totalEnergy.percentageChange.toFixed(2)}% from last year
+                    ${formatChange(summary.totalEnergy.percentageChange)}
                 </p>
             </div>`;
     
@@ -304,7 +312,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <h3>CO₂ Emissions</h3>
                 <p><strong>${summary.co2Emissions.current.toFixed(2)} tons</strong></p>
                 <p class="stat-change ${summary.co2Emissions.percentageChange > 0 ? 'increase' : 'decrease'}">
-                    ${summary.co2Emissions.percentageChange > 0 ? '+' : ''}${summary.co2Emissions.percentageChange.toFixed(2)}% from last year
+                    ${formatChange(summary.co2Emissions.percentageChange)}
                 </p>
             </div>`;
     
@@ -315,7 +323,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <h3>PUE</h3>
                 <p><strong>${summary.efficiencyMetrics.PUE.current || 'N/A'}</strong></p>
                 <p class="stat-change ${summary.efficiencyMetrics.PUE.percentageChange < 0 ? 'decrease' : 'increase'}">
-                    ${summary.efficiencyMetrics.PUE.percentageChange < 0 ? '' : '+'}${summary.efficiencyMetrics.PUE.percentageChange?.toFixed(2) || 'N/A'}% from last year
+                    ${formatChange(summary.efficiencyMetrics.PUE.percentageChange)}
                 </p>
             </div>`;
     
@@ -326,7 +334,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <h3>CUE</h3>
                 <p><strong>${summary.efficiencyMetrics.CUE.current || 'N/A'}</strong></p>
                 <p class="stat-change ${summary.efficiencyMetrics.CUE.percentageChange < 0 ? 'decrease' : 'increase'}">
-                    ${summary.efficiencyMetrics.CUE.percentageChange < 0 ? '' : '+'}${summary.efficiencyMetrics.CUE.percentageChange?.toFixed(2) || 'N/A'}% from last year
+                    ${formatChange(summary.efficiencyMetrics.CUE.percentageChange)}
                 </p>
             </div>`;
     
@@ -337,7 +345,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <h3>WUE</h3>
                 <p><strong>${summary.efficiencyMetrics.WUE.current || 'N/A'}</strong></p>
                 <p class="stat-change ${summary.efficiencyMetrics.WUE.percentageChange < 0 ? 'decrease' : 'increase'}">
-                    ${summary.efficiencyMetrics.WUE.percentageChange < 0 ? '' : '+'}${summary.efficiencyMetrics.WUE.percentageChange?.toFixed(2) || 'N/A'}% from last year
+                    ${formatChange(summary.efficiencyMetrics.WUE.percentageChange)}
                 </p>
             </div>`;
     

@@ -162,13 +162,8 @@ const generateReportData = async (req, res) => {
 
         // Fetch efficiency metrics for the current year
         const currentYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, year);
-        
-        if (previousYearReports.length === 0) {
-            performanceSummary.totalEnergy.percentageChange = null;
-            performanceSummary.co2Emissions.percentageChange = null;
-        }
-        
-        // Process data
+
+        // Initialize totals
         const companyName = reports[0]?.companyName || 'Company';
         const months = [];
         const monthlyEnergy = [];
@@ -201,7 +196,7 @@ const generateReportData = async (req, res) => {
                         previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0)) /
                         (previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0) || 1)) *
                         100
-                    : null,
+                    : "Not Applicable",
             },
             co2Emissions: {
                 current: totalCO2,
@@ -211,7 +206,7 @@ const generateReportData = async (req, res) => {
                         previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0)) /
                         (previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0) || 1)) *
                         100
-                    : null,
+                    : "Not Applicable",
             },
             efficiencyMetrics: {
                 PUE: {
@@ -219,25 +214,24 @@ const generateReportData = async (req, res) => {
                     previous: previousYearMetrics.PUE || null,
                     percentageChange: currentYearMetrics.PUE && previousYearMetrics.PUE
                         ? ((currentYearMetrics.PUE - previousYearMetrics.PUE) / previousYearMetrics.PUE) * 100
-                        : null,
+                        : "Not Applicable",
                 },
                 CUE: {
                     current: currentYearMetrics.CUE || null,
                     previous: previousYearMetrics.CUE || null,
                     percentageChange: currentYearMetrics.CUE && previousYearMetrics.CUE
                         ? ((currentYearMetrics.CUE - previousYearMetrics.CUE) / previousYearMetrics.CUE) * 100
-                        : null,
+                        : "Not Applicable",
                 },
                 WUE: {
                     current: currentYearMetrics.WUE || null,
                     previous: previousYearMetrics.WUE || null,
                     percentageChange: currentYearMetrics.WUE && previousYearMetrics.WUE
                         ? ((currentYearMetrics.WUE - previousYearMetrics.WUE) / previousYearMetrics.WUE) * 100
-                        : null,
+                        : "Not Applicable",
                 },
             },
-        };  
-        console.log("Year:", year,performanceSummary)
+        };
 
         // Generate other sections
         const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2, companyName);
