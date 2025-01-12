@@ -1249,7 +1249,7 @@ async function seedDatabase() {
     console.log("Sample data inserted successfully");
 
     // Insert Cell Tower Consumption data
-    //await sql.query(cellTowerConsumptionData.sql);
+    await sql.query(cellTowerConsumptionData.lightSQL);
     console.log("Cell Tower Consumption data inserted successfully");
     
     
