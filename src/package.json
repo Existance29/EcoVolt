@@ -33,6 +33,7 @@
     "openai": "^4.71.0",
     "pdfkit": "^0.15.0",
     "puppeteer": "^23.7.1",
+    "simple-statistics": "^7.8.7",
     "util": "^0.12.5"
   },
   "description": ""
