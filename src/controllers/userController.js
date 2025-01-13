@@ -16,7 +16,7 @@ class userController{
     
     static generateAccessToken(user){
         //make a jsonwetoken containing the user's id and role
-        const accessToken = jwt.sign({userId: user.id, companyId: user.company_id}, process.env.ACCESS_TOKEN_SECRET)
+        const accessToken = jwt.sign({userId: user.id, companyId: user.company_id, accessLevel: user.access_level}, process.env.ACCESS_TOKEN_SECRET)
         return {accessToken: accessToken, companyId: user.company_id}
     }
 

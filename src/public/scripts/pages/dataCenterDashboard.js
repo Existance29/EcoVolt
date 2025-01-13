@@ -1,4 +1,5 @@
 pageRequireSignIn();
+pageRequireAdmin();
 // Array holding the content for each page
 const tooltipPages = [
     {

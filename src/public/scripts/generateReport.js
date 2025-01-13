@@ -1,3 +1,5 @@
+pageRequireSignIn()
+pageRequireAdmin()
 document.addEventListener('DOMContentLoaded', async function () {
     const dataTableBody = document.querySelector('.data-table tbody');
     const generateReportBtn = document.getElementById('generateReportBtn');

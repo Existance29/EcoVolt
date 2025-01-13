@@ -1,3 +1,6 @@
+pageRequireSignIn()
+pageRequireAdmin()
+
 Chart.defaults.font.size = 13
 Chart.defaults.color = "#8A8A8A"
 var globalOverallTrendData;
@@ -423,7 +426,9 @@ async function loadData(){
     data.trends.forEach(x => {
         renewableEnergyContributionData.push(x.renewable_energy/x.total_energy*100)
     })
-    const renewableEnergyContributionForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(renewableEnergyContributionData)})).json()
+    let renewableEnergyContributionForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(renewableEnergyContributionData)})).json()
+    //make sure it doesnt exceed 100%
+    renewableEnergyContributionForecastData = renewableEnergyContributionForecastData.map(x => Math.min(x, 100))
     renderForecastLineChart(document.getElementById('renewableEnergyContributionForecastChart'), renewableEnergyContributionData, renewableEnergyContributionForecastData, allLabels, color1, color2, "%")
 
 }

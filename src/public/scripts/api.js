@@ -21,6 +21,15 @@ async function pageRequireSignIn(){
   if (!await isSignedIn()) location.href = "signIn.html"
 }
 
+async function isUserAdmin(){
+  let data = await getUserJWTPayload()
+  return data && data.accessLevel> 0
+}
+
+async function pageRequireAdmin(){
+  if (!await isUserAdmin()) location.href = "index.html"
+}
+
 
 async function post(url, jsondata){
     let settings = {
