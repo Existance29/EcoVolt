@@ -9,12 +9,11 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 const getAllReport = async (company_id, year = null) => {
     try {
-        // Call the Report model method, allowing `year` to be optional
         const reports = await Report.getAllReport(company_id, year);
-        return reports; // Return data directly
+        return reports;
     } catch (error) {
         console.error("Error fetching all report data:", error);
-        throw error; // Let the calling function handle the error
+        throw error;
     }
 };
 
@@ -41,6 +40,7 @@ async function generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName) {
     }
 }
 
+
 // Generate report data with optional caching in session
 const generateReportData = async (req, res) => {
     const { company_id } = req.params;
@@ -48,7 +48,7 @@ const generateReportData = async (req, res) => {
     const currentTime = new Date();
     const oneHour = 60 * 60 * 1000;
 
-    // Check if cached data exists for the requested year and if it’s within the cache duration
+    // Check for cached data
     if (req.session.reportData && req.session.reportData[year] && req.session.reportData[year].timestamp) {
         const reportAge = currentTime - new Date(req.session.reportData[year].timestamp);
         if (reportAge < oneHour) {
@@ -57,16 +57,33 @@ const generateReportData = async (req, res) => {
         }
     }
 
-    console.log(`Generating new report data for year ${year}...`);
-
     try {
+        // Fetch current year data
         const reports = await Report.getAllReport(company_id, year);
-
-        if (reports.length === 0) {
-            return res.status(404).json({ error: 'No report data found for the specified company and year.' });
+        if (!reports || reports.length === 0) {
+            return res.status(404).json({ error: `No report data found for the year ${year}.` });
         }
 
-        const companyName = reports[0].companyName; // Get companyName from reports data
+        const previousYear = parseInt(year) - 1;
+        let previousYearReports = [];
+        let previousYearMetrics = {};
+
+        try {
+            previousYearReports = await Report.getAllReport(company_id, previousYear);
+            if (previousYearReports.length > 0) {
+                previousYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, previousYear);
+            }
+        } catch (error) {
+            console.warn(`No data available for the year ${previousYear}. Skipping comparison.`);
+            previousYearReports = [];
+            previousYearMetrics = {};
+        }
+
+        // Fetch efficiency metrics for the current year
+        const currentYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, year);
+
+        // Initialize totals
+        const companyName = reports[0]?.companyName || 'Company';
         const months = [];
         const monthlyEnergy = [];
         const monthlyCO2 = [];
@@ -75,28 +92,70 @@ const generateReportData = async (req, res) => {
 
         reports.forEach(report => {
             const month = moment(report.date).format('MMM YYYY');
-            const monthIndex = months.indexOf(month);
-
-            if (monthIndex === -1) {
+            const index = months.indexOf(month);
+            if (index === -1) {
                 months.push(month);
                 monthlyEnergy.push(report.totalEnergyKWH || 0);
                 monthlyCO2.push(report.co2EmissionsTons || 0);
             } else {
-                monthlyEnergy[monthIndex] += (report.totalEnergyKWH || 0);
-                monthlyCO2[monthIndex] += (report.co2EmissionsTons || 0);
+                monthlyEnergy[index] += report.totalEnergyKWH || 0;
+                monthlyCO2[index] += report.co2EmissionsTons || 0;
             }
-
             totalEnergy += report.totalEnergyKWH || 0;
             totalCO2 += report.co2EmissionsTons || 0;
         });
 
+        // Performance summary
+        const performanceSummary = {
+            totalEnergy: {
+                current: totalEnergy,
+                previous: previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0),
+                percentageChange: previousYearReports.length > 0
+                    ? ((totalEnergy -
+                        previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0)) /
+                        (previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0) || 1)) *
+                        100
+                    : "Not Applicable",
+            },
+            co2Emissions: {
+                current: totalCO2,
+                previous: previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0),
+                percentageChange: previousYearReports.length > 0
+                    ? ((totalCO2 -
+                        previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0)) /
+                        (previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0) || 1)) *
+                        100
+                    : "Not Applicable",
+            },
+            efficiencyMetrics: {
+                PUE: {
+                    current: currentYearMetrics.PUE || null,
+                    previous: previousYearMetrics.PUE || null,
+                    percentageChange: currentYearMetrics.PUE && previousYearMetrics.PUE
+                        ? ((currentYearMetrics.PUE - previousYearMetrics.PUE) / previousYearMetrics.PUE) * 100
+                        : "Not Applicable",
+                },
+                CUE: {
+                    current: currentYearMetrics.CUE || null,
+                    previous: previousYearMetrics.CUE || null,
+                    percentageChange: currentYearMetrics.CUE && previousYearMetrics.CUE
+                        ? ((currentYearMetrics.CUE - previousYearMetrics.CUE) / previousYearMetrics.CUE) * 100
+                        : "Not Applicable",
+                },
+                WUE: {
+                    current: currentYearMetrics.WUE || null,
+                    previous: previousYearMetrics.WUE || null,
+                    percentageChange: currentYearMetrics.WUE && previousYearMetrics.WUE
+                        ? ((currentYearMetrics.WUE - previousYearMetrics.WUE) / previousYearMetrics.WUE) * 100
+                        : "Not Applicable",
+                },
+            },
+        };
+
+        // Generate other sections
         const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2, companyName);
         const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName);
-        const recommendations = await getAllAIRecommendations({
-            totalEnergy: totalEnergy,
-            co2Emissions: totalCO2,
-            currentProgress: (totalCO2 / (totalEnergy * 0.2)) * 100
-        });
+        const recommendations = await getAllAIRecommendations({ totalEnergy, co2Emissions: totalCO2 });
         const conclusion = await generateConclusion(totalEnergy, totalCO2, recommendations);
 
         const reportData = {
@@ -104,21 +163,23 @@ const generateReportData = async (req, res) => {
             monthlyEnergy,
             monthlyCO2,
             totalEnergy,
-            executiveSummary,
             totalCO2,
+            executiveSummary,
             dataAnalysis,
             recommendations,
             conclusion,
+            performanceSummary,
             reportData: reports,
         };
 
+        // Cache the data
         if (!req.session.reportData) req.session.reportData = {};
         req.session.reportData[year] = { data: reportData, timestamp: currentTime };
 
         res.status(200).json(reportData);
     } catch (error) {
         console.error("Error fetching report data:", error);
-        res.status(500).json({ error: 'Failed to fetch report data' });
+        res.status(500).json({ error: 'Failed to fetch report data.' });
     }
 };
 
@@ -131,22 +192,22 @@ const forceGenerateReportData = async (req, res) => {
 // Generate PDF report
 const generateReportPDF = async (req, res) => {
     const { company_id } = req.params;
-    console.log("Generating PDF with Puppeteer...");
 
     try {
         const reports = await Report.getAllReport(company_id);
-        
+
         if (reports.length === 0) {
             return res.status(404).json({ error: 'No report data found for the specified company.' });
         }
 
-        const companyName = reports[0].companyName; // Get companyName from reports data
+        const companyName = reports[0].companyName;
 
         const browser = await puppeteer.launch();
         const page = await browser.newPage();
 
         // Pass companyName as a query parameter to the report HTML path
         const reportHtmlPath = `file://${path.resolve(__dirname, '..', 'public', 'report.html')}?companyName=${encodeURIComponent(companyName)}`;
+
         await page.goto(reportHtmlPath, { waitUntil: 'networkidle0' });
 
         const pdfBuffer = await page.pdf({
@@ -289,36 +350,22 @@ async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEn
     }
 }
 
-// Function to get all available reports based on year and month
-const getAvailableMonthsAndYears = async (req, res) => {
+
+const getAvailableYears = async (req, res) => {
     try {
-        const reports = await Report.getAllReport(req.query.year); // Fetch reports filtered by year
-        const monthsAndYears = reports.map(report => {
-            const year = moment(report.date).year();
-            const month = moment(report.date).month() + 1;
-            return { year, month };
-        });
-        res.status(200).json({ monthsAndYears: [...new Set(monthsAndYears)] });
+        const { company_id } = req.params;
+
+        if (!company_id) {
+            return res.status(400).json({ error: 'Company ID is required in the route parameter.' });
+        }
+
+        const years = await Report.getDistinctYears(company_id); // Ensure Report.getDistinctYears is implemented correctly
+        res.status(200).json(years);
     } catch (error) {
-        console.error("Error fetching available months and years:", error);
-        res.status(500).json({ error: 'Failed to fetch available months and years' });
+        console.error("Error fetching available years:", error);
+        res.status(500).json({ error: 'Failed to fetch available years.' });
     }
 };
-
-
-// Get all available years for reports
-const getAllYearsReport = async (req, res) => {
-    const { company_id } = req.query; // Pass company_id as query parameter
-
-    try {
-        const years = await Report.getAllYearsReport(company_id);
-        res.status(200).json({ years });
-    } catch (error) {
-        console.error("Error retrieving available years:", error);
-        res.status(500).json({ error: "Failed to retrieve available years" });
-    }
-};
-
 
 
 
@@ -328,6 +375,5 @@ module.exports = {
     generateReportData,
     forceGenerateReportData,
     generateReportPDF,
-    getAvailableMonthsAndYears,
-    getAllYearsReport,
+    getAvailableYears,
 };

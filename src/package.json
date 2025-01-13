@@ -13,6 +13,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "@huggingface/inference": "^2.8.1",
+    "arima": "^0.2.5",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
@@ -32,6 +33,7 @@
     "openai": "^4.71.0",
     "pdfkit": "^0.15.0",
     "puppeteer": "^23.7.1",
+    "simple-statistics": "^7.8.7",
     "util": "^0.12.5"
   },
   "description": ""
