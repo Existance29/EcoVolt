@@ -63,7 +63,10 @@ const generateReportData = async (req, res) => {
         if (!reports || reports.length === 0) {
             return res.status(404).json({ error: `No report data found for the year ${year}.` });
         }
-
+        // Fetch total CO2 emissions
+        const carbonEmissions = await Report.getTotalCarbonEmissions(company_id, year);
+        // Add CO2 emissions to the total
+        const totalCO2 = carbonEmissions.totalCO2Emissions;
         const previousYear = parseInt(year) - 1;
         let previousYearReports = [];
         let previousYearMetrics = {};
@@ -88,21 +91,18 @@ const generateReportData = async (req, res) => {
         const monthlyEnergy = [];
         const monthlyCO2 = [];
         let totalEnergy = 0;
-        let totalCO2 = 0;
 
-        reports.forEach(report => {
+        reports.forEach((report) => {
             const month = moment(report.date).format('MMM YYYY');
             const index = months.indexOf(month);
             if (index === -1) {
                 months.push(month);
                 monthlyEnergy.push(report.totalEnergyKWH || 0);
-                monthlyCO2.push(report.co2EmissionsTons || 0);
+                monthlyCO2.push(totalCO2); // Assign total CO2 here
             } else {
                 monthlyEnergy[index] += report.totalEnergyKWH || 0;
-                monthlyCO2[index] += report.co2EmissionsTons || 0;
             }
             totalEnergy += report.totalEnergyKWH || 0;
-            totalCO2 += report.co2EmissionsTons || 0;
         });
 
         // Performance summary

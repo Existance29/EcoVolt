@@ -18,10 +18,10 @@ class Report {
     static async getAllReport(company_id, year) {
         try {
             const connection = await sql.connect(dbConfig);
-            
+    
             const yearFilter = year ? `AND YEAR(CTec.date) = ${year}` : '';
             const companyFilter = company_id ? `AND c.id = ${company_id}` : '';
-            
+    
             const query = `
                 SELECT 
                     c.name AS companyName, 
@@ -31,7 +31,6 @@ class Report {
                     MAX(CTec.cooling_energy_kwh) AS coolingEnergy,
                     MAX(CTec.backup_power_energy_kwh) AS backupEnergy,
                     MAX(CTec.misc_energy_kwh) AS miscEnergy,
-                    MAX(CTec.carbon_emission_kg) AS co2EmissionsTons,
                     MAX(sg.goal_name) AS goal_name, 
                     MAX(sg.target_value) AS target_value, 
                     MAX(sg.target_year) AS target_year, 
@@ -41,9 +40,9 @@ class Report {
                 LEFT JOIN company_sustainability_goals sg ON c.id = sg.company_id
                 WHERE 1=1 ${companyFilter} ${yearFilter}
                 GROUP BY c.name, CTec.date
-
+    
                 UNION ALL
-
+    
                 SELECT 
                     c.name AS companyName, 
                     DCec.date, 
@@ -52,7 +51,6 @@ class Report {
                     MAX(DCec.cooling_energy_mwh) AS coolingEnergy,
                     MAX(DCec.backup_power_energy_mwh) AS backupEnergy,
                     MAX(DCec.lighting_energy_mwh) AS miscEnergy,
-                    MAX(DCce.co2_emissions_tons) AS co2EmissionsTons,
                     MAX(sg.goal_name) AS goal_name, 
                     MAX(sg.target_value) AS target_value, 
                     MAX(sg.target_year) AS target_year, 
@@ -60,110 +58,27 @@ class Report {
                 FROM companies c
                 INNER JOIN data_centers dct ON c.id = dct.company_id
                 INNER JOIN data_center_energy_consumption DCec ON dct.id = DCec.data_center_id
-                LEFT JOIN data_center_carbon_emissions DCce ON dct.id = DCce.data_center_id AND DCec.date = DCce.date
                 LEFT JOIN company_sustainability_goals sg ON c.id = sg.company_id
                 WHERE 1=1 ${companyFilter} ${year ? `AND YEAR(DCec.date) = ${year}` : ''}
                 GROUP BY c.name, DCec.date, dct.id
                 ORDER BY date;
             `;
-
+    
             const result = await connection.query(query);
-
-            const reports = result.recordset.map((row) => {
-                return new Report(
-                    row.companyName, 
-                    row.date, 
-                    row.totalEnergyKWH, 
-                    row.co2EmissionsTons, 
-                    [{
-                        goalName: row.goal_name,
-                        targetValue: row.target_value,
-                        currentValue: row.current_value,
-                        targetYear: row.target_year,
-                    }],
-                    row.radioEquipmentEnergy,
-                    row.coolingEnergy,
-                    row.backupEnergy,
-                    row.miscEnergy,
-                    row.dataCenterId || null 
-                );
-            });
-
-            return reports;
-
-        } catch (error) {
-            console.error("Error fetching reports:", error);
-            throw error;
-        } finally {
-            await sql.close();
-        }
-    }
-    static async getAllYearsReport(company_id) {
-        try {
-            const connection = await sql.connect(dbConfig);
-
-            const companyFilter = company_id ? `AND c.id = ${company_id}` : "";
-
-            const query = `
-                SELECT 
-                    c.name AS companyName, 
-                    CTec.date, 
-                    CTec.total_energy_kwh AS totalEnergyKWH, 
-                    CTec.radio_equipment_energy_kwh AS radioEquipmentEnergy,
-                    CTec.cooling_energy_kwh AS coolingEnergy,
-                    CTec.backup_power_energy_kwh AS backupEnergy,
-                    CTec.misc_energy_kwh AS miscEnergy,
-                    CTec.carbon_emission_kg AS co2EmissionsTons,
-                    sg.goal_name AS goal_name, 
-                    sg.target_value AS target_value, 
-                    sg.target_year AS target_year, 
-                    NULL AS dataCenterId
-                FROM companies c
-                INNER JOIN cell_tower_energy_consumption CTec ON c.id = CTec.cell_tower_id
-                LEFT JOIN company_sustainability_goals sg ON c.id = sg.company_id
-                WHERE 1=1 ${companyFilter}
-                
-                UNION ALL
-
-                SELECT 
-                    c.name AS companyName, 
-                    DCec.date, 
-                    DCec.total_energy_mwh * 1000 AS totalEnergyKWH, 
-                    DCec.it_energy_mwh AS radioEquipmentEnergy,
-                    DCec.cooling_energy_mwh AS coolingEnergy,
-                    DCec.backup_power_energy_mwh AS backupEnergy,
-                    DCec.lighting_energy_mwh AS miscEnergy,
-                    DCce.co2_emissions_tons AS co2EmissionsTons,
-                    sg.goal_name AS goal_name, 
-                    sg.target_value AS target_value, 
-                    sg.target_year AS target_year, 
-                    dct.id AS dataCenterId
-                FROM companies c
-                INNER JOIN data_centers dct ON c.id = dct.company_id
-                INNER JOIN data_center_energy_consumption DCec ON dct.id = DCec.data_center_id
-                LEFT JOIN data_center_carbon_emissions DCce ON dct.id = DCce.data_center_id AND DCec.date = DCce.date
-                LEFT JOIN company_sustainability_goals sg ON c.id = sg.company_id
-                WHERE 1=1 ${companyFilter}
-                ORDER BY date;
-            `;
-
-            const result = await connection.query(query);
-
+    
             const reports = result.recordset.map((row) => {
                 return new Report(
                     row.companyName,
                     row.date,
                     row.totalEnergyKWH,
-                    row.co2EmissionsTons,
-                    row.goal_name
-                        ? [
-                              {
-                                  goalName: row.goal_name,
-                                  targetValue: row.target_value,
-                                  targetYear: row.target_year,
-                              },
-                          ]
-                        : [],
+                    null, // Set CO2 emissions to null as it will be added later
+                    [
+                        {
+                            goalName: row.goal_name,
+                            targetValue: row.target_value,
+                            targetYear: row.target_year,
+                        },
+                    ],
                     row.radioEquipmentEnergy,
                     row.coolingEnergy,
                     row.backupEnergy,
@@ -171,13 +86,72 @@ class Report {
                     row.dataCenterId || null
                 );
             });
-
+    
             return reports;
         } catch (error) {
             console.error("Error fetching reports:", error);
             throw error;
         } finally {
             await sql.close();
+        }
+    }
+    static async getTotalCarbonEmissions(company_id, year) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+    
+            // Query for data center CO2 emissions
+            const dataCenterQuery = `
+                SELECT 
+                    ISNULL(SUM(co2_emissions_tons), 0) AS dataCenterCO2Emissions
+                FROM 
+                    data_center_carbon_emissions
+                WHERE 
+                    data_center_id IN (SELECT id FROM data_centers WHERE company_id = @company_id)
+                    ${year ? `AND YEAR(date) = @year` : ''}
+            `;
+    
+            const cellTowerQuery = `
+                SELECT 
+                    ISNULL(SUM(carbon_emission_kg), 0) AS cellTowerCO2Emissions
+                FROM 
+                    cell_tower_energy_consumption
+                WHERE 
+                    cell_tower_id IN (SELECT id FROM cell_towers WHERE company_id = @company_id)
+                    ${year ? `AND YEAR(date) = @year` : ''}
+            `;
+    
+            // Execute both queries in parallel
+            const [dataCenterResult, cellTowerResult] = await Promise.all([
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(dataCenterQuery),
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(cellTowerQuery),
+            ]);
+    
+            const dataCenterCO2 = dataCenterResult.recordset[0]?.dataCenterCO2Emissions || 0;
+            const cellTowerCO2 = cellTowerResult.recordset[0]?.cellTowerCO2Emissions || 0;
+    
+            // Sum both CO₂ emissions
+            const totalCO2Emissions = dataCenterCO2 + cellTowerCO2;
+            console.log(dataCenterCO2, cellTowerCO2, totalCO2Emissions);
+    
+            // Return structured data
+            return {
+                dataCenterCO2Emissions: dataCenterCO2,
+                cellTowerCO2Emissions: cellTowerCO2,
+                totalCO2Emissions,
+            };
+            
+        } catch (error) {
+            console.error("Error fetching total carbon emissions:", error);
+            throw error;
+        } finally {
+            if (connection) await sql.close();
         }
     }
 
