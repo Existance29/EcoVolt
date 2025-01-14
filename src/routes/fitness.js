@@ -9,6 +9,7 @@ const fitnessRoute = (app) => {
     app.get('/fitness/display-leaderboard/', authenticateToken, FitnessController.displayLeaderboard);
     app.get('/fitness/user-rank', authenticateToken, FitnessController.getUserRank);
     app.post('/fitness/save-records', authenticateToken, FitnessController.saveUserStats);
+    app.post('/fitness/add-points', authenticateToken, FitnessController.addPoints);
 };
 
 module.exports = fitnessRoute;

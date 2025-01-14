@@ -114,7 +114,7 @@ class FitnessController {
     
             // Calculate percentage
             const percentage = total_users > 1 
-                ? ((total_users - rank) / (total_users )) * 100 
+                ? ((total_users - rank) / (total_users - 1)) * 100 
                 : 0;
     
             res.json({
@@ -127,7 +127,29 @@ class FitnessController {
             res.status(500).send("Error retrieving user's rank and percentage");
         }
     }
-    
+
+
+    static async addPoints(req, res) {
+        const userid = parseInt(req.body.userId);
+        const points = parseInt(req.body.points);
+        try {
+            const checkUser = await fitness.checkUserInRewardsTable(userid);
+            let success;
+            if (!checkUser) {
+                success = await fitness.addPointsInsert(userid, points,1); // not sure why user_reward table needed company id. need to remove
+            }
+            else {
+                success = await fitness.addPoints(userid, points);
+            }
+            if (!success) {
+                return res.status(400).json({ error: "Failed to add points" });
+            }
+            res.status(200).json({ message: "Points added successfully" });
+        } catch (error) {
+            console.error("Error adding points:", error);
+            res.status(500).json({ error: "Error adding points" });
+        }
+    }
 }
 
 module.exports = FitnessController;
