@@ -1,0 +1,196 @@
+/* General Styles */
+body {
+    font-family: 'Manrope', 'Noto Sans', sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  /* Section Styles */
+  .redeem-section {
+    margin-top: 16px;
+  }
+  
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the title and description horizontally */
+    text-align: center; /* Center text content */
+    margin-bottom: 16px;
+    position: relative; /* Allow positioning for the back button */
+  }
+  
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the title horizontally */
+    width: 100%; /* Ensure the row spans the full width */
+    position: relative; /* Allow absolute positioning for the back button */
+  }
+  
+  .back-button {
+    position: absolute;
+    left: 0; /* Align the button to the left */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    color: #111814;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .back-button:hover {
+    background-color: #e0e6e4;
+  }
+  
+  .arrow-icon {
+    fill: #111814;
+  }
+  
+  .section-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #111814;
+    margin: 0;
+  }
+  
+  .section-description {
+    font-size: 16px;
+    color: #638872;
+    margin-top: 8px;
+  }
+  
+
+  .points-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dce5e0;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 16px;
+  }
+  
+  .points-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .points-title {
+    font-size: 16px;
+    color: #111814;
+    font-weight: 500;
+  }
+  
+  .points-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111814;
+  }
+  
+  .points-history {
+    display: flex;
+  }
+  
+  .points-history-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f0f4f2;
+    color: #111814;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  
+  .points-history-btn:hover {
+    background-color: #e0e6e4;
+  }
+  
+  
+  .reward-card {
+    flex: 1;
+    min-width: 158px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .reward-image {
+    width: 100%;
+    aspect-ratio: 1;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+  }
+  
+  
+  /* Reward Details */
+  .reward-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .reward-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid #dce5e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Add a slight shadow for depth */
+  }
+  
+  .reward-description {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-left: 10px;
+  }
+  
+  .reward-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #111814;
+  }
+  
+  .reward-cost {
+    font-size: 14px;
+    color: #638872;
+  }
+  
+  .reward-info {
+    font-size: 14px;
+    color: #638872;
+  }
+
+  .redeem-btn {
+    width: fit-content; /* Adjust to content size */
+    margin: 0 auto; /* Center the button horizontally */
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f0f4f2;
+    color: #111814;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  
+  .redeem-btn:hover {
+    background-color: #e0e6e4;
+  }
+  
