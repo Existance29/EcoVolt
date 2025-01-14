@@ -10,6 +10,13 @@ async function isSignedIn(){
     return response.status == 200
 }
 
+async function getUserJWTPayload(){
+  if (!accessToken) return false
+  //make sure the jwt is valid
+  const response = await get("/users/decodejwt")
+  return response.body
+}
+
 async function pageRequireSignIn(){
   if (!await isSignedIn()) location.href = "signIn.html"
 }
