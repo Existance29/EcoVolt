@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carbon Emissions Dashboard</title>
     <link rel="stylesheet" href="./styles/dataCenterDashboard.css">
+    <link rel="stylesheet" href="./styles/dataCenterCellTowerForecastDashboard.css">
     <link rel="stylesheet" href="./styles/common.css">
 </head>
 <body>
@@ -78,8 +79,13 @@
                 </div>
             </div>
 
+            <div id="dashboard-tabs", style="margin-top: -1rem;">
+                <button id="review-tab-btn">🕒 Review</button>
+                <button id="forecast-tab-btn">🔮 Forecast</button>
+            </div>
+
             <!-- Main Chart Content -->
-            <div class="main-chart-content" style="display: flex; gap: 1rem;">
+            <div class="main-chart-content" style="display: flex; gap: 1rem;" id="review-dashboard">
                 <!-- Left Column with Carbon Emission Overview Chart -->
                 <div class="left-column" style="width: 65%; display: flex; flex-direction: column; gap: 1rem;">
                     <div style="display: flex; width: 100%; gap: 1.1rem; flex-wrap: wrap;">
@@ -169,6 +175,69 @@
                 </div>
             </div>
 
+            <!--Forecast-->
+
+            <div style="display: flex; flex-direction: column; gap: 1rem;" id="forecast-dashboard">
+                <form style="margin-left: 0.2rem; margin-top: 0.4rem; display: flex; align-items: center; gap: 1rem;">
+                    <label for="forecast-period" style="font-size: 0.95rem; font-weight: 500; color: #464549;">Forecast Period:</label>
+                    <input type="text" style="border-radius: 4px;" id="forecast-period" name="forecast-period" class="forecast-period">
+                    <button id="forecast-period-btn">Apply</button>
+                </form>
+
+                <div class="inter-semibold graph-container" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <div class="inter-bold" style="margin-bottom: 1.2rem;">Carbon Emission (Tons)</div>
+                    <div class="forecast-legends">
+                        <div class="container">
+                            <span class="color" style="border-color: #4FD1C5; background-color: #4FD1C566;"></span>
+                            <div class="title">Current</div>
+                        </div>
+                        <div class="container">
+                            <span class="color" style="border-color: #AE85FF; background-color: #AE85FF66;"></span>
+                            <div class="title">Prediction</div>
+                        </div>
+                    </div>
+                    <div style="max-height: 30vh;">
+                        <canvas id="carbonEmissionForecastChart"></canvas>
+                    </div>
+                </div>
+                
+                <!--forecast-->
+                <div style="display: flex; width: 100%; gap: 1.1rem;">
+                    <div class="inter-semibold graph-container" style="width: 52%; display: flex; flex-direction: column;">
+                        <div class="inter-bold" style="margin-bottom: 1.2rem;">Energy Consumption (kWh)</div>
+                        <div class="forecast-legends">
+                            <div class="container">
+                                <span class="color" style="border-color: #4FD1C5; background-color: #4FD1C566;"></span>
+                                <div class="title">Current</div>
+                            </div>
+                            <div class="container">
+                                <span class="color" style="border-color: #AE85FF; background-color: #AE85FF66;"></span>
+                                <div class="title">Prediction</div>
+                            </div>
+                        </div>
+                        <div style="max-height: 30vh;">
+                            <canvas id="energyConsumptionForecastChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="inter-semibold graph-container" style="flex-grow: 1; display: flex; flex-direction: column;">
+                        <div class="inter-bold" style="margin-bottom: 1.2rem;">Renewable Energy Contribution</div>
+                        <div class="forecast-legends">
+                            <div class="container">
+                                <span class="color" style="border-color: #4FD1C5; background-color: #4FD1C566;"></span>
+                                <div class="title">Current</div>
+                            </div>
+                            <div class="container">
+                                <span class="color" style="border-color: #AE85FF; background-color: #AE85FF66;"></span>
+                                <div class="title">Prediction</div>
+                            </div>
+                        </div>
+                        <div style="max-height: 30vh;">
+                            <canvas id="renewableEnergyContributionForecastChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -183,5 +252,6 @@
     <script src="./scripts/utils.js"></script>
     <script src="./scripts/common.js"></script>
     <script src="./scripts/pages/dataCenterDashboard.js"></script>
+    <script src="./scripts/pages/dataCenterCellTowerDashboard.js"></script>
 </body>
 </html>

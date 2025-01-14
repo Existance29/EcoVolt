@@ -313,7 +313,7 @@ async function fetchData() {
     if (selectedDate && (selectedDate.length !== 4 && selectedDate.length !== 7)) {
         console.error("Invalid date format. Expected format: YYYY or YYYY-MM.");
         noDataMessage.style.display = "block";
-        mainChartContent.style.display = "none";
+        currentDashboard.style.display = "none";
         return;
     }
 
@@ -322,19 +322,19 @@ async function fetchData() {
     if (selectedYear && !availableYears.has(selectedYear)) {
         console.warn("Year not found:", selectedYear);
         noDataMessage.style.display = "block";
-        mainChartContent.style.display = "none";
+        currentDashboard.style.display = "none";
         return;
     }
 
     if (selectedDate && selectedMonth && !availableMonths.has(selectedDate)) {
         console.warn("Month-year not found:", selectedDate);
         noDataMessage.style.display = "block";
-        mainChartContent.style.display = "none";
+        currentDashboard.style.display = "none";
         return;
     }
 
     noDataMessage.style.display = "none";
-    mainChartContent.style.display = "flex";
+    currentDashboard.style.display = "flex";
 
     console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
 
@@ -374,8 +374,6 @@ async function fetchData() {
         fetchMetricData(activeMetric); // Ensure the gauge chart updates based on the active metric
 }
 
-
-
 // Case 1: Fetch carbon emissions for all data centers under the company
 async function fetchAllCarbonEmissionByCompanyId() {
     try {
@@ -383,6 +381,7 @@ async function fetchAllCarbonEmissionByCompanyId() {
         const data = await response.json();
         console.log("Data received from fetchAllCarbonEmissionByCompanyId:", data);
         renderChart(data);
+        
     } catch (error) {
         console.error("Error fetching all carbon emission data for company:", error);
     }
@@ -450,7 +449,7 @@ async function fetchAllCarbonEmissionByDataCenterIdAndDate(data_center_id, date)
 }
 
 
-function renderChart(data) {
+async function renderChart(data) {
     console.log("Rendering chart with data:", data);
 
     // Step 1: Check if both month and year filters are selected
@@ -487,6 +486,7 @@ function renderChart(data) {
     // Step 3: Extract labels and emissions from grouped data
     const labels = Object.keys(groupedData);
     const emissions = Object.values(groupedData);
+    console.log(labels)
 
     if (!labels.length || !emissions.length) {
         console.warn("No data available to display.");
@@ -554,6 +554,23 @@ function renderChart(data) {
             }
         }
     });
+
+    //forecast time
+    //Step 4: Set the labels for the forecast
+    const forecastPeriod = parseInt(document.getElementById("forecast-period").value)
+    let start = labels[labels.length - 1]; // Get the last element to continue incrementally
+    let allLabels = labels
+    for (let i = 1; i <= forecastPeriod; i++) {
+        allLabels.push(start + i); // Add the next incremental value
+    }
+
+    //Step 5: Get the forecasted data
+    const carbonEmissionPredictionData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(emissions)})).json()
+
+    //Step 6: Render the forecast chart
+    const color1 = "#4FD1C5"
+    const color2 = "#AE85FF"
+    renderForecastLineChart(document.getElementById('carbonEmissionForecastChart'), emissions, carbonEmissionPredictionData, allLabels, color1, color2)
 }
 
 

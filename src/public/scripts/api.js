@@ -1,6 +1,6 @@
 //functions for CRUD api calls
 
-const accessToken = localStorage.accessToken || sessionStorage.accessToken;
+var accessToken = localStorage.accessToken || sessionStorage.accessToken;
 
 //check if user is logged in 
 async function isSignedIn(){
