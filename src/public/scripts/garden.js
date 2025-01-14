@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await pageRequireSignIn(); // Redirect to sign-in page if not logged in
     
     let treesPlanted = 0; // Track trees planted
-    const treeThreshold = .5; // 24.62 kg of carbon avoided = 1 tree
+    const treeThreshold = 24.62; // 24.62 kg of carbon avoided = 1 tree
 
     // Function to calculate a random position within the container
     function getRandomPositionWithinImage(container) {

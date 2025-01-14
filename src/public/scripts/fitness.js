@@ -1,4 +1,4 @@
-const treeThreshold = .5; // 24.62 kg of carbon avoided = 1 tree
+const treeThreshold = 24.62; // 24.62 kg of carbon avoided = 1 tree
 const TREE_DISTANCE_GOAL = 227.5; // 227.5 km to offset 1 tree's annual CO₂ absorption
 const carbonEmissionPerKm = 0.1082; // 120 grams/km = 0.1082 kg/km
 // Select containers
