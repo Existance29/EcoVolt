@@ -6,6 +6,7 @@
     <title>Fitness Tracker</title>
     <link rel="stylesheet" href="styles/common.css">
     <link rel="stylesheet" href="styles/fitness.css">
+    <link rel="stylesheet" href="styles/fitnessTootip.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -59,8 +60,145 @@
 
             <div class="leaderboard">
                 <!-- Podium Section -->
-                <h2>Leaderboard</h2>
+                <div class="leaderboard-header">
+                    <span></span> <!-- Empty placeholder for the first grid column -->
+                    <h2>Leaderboard</h2>
+                    <span class="tooltip-emoji" onclick="stravaTooltip()">💡</span>
+                </div>
 
+
+                <div id="popup-overlay" class="popup-overlay"></div>
+
+                <div id="popup-container" class="popup-container" style="display: none;">
+                    <div class="popup">
+                        <!-- Close button at the top right -->
+                        <button class="close-popup" onclick="closePopup()">X</button>
+                
+                        <!-- Winners Content -->
+                        <div id="winners-content" class="popup-content">
+                            <h2>Congratulations to Our Top Performers!</h2>
+                
+                            <!-- Popup header with tabs -->
+                            <div class="popup-header">
+                                <button class="popup-tab" id="tooltip-tab" onclick="showTooltipTab()">How to Play</button>
+                                <button class="popup-tab active" id="winners-tab" onclick="showWinnersTab()">Winners</button>
+                            </div>
+                
+                            <div id="winner-list" class="winner-list">
+                                <div class="winner">
+                                    <span class="name"></span>
+                                </div>
+                                <div class="winner">
+                                    <span class="name"></span>
+                                </div>
+                                <div class="winner">
+                                    <span class="name"></span>
+                                </div>
+                            </div>
+                            <div class="podium-container">
+                                <img src="./assets/fitness/popupPodium.png" alt="Campaign Info" class="tooltip-image">
+                                <button id="redeem-now-button" class="redeem-now-button" style="display: none;" onclick="window.location.href='rewards.html'">
+                                    Redeem Now
+                                </button>                            
+                            </div>
+                        </div>
+                
+                        <!-- Tooltip Content -->
+                        <div id="tooltip-content" class="popup-content" style="display: none;">
+                            <div class="campaign-container">
+                                <div class="infographic">
+                                    <img src="./assets/fitness/infographic.png" alt="Campaign Infographic">
+                                </div>
+                                <div class="campaign-steps">
+                                    <div class="campaign-step">
+                                        <p>
+                                            Cycling 1 kilometer helps offset 0.1082 kilograms of CO₂, which is the same amount a car would emit for every kilometer driven.
+                                        </p>
+                                    </div>
+                                    <div class="campaign-step">
+                                        <p>
+                                            Cycling 227.5 kilometers offsets 24.62 kilograms of CO₂, which is equivalent to the amount of carbon absorbed by one tree in an entire year on average.
+                                        </p>
+                                    </div>
+                                    <div class="campaign-step">
+                                        <p>
+                                            By choosing to cycle instead, you eliminate these emissions, bringing us closer to achieving net-zero goals and contributing to cleaner air and a healthier planet.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="howItWorks" class="how-it-works">
+                                <h3>How It Works</h3>
+                                <div class="image-container">
+                                    <img id="image1" src="./assets/fitness/stravaLogo.png" alt="Strava Logo">
+                                    <img id="image2" src="./assets/fitness/linkIcon.jpg" alt="Link Icon">
+                                    <img id="image3" src="./assets/fitness/ecovoltLogo.png" alt="EcoVoltLogo Logo">
+                                </div>                                   
+                                <div class="text-container">
+                                    <p>strava</p>
+                                    <p></p>
+                                    <p>ecovolt</p>
+                                </div>     
+                                <button id="login-btn" class="login-btn" onclick="window.location.href='/fitness/auth'">Login with Strava</button>    
+                                    <!-- Horizontal Line -->
+                                <div class="horizontal-line"></div>
+
+                                <!-- New Content -->
+                                <div class="co2-stats">
+                                    <div class="stat-item">
+                                        <p class="stat-title">CAR CONTRIBUTES</p>
+                                        <p class="stat-value">0.1082kg</p>
+                                        <p class="stat-description">CO₂ PER KM</p>
+                                    </div>
+                                    <div class="divider"></div>
+                                    <div class="stat-item">
+                                        <p class="stat-title">TREE ABSORBS</p>
+                                        <p class="stat-value">24.62kg</p>
+                                        <p class="stat-description">CO₂ PER YEAR</p>
+                                    </div>
+                                </div>  
+                                <!-- Add 4 Step Containers -->
+                                <div class="steps-container">
+                                    <div class="step" >
+                                        <div class="step-number" id="step1">1</div>
+                                        <div class="step-content">
+                                            <h4>Log in and Join</h4>
+                                            <p>Users must log in to their Strava account to participate in the rewards program and leaderboard. By doing so, their cycling activities will automatically sync with the system, allowing them to start tracking their progress.</p>
+                                        </div>
+                                    </div>
+                                    <div class="step">
+                                        <div class="step-number" id="step2">2</div>
+                                        <div class="step-content">
+                                            <h4>Track Your Rides</h4>
+                                            <p>Log every kilometer you cycle. Each ride adds to your progress and gets you closer to earning rewards and reducing your carbon footprint.</p>
+                                        </div>
+                                    </div>
+                                    <div class="step" >
+                                        <div class="step-number" id="step3">3</div>
+                                        <div class="step-content">
+                                            <h4>Earn Rewards</h4>
+                                            <p>Earn points for every kilometer you ride, which can contribute to planting trees and achieving sustainability goals.</p>
+                                        </div>
+                                    </div>
+                                    <div class="step" >
+                                        <div class="step-number" id="step4">4</div>
+                                        <div class="step-content">
+                                            <h4>Climb the Leaderboard</h4>
+                                            <p>Compete with others, track your rank on the leaderboard, and inspire your peers to make a difference.</p>
+                                        </div>
+                                    </div>   
+                                </div>   
+                            </div>
+
+                        </div>                                              
+                    </div>
+                </div>
+                
+                
+                
+
+                
                 <div class="leaderboard-performance">
                     <div class="rank"># 0</div>
                     <p>You are doing better than 0% of other players!</p>
@@ -111,10 +249,6 @@
                 </div>
             </div>
             
-            
-
-
-            
             <!-- New Containers -->
             <div id="new-containers" class="new-containers">
                 <div class="new-container number-of-rides">
@@ -130,7 +264,7 @@
                     <div id="container-tree" class="tree-visualization"></div>
                     <img id="garden-image" src="/assets/fitness/garden.jpg" alt="Carbon Emission Reduced" class="carbon-emission-image">
                     <p id="total-distance">Total distance cycled: 0 km</p>
-                    <p id="trees-planted-message">Your effort is equivalent to planting 0 tree</p>
+                    <p id="trees-planted-message">Your distance cycled is equivalent to the carbon absorption of 0 trees</p>
                 </div>
             </div>
 

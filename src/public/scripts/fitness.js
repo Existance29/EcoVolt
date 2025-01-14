@@ -1,5 +1,6 @@
-const treeThreshold = 24.62; // 24.62 kg of carbon avoided = 1 tree
+const treeThreshold = .5; // 24.62 kg of carbon avoided = 1 tree
 const TREE_DISTANCE_GOAL = 227.5; // 227.5 km to offset 1 tree's annual CO₂ absorption
+const carbonEmissionPerKm = 0.1082; // 120 grams/km = 0.1082 kg/km
 // Select containers
 const stravaLoginContainer = document.getElementById('strava-login-container');
 const combinedContainer = document.getElementById('combined-container');
@@ -35,9 +36,7 @@ fetch('/fitness/stats')
 
 
 
-    function updateStats(data) {
-        const carbonEmissionPerKm = 0.1082;
-    
+    function updateStats(data) {    
         // Extract stats from the data
         const totalDistance = Number((data.totalDistance / 1000).toFixed(2)); // Convert meters to kilometers
         const totalTime = data.totalTime; // Time in seconds
@@ -47,7 +46,7 @@ fetch('/fitness/stats')
         const completedDistance = totalDistance % TREE_DISTANCE_GOAL; // Distance towards current goal
         const remainingDistance = TREE_DISTANCE_GOAL - completedDistance; // Remaining distance for the next tree
         const completedColor = completedDistance >= TREE_DISTANCE_GOAL / 2 ? '#15789a' : '#FF5722'; // Dynamic color
-    
+        
         // Convert total time to hours and minutes
         const totalHours = Math.floor(totalTime / 3600);
         const totalMinutes = Math.floor((totalTime % 3600) / 60);
@@ -70,7 +69,7 @@ fetch('/fitness/stats')
         // Update the UI elements
         document.querySelector('.number-of-rides .value').textContent = `${totalRides}`;
         document.querySelector('.time-travelled .value').textContent = formattedTime;
-    
+
         // Update the chart
         const ctx = document.getElementById('donutChart').getContext('2d');
         new Chart(ctx, {
@@ -96,15 +95,40 @@ fetch('/fitness/stats')
                         },
                     },
                     tooltip: {
+                        enabled: true, // Enable tooltips explicitly
                         callbacks: {
-                            label: (context) => `${context.dataset.label || ''}: ${context.raw.toFixed(2)} km`,
+                            label: (context) => {
+                                const label = context.label || '';
+                                if (label === 'Remaining distance to 1 tree\'s effort') {
+                                    return [
+                                        `You need ${context.raw.toFixed(2)} km more`,
+                                        `to match the effort of 1 tree's carbon absorption`
+                                    ]; // Return an array for multi-line text
+                                }
+                                return `You have completed ${context.raw.toFixed(2)} km`;
+                            },
                         },
-                    },
+                        backgroundColor: '#fff', // Change background color
+                        titleFont: {
+                            size: 16, // Increase title font size
+                            weight: 'bold', // Make it bold
+                        },
+                        bodyFont: {
+                            size: 14, // Increase body font size
+                            family: 'Arial, sans-serif', // Customize font family
+                        },
+                        boxPadding: 10, // Add padding inside the tooltip box
+                        padding: 15, // Add extra padding around text
+                        borderColor: '#ccc', // Add a border to the tooltip
+                        borderWidth: 1, // Border width
+                        bodyColor: '#333', // Change text color
+                        titleColor: '#4FD1C5', // Change title color
+                        cornerRadius: 10, // Rounded corners
+                    },                    
                 },
                 interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: true,
+                    mode: 'nearest', // Determines which elements are considered "hovered"
+                    intersect: true, // Show tooltip only when cursor intersects with an element
                 },
                 cutout: '70%', // Hollow center
             },
@@ -115,25 +139,26 @@ fetch('/fitness/stats')
                     const { ctx } = chart;
                     const centerX = chart.chartArea.left + (chart.chartArea.right - chart.chartArea.left) / 2;
                     const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2;
-    
+        
                     ctx.save();
                     ctx.clearRect(0, 0, width, height);
-    
+        
                     // Determine text color
                     const textColor = completedDistance >= TREE_DISTANCE_GOAL / 2 ? '#15789a' : '#FF5722';
-    
+        
                     // Draw center text
                     ctx.font = `bold ${Math.min(height / 12, 20)}px Arial`;
                     ctx.fillStyle = textColor;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.fillText(`${completedDistance.toFixed(2)} km`, centerX, centerY);
-    
+        
                     ctx.restore();
                 },
             }],
         });
     }
+        
     
 
     async function saveUserStats(userStats) {
@@ -163,6 +188,22 @@ async function fetchLeaderboard() {
         }
         const data = await response.json();
 
+        // Add a message to display the current month
+        const now = new Date();
+        const month = now.toLocaleString('default', { month: 'long' });
+        const year = now.getFullYear();
+        document.querySelector('.leaderboard-header h2').textContent = `Leaderboard for ${month} ${year}`;
+
+        // // Check if today is the first day of the month
+        // if (now.getDate() === 13) {
+        //     localStorage.removeItem('shownMonth');
+        //     // Show the popup if it hasn't been shown for the current month
+        //     const shownMonth = localStorage.getItem('shownMonth');
+        //     if (shownMonth !== `${month}-${year}`) {
+        //         showWinnerPopup(data.slice(0, 3)); // Pass top 3 winners
+        //         localStorage.setItem('shownMonth', `${month}-${year}`);
+        //     }
+        // }
         // Populate podium and leaderboard
         populatePodium(data);
         populateLeaderboard(data);
@@ -183,19 +224,14 @@ async function populatePodium(data) {
         if (!podiumBlock) return;
 
         // Construct the profile picture URL using the new endpoint
-        const avatarUrl = item.id
-            ? `/users/profile-picture/public/${item.id}`
+        const avatarUrl = item.user_id
+            ? `/users/profile-picture/public/${item.user_id}`
             : defaultProfilePicture;
 
         // Ensure proper values for distance, rides, and time
         const distance = item.distance_cycled_km.toFixed(2); // Ensures 2 decimal places
-        const rides = item.number_of_rides;
-        const timeInHours = item.time_travelled_hours;
-
-        // Convert time to hours and minutes format
-        const time = timeInHours < 1
-        ? `${Math.round(timeInHours * 60)} min` // Convert hours to minutes if less than 1 hour
-        : `${timeInHours.toFixed(1)} hrs`; // Display as hours with 1 decimal if >= 1 hour
+        const carbonReduced = item.distance_cycled_km * carbonEmissionPerKm; // Calculate carbon reduced in kg
+        const treesToPlant = Math.floor(carbonReduced / treeThreshold); // Calculate trees to plant
     
         // Select the avatar image element
         const avatarImg = podiumBlock.querySelector('.avatar img');
@@ -211,7 +247,7 @@ async function populatePodium(data) {
 
         podiumBlock.querySelector('.name').textContent = item.name || 'Anonymous';
         podiumBlock.querySelector('.stats').innerHTML = `
-            ${distance} km
+            ${distance} km<br>${treesToPlant} tree${treesToPlant === 1 ? '' : "s'"} effort
         `;
     });
 }
@@ -232,17 +268,20 @@ async function populateLeaderboard(data) {
 
     // Generate Leaderboard Cards Dynamically (skip top 3)
     data.slice(3).forEach((item, index) => {
+        console.log("data: ", data);
         const card = document.createElement('div');
         card.className = 'leaderboard-item';
 
         // Construct the profile picture URL using the new endpoint
-        const avatarUrl = item.id
-            ? `/users/profile-picture/public/${item.id}`
+        const avatarUrl = item.user_id
+            ? `/users/profile-picture/public/${item.user_id}`
             : defaultProfilePicture;
 
         // Ensure proper data keys are used
         const distance = item.distance_cycled_km.toFixed(2); // Ensures 2 decimal places
-
+        const carbonReduced = item.distance_cycled_km * carbonEmissionPerKm; // Calculate carbon reduced in kg
+        const treesToPlant = Math.floor(carbonReduced / treeThreshold); // Calculate trees to plant
+        
         card.innerHTML = `
             <div class="rank">${index + 4}</div>
             <div class="avatar">
@@ -250,9 +289,11 @@ async function populateLeaderboard(data) {
             </div>
             <div class="info">
                 <div class="name">${item.name || 'Anonymous'}</div>
+                <div class="stats-trees">
+                    ${treesToPlant} trees<br>
+                </div>
                 <div class="stats">
                     ${distance} km<br>
-
                 </div>
             </div>
         `;
@@ -401,6 +442,8 @@ async function leaderboardRanking(isLoggedIn) {
         }
 
         const { rank, percentage } = await response.json();
+        console.log(rank);
+        localStorage.setItem('rank', rank);
 
         // Update UI with rank and percentage
         if (rankElement) {
@@ -420,3 +463,143 @@ async function leaderboardRanking(isLoggedIn) {
     }
 }
 
+
+async function stravaTooltip() {
+    try {
+        // Fetch leaderboard data
+        const response = await get(`/fitness/display-leaderboard`);
+        if (!response.ok) {
+            throw new Error(`Error fetching leaderboard: ${response.status}`);
+        }
+        const data = await response.json();
+
+        // Extract top 3 winners
+        const topWinners = data.slice(0, 3).map((item) => ({
+            user_id: item.user_id,
+            name: item.name || 'Anonymous',
+            distance_cycled_km: item.distance_cycled_km,
+        }));
+
+        // Show the popup with the tooltip tab active
+        // Store winners in the dataset for use when switching tabs
+        const popupContainer = document.getElementById("popup-container");
+        popupContainer.dataset.winners = JSON.stringify(topWinners);
+
+        // Show the tooltip tab
+        showPopup("tooltip");
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+    }
+}
+
+function showPopup(contentType) {
+    const popupOverlay = document.getElementById("popup-overlay");
+    const popupContainer = document.getElementById("popup-container");
+    const winnersContent = document.getElementById("winners-content");
+    const tooltipContent = document.getElementById("tooltip-content");
+    const winnersTab = document.getElementById("winners-tab");
+    const tooltipTab = document.getElementById("tooltip-tab");
+    const tooltipImage = document.querySelector(".tooltip-image");
+    const redeemBtn = document.getElementById("redeem-now-button");
+    const winnerList = document.getElementById("winner-list");
+    const header = document.querySelector(".popup-content h2");
+
+    // Show the popup and overlay
+    popupOverlay.style.display = "block";
+    popupContainer.style.display = "flex";
+
+    document.body.classList.add("body-no-scroll");
+
+    // Reset active tabs and content
+    winnersTab.classList.remove("active");
+    tooltipTab.classList.remove("active");
+    winnersContent.classList.remove("active");
+    tooltipContent.classList.remove("active");
+
+    // Handle content for the tooltip tab
+    if (contentType === "tooltip") {
+        tooltipTab.classList.add("active");
+        tooltipContent.style.display = "block"; // Ensure tooltip content is visible
+        tooltipImage.style.display = "none"; // Show the infographic image
+        winnerList.innerHTML = ""; // Clear existing content
+        if (redeemBtn) redeemBtn.style.display = "none"; // Hide "Redeem Now" button
+        if (header) {
+            header.textContent = "How the Campaign Works";
+        }
+    }
+
+    // Handle content for the winners tab
+    if (contentType === "winners") {
+        winnersTab.classList.add("active");
+        winnersContent.classList.add("active");
+        tooltipImage.style.display = "block"; // Show the image for winners tab
+        redeemBtn.style.display = "block"; // Show the "Redeem Now" button
+        if (header) {
+            header.textContent = "Congratulations to Our Top Performers!";
+        }
+        tooltipContent.style.display = "none";
+    
+        // Retrieve winners from dataset
+        const winners = JSON.parse(popupContainer.dataset.winners || "[]");
+        const userRank = parseInt(localStorage.getItem("userRank") || -1);
+        console.log("user rank: ", userRank);
+        // Hide the redeem button if the user is not in the top 3
+        if (userRank > 3 || userRank === -1) {
+            redeemBtn.style.display = "none";
+        } else {
+            redeemBtn.style.display = "block";
+        }
+        const winnerList = document.getElementById("winner-list");
+        winnerList.innerHTML = ""; // Clear existing content
+    
+        // Populate winners list
+        if (winners.length === 0) {
+            winnerList.innerHTML = "<p>No winners to display.</p>";
+        } else {
+            // Desired sequence for the winners: 2, 1, 3
+            const sequence = [1, 0, 2]; // Map indexes to new order: 2nd, 1st, 3rd
+        
+            sequence.forEach((mappedIndex, index) => {
+                const winner = winners[mappedIndex]; // Get the winner from the mapped index
+                const defaultProfilePicture = '/assets/profile/defaultprofilepic.jpg';
+                const avatarUrl = winner.user_id
+                    ? `/users/profile-picture/public/${winner.user_id}`
+                    : defaultProfilePicture;
+        
+                const carbonReduced = winner.distance_cycled_km * carbonEmissionPerKm; // Calculate carbon reduced in kg
+                const treesToPlant = Math.floor(carbonReduced / treeThreshold); // Calculate trees to plant
+        
+                const winnerDiv = document.createElement("div");
+                winnerDiv.classList.add("winner-item", `winner-${index + 1}`); // Add a specific class based on the new rank (1, 2, 3)
+        
+                winnerDiv.innerHTML = `
+                    <div class="name">${winner.name || "Anonymous"}</div>
+                    <div class="avatar">
+                        <img src="${avatarUrl}" alt="${winner.name || "Anonymous"} Avatar" onerror="this.src='${defaultProfilePicture}'">
+                    </div>
+                    <div class="stats">${winner.distance_cycled_km.toFixed(2)} km</div>
+                    <div class="trees">${treesToPlant} tree${treesToPlant === 1 ? "" : "s"}' effort</div>
+                `;
+        
+                winnerList.appendChild(winnerDiv);
+            });
+        }                
+    } 
+}
+
+function closePopup() {
+    const popupOverlay = document.getElementById("popup-overlay");
+    const popupContainer = document.getElementById("popup-container");
+
+    popupOverlay.style.display = "none";
+    popupContainer.style.display = "none";
+    document.body.classList.remove("body-no-scroll");
+}
+
+function showWinnersTab() {
+    showPopup("winners");
+}
+
+function showTooltipTab() {
+    showPopup("tooltip");
+}

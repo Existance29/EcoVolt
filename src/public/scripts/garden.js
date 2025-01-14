@@ -3,27 +3,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     await pageRequireSignIn(); // Redirect to sign-in page if not logged in
     
     let treesPlanted = 0; // Track trees planted
-    const treeThreshold = 24.62; // 24.62 kg of carbon avoided = 1 tree
+    const treeThreshold = .5; // 24.62 kg of carbon avoided = 1 tree
 
     // Function to calculate a random position within the container
     function getRandomPositionWithinImage(container) {
         const { width, height } = container.getBoundingClientRect();
-
-        const xMin = -width / 200;
-        const xMax = width / 200;
-        const zMin = -height / 200;
-        const zMax = height / 200;
-
-        // Generate random position
+    
+        // Adjust boundaries for Three.js positioning
+        const xMin = -(width / 2) / 100; // Convert to Three.js space
+        const xMax = (width / 2) / 100;
+        const zMin = -(height / 2) / 100;
+        const zMax = (height / 2) / 100;
+    
+        // Generate random position within container
         const position = {
-            x: Math.random() * (xMax - xMin) + xMin,
+            x: Math.random() * (xMax - xMin) + xMin, // Random x within bounds
             y: 0, // Ground level
-            z: Math.random() * (zMax - zMin) + zMin
+            z: Math.random() * (zMax - zMin) + zMin // Random z within bounds
         };
-
+    
         console.log("Random Tree Position (calculated):", position);
         return position;
     }
+    
 
     // Function to plant a tree
     function plantTree(scene, position) {
@@ -108,12 +110,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // Update tree visualization
                 updateTreeVisualization(carbonReduced);
-
                 if (treesPlanted === 0 || treesPlanted === 1) {
-                    document.getElementById('trees-planted-message').textContent = `Your effort is equivalent to planting ${treesPlanted} tree`;
+                    document.getElementById('trees-planted-message').textContent = `Your distance cycled is equivalent to carbon absorption of ${treesPlanted} tree`;
                 }
                 else {
-                    document.getElementById('trees-planted-message').textContent = `Your effort is equivalent to planting ${treesPlanted} trees`;
+                    document.getElementById('trees-planted-message').textContent = `Your distance cycled is equivalent to carbon absorption of ${treesPlanted} trees`;
                 }
             })
             .catch((error) => {
