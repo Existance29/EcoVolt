@@ -268,7 +268,6 @@ async function populateLeaderboard(data) {
 
     // Generate Leaderboard Cards Dynamically (skip top 3)
     data.slice(3).forEach((item, index) => {
-        console.log("data: ", data);
         const card = document.createElement('div');
         card.className = 'leaderboard-item';
 
