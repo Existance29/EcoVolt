@@ -138,7 +138,6 @@ class Report {
     
             // Sum both CO₂ emissions
             const totalCO2Emissions = dataCenterCO2 + cellTowerCO2;
-            console.log(dataCenterCO2, cellTowerCO2, totalCO2Emissions);
     
             // Return structured data
             return {
@@ -149,6 +148,81 @@ class Report {
             
         } catch (error) {
             console.error("Error fetching total carbon emissions:", error);
+            throw error;
+        } finally {
+            if (connection) await sql.close();
+        }
+    }
+    static async getAllCarbonEmissions(company_id, year) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+    
+            // Query to fetch detailed data center CO2 emissions
+            const dataCenterQuery = `
+                SELECT 
+                    DCec.date,
+                    dct.id AS dataCenterId,
+                    ISNULL(DCec.co2_emissions_tons, 0) AS dataCenterCO2Emissions
+                FROM 
+                    data_center_carbon_emissions DCec
+                INNER JOIN 
+                    data_centers dct ON DCec.data_center_id = dct.id
+                WHERE 
+                    dct.company_id = @company_id
+                    ${year ? `AND YEAR(DCec.date) = @year` : ''}
+                ORDER BY 
+                    DCec.date ASC;
+            `;
+    
+            // Query to fetch detailed cell tower CO2 emissions
+            const cellTowerQuery = `
+                SELECT 
+                    CTec.date,
+                    ctt.id AS cellTowerId,
+                    ISNULL(CTec.carbon_emission_kg / 1000.0, 0) AS cellTowerCO2Emissions
+                FROM 
+                    cell_tower_energy_consumption CTec
+                INNER JOIN 
+                    cell_towers ctt ON CTec.cell_tower_id = ctt.id
+                WHERE 
+                    ctt.company_id = @company_id
+                    ${year ? `AND YEAR(CTec.date) = @year` : ''}
+                ORDER BY 
+                    CTec.date ASC;
+            `;
+    
+            // Execute both queries in parallel
+            const [dataCenterResult, cellTowerResult] = await Promise.all([
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(dataCenterQuery),
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(cellTowerQuery),
+            ]);
+    
+            const dataCenterEmissions = dataCenterResult.recordset.map(row => ({
+                date: row.date,
+                dataCenterId: row.dataCenterId,
+                co2Emissions: row.dataCenterCO2Emissions,
+            }));
+    
+            const cellTowerEmissions = cellTowerResult.recordset.map(row => ({
+                date: row.date,
+                cellTowerId: row.cellTowerId,
+                co2Emissions: row.cellTowerCO2Emissions,
+            }));
+    
+            // Combine data for both sources
+            return {
+                dataCenterEmissions,
+                cellTowerEmissions,
+            };
+        } catch (error) {
+            console.error("Error fetching detailed carbon emissions:", error);
             throw error;
         } finally {
             if (connection) await sql.close();
