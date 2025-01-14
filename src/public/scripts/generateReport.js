@@ -39,36 +39,6 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     yearSelector.addEventListener('change', fetchReportData);
 
-    async function fetchReportData() {
-        const year = yearSelector.value || '2024';
-        const url = `/reports/${company_id}/generate?year=${year}`;
-        statusMessage.innerText = "Loading report data...";
-        showLoading();
-        
-        try {
-            const response = await fetch(url, { method: 'GET', headers: { 'Cache-Control': 'no-cache' } });
-            const data = await response.json();
-        
-            console.log('Performance Summary Data:', data.performanceSummary); // Debugging log
-        
-            reportTitle.innerText = `${data.reportData[0]?.companyName || 'Company'} Sustainability Report ${year}`;
-            document.getElementById('executiveSummary').innerText = data.executiveSummary;
-            document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
-        
-            populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
-            populateDataTable(data.reportData);
-            populateRecommendations(data.recommendations);
-            populatePerformanceSummaryAndMetrics(data.performanceSummary); // Single call for summary and metrics
-            document.getElementById('conclusion').innerText = data.conclusion;
-        
-            statusMessage.innerText = "Report data loaded successfully.";
-        } catch (error) {
-            console.error('Error fetching report data:', error);
-            statusMessage.innerText = "Failed to load report data.";
-        } finally {
-            hideLoading();
-        }
-    }
 
     async function fetchAvailableYears() {
         if (!company_id) {
@@ -123,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
     
             populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
-            populateDataTable(data.reportData);
+            //populateDataTable(data.reportData, data.emissions);
             populateRecommendations(data.recommendations);
             populatePerformanceSummaryAndMetrics(data.performanceSummary);
             document.getElementById('conclusion').innerText = data.conclusion;
@@ -261,11 +231,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     });
 
-    function populateChart(labels, energyData, emissionsData) {
+    function populateChart(labels, energyData, emissionsData, title = "Yearly Data Overview", emissionsLabel = "CO2 Emissions (tons)") {
         if (reportChart) {
             reportChart.destroy();
         }
-
+    
         const ctx = document.getElementById('dataChart').getContext('2d');
         reportChart = new Chart(ctx, {
             type: 'bar',
@@ -399,28 +369,56 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 
-    function populateDataTable(reportData = []) {
-        dataTableBody.innerHTML = '';
-
+    function populateDataTable(reportData = [], emissions = { dataCenterEmissions: [], cellTowerEmissions: [] }) {
+        console.log(reportData);
+        console.log(emissions);
+        dataTableBody.innerHTML = ''; // Clear the table body before populating
+    
         if (reportData.length === 0) {
-            dataTableBody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No data available for this year</td></tr>`;
+            dataTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">No data available for this year</td></tr>`;
             return;
         }
-
+        
+        // Map emissions by date for easy lookup
+        const emissionMap = {};
+        emissions.dataCenterEmissions.forEach((emission) => {
+            const dateKey = new Date(emission.date).toISOString().split('T')[0];
+            if (!emissionMap[dateKey]) emissionMap[dateKey] = { dataCenterCO2: 0, cellTowerCO2: 0 };
+            emissionMap[dateKey].dataCenterCO2 += emission.co2Emissions;
+        });
+    
+        emissions.cellTowerEmissions.forEach((emission) => {
+            const dateKey = new Date(emission.date).toISOString().split('T')[0];
+            if (!emissionMap[dateKey]) emissionMap[dateKey] = { dataCenterCO2: 0, cellTowerCO2: 0 };
+            emissionMap[dateKey].cellTowerCO2 += emission.co2Emissions;
+        });
+    
         reportData.forEach((row) => {
             const date = new Date(row.date);
             const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
                 .toString()
                 .padStart(2, '0')}/${date.getFullYear()}`;
-
+    
+            const dateKey = date.toISOString().split('T')[0];
+            const dataCenterCO2 = emissionMap[dateKey]?.dataCenterCO2 || 0;
+            const cellTowerCO2 = emissionMap[dateKey]?.cellTowerCO2 || 0;
+    
+            // Dynamically assign the 'Name' field based on dataCenterId or cellTowerId
+            const name = row.dataCenterId
+                ? `Data Center ${row.dataCenterId}`
+                : row.cellTowerId
+                ? `Cell Tower ${row.cellTowerId}`
+                : 'Unknown';
+    
             const tableRow = document.createElement('tr');
             tableRow.innerHTML = `
+                <td>${name}</td>
                 <td>${formattedDate}</td>
-                <td>${row.radioEquipmentEnergy || 'N/A'}</td>
-                <td>${row.coolingEnergy || 'N/A'}</td>
-                <td>${row.backupEnergy || 'N/A'}</td>
-                <td>${row.miscEnergy || 'N/A'}</td>
-                <td>${row.co2EmissionsTons || 'N/A'}</td>
+                <td>${row.radioEquipmentEnergy ? row.radioEquipmentEnergy.toLocaleString() : 'N/A'} kWh</td>
+                <td>${row.coolingEnergy ? row.coolingEnergy.toLocaleString() : 'N/A'} kWh</td>
+                <td>${row.backupEnergy ? row.backupEnergy.toLocaleString() : 'N/A'} kWh</td>
+                <td>${row.miscEnergy ? row.miscEnergy.toLocaleString() : 'N/A'} kWh</td>
+                <td>${(dataCenterCO2 + cellTowerCO2).toFixed(2)} tons</td>
             `;
             dataTableBody.appendChild(tableRow);
         });
