@@ -64,23 +64,25 @@ const generateReportData = async (req, res) => {
             return res.status(404).json({ error: `No report data found for the year ${year}.` });
         }
 
+        // Fetch total CO2 emissions
+        const carbonEmissions = await Report.getTotalCarbonEmissions(company_id, year);
+        const totalCO2 = carbonEmissions.totalCO2Emissions;
+
         const previousYear = parseInt(year) - 1;
         let previousYearReports = [];
-        let previousYearMetrics = {};
+        let previousYearTotalCO2 = 0;
 
         try {
             previousYearReports = await Report.getAllReport(company_id, previousYear);
             if (previousYearReports.length > 0) {
-                previousYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, previousYear);
+                const previousYearEmissions = await Report.getTotalCarbonEmissions(company_id, previousYear);
+                previousYearTotalCO2 = previousYearEmissions.totalCO2Emissions;
             }
         } catch (error) {
             console.warn(`No data available for the year ${previousYear}. Skipping comparison.`);
             previousYearReports = [];
-            previousYearMetrics = {};
+            previousYearTotalCO2 = 0;
         }
-
-        // Fetch efficiency metrics for the current year
-        const currentYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, year);
 
         // Initialize totals
         const companyName = reports[0]?.companyName || 'Company';
@@ -88,22 +90,30 @@ const generateReportData = async (req, res) => {
         const monthlyEnergy = [];
         const monthlyCO2 = [];
         let totalEnergy = 0;
-        let totalCO2 = 0;
 
-        reports.forEach(report => {
+        reports.forEach((report) => {
             const month = moment(report.date).format('MMM YYYY');
             const index = months.indexOf(month);
             if (index === -1) {
                 months.push(month);
                 monthlyEnergy.push(report.totalEnergyKWH || 0);
-                monthlyCO2.push(report.co2EmissionsTons || 0);
             } else {
                 monthlyEnergy[index] += report.totalEnergyKWH || 0;
-                monthlyCO2[index] += report.co2EmissionsTons || 0;
             }
             totalEnergy += report.totalEnergyKWH || 0;
-            totalCO2 += report.co2EmissionsTons || 0;
         });
+
+        // Proportionally distribute CO2 emissions based on energy consumption
+        monthlyEnergy.forEach((energy, index) => {
+            const proportion = energy / totalEnergy || 0;
+            monthlyCO2.push(proportion * totalCO2);
+        });
+
+        // Fetch efficiency metrics for the current year
+        const currentYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, year);
+        const previousYearMetrics = previousYearReports.length > 0
+            ? await Report.getEfficiencyMetricsComparison(company_id, previousYear)
+            : {};
 
         // Performance summary
         const performanceSummary = {
@@ -119,12 +129,9 @@ const generateReportData = async (req, res) => {
             },
             co2Emissions: {
                 current: totalCO2,
-                previous: previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0),
-                percentageChange: previousYearReports.length > 0
-                    ? ((totalCO2 -
-                        previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0)) /
-                        (previousYearReports.reduce((sum, r) => sum + (r.co2EmissionsTons || 0), 0) || 1)) *
-                        100
+                previous: previousYearTotalCO2,
+                percentageChange: previousYearTotalCO2 > 0
+                    ? ((totalCO2 - previousYearTotalCO2) / previousYearTotalCO2) * 100
                     : "Not Applicable",
             },
             efficiencyMetrics: {
