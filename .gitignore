@@ -134,3 +134,20 @@ dbConfig.js
 
 # Uploads
 uploads
+
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+
+# Model checkpoints and intermediate training files
+fine_tuned_model/
+
+# Data
+data/
+
+# macOS system files
+.DS_Store
