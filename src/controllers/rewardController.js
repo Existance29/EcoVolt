@@ -75,6 +75,20 @@ class rewardController {
             return res.status(500).json({ message: error.message });
         }
     }
+
+    static async getActivityHistory(req, res) {
+        const userId = req.user.userId;
+        try {
+            if (!userId) {
+                return res.status(400).json({ message: "User ID is required" });
+            }
+            const activityHistory = await reward.getActivityHistory(userId);
+            // console.log("activityHistory",activityHistory);
+            return res.status(200).json(activityHistory);
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
 }
 
 module.exports = rewardController
