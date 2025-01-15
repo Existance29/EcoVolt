@@ -1,0 +1,163 @@
+body {
+    font-family: Manrope, "Noto Sans", sans-serif;
+    background-color: white;
+  }
+  
+  .main-content {
+    padding: 20px 40px;
+  }
+  
+  .section-title {
+    color: #111418;
+    font-size: 22px;
+    font-weight: bold;
+    margin: 20px 0;
+  }
+  
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    background-color: white;
+    padding: 12px 16px;
+    min-height: 72px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+  }
+  
+  .history-details {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f2f4;
+    border-radius: 8px;
+    width: 48px;
+    height: 48px;
+  }
+  
+  .details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .points {
+    font-size: 16px;
+    font-weight: medium;
+    color: inherit;
+    cursor: pointer;
+  }
+  
+  .description {
+    color: #111418;
+    font-size: 16px;
+    font-weight: medium;
+  }
+  
+  .date {
+    color: #637588;
+    font-size: 14px;
+  }
+  
+
+  /* Redeemed Items Container */
+#redeemed-items {
+    display: flex;
+    flex-direction: column; /* Stack redeemed items vertically */
+    gap: 16px; /* Add spacing between items */
+    margin-top: 20px;
+  }
+  
+  /* Redeemed Item */
+  .redeemed-item {
+    display: flex; /* Align image and details horizontally */
+    flex-direction: row; /* Ensure horizontal alignment */
+    align-items: center; /* Vertically align content */
+    background-color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    gap: 16px; /* Space between image and details */
+    width: 100%; /* Make item span full width */
+    box-sizing: border-box; /* Include padding in width */
+    border: 1px solid #e5e7eb; /* Optional: Add a subtle border */
+    overflow: hidden; /* Prevent content overflow */
+  }
+  
+  /* Redeemed Image */
+  .redeemed-image {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0; /* Prevent image from shrinking */
+  }
+  
+  /* Redeemed Details */
+  .redeemed-details {
+    display: flex;
+    flex-direction: row; /* Align text and points in the same row */
+    align-items: center; /* Vertically align content */
+    justify-content: space-between; /* Push points to the far right */
+    flex: 1; /* Allow details to grow and take up space */
+    min-width: 0; /* Prevent overflow */
+    gap: 16px;
+  }
+  
+  /* Redeemed Info */
+  .redeemed-info {
+    display: flex;
+    flex-direction: column; /* Stack name, description, and date vertically */
+    gap: 8px; /* Add spacing between text items */
+    flex: 1; /* Allow text to take up available space */
+    min-width: 0; /* Prevent text from overflowing */
+    overflow: hidden; /* Ensure content stays within container */
+  }
+  /* Redeemed Name */
+.redeemed-name {
+    color: #111418;
+    font-size: 18px; /* Increased for prominence */
+    font-weight: bold;
+    margin: 0;
+    white-space: nowrap; /* Prevent wrapping */
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+    overflow: hidden; /* Clip overflowing text */
+  }
+  
+  /* Redeemed Description */
+  .redeemed-description {
+    color: #637588;
+    font-size: 16px; /* Slightly larger for better readability */
+    margin: 0;
+    line-height: 1.6; /* Improved line spacing */
+    overflow-wrap: break-word; /* Break long words */
+  }
+  
+  /* Redeemed Date */
+  .redeemed-date {
+    color: #637588;
+    font-size: 16px; /* Slightly larger for better readability */
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+/* Redeemed Spent Points */
+.redeemed-spent {
+    font-size: 18px; /* Slightly larger for emphasis */
+    font-weight: bold;
+    color: #e63946; /* Red color for points spent */
+    white-space: nowrap; /* Prevent wrapping */
+    margin-left: auto; /* Push to the far right */
+    margin-right: 20px; /* Add more space on the right */
+    text-align: right; /* Align text to the right */
+  }
+  
+  
