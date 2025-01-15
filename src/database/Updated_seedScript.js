@@ -185,43 +185,43 @@ CREATE TABLE dislikes (
 	UNIQUE (post_id, user_id)
 );
 
-
 -- Create table for reward points
 CREATE TABLE user_rewards (
-    reward_id INT IDENTITY(1,1) PRIMARY KEY,
-    user_id INT NOT NULL,
-    company_id INT NOT NULL,
+    user_id INT PRIMARY KEY,
     total_points INT DEFAULT 0,
-    last_updated DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (company_id) REFERENCES companies(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Create table for activity points 
 CREATE TABLE activity_points (
     activity_id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
-    company_id INT NOT NULL,
     post_id INT,
     activity_type VARCHAR(50), 
     points_awarded INT,
     datetime DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (company_id) REFERENCES companies(id),
     FOREIGN KEY (post_id) REFERENCES activity_feed(post_id)
+);
+
+CREATE TABLE rewards_catalog (
+    reward_id INT IDENTITY(1,1) PRIMARY KEY,
+    reward_image VARCHAR(255),
+    reward_name VARCHAR(255) NOT NULL,
+    reward_description VARCHAR(255),
+    points_required INT NOT NULL
 );
 
 -- Create table for reward history
 CREATE TABLE reward_history (
     redemption_id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
-    company_id INT NOT NULL,
-    reward_description VARCHAR(255),
-    points_spent INT,
+    reward_id INT NOT NULL,
+    points_spent INT NOT NULL,
     redemption_date DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (company_id) REFERENCES companies(id)
-); 
+    FOREIGN KEY (reward_id) REFERENCES rewards_catalog(reward_id)
+);
 
 -- Create table for Leaderboard
 CREATE TABLE leaderboard (
@@ -2029,6 +2029,48 @@ VALUES
     (27, 7.00, 28, 22.0, 3, 1, 2025), -- Lena Tan
     (28, 2.75, 13, 10.5, 1, 1, 2025); -- Megan Teo
 
+
+INSERT INTO rewards_catalog (reward_name, reward_image, reward_description, points_required)
+VALUES
+    ('Reusable Water Bottle', 
+    '/assets/rewards/waterBottle.jpg', 
+    'Reduce single-use plastic by using a reusable water bottle. This eco-friendly bottle is made from 100% recycled materials.', 
+    1500),
+
+    ('Recycling Bag', 
+    '/assets/rewards/reusableFoodWrap.png', 
+    'Stylish and durable bag to help you carry and sort recyclables effectively.', 
+    1000),
+
+    ('Solar Power Bank', 
+    '/assets/rewards/portableCharger.jpg', 
+    'Charge your devices with a solar-powered bank, perfect for eco-conscious tech users.', 
+    3000),
+
+    ('Eco-Friendly Notebook', 
+    '/assets/rewards/notebook.jpg', 
+    'A notebook made from 100% recycled paper, perfect for jotting down your thoughts sustainably.', 
+    500),
+
+    ('Bamboo Toothbrush', 
+    '/assets/rewards/BambooToothBrush.png', 
+    'Switch to a biodegradable bamboo toothbrush to reduce plastic waste.', 
+    300),
+
+    ('Compost Bin', 
+    '/assets/rewards/compostBin.jpg', 
+    'A compact compost bin for your kitchen to turn food scraps into valuable compost.', 
+    2000),
+
+    ('Plant a Tree Certificate', 
+    '/assets/rewards/plantTreeCert.jpg', 
+    'Contribute to reforestation efforts by planting a tree in your name.', 
+    2500),
+
+    ('Organic Cotton Tote Bag', 
+    '/assets/rewards/cottonBag.png', 
+    'A durable and reusable tote bag made from 100% organic cotton.', 
+    1200);
 `;
 
 async function seedDatabase() {
