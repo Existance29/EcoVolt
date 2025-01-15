@@ -304,7 +304,62 @@ class Report {
             await sql.close();
         }
     }
-
+    static async getMonthlyEnergyBreakdown(company_id, year, month) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+    
+            const query = `
+                SELECT
+                    SUM(CTec.radio_equipment_energy_kwh) AS radioEquipment,
+                    SUM(CTec.cooling_energy_kwh) AS cooling,
+                    SUM(CTec.backup_power_energy_kwh) AS backupPower,
+                    SUM(CTec.misc_energy_kwh) AS misc
+                FROM
+                    cell_tower_energy_consumption CTec
+                INNER JOIN
+                    companies c ON c.id = CTec.cell_tower_id
+                WHERE
+                    c.id = @company_id AND YEAR(CTec.date) = @year AND MONTH(CTec.date) = @month
+                UNION ALL
+                SELECT
+                    SUM(DCec.it_energy_mwh * 1000) AS radioEquipment,
+                    SUM(DCec.cooling_energy_mwh * 1000) AS cooling,
+                    SUM(DCec.backup_power_energy_mwh * 1000) AS backupPower,
+                    SUM(DCec.lighting_energy_mwh * 1000) AS misc
+                FROM
+                    data_center_energy_consumption DCec
+                INNER JOIN
+                    data_centers dct ON dct.id = DCec.data_center_id
+                INNER JOIN
+                    companies c ON c.id = dct.company_id
+                WHERE
+                    c.id = @company_id AND YEAR(DCec.date) = @year AND MONTH(DCec.date) = @month;
+            `;
+    
+            const result = await connection
+                .request()
+                .input('company_id', sql.Int, company_id)
+                .input('year', sql.Int, year)
+                .input('month', sql.Int, month)
+                .query(query);
+    
+            return result.recordset.reduce((acc, row) => {
+                acc.radioEquipment += row.radioEquipment || 0;
+                acc.cooling += row.cooling || 0;
+                acc.backupPower += row.backupPower || 0;
+                acc.misc += row.misc || 0;
+                return acc;
+            }, { radioEquipment: 0, cooling: 0, backupPower: 0, misc: 0 });
+        } catch (error) {
+            console.error("Error fetching monthly energy breakdown:", error);
+            throw error;
+        } finally {
+            if (connection) await connection.close();
+        }
+    }
+    
+    
     
 }
 

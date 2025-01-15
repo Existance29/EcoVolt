@@ -380,7 +380,26 @@ const getAvailableYears = async (req, res) => {
     }
 };
 
+const getEnergyBreakdown = async (req, res) => {
+    const { company_id } = req.params;
+    const { year, month } = req.query;
 
+    if (!company_id || !year || !month) {
+        return res.status(400).json({ error: 'Company ID, year, and month are required parameters.' });
+    }
+
+    try {
+        const data = await Report.getMonthlyEnergyBreakdown(company_id, year, month);
+        if (!data) {
+            return res.status(404).json({ error: `No data found for ${month}-${year}.` });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error("Error fetching energy breakdown:", error);
+        res.status(500).json({ error: 'Failed to fetch energy breakdown for the specified month.' });
+    }
+};
 
 
 module.exports = {
@@ -389,4 +408,5 @@ module.exports = {
     forceGenerateReportData,
     generateReportPDF,
     getAvailableYears,
+    getEnergyBreakdown
 };

@@ -93,11 +93,25 @@ document.addEventListener('DOMContentLoaded', async function () {
             document.getElementById('dataAnalysis').innerText = data.dataAnalysis;
     
             populateChart(data.months, data.monthlyEnergy, data.monthlyCO2);
-            //populateDataTable(data.reportData, data.emissions);
             populateRecommendations(data.recommendations);
             populatePerformanceSummaryAndMetrics(data.performanceSummary);
             document.getElementById('conclusion').innerText = data.conclusion;
             await fetchPredictionData(data);
+    
+            // Identify the month with the highest energy consumption
+            const highestEnergyIndex = data.monthlyEnergy.indexOf(Math.max(...data.monthlyEnergy));
+            const highestCO2Index = data.monthlyCO2.indexOf(Math.max(...data.monthlyCO2));
+            const highestMonthIndex = highestEnergyIndex; // Or replace with highestCO2Index if needed
+            const highestMonth = data.months[highestMonthIndex];
+    
+            console.log(`Month with highest energy consumption: ${highestMonth}`);
+    
+            // Fetch the energy breakdown for the month with the highest energy
+            if (highestMonth) {
+                const [monthName, monthYear] = highestMonth.split(" ");
+                const month = new Date(`${monthName} 1, ${monthYear}`).getMonth() + 1; // Convert to numeric month
+                await fetchEnergyBreakdown(monthYear, month);
+            }
     
             statusMessage.innerText = "Report data loaded successfully.";
         } catch (error) {
@@ -107,6 +121,97 @@ document.addEventListener('DOMContentLoaded', async function () {
             hideLoading();
         }
     }
+    
+    async function fetchEnergyBreakdown(year, month) {
+        if (!company_id || !year || !month) {
+            console.error("Company ID, year, and month are required to fetch energy breakdown.");
+            return;
+        }
+    
+        const url = `/reports/${company_id}/energy-breakdown?year=${year}&month=${month}`;
+        statusMessage.innerText = "Loading energy breakdown...";
+        showLoading();
+    
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch energy breakdown: ${response.statusText}`);
+            }
+    
+            const breakdownData = await response.json();
+            renderPieChart(breakdownData, year, month);
+        } catch (error) {
+            console.error("Error fetching energy breakdown:", error);
+            statusMessage.innerText = "Failed to load energy breakdown.";
+        } finally {
+            hideLoading();
+        }
+    }
+    
+    function renderPieChart(data, year, month) {
+        const labels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"];
+        const values = [
+            data.radioEquipment || 0,
+            data.cooling || 0,
+            data.backupPower || 0,
+            data.misc || 0,
+        ];
+        const colors = ["#003366", "#0099CC", "#66CCCC", "#99CCFF"]; // Updated colors
+        const dataSum = values.reduce((a, b) => a + b, 0);
+
+       // Convert numeric month to full month name
+        const monthNames = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        const fullMonthName = monthNames[month - 1];
+
+        // Update the title dynamically
+        const nameElement = document.getElementById('name');
+        nameElement.innerText = `${fullMonthName} ${year}`;
+
+        
+        const ctx = document.getElementById('energyPieChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: colors,
+                }],
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                },
+            },
+        });
+    
+        // Render legend with enhanced styling
+        const labelElement = document.getElementById('energyLabels');
+        const [labelColumn, valueColumn] = labelElement.children;
+    
+        labelColumn.innerHTML = '';
+        valueColumn.innerHTML = '';
+    
+        for (let i = 0; i < labels.length; i++) {
+            const percentage = ((values[i] / dataSum) * 100).toFixed(2);
+            labelColumn.innerHTML += `
+                <div class="label-name">
+                    <div class="label-color" style="background-color: ${colors[i]};"></div>
+                    ${labels[i]}
+                </div>
+            `;
+            valueColumn.innerHTML += `
+                <div class="label-value">
+                    ${values[i].toLocaleString()} kWh (${percentage}%)
+                </div>
+            `;
+        }
+    }
+    
+    
     
     async function fetchPredictionData() {
         const forecastPeriod = 4;
