@@ -153,7 +153,7 @@ class Reward {
             const sqlQuery = `
 				select * from reward_history inner join rewards_catalog
 				on reward_history.reward_id = rewards_catalog.reward_id
-				where reward_history.user_id = @userId
+				where reward_history.user_id = @userId ORDER BY redemption_date DESC
             `;
             const request = connection.request();
             request.input('userId', userId);
