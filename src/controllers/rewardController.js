@@ -69,7 +69,7 @@ class rewardController {
                 return res.status(400).json({ message: "User ID is required" });
             }
             const rewardHistory = await reward.getRewardHistory(userId);
-            console.log("rewardHistory",rewardHistory);
+            // console.log("rewardHistory",rewardHistory);
             return res.status(200).json(rewardHistory);
         } catch (error) {
             return res.status(500).json({ message: error.message });
