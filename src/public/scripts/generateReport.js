@@ -145,10 +145,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             while (historicalCO2.length < recentYears.length) {
                 const missingYears = recentYears.filter(
                     year => !historicalCO2.some(data => data.year === year)
-                );
-    
-                console.log("Retrying for missing years:", missingYears);
-    
+                );    
                 if (missingYears.length === 0) break;
     
                 const fetchedData = await fetchMissingYears(missingYears);

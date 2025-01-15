@@ -93,6 +93,7 @@ const generateReportData = async (req, res) => {
 
         reports.forEach((report) => {
             const month = moment(report.date).format('MMM YYYY');
+            const year =  moment(report.date).format('YYYY');
             const index = months.indexOf(month);
             if (index === -1) {
                 months.push(month);
@@ -164,8 +165,11 @@ const generateReportData = async (req, res) => {
         const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName);
         const recommendations = await getAllAIRecommendations({ totalEnergy, co2Emissions: totalCO2 });
         const conclusion = await generateConclusion(totalEnergy, totalCO2, recommendations);
+        const emissions = await Report.getAllCarbonEmissions(company_id, year);
+        
 
         const reportData = {
+            year,
             months,
             monthlyEnergy,
             monthlyCO2,
@@ -177,6 +181,8 @@ const generateReportData = async (req, res) => {
             conclusion,
             performanceSummary,
             reportData: reports,
+            carbonEmissions,
+            emissions
         };
 
         // Cache the data
