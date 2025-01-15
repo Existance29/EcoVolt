@@ -93,6 +93,7 @@ const generateReportData = async (req, res) => {
 
         reports.forEach((report) => {
             const month = moment(report.date).format('MMM YYYY');
+            const year =  moment(report.date).format('YYYY');
             const index = months.indexOf(month);
             if (index === -1) {
                 months.push(month);
@@ -164,8 +165,11 @@ const generateReportData = async (req, res) => {
         const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName);
         const recommendations = await getAllAIRecommendations({ totalEnergy, co2Emissions: totalCO2 });
         const conclusion = await generateConclusion(totalEnergy, totalCO2, recommendations);
+        const emissions = await Report.getAllCarbonEmissions(company_id, year);
+        
 
         const reportData = {
+            year,
             months,
             monthlyEnergy,
             monthlyCO2,
@@ -177,6 +181,8 @@ const generateReportData = async (req, res) => {
             conclusion,
             performanceSummary,
             reportData: reports,
+            carbonEmissions,
+            emissions
         };
 
         // Cache the data
@@ -374,7 +380,26 @@ const getAvailableYears = async (req, res) => {
     }
 };
 
+const getEnergyBreakdown = async (req, res) => {
+    const { company_id } = req.params;
+    const { year, month } = req.query;
 
+    if (!company_id || !year || !month) {
+        return res.status(400).json({ error: 'Company ID, year, and month are required parameters.' });
+    }
+
+    try {
+        const data = await Report.getMonthlyEnergyBreakdown(company_id, year, month);
+        if (!data) {
+            return res.status(404).json({ error: `No data found for ${month}-${year}.` });
+        }
+
+        res.status(200).json(data);
+    } catch (error) {
+        console.error("Error fetching energy breakdown:", error);
+        res.status(500).json({ error: 'Failed to fetch energy breakdown for the specified month.' });
+    }
+};
 
 
 module.exports = {
@@ -383,4 +408,5 @@ module.exports = {
     forceGenerateReportData,
     generateReportPDF,
     getAvailableYears,
+    getEnergyBreakdown
 };

@@ -1,0 +1,5 @@
+[
+    {"input": "What is the worst-performing month for our company in 2024 and why?", "output": "The worst-performing month in 2024 was August due to extreme weather conditions and outdated cooling systems."},
+    {"input": "Provide recommendations for improving energy efficiency.", "output": "1. Replace outdated cooling units with energy-efficient alternatives such as liquid cooling systems. 2. Install smart thermostats to optimize cooling."},
+    {"input": "Generate a conclusion for the annual report.", "output": "In 2024, we made significant progress in integrating renewable energy sources while optimizing operational efficiency."}
+]
