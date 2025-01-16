@@ -64,36 +64,24 @@ const generateReportData = async (req, res) => {
             return res.status(404).json({ error: `No report data found for the year ${year}.` });
         }
 
-        // Fetch total CO2 emissions
-        const carbonEmissions = await Report.getTotalCarbonEmissions(company_id, year);
-        const totalCO2 = carbonEmissions.totalCO2Emissions;
-
-        const previousYear = parseInt(year) - 1;
-        let previousYearReports = [];
-        let previousYearTotalCO2 = 0;
-
-        try {
-            previousYearReports = await Report.getAllReport(company_id, previousYear);
-            if (previousYearReports.length > 0) {
-                const previousYearEmissions = await Report.getTotalCarbonEmissions(company_id, previousYear);
-                previousYearTotalCO2 = previousYearEmissions.totalCO2Emissions;
-            }
-        } catch (error) {
-            console.warn(`No data available for the year ${previousYear}. Skipping comparison.`);
-            previousYearReports = [];
-            previousYearTotalCO2 = 0;
-        }
+        // Fetch monthly CO2 emissions for the year
+        const emissions = await Report.getMonthlyCarbonEmissions(company_id, year);
+        const monthlyCO2 = emissions.map((entry) => ({
+            month: `${entry.year}-${entry.month.toString().padStart(2, '0')}`,
+            dataCenterCO2: entry.dataCenterCO2Emissions,
+            cellTowerCO2: entry.cellTowerCO2Emissions,
+            totalCO2: entry.dataCenterCO2Emissions + entry.cellTowerCO2Emissions,
+        }));
 
         // Initialize totals
         const companyName = reports[0]?.companyName || 'Company';
         const months = [];
         const monthlyEnergy = [];
-        const monthlyCO2 = [];
         let totalEnergy = 0;
 
+        // Aggregate energy consumption by month
         reports.forEach((report) => {
             const month = moment(report.date).format('MMM YYYY');
-            const year =  moment(report.date).format('YYYY');
             const index = months.indexOf(month);
             if (index === -1) {
                 months.push(month);
@@ -104,35 +92,36 @@ const generateReportData = async (req, res) => {
             totalEnergy += report.totalEnergyKWH || 0;
         });
 
-        // Proportionally distribute CO2 emissions based on energy consumption
-        monthlyEnergy.forEach((energy, index) => {
-            const proportion = energy / totalEnergy || 0;
-            monthlyCO2.push(proportion * totalCO2);
-        });
-
         // Fetch efficiency metrics for the current year
         const currentYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, year);
+
+        // Fetch previous year data for comparison
+        const previousYear = parseInt(year) - 1;
+        const previousYearReports = await Report.getAllReport(company_id, previousYear).catch(() => []);
         const previousYearMetrics = previousYearReports.length > 0
             ? await Report.getEfficiencyMetricsComparison(company_id, previousYear)
             : {};
+
+        const totalPreviousYearEnergy = previousYearReports.reduce((sum, report) => sum + (report.totalEnergyKWH || 0), 0);
+        const totalPreviousYearCO2 = previousYearReports.length > 0
+            ? await Report.getTotalCarbonEmissions(company_id, previousYear)
+            : { totalCO2Emissions: 0 };
 
         // Performance summary
         const performanceSummary = {
             totalEnergy: {
                 current: totalEnergy,
-                previous: previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0),
-                percentageChange: previousYearReports.length > 0
-                    ? ((totalEnergy -
-                        previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0)) /
-                        (previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0) || 1)) *
-                        100
+                previous: totalPreviousYearEnergy,
+                percentageChange: totalPreviousYearEnergy
+                    ? ((totalEnergy - totalPreviousYearEnergy) / totalPreviousYearEnergy) * 100
                     : "Not Applicable",
             },
             co2Emissions: {
-                current: totalCO2,
-                previous: previousYearTotalCO2,
-                percentageChange: previousYearTotalCO2 > 0
-                    ? ((totalCO2 - previousYearTotalCO2) / previousYearTotalCO2) * 100
+                current: monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0),
+                previous: totalPreviousYearCO2.totalCO2Emissions || 0,
+                percentageChange: totalPreviousYearCO2.totalCO2Emissions
+                    ? ((monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0) - totalPreviousYearCO2.totalCO2Emissions) /
+                        totalPreviousYearCO2.totalCO2Emissions) * 100
                     : "Not Applicable",
             },
             efficiencyMetrics: {
@@ -161,12 +150,28 @@ const generateReportData = async (req, res) => {
         };
 
         // Generate other sections
-        const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2, companyName);
-        const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName);
-        const recommendations = await getAllAIRecommendations({ totalEnergy, co2Emissions: totalCO2 });
-        const conclusion = await generateConclusion(totalEnergy, totalCO2, recommendations);
-        const emissions = await Report.getAllCarbonEmissions(company_id, year);
-        
+        const executiveSummary = await generateExecutiveSummary(
+            totalEnergy,
+            performanceSummary.co2Emissions.current,
+            months,
+            monthlyEnergy,
+            monthlyCO2.map((item) => item.totalCO2),
+            companyName
+        );
+        const dataAnalysis = await generateDataAnalysis(
+            monthlyEnergy,
+            monthlyCO2.map((item) => item.totalCO2),
+            companyName
+        );
+        const recommendations = await getAllAIRecommendations({
+            totalEnergy,
+            co2Emissions: performanceSummary.co2Emissions.current,
+        });
+        const conclusion = await generateConclusion(
+            totalEnergy,
+            performanceSummary.co2Emissions.current,
+            recommendations
+        );
 
         const reportData = {
             year,
@@ -174,15 +179,14 @@ const generateReportData = async (req, res) => {
             monthlyEnergy,
             monthlyCO2,
             totalEnergy,
-            totalCO2,
+            totalCO2: performanceSummary.co2Emissions.current,
             executiveSummary,
             dataAnalysis,
             recommendations,
             conclusion,
             performanceSummary,
             reportData: reports,
-            carbonEmissions,
-            emissions
+            emissions,
         };
 
         // Cache the data
@@ -195,7 +199,6 @@ const generateReportData = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch report data.' });
     }
 };
-
 
 // Forcefully generate new report data
 const forceGenerateReportData = async (req, res) => {
