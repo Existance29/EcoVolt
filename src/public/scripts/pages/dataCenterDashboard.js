@@ -340,6 +340,10 @@ async function fetchData() {
 
     updateDatePickerToggleLabel();
 
+    a = await get(`/Dashboard/Data-Center/EnergyConsumption/company`)
+    console.log("sugma")
+    console.log(await a.json())
+
     if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
         // No date, fetch totals for all data centers under the company
         await fetchAllCarbonEmissionByCompanyId();
@@ -476,6 +480,7 @@ async function renderChart(data) {
             dateLabel = date.getFullYear().toString();
         }
 
+
         if (!acc[dateLabel]) {
             acc[dateLabel] = 0;
         }
@@ -486,7 +491,6 @@ async function renderChart(data) {
     // Step 3: Extract labels and emissions from grouped data
     const labels = Object.keys(groupedData);
     const emissions = Object.values(groupedData);
-    console.log(labels)
 
     if (!labels.length || !emissions.length) {
         console.warn("No data available to display.");
@@ -556,21 +560,40 @@ async function renderChart(data) {
     });
 
     //forecast time
+    const months = ["Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov"]
     //Step 4: Set the labels for the forecast
     const forecastPeriod = parseInt(document.getElementById("forecast-period").value)
     let start = labels[labels.length - 1]; // Get the last element to continue incrementally
-    let allLabels = labels
+    let allLabels = [...labels]
+    let yearIncrement = 0
+    let monthIncrement = 0
     for (let i = 1; i <= forecastPeriod; i++) {
-        allLabels.push(start + i); // Add the next incremental value
+        if (!selectedMonth && !selectedYear){
+            allLabels.push(parseInt(start) + i); // Add the next incremental value
+        }else if (!selectedMonth && selectedYear){ //by month
+            let [m, y] = start.split(" ")
+            monthNum = (months.indexOf(m)+i)%12
+            y = parseInt(y)+yearIncrement
+            m = months[monthNum]
+            if (!monthNum) yearIncrement += 1
+            allLabels.push(`${m} ${y}`)
+        } else{ //by day
+            let [m, d] = start.split(" ")
+            d = parseInt(d) + i
+            if (d > 30) monthIncrement += 1
+            m = months[(months.indexOf(m)+monthIncrement)%12]
+            allLabels.push(`${m} ${d < 10 ? "0":""}${d}`)
+
+        }
+
+        
     }
 
     //Step 5: Get the forecasted data
     const carbonEmissionPredictionData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(emissions)})).json()
 
     //Step 6: Render the forecast chart
-    const color1 = "#4FD1C5"
-    const color2 = "#AE85FF"
-    renderForecastLineChart(document.getElementById('carbonEmissionForecastChart'), emissions, carbonEmissionPredictionData, allLabels, color1, color2)
+    renderForecastLineChart(document.getElementById('carbonEmissionForecastChart'), emissions, carbonEmissionPredictionData, allLabels, "#4FD1C5", "#AE85FF")
 }
 
 
