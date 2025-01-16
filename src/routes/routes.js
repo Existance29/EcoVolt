@@ -5,7 +5,9 @@ const activityRoute = require('./activityRoutes.js');
 const cellTowerDashboardRoute = require("./cellTowerDashboardRoute.js");
 const overviewDashboardRoute = require("./overviewRoutes.js");
 const chatbotRoute = require("./chatbotRoutes.js");
+const fitnessRoute = require('./fitness.js');
 const forecastRoute = require("./forecastRoutes.js");
+const rewardRoute = require("./rewardRoute.js");
 
 const route = (app) => {
     userRoute(app);
@@ -15,7 +17,9 @@ const route = (app) => {
     cellTowerDashboardRoute(app);
     overviewDashboardRoute(app);
     chatbotRoute(app);
-    forecastRoute(app)
+    fitnessRoute(app);
+    forecastRoute(app);
+    rewardRoute(app);
 };
 
 module.exports = route;

@@ -21,15 +21,6 @@
     <main class="main-content">
         <div class="content">
             <div class="filter-sort">
-                <div class="filter">
-                    <label for="filter">Filter by: </label>
-                    <select id="filter">
-                        <option value="all">All</option>
-                        <option value="sustainability">Sustainability</option>
-                        <option value="energy">Energy Consumption</option>
-                        <option value="emissions">Carbon Emissions</option>
-                    </select>
-                </div>
                 <div class="sort">
                     <label for="sort">Sort by: </label>
                     <select id="sort">
@@ -39,10 +30,9 @@
                 </div>
             </div>
 
-
             <div class="page-navigation">
                 <button id="activityFeedButton" class="nav-button active">Activity Feed</button>
-                <button id="virtualGardenButton" class="nav-button">Virtual Garden</button>
+                <button id="virtualGardenButton" class="nav-button">Eco Strava</button>
             </div>
 
             
@@ -56,6 +46,7 @@
                         <span class="timestamp">Posted on: YYYY-MM-DD</span>
                     </div>
                     <p class="post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    
                     <div class="post-footer">
                         <div class="action-buttons">
                             <button class="action-btn like-button"><i class="fa fa-thumbs-up"></i><span class="likes-count">0 Likes</span></button>
@@ -77,19 +68,13 @@
                 <div class="modal-content">
                     <span id="closeModalBtn" class="close">&times;</span>
                     <h2>Create New Post</h2>
-                    <input type="text" id="postContext" placeholder="What's on your mind?" required />
-                    <input type="text" id="postLocation" placeholder="Location" />
-                    <input type="number" id="postCarbonEmission" placeholder="Carbon Emission" />
-                    <input type="number" id="postEnergyConsumption" placeholder="Energy Consumption" />
-                    <input type="file" id="postMediaUrl" placeholder="Image" />
-                    <select id="postCategory">
-                        <option value="Sustainability">Sustainability</option>
-                        <option value="Energy">Energy</option>
-                        <option value="Emission">Carbon Emission</option>
-                        <!-- more -->
-                    </select>
-
-                    <button id="submitPostBtn">Post</button>
+                    <form id="postForm" class="postForm">
+                        <input type="text" id="postContext" placeholder="What's on your mind?" required />
+                        <label for="postMediaUrl">Upload an Image:</label>
+                        <input type="file" id="postMediaUrl" name="media" accept="image/*" required />
+                        
+                        <button id="submitPostBtn">Post</button>
+                    </form> 
                 </div>
             </div>
         </main>

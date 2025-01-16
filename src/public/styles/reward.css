@@ -1,0 +1,190 @@
+/* General Styles */
+body {
+    font-family: 'Manrope', 'Noto Sans', sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  /* Section Styles */
+  .redeem-section {
+    margin-top: 16px;
+  }
+  
+  .section-header {
+    margin-bottom: 16px;
+  }
+  
+  .header-row {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    gap: 16px; /* Space between back button and title-description */
+  }
+  
+  .back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    color: #111814;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .back-button:hover {
+    background-color: #e0e6e4;
+  }
+  
+  .arrow-icon {
+    fill: #111814;
+  }
+  
+  .title-description {
+    text-align: left;
+  }
+  
+  .section-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #111814;
+    margin: 0;
+  }
+  
+  .section-description {
+    font-size: 16px;
+    color: #638872;
+    margin: 4px 0 0;
+  }
+  
+
+  .points-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dce5e0;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 16px;
+  }
+  
+  .points-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .points-title {
+    font-size: 16px;
+    color: #111814;
+    font-weight: 500;
+  }
+  
+  .points-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111814;
+  }
+  
+  .points-history {
+    display: flex;
+  }
+  
+  .points-history-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f0f4f2;
+    color: #111814;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  
+  .points-history-btn:hover {
+    background-color: #e0e6e4;
+  }
+  
+  
+  .reward-card {
+    flex: 1;
+    min-width: 158px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .reward-image {
+    width: 100%;
+    aspect-ratio: 1;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+    /* outline: #ff0040 solid 5px; */
+  }
+  
+  
+  /* Reward Details */
+  .reward-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Ensure 4 columns */
+    gap: 16px; /* Maintain spacing between grid items */
+    margin-bottom: 16px;
+  }
+  
+  .reward-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensures consistent spacing */
+    gap: 8px;
+    border: 1px solid #dce5e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Add a slight shadow */
+    padding: 16px;
+}
+
+  
+.reward-description {
+    flex-grow: 1; /* Allow the description to take up remaining space */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+  
+  .reward-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #111814;
+  }
+  
+  .reward-cost {
+    font-size: 14px;
+    color: #638872;
+  }
+
+  .redeem-btn {
+    margin-top: auto; /* Push the button to the bottom */
+    align-self: center; /* Center the button horizontally */
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f0f4f2;
+    color: #111814;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.redeem-btn:hover {
+    background-color: #e0e6e4;
+}

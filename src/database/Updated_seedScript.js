@@ -1,5 +1,7 @@
 const sql = require("mssql");
-const dbConfig = require("./dbConfig"); // Import your database configuration   
+const dbConfig = require("./dbConfig"); // Import your database configuration  
+const cellTowerConsumptionData = require("./seedCellTower")
+
 
 // SQL to drop all foreign key constraints
 const dropForeignKeysSQL = `
@@ -185,44 +187,56 @@ CREATE TABLE dislikes (
 	UNIQUE (post_id, user_id)
 );
 
-
 -- Create table for reward points
 CREATE TABLE user_rewards (
-    reward_id INT IDENTITY(1,1) PRIMARY KEY,
-    user_id INT NOT NULL,
-    company_id INT NOT NULL,
+    user_id INT PRIMARY KEY,
     total_points INT DEFAULT 0,
-    last_updated DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (company_id) REFERENCES companies(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Create table for activity points 
 CREATE TABLE activity_points (
     activity_id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
-    company_id INT NOT NULL,
     post_id INT,
     activity_type VARCHAR(50), 
     points_awarded INT,
     datetime DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (company_id) REFERENCES companies(id),
     FOREIGN KEY (post_id) REFERENCES activity_feed(post_id)
+);
+
+CREATE TABLE rewards_catalog (
+    reward_id INT IDENTITY(1,1) PRIMARY KEY,
+    reward_image VARCHAR(255),
+    reward_name VARCHAR(255) NOT NULL,
+    reward_description VARCHAR(255),
+    points_required INT NOT NULL
 );
 
 -- Create table for reward history
 CREATE TABLE reward_history (
     redemption_id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
-    company_id INT NOT NULL,
-    reward_description VARCHAR(255),
-    points_spent INT,
+    reward_id INT NOT NULL,
+    points_spent INT NOT NULL,
     redemption_date DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (company_id) REFERENCES companies(id)
-); 
+    FOREIGN KEY (reward_id) REFERENCES rewards_catalog(reward_id)
+);
 
+-- Create table for Leaderboard
+CREATE TABLE leaderboard (
+    user_id INT NOT NULL,
+    distance_cycled_km DECIMAL(10, 2) DEFAULT 0,
+    number_of_rides INT DEFAULT 0,
+    time_travelled_hours DECIMAL(10, 2) DEFAULT 0,
+    trees_planted INT DEFAULT 0,
+    month INT NOT NULL, -- Tracks the month of the leaderboard entry
+    year INT NOT NULL, -- Tracks the year of the leaderboard entry
+    PRIMARY KEY (user_id, month, year),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 `;
 
 const insertData = `
@@ -245,7 +259,36 @@ VALUES
     ('Apple Lim', 'apple.lim@singtel.com', 'password123', 1, 'NPC', 'default.png'),
     ('Benedict Soh', 'bsoh@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
     ('cadence Tan', 'cadence.tan@simba.sg', 'password123', 3, 'NPC', 'default.png'),
-    ('dominic Lee', 'dominic.lee@starhub.com', 'password123', 4, 'NPC', 'default.png');
+    ('dominic Lee', 'dominic.lee@starhub.com', 'password123', 4, 'NPC', 'default.png'),
+
+    -- Singtel users
+    ('Eve Koh', 'eve.koh@singtel.com', 'password123', 1, 'NPC', 'default.png'),
+    ('Francis Wong', 'francis.wong@singtel.com', 'password123', 1, 'NPC', 'default.png'),
+    ('Gina Lim', 'gina.lim@singtel.com', 'password123', 1, 'NPC', 'default.png'),
+    ('Henry Tan', 'henry.tan@singtel.com', 'password123', 1, 'NPC', 'default.png'),
+    ('Ivy Chua', 'ivy.chua@singtel.com', 'password123', 1, 'NPC', 'default.png'),
+
+    -- M1 users
+    ('Olivia Tan', 'olivia.tan@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
+    ('Patrick Goh', 'patrick.goh@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
+    ('Queenie Wong', 'queenie.wong@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
+    ('Ryan Teo', 'ryan.teo@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
+    ('Sarah Chan', 'sarah.chan@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
+
+    -- Simba users
+    ('Yvonne Goh', 'yvonne.goh@simba.sg', 'password123', 3, 'NPC', 'default.png'),
+    ('Zachary Lee', 'zachary.lee@simba.sg', 'password123', 3, 'NPC', 'default.png'),
+    ('Aaron Tan', 'aaron.tan@simba.sg', 'password123', 3, 'NPC', 'default.png'),
+    ('Brianna Ho', 'brianna.ho@simba.sg', 'password123', 3, 'NPC', 'default.png'),
+    ('Clement Ong', 'clement.ong@simba.sg', 'password123', 3, 'NPC', 'default.png'),
+
+    -- StarHub users
+    ('Isaac Low', 'isaac.low@starhub.com', 'password123', 4, 'NPC', 'default.png'),
+    ('Jessica Chua', 'jessica.chua@starhub.com', 'password123', 4, 'NPC', 'default.png'),
+    ('Keith Ho', 'keith.ho@starhub.com', 'password123', 4, 'NPC', 'default.png'),
+    ('Lena Tan', 'lena.tan@starhub.com', 'password123', 4, 'NPC', 'default.png'),
+    ('Megan Teo', 'megan.teo@starhub.com', 'password123', 4, 'NPC', 'default.png');
+
 
 
 -- Insert sample data into data_centers table
@@ -1947,7 +1990,90 @@ VALUES
 (4, 4, '2024-08-10', '19:00:00'),
 (5, 5, '2024-10-10', '05:00:00');
 
-    `;
+
+INSERT INTO leaderboard (user_id, distance_cycled_km, number_of_rides, time_travelled_hours, trees_planted, month, year)
+VALUES
+    -- General users
+    (1, 1.50, 10, 8.5, 1, 1, 2025), -- John Doe
+    (2, 8.75, 7, 6.0, 0, 1, 2025),   -- Jane Smith
+    (3, 0.10, 15, 12.0, 2, 1, 2025),-- Alice Tan
+    (4, 0.25, 5, 4.0, 0, 1, 2025),   -- Bob Lee
+    (5, 0.20, 14, 10.5, 2, 1, 2025),-- Apple Lim
+    (6, 0.60, 8, 7.0, 1, 1, 2025),   -- Benedict Soh
+    (7, 0.80, 6, 5.0, 0, 1, 2025),   -- Cadence Tan
+    (8, 0.75, 12, 9.5, 1, 1, 2025), -- Dominic Lee
+
+    -- Singtel users
+    (9, 5.00, 20, 15.5, 2, 1, 2025), -- Eve Koh
+    (10, 3.75, 18, 14.0, 1, 1, 2025), -- Francis Wong
+    (11, 2.10, 16, 12.5, 1, 1, 2025), -- Gina Lim
+    (12, 7.50, 22, 18.0, 3, 1, 2025), -- Henry Tan
+    (13, 4.25, 19, 14.5, 2, 1, 2025), -- Ivy Chua
+
+    -- M1 users
+    (14, 6.00, 25, 20.0, 3, 1, 2025), -- Olivia Tan
+    (15, 2.50, 14, 10.0, 1, 1, 2025), -- Patrick Goh
+    (16, 3.80, 17, 13.0, 1, 1, 2025), -- Queenie Wong
+    (17, 5.25, 21, 16.5, 2, 1, 2025), -- Ryan Teo
+    (18, 1.50, 12, 8.0, 0, 1, 2025),  -- Sarah Chan
+
+    -- Simba users
+    (19, 4.80, 23, 17.5, 2, 1, 2025), -- Yvonne Goh
+    (20, 7.20, 26, 21.0, 3, 1, 2025), -- Zachary Lee
+    (21, 3.10, 18, 14.5, 1, 1, 2025), -- Aaron Tan
+    (22, 2.90, 15, 12.0, 1, 1, 2025), -- Brianna Ho
+    (23, 6.75, 24, 19.5, 3, 1, 2025), -- Clement Ong
+
+    -- StarHub users
+    (24, 5.50, 22, 17.0, 2, 1, 2025), -- Isaac Low
+    (25, 3.60, 19, 14.0, 1, 1, 2025), -- Jessica Chua
+    (26, 4.40, 21, 16.0, 2, 1, 2025), -- Keith Ho
+    (27, 7.00, 28, 22.0, 3, 1, 2025), -- Lena Tan
+    (28, 2.75, 13, 10.5, 1, 1, 2025); -- Megan Teo
+
+
+INSERT INTO rewards_catalog (reward_name, reward_image, reward_description, points_required)
+VALUES
+    ('Reusable Water Bottle', 
+    '/assets/rewards/waterBottle.jpg', 
+    'Reduce single-use plastic by using a reusable water bottle. This eco-friendly bottle is made from 100% recycled materials.', 
+    1500),
+
+    ('Recycling Bag', 
+    '/assets/rewards/reusableFoodWrap.png', 
+    'Stylish and durable bag to help you carry and sort recyclables effectively.', 
+    1000),
+
+    ('Solar Power Bank', 
+    '/assets/rewards/portableCharger.jpg', 
+    'Charge your devices with a solar-powered bank, perfect for eco-conscious tech users.', 
+    3000),
+
+    ('Eco-Friendly Notebook', 
+    '/assets/rewards/notebook.jpg', 
+    'A notebook made from 100% recycled paper, perfect for jotting down your thoughts sustainably.', 
+    500),
+
+    ('Bamboo Toothbrush', 
+    '/assets/rewards/BambooToothBrush.png', 
+    'Switch to a biodegradable bamboo toothbrush to reduce plastic waste.', 
+    300),
+
+    ('Compost Bin', 
+    '/assets/rewards/compostBin.jpg', 
+    'A compact compost bin for your kitchen to turn food scraps into valuable compost.', 
+    2000),
+
+    ('Plant a Tree Certificate', 
+    '/assets/rewards/plantTreeCert.jpg', 
+    'Contribute to reforestation efforts by planting a tree in your name.', 
+    2500),
+
+    ('Organic Cotton Tote Bag', 
+    '/assets/rewards/cottonBag.png', 
+    'A durable and reusable tote bag made from 100% organic cotton.', 
+    1200);
+`;
 
 async function seedDatabase() {
   try {
@@ -1970,6 +2096,11 @@ async function seedDatabase() {
     // Insert sample data
     await sql.query(insertData);
     console.log("Sample data inserted successfully");
+
+    // Insert Cell Tower Consumption data
+    await sql.query(cellTowerConsumptionData.lightSQL);
+    console.log("Cell Tower Consumption data inserted successfully");
+        
     
     // Close the connection
     await sql.close();

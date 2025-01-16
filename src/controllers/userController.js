@@ -136,20 +136,33 @@ class userController{
       }
   }
   
+  static async getProfilePictureById(req, res) {
+    try {
+      const user = await User.getUserById(req.params.id);
+      if (!user) {
+          return res.status(404).send("User not found");
+      }
 
-    static async getProfilePictureById(req, res){
-      try {
-        const user = await User.getUserById(req.params.id)
-        if (!user) {
-          return res.status(404).send("User not found")
-        }
-        res.sendFile(path.join(__dirname, `./uploads/${user.profile_picture_file_name}`));
+      // Construct the profile picture path
+      const profilePicturePath = path.join(__dirname, '../uploads/profile-pictures', user.profile_picture_file_name);
+
+      // If the profile picture file exists, send it
+      if (fs.existsSync(profilePicturePath)) {
+        return res.sendFile(profilePicturePath);
+      }
+      // If the profile picture doesn't exist, silently serve a default image
+      const defaultProfilePath = path.join(__dirname, '../uploads/profile-pictures', 'default.png');
+      if (fs.existsSync(defaultProfilePath)) {
+        return res.sendFile(defaultProfilePath);
+      }
+      
+      // If no profile picture or default image exists, return a blank response (optional)
+      res.status(204).send(); // No Content
       } catch (error) {
-        console.error(error)
-        res.status(500).send("Error retrieving profile picture")
+        console.error("Error retrieving profile picture:", error);
+        res.status(500).send("Error retrieving profile picture");
       }
     }
-
 }
 
 module.exports = userController

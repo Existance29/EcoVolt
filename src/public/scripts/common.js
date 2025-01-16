@@ -25,14 +25,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   
 
-// Activity Feed and Garden Navigation
-document.getElementById('activityFeedButton').addEventListener('click', () => {
-  window.location.href = 'activityFeed.html'; // Redirect to Activity Feed page
-});
-
-document.getElementById('virtualGardenButton').addEventListener('click', () => {
-  window.location.href = 'garden.html'; // Redirect to Virtual Garden page
-});
+  document.getElementById('activityFeedButton').addEventListener('click', () => {
+    window.location.href = './activityFeed.html'; // Correct relative path
+  });
+  
+  document.getElementById('virtualGardenButton').addEventListener('click', () => {
+    window.location.href = './fitness.html'; // Correct relative path
+  });  
 
 // Dynamically set the active class based on the current page
 const currentPage1 = window.location.pathname;

@@ -1,0 +1,716 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    min-height: 100%;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #4FD1C5;
+    margin: 0;
+    font-size: 2.5rem;
+    text-align: left;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left: 51%;
+    height: 150px;
+}
+
+.content-wrapper {
+    display: grid;
+    grid-template-columns: 2.5fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 20px;
+    padding: 20px;
+    height: auto;
+}
+
+/* New Containers Layout */
+.new-containers {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 20px;
+    grid-column: 1 / 2;
+    grid-row: 2 / 3; 
+}
+
+.new-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f1f1f1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+}
+
+.new-container .title {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+    text-align: center;
+}
+
+.new-container .value {
+    font-size: 24px;
+    color: #333;
+    z-index: 1;
+}
+
+
+/* Number of Rides and Time Travelled */
+.number-of-rides, .time-travelled {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+}
+
+.number-of-rides {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+.time-travelled {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+}
+
+/* Carbon Emission Reduced */
+.carbon-emission-reduced {
+    grid-column: 2 / 3;
+    grid-row: 1 / 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+    height: 100%;
+}
+
+.carbon-emission-reduced {
+    position: relative;
+    overflow: hidden;
+}
+
+.carbon-emission-image {
+    width: 90%;
+    height: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Combined Container for Image and Chart */
+.combined-container {
+    position: relative;
+    width: 100%;
+    height: auto;
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+.fitness-image {
+    width: 100%;
+    height: auto;
+    max-height: 900px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.chart-overlay {
+    position: absolute;
+    top: 5%;
+    left: 10%;
+    width: 60%;
+    height: 60%;
+    pointer-events: none;
+    z-index: 10;
+    overflow: visible;
+}
+
+.contribution-container {
+    grid-column: 1 / 3;
+    grid-row: 3 / 4;
+    margin: 0;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    z-index: 100;
+}
+
+.contribution-container h2 {
+    font-size: 30px;
+    font-weight: bold;
+    color: #4FD1C5;
+    margin-bottom: 20px;
+}
+
+.contribution-container p {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 18px;
+    color: #555;
+    line-height: 1.8;
+}
+
+.impact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+}
+
+.impact-section {
+    display: flex;
+    align-items: center;
+    padding: 30px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 320px;
+    overflow: hidden;
+}
+
+.impact-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.impact-image {
+    flex: 0 0 35%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.impact-image img {
+    max-width: 100%;
+    max-height: 90%;
+    border-radius: 8px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.impact-image:hover img {
+    transform: scale(1.05);
+}
+
+.impact-content {
+    flex: 0 0 60%;
+    text-align: right;
+    padding-right: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+}
+
+.impact-content h3 {
+    font-size: 24px;
+    font-weight: bold;
+    color: black;
+    text-align: center;
+    margin: 0;
+}
+
+.impact-content p {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.8;
+    text-align: center;
+    margin: 0;
+}
+
+#container-tree {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.carbon-emission-reduced p:first-child {
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+#total-distance {
+    padding-top: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.carbon-emission-reduced {
+    padding-bottom: 30px;
+}
+
+.strava-login-container {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    position: relative;
+    width: 100%;
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+}
+
+.strava-login img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    margin: 0;
+    border-radius: inherit;
+}
+
+
+.button-container {
+position: absolute;
+top: 70%;
+left: 50%;
+transform: translate(-50%, -50%);
+width: fit-content;
+z-index: 100; /* Ensure it's above other elements */
+
+}
+
+.login-btn {
+background-color: #f75000;
+color: white;
+padding: 15px 25px;
+font-size: 18px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+transition: background-color 0.3s ease;
+z-index: 101; /* Higher than other elements */
+
+}
+
+
+.login-btn:hover {
+background-color: #e04301;
+}
+
+
+
+
+
+
+/* Podium Background Image */
+.podium-background {
+    display: block;
+    width: 90%; /* Adjust to make the podium image smaller */
+    height: auto; /* Maintain aspect ratio */
+    margin: 0 auto; /* Center the image horizontally */
+    margin-top: 10%;
+}
+
+/* Podium Blocks - Overlay */
+.podium-block {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    z-index: 1; /* Ensure it appears above the background image */
+    margin-top: 5%;
+}
+
+/* Adjusting Positioning of Each Podium Block */
+.podium-block.second {
+    top: 33%; /* Move higher */
+    left: 20%;
+    transform: translate(-50%, -50%);
+}
+
+.podium-block.first {
+    top: 26%; /* Move higher */
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.podium-block.third {
+    top: 38%; /* Move higher */
+    left: 81%;
+    transform: translate(-50%, -50%);
+    width: 120px; /* Adjust width for the third block */
+}
+
+/* Avatar Styling */
+/* Podium Avatar */
+.podium-block .avatar {
+    width: 100px; /* Match the container size of winners */
+    height: 100px;
+    border-radius: 50%; /* Keep the container round */
+    overflow: hidden; /* Ensure the image stays within the container */
+    margin-bottom: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow effect */
+    background-color: white;
+}
+
+.podium-block .avatar img {
+    width: 100%; /* Scale the image to fit the container */
+    height: 100%; /* Scale the image to fit the container */
+    object-fit: cover; /* Ensures the image covers the container */
+    border-radius: 50%; /* Ensures the image is round */
+}
+
+/* Name and Stats */
+.podium-block .name {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #000000; /* Contrast against the background */
+}
+
+.podium-block .stats {
+    font-size: 14px;
+    color: #000000; /* Contrast against the background */
+    line-height: 1.4;
+}
+
+.podium-block.first .stats {
+    background-color: #daa521;
+}
+.podium-block.second .stats {
+    background-color: #c0c0c0;
+}
+.podium-block.third .stats {
+    background-color: #cd8031;
+}
+
+
+
+
+
+
+
+
+
+
+.podium {
+    margin-bottom: 0; /* Remove any negative margin pulling the podium closer */
+    z-index: 0; /* Place the podium below the items */
+}
+
+.leaderboard-items {
+    position: absolute;
+    bottom: 20px; /* Spacing from the bottom of the leaderboard container */
+    left: 10px; /* Space from the left */
+    right: 10px; /* Space from the right */
+    top: calc(62%); /* Adjusted so it starts from the bottom of the podium */
+    max-height: 550px; /* Maintain a fixed maximum height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    background-color: #f1f1f1; /* Background color for items container */
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+    z-index: 2; /* Ensure items container is on top of the podium */
+    height: auto; /* Allow the container to dynamically fit content height */
+}
+
+
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    height: 100px; /* Set a shorter height for items */
+    padding: 5px 10px; /* Adjust padding for content */
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    gap: 10px; /* Maintain spacing between elements */
+    width: 100%; /* Ensure items fit within the container */
+    box-sizing: border-box; /* Include padding and border in width */
+    margin-bottom: 10px; /* Space between items */
+}
+
+
+/* Leaderboard Container */
+.leaderboard {
+    display: flex;
+    flex-direction: column; /* Stack podium and items */
+    align-items: center;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+    grid-column: 2 / 3; /* Match grid column */
+    grid-row: 1 / 3; /* Match grid row */
+    height: 100%; /* Match height of the grid row */
+    box-sizing: border-box; /* Include padding and border in height */
+    padding: 20px;
+    position: relative; /* Enable children to be positioned relative to this container */
+}
+
+
+
+.leaderboard-item:last-child {
+    margin-bottom: 0; /* Remove extra spacing for the last item */
+}
+
+.leaderboard-item:hover {
+    transform: scale(1.02);
+}
+
+
+/* Rank Styling */
+.leaderboard-item .rank {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4FD1C5;
+    background-color: #f1f1f1;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Avatar Styling */
+.leaderboard-item .avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #ddd;
+    overflow: hidden;
+}
+
+.leaderboard-item .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+/* Info Section */
+.leaderboard-item .info {
+    display: flex;
+    flex-direction: column; /* Stack name and distance vertically */
+    justify-content: flex-start; /* Align content to the top */
+    align-items: flex-start; /* Align items to the left */
+    text-align: left;
+    flex: 1;
+    position: relative; /* Allows positioning for the "trees" stat */
+}
+
+.leaderboard-item .info .name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px; /* Add space below the name */
+    flex: none; /* Prevent stretching */
+}
+
+.leaderboard-item .info .stats {
+    font-size: 14px;
+    color: #555;
+    text-align: left; /* Align text to the left */
+    margin-bottom: 5px; /* Add space below the distance */
+    flex: none; /* Prevent stretching */
+}
+
+.leaderboard-item .info .stats-trees {
+    font-size: 14px;
+    color: #4FD1C5; /* Use a distinct color for tree stats */
+    position: absolute; /* Position it relative to the parent container */
+    top: 0; /* Align it to the top */
+    right: 0; /* Align it to the right */
+    text-align: right; /* Align text within the element to the right */
+    white-space: nowrap; /* Prevent text from wrapping */
+    margin-right: 15px;
+    margin-top: 10px;
+}
+
+.podium-block .stats {
+    font-size: 15px; /* Adjust font size if needed */
+    color: white; /* Set text color to white */
+    background-color: #b2b2b2; /* Green background */
+    padding: 5px 10px; /* Add some padding for better spacing */
+    border-radius: 10px; /* Round the edges */
+    text-align: center; /* Center the text */
+    display: inline-block; /* Adjust display to fit the text neatly */
+    margin-top: 20px; /* Add space from elements above if needed */
+    font-weight: 400; /* Reduce boldness (normal weight) */
+}
+
+
+
+.leaderboard-performance {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Keep items aligned to the left */
+    gap: 20px; /* Add space between the rank and the text */
+    margin-top: 40px; /* Space above the container */
+    padding: 30px 40px; /* Adjust padding as needed */
+    text-align: left; /* Align text inside the container */
+    font-size: 18px; /* Slightly larger font size for better proportions */
+    font-weight: normal; /* Keep the font weight subtle */
+    color: white; /* White text color */
+    background-color: #4FD1C5; /* Background color */
+    border-radius: 20px; /* Full-rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.leaderboard-performance .rank {
+    background-color: #2ca498; /* Slightly darker orange for the rank */
+    color: white; /* White text color */
+    font-size: 24px; /* Adjust text size */
+    font-weight: bold;
+    width: 150px; /* Equal width */
+    height: 80px; /* Equal height */
+    border-radius: 50%; /* Makes it a perfect circle */
+    display: flex; /* Use flex for alignment */
+    align-items: center; /* Center text vertically */
+    justify-content: center; /* Center text horizontally */
+    margin: 0; /* Adjust margins if needed */
+    box-sizing: border-box;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.leaderboard-performance p {
+    /* margin-left: px; Add more space to push the text further to the right */
+    text-align: left;
+    font-weight: bold;
+    font-size: 17px;
+    flex-grow: 1; /* Ensure the text stays aligned properly */
+}
+
+
+
+
+.content-wrapper {
+    display: grid !important; /* Enforce grid layout */
+    grid-template-columns: 2.5fr 1fr !important;
+    grid-template-rows: auto auto auto !important;
+    gap: 20px !important;
+    padding: 20px !important;
+}
+
+.new-containers {
+    display: grid !important;
+    grid-template-columns: 1fr 2fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 20px !important;
+}
+
+.combined-container {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+}
+
+.leaderboard {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 / 3 !important;
+}
+
+
+
+
+
+
+
+
+
+#main-content {
+    display: none; /* Hidden by default */
+}
+
+#main-content.content-visible {
+    display: block; /* Becomes visible only when the class is added */
+}
+
+
+#donutChart {
+    z-index: 1000; /* Ensure it is on top */
+    pointer-events: auto; /* Ensure it is interactive */
+}
+
+
+
+#container-tree {
+    position: block; /* Ensure the Three.js canvas stays inside */
+    width: 90.5%;
+    height: 190px; /* Set a fixed height for the container */
+    overflow: hidden; /* Prevent elements from rendering outside the container */
+    /* border: 2px solid #4FD1C5; */
+    margin-left: 17px;
+    margin-top: 79px;
+}
+
+
+
+
+
+/* Container for the header with tooltip */
+.leaderboard-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* Ensures the middle column (for h2) takes only its required width */
+    align-items: center; /* Centers all items vertically */
+    width: 100%; /* Full width of the container */
+    margin-top: 25px;
+    padding: 0 10px; /* Optional padding for spacing */
+}
+
+/* h2 styling */
+.leaderboard-header h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+    text-align: center; /* Center-align text inside the column */
+    grid-column: 2 / 3; /* Place the h2 in the middle column */
+    justify-self: center; /* Ensure h2 is horizontally centered in the middle column */
+    margin-left: 30px;
+}
+
+.leaderboard-header .tooltip-emoji {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    font-size: 2rem;
+}

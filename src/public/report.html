@@ -73,25 +73,19 @@
                     <section id="performanceSummary" class="performance-summary">
                         <!-- Dynamic content will be populated here by JavaScript -->
                     </section>
-
+                    
                     <!-- Page 2: Data Insights -->
                     <section class="report-section data-insights-page page-break">
-                        <h2 style="margin-top: 50px; margin-left: 10px; margin-bottom: 15px;">Data Insights</h2>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Radio Equipment Energy (kWh)</th>
-                                    <th>Cooling Energy (kWh)</th>
-                                    <th>Backup Power Energy (kWh)</th>
-                                    <th>Misc Energy (kWh)</th>
-                                    <th>CO2 Emissions (tons)</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                        <p id="dataInsightsText"></p>
-                    </section>
+                        <div class="chart-container" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                            <h2 style="margin-bottom: 20px;">Energy Consumption Breakdown for Worst Month</h2>
+                            <h3 id="name" style="margin-bottom: 25px;"></h3>
+                            <canvas id="energyPieChart" style="max-width: 250px; max-height: 250px;"></canvas>
+                            <div id="energyLabels" style="display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; gap: 20px;">
+                                <div class="label-column" style="display: flex; flex-direction: column; align-items: flex-end;"></div>
+                                <div class="value-column" style="display: flex; flex-direction: column; align-items: flex-start; margin-left: 10px;"></div>
+                            </div>
+                        </div>
+                    </section>                    
 
                     <!-- Page 3: Recommendations -->
                     <section class="report-section recommendations-page page-break">
