@@ -333,6 +333,8 @@ async function fetchData() {
         return;
     }
 
+    a = await get(`/Dashboard/Data-Center/EnergyConsumption/trend/${selectedMonth}/${selectedYear}`)
+    console.log(await a.json())
     noDataMessage.style.display = "none";
     currentDashboard.style.display = "flex";
 

@@ -903,6 +903,23 @@ const getAllSustainabilityGoalsData = async (req, res) => {
     }
 };
 
+const getEnergyConsumptionTrendByCompanyIdAndDate = async (req, res) => {
+    const company_id = req.user.companyId
+    if (!company_id) {
+        return res.status(400).json({ error: "Company ID is required" });
+    }
+    try {
+        const data = await dataCenterDashboard.getEnergyConsumptionTrendByCompanyIdAndDate(company_id, req.params.month, req.params.year);
+        if (!data) {
+            return res.status(404).send('Energy Consumption Trend Data not found.');
+        }
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Failed to retrieve Energy Consumption Trend: Internal Server Error.');
+    }
+}
+
 
 
 
@@ -985,6 +1002,7 @@ module.exports = {
     getAllEnergyConsumptionByDataCenterId, // if user apply data center filter but no date
     getAllEnergyConsumptionByDataCenterIdAndDate, // if user applies both data center and date filter
     getAllEnergyConsumptionByCompanyIdAndDate,  // if user select date, and no all data center
+    getEnergyConsumptionTrendByCompanyIdAndDate,
 
 
     getTotalCarbonEmissionByCompanyId,
