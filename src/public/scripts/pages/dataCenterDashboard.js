@@ -333,18 +333,12 @@ async function fetchData() {
         return;
     }
 
-    a = await get(`/Dashboard/Data-Center/EnergyConsumption/trend/${selectedMonth}/${selectedYear}`)
-    console.log(await a.json())
     noDataMessage.style.display = "none";
     currentDashboard.style.display = "flex";
 
     console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
 
     updateDatePickerToggleLabel();
-
-    a = await get(`/Dashboard/Data-Center/EnergyConsumption/company`)
-    console.log("sugma")
-    console.log(await a.json())
 
     if (!selectedDate && (selectedDataCenter === "all" || !selectedDataCenter)) {
         // No date, fetch totals for all data centers under the company
@@ -378,6 +372,44 @@ async function fetchData() {
         // Fetch metric data for the selected metric button
         const activeMetric = document.querySelector(".button-container .active").innerText;
         fetchMetricData(activeMetric); // Ensure the gauge chart updates based on the active metric
+
+    //forecast 
+    const month = selectedMonth || "all"
+    const year = selectedYear || "all"
+    const forecastOriginalData = await (await get(`/Dashboard/Data-Center/EnergyConsumption/trend/${selectedDataCenter || "all"}/${month}/${year}`)).json()
+    const color1 = "#4FD1C5"
+    const color2 = "#AE85FF"
+    console.log(forecastOriginalData)
+
+    //setup the labels
+    const forecastPeriod = parseInt(document.getElementById("forecast-period").value)
+    let allLabels = forecastOriginalData.map(x => x.num)
+    let start = allLabels[allLabels.length - 1]; // Get the last element to continue incrementally
+
+    for (let i = 1; i <= forecastPeriod; i++) {
+        allLabels.push(start + i); // Add the next incremental value
+    }
+    allLabels = allLabels.map(x => formatNum(x, month, year))
+
+    //total energy consumption
+    const energyConsumptionData = forecastOriginalData.map(x => x.total_energy)
+    const energyConsumptionForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(energyConsumptionData)})).json()
+    renderForecastLineChart(document.getElementById('energyConsumptionForecastChart'), energyConsumptionData, energyConsumptionForecastData, allLabels, color1, color2)
+
+    //pue
+    const pueData = forecastOriginalData.map(x => x.pue)
+    const pueForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(pueData)})).json()
+    renderForecastLineChart(document.getElementById('pueForecastChart'), pueData, pueForecastData, allLabels, color1, color2)
+
+    //cue
+    const cueData = forecastOriginalData.map(x => x.pue)
+    const cueForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(cueData)})).json()
+    renderForecastLineChart(document.getElementById('cueForecastChart'), cueData, cueForecastData, allLabels, color1, color2)
+
+    //wue
+    const wueData = forecastOriginalData.map(x => x.wue)
+    const wueForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(wueData)})).json()
+    renderForecastLineChart(document.getElementById('wueForecastChart'), wueData, wueForecastData, allLabels, color1, color2)
 }
 
 // Case 1: Fetch carbon emissions for all data centers under the company
@@ -1446,3 +1478,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     pueButton.classList.add("active");
     fetchData();
 });
+
+function formatNum(num, month, year){
+    if (year == "all"){
+        return num
+    }
+    //by month
+    numToMonth = {
+        1: "Jan",
+        2: "Feb", 
+        3: "Mar", 
+        4: "Apr", 
+        5: "May", 
+        6: "Jun", 
+        7: "Jul", 
+        8: "Aug",
+        9: "Sep", 
+        10: "Oct", 
+        11: "Nov",
+        0: "Dec"
+    }
+    
+    if (month == "all"){
+        r = num%12
+        q = Math.floor(num/12)
+        return `${numToMonth[r]} ${yearPicker.value ? parseInt(yearPicker.value)+(r ? q : q-1) : 2024 + (r ? q : q-1)}`
+    }
+    month = parseInt(month)
+    r = num%31
+    q = Math.floor(num/31)
+    return `${r} ${numToMonth[(month+q)%12]}`
+
+
+}

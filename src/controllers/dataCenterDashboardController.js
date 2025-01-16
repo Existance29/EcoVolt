@@ -909,7 +909,7 @@ const getEnergyConsumptionTrendByCompanyIdAndDate = async (req, res) => {
         return res.status(400).json({ error: "Company ID is required" });
     }
     try {
-        const data = await dataCenterDashboard.getEnergyConsumptionTrendByCompanyIdAndDate(company_id, req.params.month, req.params.year);
+        const data = await dataCenterDashboard.getEnergyConsumptionTrendByCompanyIdAndDate(company_id, req.params.dc, req.params.month, req.params.year);
         if (!data) {
             return res.status(404).send('Energy Consumption Trend Data not found.');
         }

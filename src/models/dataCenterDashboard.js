@@ -1482,30 +1482,36 @@ static async getCompanyName(company_id) {
         }
     }
 
-    static async getEnergyConsumptionTrendByCompanyIdAndDate(companyID, month, year){
+    static async getEnergyConsumptionTrendByCompanyIdAndDate(companyID, dc, month, year){
         let groupBySQL;
         let filterStr = ""
-        if (month) filterStr += " AND MONTH(date)=@month"
+        if (month != "all") filterStr += " AND MONTH(date)=@month"
 
-        if (year) filterStr += " AND YEAR(date)=@year"
+        if (year != "all") filterStr += " AND YEAR(date)=@year"
 
-        if (!month && !year){
+        if (dc != "all") filterStr += " AND dc.id=@id"
+
+        if (month == "all" && year == "all"){
             groupBySQL = "YEAR(date)"
         }
-        else if (!month){
+        else if (month == "all"){
             groupBySQL = "MONTH(date)"
         }else{
             groupBySQL = "DAY(date)"
         }
         
-        let trendSQL = `SELECT SUM(total_energy_mwh) AS total_energy, SUM(pue) AS pue, SUM(cue) as cue, SUM(wue) as wue, ${groupBySQL} AS num
-        FROM data_center_energy_consumption AS ec INNER JOIN data_centers AS dc ON ec.data_center_id=dc.id WHERE dc.company_id=@companyID${filterStr}
+        let trendSQL = `SELECT SUM(total_energy_mwh) AS total_energy, AVG(pue) AS pue, AVG(cue) as cue, AVG(wue) as wue, ${groupBySQL} AS num
+        FROM data_center_energy_consumption AS ec INNER JOIN data_centers AS dc ON ec.data_center_id=dc.id WHERE dc.company_id=@companyID${filterStr} 
         GROUP BY ${groupBySQL}
         ORDER BY ${groupBySQL}`
-        connection = await sql.connect(dbConfig);
+        let connection = await sql.connect(dbConfig);
         const request = connection.request();
         request.input('companyID', companyID);
+        request.input('id', companyID);
+        request.input('month', month);
+        request.input('year', year);
         const result = await request.query(trendSQL);
+        connection.close()
         return result.recordset.length > 0 ? result.recordset : null;
     }
 }

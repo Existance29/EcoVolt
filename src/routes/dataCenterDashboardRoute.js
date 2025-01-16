@@ -43,7 +43,7 @@ const dataCenterDashboardRoute = (app) => {
     app.get('/Dashboard/Data-Center/DevicesTypes', authenticateToken, dataCenterDashboardController.getDeviceTypesByCompanyId);
     app.get('/Dashboard/Data-Center/DevicesTypes/:data_center_id', authenticateToken, dataCenterDashboardController.getDeviceTypesByCompanyIdAndDataCenter);
 
-    app.get('/Dashboard/Data-Center/EnergyConsumption/trend/:month/:year', authenticateToken, dataCenterDashboardController.getEnergyConsumptionTrendByCompanyIdAndDate)
+    app.get('/Dashboard/Data-Center/EnergyConsumption/trend/:dc/:month/:year', authenticateToken, dataCenterDashboardController.getEnergyConsumptionTrendByCompanyIdAndDate)
 
 
     // app.post('/chat', dataCenterDashboardController.getChatbotResponse);

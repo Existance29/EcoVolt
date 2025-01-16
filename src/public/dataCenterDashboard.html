@@ -66,6 +66,11 @@
                     </div>
                 </div>
             </nav>
+
+            <div id="dashboard-tabs", style="margin-top: -1rem;">
+                <button id="review-tab-btn">🕒 Review</button>
+                <button id="forecast-tab-btn">🔮 Forecast</button>
+            </div>
             
             <div id="noDataMessage" style="display: none;">
                 No data recorded on this date.
@@ -77,11 +82,6 @@
                     <span class="close-btn" onclick="closePopup()">&times;</span>
                     <canvas id="popupChart"></canvas>
                 </div>
-            </div>
-
-            <div id="dashboard-tabs", style="margin-top: -1rem;">
-                <button id="review-tab-btn">🕒 Review</button>
-                <button id="forecast-tab-btn">🔮 Forecast</button>
             </div>
 
             <!-- Main Chart Content -->
@@ -201,26 +201,26 @@
                     </div>
                 </div>
                 
-                <!--forecast-->
-                <div style="display: flex; width: 100%; gap: 1.1rem;">
-                    <div class="inter-semibold graph-container" style="width: 52%; display: flex; flex-direction: column;">
-                        <div class="inter-bold" style="margin-bottom: 1.2rem;">Energy Consumption (kWh)</div>
-                        <div class="forecast-legends">
-                            <div class="container">
-                                <span class="color" style="border-color: #4FD1C5; background-color: #4FD1C566;"></span>
-                                <div class="title">Current</div>
-                            </div>
-                            <div class="container">
-                                <span class="color" style="border-color: #AE85FF; background-color: #AE85FF66;"></span>
-                                <div class="title">Prediction</div>
-                            </div>
+                <div class="inter-semibold graph-container" style="display: flex; flex-direction: column;">
+                    <div class="inter-bold" style="margin-bottom: 1.2rem;">Energy Consumption (mWh)</div>
+                    <div class="forecast-legends">
+                        <div class="container">
+                            <span class="color" style="border-color: #4FD1C5; background-color: #4FD1C566;"></span>
+                            <div class="title">Current</div>
                         </div>
-                        <div style="max-height: 30vh;">
-                            <canvas id="energyConsumptionForecastChart"></canvas>
+                        <div class="container">
+                            <span class="color" style="border-color: #AE85FF; background-color: #AE85FF66;"></span>
+                            <div class="title">Prediction</div>
                         </div>
                     </div>
-                    <div class="inter-semibold graph-container" style="flex-grow: 1; display: flex; flex-direction: column;">
-                        <div class="inter-bold" style="margin-bottom: 1.2rem;">Renewable Energy Contribution</div>
+                    <div style="max-height: 30vh;">
+                        <canvas id="energyConsumptionForecastChart"></canvas>
+                    </div>
+                </div>
+
+                <div style="display: flex; width: 100%; gap: 1.1rem;">
+                    <div class="inter-semibold graph-container" style="display: flex; flex-direction: column; flex-grow: 1;">
+                        <div class="inter-bold" style="margin-bottom: 1.2rem;">PUE</div>
                         <div class="forecast-legends">
                             <div class="container">
                                 <span class="color" style="border-color: #4FD1C5; background-color: #4FD1C566;"></span>
@@ -232,7 +232,39 @@
                             </div>
                         </div>
                         <div style="max-height: 30vh;">
-                            <canvas id="renewableEnergyContributionForecastChart"></canvas>
+                            <canvas id="pueForecastChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="inter-semibold graph-container" style="display: flex; flex-direction: column; flex-grow: 1;">
+                        <div class="inter-bold" style="margin-bottom: 1.2rem;">CUE</div>
+                        <div class="forecast-legends">
+                            <div class="container">
+                                <span class="color" style="border-color: #4FD1C5; background-color: #4FD1C566;"></span>
+                                <div class="title">Current</div>
+                            </div>
+                            <div class="container">
+                                <span class="color" style="border-color: #AE85FF; background-color: #AE85FF66;"></span>
+                                <div class="title">Prediction</div>
+                            </div>
+                        </div>
+                        <div style="max-height: 30vh;">
+                            <canvas id="cueForecastChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="inter-semibold graph-container" style="display: flex; flex-direction: column; flex-grow: 1;">
+                        <div class="inter-bold" style="margin-bottom: 1.2rem;">WUE</div>
+                        <div class="forecast-legends">
+                            <div class="container">
+                                <span class="color" style="border-color: #4FD1C5; background-color: #4FD1C566;"></span>
+                                <div class="title">Current</div>
+                            </div>
+                            <div class="container">
+                                <span class="color" style="border-color: #AE85FF; background-color: #AE85FF66;"></span>
+                                <div class="title">Prediction</div>
+                            </div>
+                        </div>
+                        <div style="max-height: 30vh;">
+                            <canvas id="wueForecastChart"></canvas>
                         </div>
                     </div>
                 </div>
