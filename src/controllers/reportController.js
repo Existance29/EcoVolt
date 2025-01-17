@@ -41,7 +41,167 @@ async function generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName) {
 }
 
 
-// Generate report data with optional caching in session
+// // Generate report data with optional caching in session
+// const generateReportData = async (req, res) => {
+//     const { company_id } = req.params;
+//     const year = req.query.year;
+//     const currentTime = new Date();
+//     const oneHour = 60 * 60 * 1000;
+
+//     // Check for cached data
+//     if (req.session.reportData && req.session.reportData[year] && req.session.reportData[year].timestamp) {
+//         const reportAge = currentTime - new Date(req.session.reportData[year].timestamp);
+//         if (reportAge < oneHour) {
+//             console.log(`Serving cached report data for year ${year} from session.`);
+//             return res.status(200).json(req.session.reportData[year].data);
+//         }
+//     }
+
+//     try {
+//         // Fetch current year data
+//         const reports = await Report.getAllReport(company_id, year);
+//         if (!reports || reports.length === 0) {
+//             return res.status(404).json({ error: `No report data found for the year ${year}.` });
+//         }
+
+//         // Fetch monthly CO2 emissions for the year
+//         const emissions = await Report.getMonthlyCarbonEmissions(company_id, year);
+//         const monthlyCO2 = emissions.map((entry) => ({
+//             month: `${entry.year}-${entry.month.toString().padStart(2, '0')}`,
+//             dataCenterCO2: entry.dataCenterCO2Emissions,
+//             cellTowerCO2: entry.cellTowerCO2Emissions,
+//             totalCO2: entry.dataCenterCO2Emissions + entry.cellTowerCO2Emissions,
+//         }));
+
+//         const energy = await Report.getMonthlyEnergyConsumption(company_id, year);
+//         const monthlyEnergy = energy.map((entry) => ({
+//             month: `${entry.year}-${entry.month.toString().padStart(2, '0')}`,
+//             dataCenterEnergy: entry.dataCenterEnergyConsumption,
+//             cellTowerEnergy: entry.cellTowerEnergyConsumption,
+//             totalEnergy: entry.dataCenterEnergyConsumption + entry.cellTowerEnergyConsumption
+//         }))
+
+//         // Initialize totals
+//         const companyName = reports[0]?.companyName || 'Company';
+//         const months = [];
+        
+
+//         reports.forEach((report) => {
+//             const month = moment(report.date).format('MMM YYYY');
+//             const index = months.indexOf(month);
+//             if (index === -1) {
+//                 months.push(month);
+//             } 
+//         });
+
+//         // Fetch efficiency metrics for the current year
+//         const currentYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, year);
+
+//         // Fetch previous year data for comparison
+//         const previousYear = parseInt(year) - 1;
+//         const previousYearReports = await Report.getAllReport(company_id, previousYear).catch(() => []);
+//         const previousYearMetrics = previousYearReports.length > 0
+//             ? await Report.getEfficiencyMetricsComparison(company_id, previousYear)
+//             : {};
+
+//         const totalPreviousYearEnergy = previousYearReports.reduce((sum, report) => sum + (report.totalEnergyKWH || 0), 0);
+//         const totalPreviousYearCO2 = previousYearReports.length > 0
+//             ? await Report.getTotalCarbonEmissions(company_id, previousYear)
+//             : { totalCO2Emissions: 0 };
+
+//         // Performance summary
+//         const performanceSummary = {
+//             totalEnergy: {
+//                 current: monthlyCO2.reduce((sum, item) => sum + item.totalEnergy, 0),
+//                 previous: totalPreviousYearEnergy,
+//                 percentageChange: totalPreviousYearEnergy
+//                     ? ((monthlyEnergy.reduce((sum, item) => sum + item.totalEnergy, 0) - totalPreviousYearEnergy) / totalPreviousYearEnergy) * 100
+//                     : "Not Applicable",
+//             },
+//             co2Emissions: {
+//                 current: monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0),
+//                 previous: totalPreviousYearCO2.totalCO2Emissions || 0,
+//                 percentageChange: totalPreviousYearCO2.totalCO2Emissions
+//                     ? ((monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0) - totalPreviousYearCO2.totalCO2Emissions) /
+//                         totalPreviousYearCO2.totalCO2Emissions) * 100
+//                     : "Not Applicable",
+//             },
+//             efficiencyMetrics: {
+//                 PUE: {
+//                     current: currentYearMetrics.PUE || null,
+//                     previous: previousYearMetrics.PUE || null,
+//                     percentageChange: currentYearMetrics.PUE && previousYearMetrics.PUE
+//                         ? ((currentYearMetrics.PUE - previousYearMetrics.PUE) / previousYearMetrics.PUE) * 100
+//                         : "Not Applicable",
+//                 },
+//                 CUE: {
+//                     current: currentYearMetrics.CUE || null,
+//                     previous: previousYearMetrics.CUE || null,
+//                     percentageChange: currentYearMetrics.CUE && previousYearMetrics.CUE
+//                         ? ((currentYearMetrics.CUE - previousYearMetrics.CUE) / previousYearMetrics.CUE) * 100
+//                         : "Not Applicable",
+//                 },
+//                 WUE: {
+//                     current: currentYearMetrics.WUE || null,
+//                     previous: previousYearMetrics.WUE || null,
+//                     percentageChange: currentYearMetrics.WUE && previousYearMetrics.WUE
+//                         ? ((currentYearMetrics.WUE - previousYearMetrics.WUE) / previousYearMetrics.WUE) * 100
+//                         : "Not Applicable",
+//                 },
+//             },
+//         };
+
+//         // Generate other sections
+//         const executiveSummary = await generateExecutiveSummary(
+//             monthlyEnergy.map((item) => item.totalEnergy),
+//             performanceSummary.co2Emissions.current,
+//             months,
+//             monthlyEnergy,
+//             monthlyCO2.map((item) => item.totalCO2),
+//             companyName
+//         );
+//         const dataAnalysis = await generateDataAnalysis(
+//             monthlyEnergy,
+//             monthlyCO2.map((item) => item.totalCO2),
+//             companyName
+//         );
+//         const recommendations = await getAllAIRecommendations({
+//             totalEnergy: monthlyEnergy.map((item) => item.totalEnergy),
+//             co2Emissions: performanceSummary.co2Emissions.current,
+//         });
+//         const conclusion = await generateConclusion(
+//             monthlyEnergy.map((item) => item.totalEnergy),
+//             performanceSummary.co2Emissions.current,
+//             recommendations
+//         );
+
+//         const reportData = {
+//             year,
+//             months,
+//             monthlyEnergy,
+//             monthlyCO2,
+//             totalEnergy: performanceSummary.totalEnergy.current,
+//             totalCO2: performanceSummary.co2Emissions.current,
+//             executiveSummary,
+//             dataAnalysis,
+//             recommendations,
+//             conclusion,
+//             performanceSummary,
+//             reportData: reports,
+//             emissions,
+//         };
+
+//         // Cache the data
+//         if (!req.session.reportData) req.session.reportData = {};
+//         req.session.reportData[year] = { data: reportData, timestamp: currentTime };
+
+//         res.status(200).json(reportData);
+//     } catch (error) {
+//         console.error("Error fetching report data:", error);
+//         res.status(500).json({ error: 'Failed to fetch report data.' });
+//     }
+// };
+
 const generateReportData = async (req, res) => {
     const { company_id } = req.params;
     const year = req.query.year;
@@ -64,75 +224,62 @@ const generateReportData = async (req, res) => {
             return res.status(404).json({ error: `No report data found for the year ${year}.` });
         }
 
-        // Fetch total CO2 emissions
-        const carbonEmissions = await Report.getTotalCarbonEmissions(company_id, year);
-        const totalCO2 = carbonEmissions.totalCO2Emissions;
+        // Fetch monthly CO2 emissions for the year
+        const emissions = await Report.getMonthlyCarbonEmissions(company_id, year);
+        const monthlyCO2 = emissions.map((entry) => ({
+            month: `${entry.year}-${entry.month.toString().padStart(2, '0')}`,
+            dataCenterCO2: entry.dataCenterCO2Emissions,
+            cellTowerCO2: entry.cellTowerCO2Emissions,
+            totalCO2: entry.dataCenterCO2Emissions + entry.cellTowerCO2Emissions,
+        }));
 
-        const previousYear = parseInt(year) - 1;
-        let previousYearReports = [];
-        let previousYearTotalCO2 = 0;
+        // Fetch monthly energy consumption for the year
+        const energy = await Report.getMonthlyEnergyConsumption(company_id, year);
+        const monthlyEnergy = energy.map((entry) => ({
+            month: `${entry.year}-${entry.month.toString().padStart(2, '0')}`,
+            dataCenterEnergy: entry.dataCenterEnergyConsumption,
+            cellTowerEnergy: entry.cellTowerEnergyConsumption,
+            totalEnergy: entry.dataCenterEnergyConsumption + entry.cellTowerEnergyConsumption,
+        }));
 
-        try {
-            previousYearReports = await Report.getAllReport(company_id, previousYear);
-            if (previousYearReports.length > 0) {
-                const previousYearEmissions = await Report.getTotalCarbonEmissions(company_id, previousYear);
-                previousYearTotalCO2 = previousYearEmissions.totalCO2Emissions;
-            }
-        } catch (error) {
-            console.warn(`No data available for the year ${previousYear}. Skipping comparison.`);
-            previousYearReports = [];
-            previousYearTotalCO2 = 0;
-        }
+        // Calculate total energy consumption
+        const totalEnergy = monthlyEnergy.reduce((sum, entry) => sum + entry.totalEnergy, 0);
 
-        // Initialize totals
-        const companyName = reports[0]?.companyName || 'Company';
-        const months = [];
-        const monthlyEnergy = [];
-        const monthlyCO2 = [];
-        let totalEnergy = 0;
-
-        reports.forEach((report) => {
-            const month = moment(report.date).format('MMM YYYY');
-            const year =  moment(report.date).format('YYYY');
-            const index = months.indexOf(month);
-            if (index === -1) {
-                months.push(month);
-                monthlyEnergy.push(report.totalEnergyKWH || 0);
-            } else {
-                monthlyEnergy[index] += report.totalEnergyKWH || 0;
-            }
-            totalEnergy += report.totalEnergyKWH || 0;
-        });
-
-        // Proportionally distribute CO2 emissions based on energy consumption
-        monthlyEnergy.forEach((energy, index) => {
-            const proportion = energy / totalEnergy || 0;
-            monthlyCO2.push(proportion * totalCO2);
-        });
+        // Initialize unique months
+        const months = monthlyEnergy.map((entry) => entry.month);
 
         // Fetch efficiency metrics for the current year
         const currentYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, year);
+
+        // Fetch previous year data for comparison
+        const previousYear = parseInt(year) - 1;
+        const previousYearReports = await Report.getAllReport(company_id, previousYear).catch(() => []);
         const previousYearMetrics = previousYearReports.length > 0
             ? await Report.getEfficiencyMetricsComparison(company_id, previousYear)
             : {};
 
+        const totalPreviousYearCO2 = previousYearReports.length > 0
+            ? await Report.getTotalCarbonEmissions(company_id, previousYear)
+            : { totalCO2Emissions: 0 };
+
+        const totalPreviousYearEnergy = previousYearReports.length > 0
+            ? await Report.getTotalEnergyConsumption(company_id, previousYear)
+            : { totalEnergyConsumption: 0 };
         // Performance summary
         const performanceSummary = {
             totalEnergy: {
                 current: totalEnergy,
-                previous: previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0),
-                percentageChange: previousYearReports.length > 0
-                    ? ((totalEnergy -
-                        previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0)) /
-                        (previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0) || 1)) *
-                        100
+                previous: totalPreviousYearEnergy.totalEnergyConsumption || 0,
+                percentageChange: totalPreviousYearEnergy.totalEnergyConsumption
+                    ? ((totalEnergy - totalPreviousYearEnergy.totalEnergyConsumption) / totalPreviousYearEnergy.totalEnergyConsumption) * 100
                     : "Not Applicable",
             },
             co2Emissions: {
-                current: totalCO2,
-                previous: previousYearTotalCO2,
-                percentageChange: previousYearTotalCO2 > 0
-                    ? ((totalCO2 - previousYearTotalCO2) / previousYearTotalCO2) * 100
+                current: monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0),
+                previous: totalPreviousYearCO2.totalCO2Emissions || 0,
+                percentageChange: totalPreviousYearCO2.totalCO2Emissions
+                    ? ((monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0) - totalPreviousYearCO2.totalCO2Emissions) /
+                        totalPreviousYearCO2.totalCO2Emissions) * 100
                     : "Not Applicable",
             },
             efficiencyMetrics: {
@@ -161,12 +308,29 @@ const generateReportData = async (req, res) => {
         };
 
         // Generate other sections
-        const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2, companyName);
-        const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName);
-        const recommendations = await getAllAIRecommendations({ totalEnergy, co2Emissions: totalCO2 });
-        const conclusion = await generateConclusion(totalEnergy, totalCO2, recommendations);
-        const emissions = await Report.getAllCarbonEmissions(company_id, year);
-        
+        const companyName = reports[0]?.companyName || "Company";
+        const executiveSummary = await generateExecutiveSummary(
+            monthlyEnergy.map((item) => item.totalEnergy),
+            performanceSummary.co2Emissions.current,
+            months,
+            monthlyEnergy,
+            monthlyCO2.map((item) => item.totalCO2),
+            companyName
+        );
+        const dataAnalysis = await generateDataAnalysis(
+            monthlyEnergy,
+            monthlyCO2.map((item) => item.totalCO2),
+            companyName
+        );
+        const recommendations = await getAllAIRecommendations({
+            totalEnergy: monthlyEnergy.map((item) => item.totalEnergy),
+            co2Emissions: performanceSummary.co2Emissions.current,
+        });
+        const conclusion = await generateConclusion(
+            monthlyEnergy.map((item) => item.totalEnergy),
+            performanceSummary.co2Emissions.current,
+            recommendations
+        );
 
         const reportData = {
             year,
@@ -174,15 +338,14 @@ const generateReportData = async (req, res) => {
             monthlyEnergy,
             monthlyCO2,
             totalEnergy,
-            totalCO2,
+            totalCO2: performanceSummary.co2Emissions.current,
             executiveSummary,
             dataAnalysis,
             recommendations,
             conclusion,
             performanceSummary,
             reportData: reports,
-            carbonEmissions,
-            emissions
+            emissions,
         };
 
         // Cache the data
@@ -192,10 +355,9 @@ const generateReportData = async (req, res) => {
         res.status(200).json(reportData);
     } catch (error) {
         console.error("Error fetching report data:", error);
-        res.status(500).json({ error: 'Failed to fetch report data.' });
+        res.status(500).json({ error: "Failed to fetch report data." });
     }
 };
-
 
 // Forcefully generate new report data
 const forceGenerateReportData = async (req, res) => {

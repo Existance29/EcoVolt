@@ -37,6 +37,10 @@ body, html {
     margin: 20px 0;
     width: 100%;
 }
+#dataChart {
+    width: 100%; /* Adjust width as needed */
+    height: 400px !important; /* Force the height */
+}
 
 .data-table {
     width: 100%;
