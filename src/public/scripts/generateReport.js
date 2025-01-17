@@ -102,18 +102,26 @@ document.addEventListener('DOMContentLoaded', async function () {
             const highestEnergyIndex = data.monthlyEnergy.indexOf(Math.max(...data.monthlyEnergy));
             const highestCO2Index = data.monthlyCO2.indexOf(Math.max(...data.monthlyCO2));
             const highestMonthIndex = highestEnergyIndex; // Or replace with highestCO2Index if needed
-            const highestMonth = data.months[highestMonthIndex];
     
+            // Identify the month with the highest energy consumption
+            const highestEnergyMonth = data.monthlyEnergy.reduce((prev, current) => {
+                return current.totalEnergy > prev.totalEnergy ? current : prev;
+            }, data.monthlyEnergy[0]); // Start with the first entry
+            
+            const highestCO2Month = data.monthlyCO2.reduce((prev, current) => {
+                return current.totalCO2 > prev.totalCO2 ? current : prev;
+            }, data.monthlyCO2[0]); // Start with the first entry
+            
+            // Use highestEnergyMonth or highestCO2Month as needed
+            const highestMonth = highestEnergyMonth.month; // Or replace with `highestCO2Month.month` if needed
+            
             console.log(`Month with highest energy consumption: ${highestMonth}`);
-    
-            // Fetch the energy breakdown for the month with the highest energy
+            
+            // Fetch the energy breakdown for the highest month
             if (highestMonth) {
-                const [monthName, monthYear] = highestMonth.split(" ");
-                const month = new Date(`${monthName} 1, ${monthYear}`).getMonth() + 1; // Convert to numeric month
-                await fetchEnergyBreakdown(monthYear, month);
+                const [year, month] = highestMonth.split("-");
+                await fetchEnergyBreakdown(year, parseInt(month, 10));
             }
-    
-            statusMessage.innerText = "Report data loaded successfully.";
         } catch (error) {
             console.error('Error fetching report data:', error);
             statusMessage.innerText = "Failed to load report data.";
