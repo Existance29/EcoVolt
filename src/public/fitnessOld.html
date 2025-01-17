@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker</title>
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="styles/fitness.css">
+    <link rel="stylesheet" href="styles/fitnessTootip.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Afacad' rel='stylesheet'>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.153.0/three.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="./scripts/api.js"></script>
+    <script src="./scripts/utils.js"></script>
+    <script defer src="./scripts/fitness.js"></script>
+    <script src="./scripts/common.js" defer></script>
+    <script src="./scripts/garden.js" type="module"></script>
+</head>
+<body>
+    
+    <h1>Eco Strava</h1>
+
+    <aside class="sidebar"></aside>
+
+    <main class="main-content">
+
+        <div class="page-navigation">
+            <button id="virtualGardenButton" class="nav-button active">Eco Strava</button>
+            <button id="activityFeedButton" class="nav-button">Leaderboard</button>
+        </div>
+
+        
+        <div class="content-wrapper">
+            <!-- Strava Login Container -->
+            <div id="strava-login-container" class="strava-login-container">
+                <div class="strava-login">
+                    <img src="./assets/fitness/stravaLogin.png" alt="Strava Login Img" />
+                </div>
+                <div class="button-container">
+                    <button id="login-btn" class="login-btn" onclick="redirectToStravaAuth()">Login with Strava</button>
+                </div>
+            </div>
+
+            <!-- Combined Container -->
+            <div id="combined-container" class="combined-container">
+                <img src="./assets/fitness/fitnessImg.png" alt="Cycling Progress" class="fitness-image">
+                <div class="chart-overlay">
+                    <canvas id="donutChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- New Containers -->
+            <div id="new-containers" class="new-containers">
+                <div class="new-container number-of-rides">
+                    <p class="title">Number of Rides</p>
+                    <div class="value">0</div>
+                </div>
+                <div class="new-container time-travelled">
+                    <p class="title">Time Travelled</p>
+                    <div class="value">0h 0m</div>
+                </div>
+                <div class="new-container carbon-emission-reduced">
+                    <p id="carbon-avoided">Carbon Avoided: 0 kg</p>
+                    <div id="container-tree" class="tree-visualization"></div>
+                    <img id="garden-image" src="/assets/fitness/garden.jpg" alt="Carbon Emission Reduced" class="carbon-emission-image">
+                    <p id="total-distance">Total distance cycled: 0 km</p>
+                    <p id="trees-planted-message">Your distance cycled is equivalent to the carbon absorption of 0 trees</p>
+                </div>
+            </div>
+
+
+        <div class="contribution-container">
+            <h2>Other ways to make an Individual Impact</h2>
+            <p>Your efforts matter! Here are some effective ways you can contribute to our sustainability goals.</p>
+            
+            <div class="impact-grid">
+                <!-- Section 1 -->
+                <div class="impact-section">
+                    <div class="impact-image">
+                        <img src="./assets/fitness/energy.png" alt="Reduce Energy Usage" />
+                    </div>
+                    <div class="impact-content">
+                        <h3>Reduce Energy Usage</h3>
+                        <p>Turn off unused lights and devices to minimize electricity consumption. Switch to LED bulbs that consume less energy and last longer.</p>
+                    </div>
+                </div>
+                <!-- Section 2 -->
+                <div class="impact-section">
+                    <div class="impact-image">
+                        <img src="./assets/fitness/recycle.png" alt="Recycle Materials" />
+                    </div>
+                    <div class="impact-content">
+                        <h3>Recycle Materials</h3>
+                        <p>Properly recycle materials like paper, plastics, and electronics by using designated recycling bins.</p>
+                    </div>
+                </div>
+                <!-- Section 3 -->
+                <div class="impact-section">
+                    <div class="impact-image">
+                        <img src="./assets/fitness/eco.png" alt="Promote Eco-Friendly Habits" />
+                    </div>
+                    <div class="impact-content">
+                        <h3>Promote Eco-Friendly Habits</h3>
+                        <p>Share knowledge and tips on sustainability with your peers and advocate for carpooling or biking.</p>
+                    </div>
+                </div>
+                <!-- Section 4 -->
+                <div class="impact-section">
+                    <div class="impact-image">
+                        <img src="./assets/fitness/water.png" alt="Efficient Water Use" />
+                    </div>
+                    <div class="impact-content">
+                        <h3>Use Water Efficiently</h3>
+                        <p>Be mindful of water usage by fixing leaks and using water-saving fixtures to reduce water wastage.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+          
+        </div>
+    </main>
+</body>
+</html>

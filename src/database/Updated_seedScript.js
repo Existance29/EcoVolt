@@ -235,6 +235,16 @@ CREATE TABLE leaderboard (
     PRIMARY KEY (user_id, month, year),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+CREATE TABLE strava_tokens (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    strava_athlete_id BIGINT NOT NULL UNIQUE,
+    access_token VARCHAR(512) NOT NULL,
+    refresh_token VARCHAR(512) NOT NULL,
+    token_expiry DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
 `;
 
 const insertData = `

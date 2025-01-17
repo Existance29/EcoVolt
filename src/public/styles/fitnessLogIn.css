@@ -1,0 +1,296 @@
+header.mainHeader {
+  font-weight: normal !important; /* Override any other rules */
+}
+
+/* Carbon Emission Section Styling */
+#carbon-emission-section {
+  display: flex; /* Flexbox for horizontal alignment */
+  flex-direction: row; /* Ensure items are placed in a row */
+  align-items: stretch; /* Stretch items to have equal height */
+  justify-content: space-between; /* Add space between the containers */
+  gap: 20px; /* Add spacing between containers */
+  width: 100%; /* Full width of the parent container */
+  box-sizing: border-box;
+  margin-top: 1%;
+  margin-bottom: 1%;
+}
+
+/* Donut Chart Container */
+.donut-container {
+  flex: 1; /* Allow the container to grow/shrink as needed */
+  max-width: 49.5%; /* Limit width to 48% of the row */
+  height: 350px; /* Set a shorter height */
+  display: flex;
+  align-items: center;
+  justify-content: center;    
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-sizing: border-box; /* Include padding and border in width/height calculation */
+  overflow: hidden; /* Prevent content overflow */
+}
+
+/* Visualization Container */
+.visualization-container {
+  flex: 1; /* Allow the container to grow/shrink as needed */
+  max-width: 49.5%; /* Limit width to 48% of the row */
+  height: 350px; /* Set a shorter height */
+  display: flex; /* Use flexbox for internal alignment */
+  flex-direction: column; /* Arrange child elements in a column */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  box-sizing: border-box; /* Include padding and border in width/height calculation */
+  overflow: hidden; /* Prevent content overflow */
+}
+
+/* Visualization Container */
+.visualization-container {
+  flex: 1;
+  max-width: 49.5%;
+  height: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative; /* Establishes relative positioning for absolute children */
+}
+
+/* Garden Image */
+.carbon-emission-image {
+  display: block;
+  width: 60%; /* Scaled down width */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+/* Tree Visualization */
+.tree-visualization {
+  position: absolute;
+  width: 55%; /* Match the width of the image */
+  height: 70%; /* Dynamically adjust height */
+  aspect-ratio: auto; /* Remove default ratio for free scaling */
+  background-color: transparent;
+  pointer-events: none; /* Allow clicks to pass through */
+  border-radius: 10px;
+  z-index: 2;
+}
+
+
+
+
+/* Text Styling */
+p {
+  margin: 10px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+
+
+/* Parent wrapper to hold donut on the left and info on the right */
+.stats-wrapper {
+  display: flex;           /* Enables horizontal layout */
+  align-items: center;     /* Vertically center if desired */
+  gap: 20px;               /* Space between the donut and the info panel */
+  width: 100%;             /* Make the wrapper span the full width */
+  box-sizing: border-box;  /* Ensure padding is included in the width */
+}
+
+
+/* Right-side panel to align boxes horizontally */
+.info-panel {
+  display: flex;
+  flex-direction: row;     /* Align boxes in a row */
+  gap: 20px;               /* Space between Number of Rides and Time Travelled */
+  flex: 1;                 /* Allow the info panel to take up proportional space */
+  justify-content: space-between; /* Spread the content within the panel */
+}
+
+/* Individual boxes (you can style them as cards or simple sections) */
+.number-of-rides,
+.time-travelled {
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  
+  padding: 10px;
+  border-radius: 8px;
+  width: 100%;               /* Make the boxes expand to match the container width */
+  text-align: center;        /* Center align the text inside the boxes */
+  box-sizing: border-box;    /* Ensure padding is included in the width */
+  height: 100px;             /* Set a taller height for the boxes */
+  display: flex;             /* Use flex to align content */
+  flex-direction: column;    /* Align content vertically */
+  justify-content: center;   /* Center content vertically */
+}
+
+  .contribution-container {
+    grid-column: 1 / 3;
+    grid-row: 3 / 4;
+    margin: 0;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    z-index: 100;
+}
+
+.contribution-container h2 {
+    font-size: 30px;
+    font-weight: bold;
+    color: #4FD1C5;
+    margin-bottom: 20px;
+}
+
+.contribution-container p {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 18px;
+    color: #555;
+    line-height: 1.8;
+}
+
+.impact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+}
+
+.impact-section {
+    display: flex;
+    align-items: center;
+    padding: 30px;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 320px;
+    overflow: hidden;
+}
+
+.impact-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.impact-image {
+    flex: 0 0 35%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.impact-image img {
+    max-width: 100%;
+    max-height: 90%;
+    border-radius: 8px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.impact-image:hover img {
+    transform: scale(1.05);
+}
+
+.impact-content {
+    flex: 0 0 60%;
+    text-align: right;
+    padding-right: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+}
+
+.impact-content h3 {
+    font-size: 24px;
+    font-weight: bold;
+    color: black;
+    text-align: center;
+    margin: 0;
+}
+
+.impact-content p {
+    font-size: 18px;
+    color: #555;
+    line-height: 1.8;
+    text-align: center;
+    margin: 0;
+}
+
+
+
+
+
+.points-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #dce5e0;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 16px;
+  }
+  
+  .points-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .points-title {
+    font-size: 16px;
+    color: #111814;
+    font-weight: 500;
+  }
+  
+  .points-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111814;
+  }
+  
+  .points-history {
+    display: flex;
+  }
+  
+  .points-history-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f0f4f2;
+    color: #111814;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  
+  .points-history-btn:hover {
+    background-color: #e0e6e4;
+  }
+  
