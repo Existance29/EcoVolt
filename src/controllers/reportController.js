@@ -258,18 +258,20 @@ const generateReportData = async (req, res) => {
             ? await Report.getEfficiencyMetricsComparison(company_id, previousYear)
             : {};
 
-        const totalPreviousYearEnergy = previousYearReports.reduce((sum, report) => sum + (report.totalEnergyKWH || 0), 0);
         const totalPreviousYearCO2 = previousYearReports.length > 0
             ? await Report.getTotalCarbonEmissions(company_id, previousYear)
             : { totalCO2Emissions: 0 };
 
+        const totalPreviousYearEnergy = previousYearReports.length > 0
+            ? await Report.getTotalEnergyConsumption(company_id, previousYear)
+            : { totalEnergyConsumption: 0 };
         // Performance summary
         const performanceSummary = {
             totalEnergy: {
                 current: totalEnergy,
-                previous: totalPreviousYearEnergy,
-                percentageChange: totalPreviousYearEnergy
-                    ? ((totalEnergy - totalPreviousYearEnergy) / totalPreviousYearEnergy) * 100
+                previous: totalPreviousYearEnergy.totalEnergyConsumption || 0,
+                percentageChange: totalPreviousYearEnergy.totalEnergyConsumption
+                    ? ((totalEnergy - totalPreviousYearEnergy.totalEnergyConsumption) / totalPreviousYearEnergy.totalEnergyConsumption) * 100
                     : "Not Applicable",
             },
             co2Emissions: {

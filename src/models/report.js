@@ -549,7 +549,69 @@ class Report {
             if (connection) await connection.close();
         }
     }
+    static async getTotalEnergyConsumption(company_id, year) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
     
+            // Query for total data center energy consumption
+            const dataCenterQuery = `
+                SELECT 
+                    ISNULL(SUM(DCec.total_energy_mwh), 0) AS totalDataCenterEnergyConsumption
+                FROM 
+                    data_center_energy_consumption DCec
+                INNER JOIN 
+                    data_centers dct ON DCec.data_center_id = dct.id
+                WHERE 
+                    dct.company_id = @company_id
+                    ${year ? `AND YEAR(DCec.date) = @year` : ''}
+            `;
+    
+            // Query for total cell tower energy consumption
+            const cellTowerQuery = `
+                SELECT 
+                    ISNULL(SUM(CTec.total_energy_kwh), 0) AS totalCellTowerEnergyConsumption
+                FROM 
+                    cell_tower_energy_consumption CTec
+                INNER JOIN 
+                    cell_towers ctt ON CTec.cell_tower_id = ctt.id
+                WHERE 
+                    ctt.company_id = @company_id
+                    ${year ? `AND YEAR(CTec.date) = @year` : ''}
+            `;
+    
+            // Execute both queries in parallel
+            const [dataCenterResult, cellTowerResult] = await Promise.all([
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(dataCenterQuery),
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(cellTowerQuery),
+            ]);
+    
+            // Extract energy consumption values
+            const totalDataCenterEnergy = dataCenterResult.recordset[0]?.totalDataCenterEnergyConsumption || 0;
+            const totalCellTowerEnergy = cellTowerResult.recordset[0]?.totalCellTowerEnergyConsumption || 0;
+    
+            // Calculate the total energy consumption
+            const totalEnergyConsumption = totalDataCenterEnergy + totalCellTowerEnergy;
+    
+            // Return the result as an object
+            return {
+                totalDataCenterEnergy,
+                totalCellTowerEnergy,
+                totalEnergyConsumption,
+            };
+        } catch (error) {
+            console.error("Error fetching total energy consumption:", error);
+            throw error;
+        } finally {
+            if (connection) await sql.close();
+        }
+    }
 }
 
 module.exports = Report;
