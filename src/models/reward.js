@@ -168,5 +168,25 @@ class Reward {
         }
     }
 
+    static async getActivityHistory(userId) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+            const sqlQuery = `
+                select activity_type, points_awarded, datetime from activity_points where user_id = @userId ORDER BY datetime DESC
+            `;
+            const request = connection.request();
+            request.input('userId', userId);
+            const result = await request.query(sqlQuery);
+            return result.recordset;
+        } catch (error) {
+            console.error(error);
+        } finally {
+            if (connection) {
+                connection.close();
+            }
+        }
+    }
+
 }
 module.exports = Reward;

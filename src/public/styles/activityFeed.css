@@ -1,7 +1,6 @@
 body, html {
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
 }
 
 /* Global Styles */
@@ -12,18 +11,10 @@ body {
     line-height: 1.6;
 }
 
-h1 {
-    color: #4FD1C5;
-    margin: 0;
-    font-size: 2.5rem;
-    text-align: left; /* Aligns the text to the left */
-    display: flex;
-    justify-content: flex-start; /* Aligns the flex content to the start */
-    align-items: center;
-    padding-left: 50.5%; /* Adjust the value to move it further right */
-    height: 150px; /* Adjust the height as needed */
-}
-
+header.mainHeader {
+    font-weight: normal !important; /* Override any other rules */
+  }
+  
 
 /* Filter and sort styles */
 .filter-sort {

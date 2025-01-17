@@ -151,7 +151,7 @@
     align-items: center; /* Center content horizontally */
     text-align: center;
     overflow-y: auto; /* Enable vertical scrolling */
-    /* outline: 5px solid red; Debug outline */
+    /* outline: 5px solid red; */
 }
 
 /* Popup */
@@ -192,7 +192,9 @@
     margin-top: -245px;
 }
 
-
+.button-container-1 {
+    margin-top: 50px;
+}
 
 
 /* Style the Redeem Now button */
