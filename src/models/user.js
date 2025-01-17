@@ -4,22 +4,27 @@ const query = require("../libs/query")
 class User{
     static async createUser(user) {
         //add user data
+        console.log("a")
         const result = await query.query("INSERT INTO users (name, email, password, company_id, about, profile_picture_file_name) VALUES (@name, @email, @password, @company_id, @about, @profile_picture_file_name); SELECT SCOPE_IDENTITY() AS id;", user)
+        console.log("b")
+        //update employee_access to link it to users
+        await query.query("UPDATE employee_access SET user_id = (SELECT id FROM users WHERE email = @email) WHERE email = @email", {"email": user.email})
         return this.getUserById(result.recordset[0].id)
     }
 
     //get a user by their id
     static async getUserById(id){
         //get first user from database that matches id
-        const result = (await query.exceptQuery(["password", "email"],"SELECT * FROM Users WHERE id = @id", {"id": id})).recordset[0]
+        const result = (await query.exceptQuery(["password", "email"],"SELECT u.*, e.access_level FROM Users AS u INNER JOIN employee_access AS e ON u.id = e.user_id WHERE id = @id", {"id": id})).recordset[0]
         //return null if no user found
+        console.log(result)
         return result ? result : null
     }
 
     //get a user by their email
-    static async getUserByEmail(email){
+    static async  getUserByEmail(email){
         //get first user from database that matches id
-        const result = (await query.query("SELECT * FROM Users WHERE email = @email", {"email": email})).recordset[0]
+        const result = (await query.query("SELECT u.*, e.access_level FROM Users AS u INNER JOIN employee_access AS e ON u.id = e.user_id WHERE u.email = @email", {"email": email})).recordset[0]
         //return null if no user found
         return result ? result : null
     }
