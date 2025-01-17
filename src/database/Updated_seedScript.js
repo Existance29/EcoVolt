@@ -1,5 +1,7 @@
 const sql = require("mssql");
-const dbConfig = require("./dbConfig"); // Import your database configuration   
+const dbConfig = require("./dbConfig"); // Import your database configuration  
+const cellTowerConsumptionData = require("./seedCellTower")
+
 
 // SQL to drop all foreign key constraints
 const dropForeignKeysSQL = `
@@ -2104,6 +2106,11 @@ async function seedDatabase() {
     // Insert sample data
     await sql.query(insertData);
     console.log("Sample data inserted successfully");
+
+    // Insert Cell Tower Consumption data
+    await sql.query(cellTowerConsumptionData.lightSQL);
+    console.log("Cell Tower Consumption data inserted successfully");
+        
     
     // Close the connection
     await sql.close();

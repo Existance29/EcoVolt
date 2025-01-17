@@ -2,10 +2,9 @@ const sql = require("mssql");
 const dbConfig = require("../database/dbConfig");
 
 class Report {
-    constructor(companyName, date, totalEnergyKWH, co2EmissionsTons, sustainabilityGoals, radioEquipmentEnergy, coolingEnergy, backupEnergy, miscEnergy, dataCenterId) {
+    constructor(companyName, date, co2EmissionsTons, sustainabilityGoals, radioEquipmentEnergy, coolingEnergy, backupEnergy, miscEnergy, dataCenterId) {
         this.companyName = companyName;
         this.date = date;
-        this.totalEnergyKWH = totalEnergyKWH;
         this.co2EmissionsTons = co2EmissionsTons;
         this.sustainabilityGoals = sustainabilityGoals;
         this.radioEquipmentEnergy = radioEquipmentEnergy;
@@ -26,7 +25,6 @@ class Report {
                 SELECT 
                     c.name AS companyName, 
                     CTec.date, 
-                    MAX(CTec.total_energy_kwh) AS totalEnergyKWH, 
                     MAX(CTec.radio_equipment_energy_kwh) AS radioEquipmentEnergy,
                     MAX(CTec.cooling_energy_kwh) AS coolingEnergy,
                     MAX(CTec.backup_power_energy_kwh) AS backupEnergy,
@@ -46,7 +44,6 @@ class Report {
                 SELECT 
                     c.name AS companyName, 
                     DCec.date, 
-                    MAX(DCec.total_energy_mwh * 1000) AS totalEnergyKWH, 
                     MAX(DCec.it_energy_mwh) AS radioEquipmentEnergy,
                     MAX(DCec.cooling_energy_mwh) AS coolingEnergy,
                     MAX(DCec.backup_power_energy_mwh) AS backupEnergy,
@@ -70,7 +67,6 @@ class Report {
                 return new Report(
                     row.companyName,
                     row.date,
-                    row.totalEnergyKWH,
                     null, // Set CO2 emissions to null as it will be added later
                     [
                         {
@@ -228,6 +224,103 @@ class Report {
             if (connection) await sql.close();
         }
     }
+    static async getMonthlyCarbonEmissions(company_id, year) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+    
+            // Query for data center monthly CO2 emissions
+            const dataCenterQuery = `
+                SELECT 
+                    YEAR(DCec.date) AS year,
+                    MONTH(DCec.date) AS month,
+                    SUM(ISNULL(DCec.co2_emissions_tons, 0)) AS totalDataCenterCO2Emissions
+                FROM 
+                    data_center_carbon_emissions DCec
+                INNER JOIN 
+                    data_centers dct ON DCec.data_center_id = dct.id
+                WHERE 
+                    dct.company_id = @company_id
+                    ${year ? `AND YEAR(DCec.date) = @year` : ''}
+                GROUP BY 
+                    YEAR(DCec.date), MONTH(DCec.date)
+                ORDER BY 
+                    YEAR(DCec.date), MONTH(DCec.date);
+            `;
+    
+            // Query for cell tower monthly CO2 emissions
+            const cellTowerQuery = `
+                SELECT 
+                    YEAR(CTec.date) AS year,
+                    MONTH(CTec.date) AS month,
+                    SUM(ISNULL(CTec.carbon_emission_kg, 0)) AS totalCellTowerCO2Emissions
+                FROM 
+                    cell_tower_energy_consumption CTec
+                INNER JOIN 
+                    cell_towers ctt ON CTec.cell_tower_id = ctt.id
+                WHERE 
+                    ctt.company_id = @company_id
+                    ${year ? `AND YEAR(CTec.date) = @year` : ''}
+                GROUP BY 
+                    YEAR(CTec.date), MONTH(CTec.date)
+                ORDER BY 
+                    YEAR(CTec.date), MONTH(CTec.date);
+            `;
+    
+            // Execute queries
+            const [dataCenterResult, cellTowerResult] = await Promise.all([
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(dataCenterQuery),
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(cellTowerQuery),
+            ]);
+    
+            // Format results into a unified structure
+            const monthlyEmissions = {};
+            dataCenterResult.recordset.forEach((row) => {
+                const key = `${row.year}-${row.month}`;
+                if (!monthlyEmissions[key]) {
+                    monthlyEmissions[key] = {
+                        year: row.year,
+                        month: row.month,
+                        dataCenterCO2Emissions: 0,
+                        cellTowerCO2Emissions: 0,
+                    };
+                }
+                monthlyEmissions[key].dataCenterCO2Emissions += row.totalDataCenterCO2Emissions || 0;
+            });
+    
+            cellTowerResult.recordset.forEach((row) => {
+                const key = `${row.year}-${row.month}`;
+                if (!monthlyEmissions[key]) {
+                    monthlyEmissions[key] = {
+                        year: row.year,
+                        month: row.month,
+                        dataCenterCO2Emissions: 0,
+                        cellTowerCO2Emissions: 0,
+                    };
+                }
+                monthlyEmissions[key].cellTowerCO2Emissions += row.totalCellTowerCO2Emissions || 0;
+            });
+    
+            // Convert the object to an array sorted by year and month
+            const result = Object.values(monthlyEmissions).sort((a, b) => {
+                if (a.year === b.year) return a.month - b.month;
+                return a.year - b.year;
+            });
+    
+            return result;
+        } catch (error) {
+            console.error("Error fetching monthly carbon emissions:", error);
+            throw error;
+        } finally {
+            if (connection) await connection.close();
+        }
+    }
 
     static async getDistinctYears(company_id) {
         try {
@@ -304,8 +397,221 @@ class Report {
             await sql.close();
         }
     }
-
+    static async getMonthlyEnergyBreakdown(company_id, year, month) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
     
+            const query = `
+                SELECT
+                    SUM(CTec.radio_equipment_energy_kwh) AS radioEquipment,
+                    SUM(CTec.cooling_energy_kwh) AS cooling,
+                    SUM(CTec.backup_power_energy_kwh) AS backupPower,
+                    SUM(CTec.misc_energy_kwh) AS misc
+                FROM
+                    cell_tower_energy_consumption CTec
+                INNER JOIN
+                    companies c ON c.id = CTec.cell_tower_id
+                WHERE
+                    c.id = @company_id AND YEAR(CTec.date) = @year AND MONTH(CTec.date) = @month
+                UNION ALL
+                SELECT
+                    SUM(DCec.it_energy_mwh) AS radioEquipment,
+                    SUM(DCec.cooling_energy_mwh) AS cooling,
+                    SUM(DCec.backup_power_energy_mwh) AS backupPower,
+                    SUM(DCec.lighting_energy_mwh) AS misc
+                FROM
+                    data_center_energy_consumption DCec
+                INNER JOIN
+                    data_centers dct ON dct.id = DCec.data_center_id
+                INNER JOIN
+                    companies c ON c.id = dct.company_id
+                WHERE
+                    c.id = @company_id AND YEAR(DCec.date) = @year AND MONTH(DCec.date) = @month;
+            `;
+    
+            const result = await connection
+                .request()
+                .input('company_id', sql.Int, company_id)
+                .input('year', sql.Int, year)
+                .input('month', sql.Int, month)
+                .query(query);
+    
+            return result.recordset.reduce((acc, row) => {
+                acc.radioEquipment += row.radioEquipment || 0;
+                acc.cooling += row.cooling || 0;
+                acc.backupPower += row.backupPower || 0;
+                acc.misc += row.misc || 0;
+                return acc;
+            }, { radioEquipment: 0, cooling: 0, backupPower: 0, misc: 0 });
+        } catch (error) {
+            console.error("Error fetching monthly energy breakdown:", error);
+            throw error;
+        } finally {
+            if (connection) await connection.close();
+        }
+    }
+    
+    static async getMonthlyEnergyConsumption(company_id, year) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+    
+            // Query for data center monthly energy consumption
+            const dataCenterQuery = `
+                SELECT 
+                    YEAR(DCec.date) AS year,
+                    MONTH(DCec.date) AS month,
+                    SUM(ISNULL(DCec.total_energy_mwh, 0)) AS totalDataCenterEnergyConsumption
+                FROM 
+                    data_center_energy_consumption DCec
+                INNER JOIN 
+                    data_centers dct ON DCec.data_center_id = dct.id
+                WHERE 
+                    dct.company_id = @company_id
+                    ${year ? `AND YEAR(DCec.date) = @year` : ''}
+                GROUP BY 
+                    YEAR(DCec.date), MONTH(DCec.date)
+                ORDER BY 
+                    YEAR(DCec.date), MONTH(DCec.date);
+            `;
+    
+            // Query for cell tower monthly energy consumption
+            const cellTowerQuery = `
+                SELECT 
+                    YEAR(CTec.date) AS year,
+                    MONTH(CTec.date) AS month,
+                    SUM(ISNULL(CTec.total_energy_kwh, 0)) AS totalCellTowerEnergyConsumption
+                FROM 
+                    cell_tower_energy_consumption CTec
+                INNER JOIN 
+                    cell_towers ctt ON CTec.cell_tower_id = ctt.id
+                WHERE 
+                    ctt.company_id = @company_id
+                    ${year ? `AND YEAR(CTec.date) = @year` : ''}
+                GROUP BY 
+                    YEAR(CTec.date), MONTH(CTec.date)
+                ORDER BY 
+                    YEAR(CTec.date), MONTH(CTec.date);
+            `;
+    
+            // Execute queries
+            const [dataCenterResult, cellTowerResult] = await Promise.all([
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(dataCenterQuery),
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(cellTowerQuery),
+            ]);
+    
+            // Format results into a unified structure
+            const monthlyEnergyConsumption = {};
+            dataCenterResult.recordset.forEach((row) => {
+                const key = `${row.year}-${row.month}`;
+                if (!monthlyEnergyConsumption[key]) {
+                    monthlyEnergyConsumption[key] = {
+                        year: row.year,
+                        month: row.month,
+                        dataCenterEnergyConsumption: 0,
+                        cellTowerEnergyConsumption: 0,
+                    };
+                }
+                monthlyEnergyConsumption[key].dataCenterEnergyConsumption += row.totalDataCenterEnergyConsumption || 0;
+            });
+    
+            cellTowerResult.recordset.forEach((row) => {
+                const key = `${row.year}-${row.month}`;
+                if (!monthlyEnergyConsumption[key]) {
+                    monthlyEnergyConsumption[key] = {
+                        year: row.year,
+                        month: row.month,
+                        dataCenterEnergyConsumption: 0,
+                        cellTowerEnergyConsumption: 0,
+                    };
+                }
+                monthlyEnergyConsumption[key].cellTowerEnergyConsumption += row.totalCellTowerEnergyConsumption || 0;
+            });
+    
+            // Convert the object to an array sorted by year and month
+            const result = Object.values(monthlyEnergyConsumption).sort((a, b) => {
+                if (a.year === b.year) return a.month - b.month;
+                return a.year - b.year;
+            });
+    
+            return result;
+        } catch (error) {
+            console.error("Error fetching monthly energy consumption:", error);
+            throw error;
+        } finally {
+            if (connection) await connection.close();
+        }
+    }
+    static async getTotalEnergyConsumption(company_id, year) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+    
+            // Query for total data center energy consumption
+            const dataCenterQuery = `
+                SELECT 
+                    ISNULL(SUM(DCec.total_energy_mwh), 0) AS totalDataCenterEnergyConsumption
+                FROM 
+                    data_center_energy_consumption DCec
+                INNER JOIN 
+                    data_centers dct ON DCec.data_center_id = dct.id
+                WHERE 
+                    dct.company_id = @company_id
+                    ${year ? `AND YEAR(DCec.date) = @year` : ''}
+            `;
+    
+            // Query for total cell tower energy consumption
+            const cellTowerQuery = `
+                SELECT 
+                    ISNULL(SUM(CTec.total_energy_kwh), 0) AS totalCellTowerEnergyConsumption
+                FROM 
+                    cell_tower_energy_consumption CTec
+                INNER JOIN 
+                    cell_towers ctt ON CTec.cell_tower_id = ctt.id
+                WHERE 
+                    ctt.company_id = @company_id
+                    ${year ? `AND YEAR(CTec.date) = @year` : ''}
+            `;
+    
+            // Execute both queries in parallel
+            const [dataCenterResult, cellTowerResult] = await Promise.all([
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(dataCenterQuery),
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(cellTowerQuery),
+            ]);
+    
+            // Extract energy consumption values
+            const totalDataCenterEnergy = dataCenterResult.recordset[0]?.totalDataCenterEnergyConsumption || 0;
+            const totalCellTowerEnergy = cellTowerResult.recordset[0]?.totalCellTowerEnergyConsumption || 0;
+    
+            // Calculate the total energy consumption
+            const totalEnergyConsumption = totalDataCenterEnergy + totalCellTowerEnergy;
+    
+            // Return the result as an object
+            return {
+                totalDataCenterEnergy,
+                totalCellTowerEnergy,
+                totalEnergyConsumption,
+            };
+        } catch (error) {
+            console.error("Error fetching total energy consumption:", error);
+            throw error;
+        } finally {
+            if (connection) await sql.close();
+        }
+    }
 }
 
 module.exports = Report;

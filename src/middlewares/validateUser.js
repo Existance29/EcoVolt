@@ -9,7 +9,7 @@ const customEmailValidation = async(email, helper) => {
     var i = email.indexOf('@')
     var emailDomain = email.slice(i+1)
     //ensure that email is a valid company email
-    const companyEmailResult = await Company.getCompanyByEmailDomain(emailDomain)
+    const companyEmailResult = await Company.isEmailValid(email)
     if (!companyEmailResult) return helper.message('this email is not a valid company email')
     //ensure that email is unique
     const repeatEmailResult = await User.getUserByEmail(email)

@@ -54,7 +54,7 @@
                     <section class="report-section data-overview">
                         <h2 style="margin-top: 50px">Data Overview</h2>
                         <div id="chart-container">
-                            <canvas id="dataChart" width="800" height="400"></canvas>
+                            <canvas id="dataChart" width="800" height="600"></canvas>
                         </div>
                         <p id="dataAnalysis"></p>
                         
@@ -66,7 +66,7 @@
                             The following chart projects the timeline to achieve net-zero carbon emissions based on current trends and reduction rates.
                         </p>
                         <div id="prediction-chart-container">
-                            <canvas id="predictionChart" width="800" height="400"></canvas>
+                            <canvas id="predictionChart" width="800" height="600"></canvas>
                         </div>
                     </section>
                     <h3 style="margin-left: 10px; font-size: 1.75em; color: #333;">Performance Summary</h3>
@@ -75,24 +75,17 @@
                     </section>
                     
                     <!-- Page 2: Data Insights -->
-                    <!-- <section class="report-section data-insights-page page-break">
-                        <h2 style="margin-top: 50px; margin-left: 10px; margin-bottom: 15px;">Data Insights</h2>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Date</th>
-                                    <th>Equipment Energy (kWh)</th>
-                                    <th>Cooling Energy (kWh)</th>
-                                    <th>Backup Power Energy (kWh)</th>
-                                    <th>Misc Energy (kWh)</th>
-                                    <th>CO2 Emissions (tons)</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                        <p id="dataInsightsText"></p>
-                    </section> -->
+                    <section class="report-section data-insights-page page-break">
+                        <div class="chart-container" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                            <h2 style="margin-bottom: 20px;">Energy Consumption Breakdown for Worst Month</h2>
+                            <h3 id="name" style="margin-bottom: 25px;"></h3>
+                            <canvas id="energyPieChart" style="max-width: 250px; max-height: 250px;"></canvas>
+                            <div id="energyLabels" style="display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; gap: 20px;">
+                                <div class="label-column" style="display: flex; flex-direction: column; align-items: flex-end;"></div>
+                                <div class="value-column" style="display: flex; flex-direction: column; align-items: flex-start; margin-left: 10px;"></div>
+                            </div>
+                        </div>
+                    </section>                    
 
                     <!-- Page 3: Recommendations -->
                     <section class="report-section recommendations-page page-break">
@@ -133,12 +126,14 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
     <script src="scripts/common.js"></script>
+    <script src="scripts/api.js"></script>
     <script src="scripts/generateReport.js"></script>
     <script src="./scripts/api.js"></script>
     <script src="scripts/chatbot.js"></script>

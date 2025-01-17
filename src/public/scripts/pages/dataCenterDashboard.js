@@ -1,4 +1,5 @@
 pageRequireSignIn();
+pageRequireAdmin();
 // Array holding the content for each page
 const tooltipPages = [
     {
@@ -312,7 +313,7 @@ async function fetchData() {
     if (selectedDate && (selectedDate.length !== 4 && selectedDate.length !== 7)) {
         console.error("Invalid date format. Expected format: YYYY or YYYY-MM.");
         noDataMessage.style.display = "block";
-        mainChartContent.style.display = "none";
+        currentDashboard.style.display = "none";
         return;
     }
 
@@ -321,19 +322,19 @@ async function fetchData() {
     if (selectedYear && !availableYears.has(selectedYear)) {
         console.warn("Year not found:", selectedYear);
         noDataMessage.style.display = "block";
-        mainChartContent.style.display = "none";
+        currentDashboard.style.display = "none";
         return;
     }
 
     if (selectedDate && selectedMonth && !availableMonths.has(selectedDate)) {
         console.warn("Month-year not found:", selectedDate);
         noDataMessage.style.display = "block";
-        mainChartContent.style.display = "none";
+        currentDashboard.style.display = "none";
         return;
     }
 
     noDataMessage.style.display = "none";
-    mainChartContent.style.display = "flex";
+    currentDashboard.style.display = "flex";
 
     console.log("fetchData called with:", { selectedMonth, selectedYear, selectedDataCenter });
 
@@ -371,9 +372,45 @@ async function fetchData() {
         // Fetch metric data for the selected metric button
         const activeMetric = document.querySelector(".button-container .active").innerText;
         fetchMetricData(activeMetric); // Ensure the gauge chart updates based on the active metric
+
+    //forecast 
+    const month = selectedMonth || "all"
+    const year = selectedYear || "all"
+    const forecastOriginalData = await (await get(`/Dashboard/Data-Center/EnergyConsumption/trend/${selectedDataCenter || "all"}/${month}/${year}`)).json()
+    const color1 = "#4FD1C5"
+    const color2 = "#AE85FF"
+    console.log(forecastOriginalData)
+
+    //setup the labels
+    const forecastPeriod = parseInt(document.getElementById("forecast-period").value)
+    let allLabels = forecastOriginalData.map(x => x.num)
+    let start = allLabels[allLabels.length - 1]; // Get the last element to continue incrementally
+
+    for (let i = 1; i <= forecastPeriod; i++) {
+        allLabels.push(start + i); // Add the next incremental value
+    }
+    allLabels = allLabels.map(x => formatNum(x, month, year))
+
+    //total energy consumption
+    const energyConsumptionData = forecastOriginalData.map(x => x.total_energy)
+    const energyConsumptionForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(energyConsumptionData)})).json()
+    renderForecastLineChart(document.getElementById('energyConsumptionForecastChart'), energyConsumptionData, energyConsumptionForecastData, allLabels, color1, color2)
+
+    //pue
+    const pueData = forecastOriginalData.map(x => x.pue)
+    const pueForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(pueData)})).json()
+    renderForecastLineChart(document.getElementById('pueForecastChart'), pueData, pueForecastData, allLabels, color1, color2)
+
+    //cue
+    const cueData = forecastOriginalData.map(x => x.pue)
+    const cueForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(cueData)})).json()
+    renderForecastLineChart(document.getElementById('cueForecastChart'), cueData, cueForecastData, allLabels, color1, color2)
+
+    //wue
+    const wueData = forecastOriginalData.map(x => x.wue)
+    const wueForecastData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(wueData)})).json()
+    renderForecastLineChart(document.getElementById('wueForecastChart'), wueData, wueForecastData, allLabels, color1, color2)
 }
-
-
 
 // Case 1: Fetch carbon emissions for all data centers under the company
 async function fetchAllCarbonEmissionByCompanyId() {
@@ -382,6 +419,7 @@ async function fetchAllCarbonEmissionByCompanyId() {
         const data = await response.json();
         console.log("Data received from fetchAllCarbonEmissionByCompanyId:", data);
         renderChart(data);
+        
     } catch (error) {
         console.error("Error fetching all carbon emission data for company:", error);
     }
@@ -449,7 +487,7 @@ async function fetchAllCarbonEmissionByDataCenterIdAndDate(data_center_id, date)
 }
 
 
-function renderChart(data) {
+async function renderChart(data) {
     console.log("Rendering chart with data:", data);
 
     // Step 1: Check if both month and year filters are selected
@@ -475,6 +513,7 @@ function renderChart(data) {
             // No filter applied, group by year
             dateLabel = date.getFullYear().toString();
         }
+
 
         if (!acc[dateLabel]) {
             acc[dateLabel] = 0;
@@ -553,6 +592,42 @@ function renderChart(data) {
             }
         }
     });
+
+    //forecast time
+    const months = ["Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov"]
+    //Step 4: Set the labels for the forecast
+    const forecastPeriod = parseInt(document.getElementById("forecast-period").value)
+    let start = labels[labels.length - 1]; // Get the last element to continue incrementally
+    let allLabels = [...labels]
+    let yearIncrement = 0
+    let monthIncrement = 0
+    for (let i = 1; i <= forecastPeriod; i++) {
+        if (!selectedMonth && !selectedYear){
+            allLabels.push(parseInt(start) + i); // Add the next incremental value
+        }else if (!selectedMonth && selectedYear){ //by month
+            let [m, y] = start.split(" ")
+            monthNum = (months.indexOf(m)+i)%12
+            y = parseInt(y)+yearIncrement
+            m = months[monthNum]
+            if (!monthNum) yearIncrement += 1
+            allLabels.push(`${m} ${y}`)
+        } else{ //by day
+            let [m, d] = start.split(" ")
+            d = parseInt(d) + i
+            if (d > 30) monthIncrement += 1
+            m = months[(months.indexOf(m)+monthIncrement)%12]
+            allLabels.push(`${m} ${d < 10 ? "0":""}${d}`)
+
+        }
+
+        
+    }
+
+    //Step 5: Get the forecasted data
+    const carbonEmissionPredictionData = await (await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {data: JSON.stringify(emissions)})).json()
+
+    //Step 6: Render the forecast chart
+    renderForecastLineChart(document.getElementById('carbonEmissionForecastChart'), emissions, carbonEmissionPredictionData, allLabels, "#4FD1C5", "#AE85FF")
 }
 
 
@@ -1403,3 +1478,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     pueButton.classList.add("active");
     fetchData();
 });
+
+function formatNum(num, month, year){
+    if (year == "all"){
+        return num
+    }
+    //by month
+    numToMonth = {
+        1: "Jan",
+        2: "Feb", 
+        3: "Mar", 
+        4: "Apr", 
+        5: "May", 
+        6: "Jun", 
+        7: "Jul", 
+        8: "Aug",
+        9: "Sep", 
+        10: "Oct", 
+        11: "Nov",
+        0: "Dec"
+    }
+    
+    if (month == "all"){
+        r = num%12
+        q = Math.floor(num/12)
+        return `${numToMonth[r]} ${yearPicker.value ? parseInt(yearPicker.value)+(r ? q : q-1) : 2024 + (r ? q : q-1)}`
+    }
+    month = parseInt(month)
+    r = num%31
+    q = Math.floor(num/31)
+    return `${r} ${numToMonth[(month+q)%12]}`
+
+
+}

@@ -20,18 +20,19 @@ header.mainHeader {
 .filter-sort {
     display: flex;
     justify-content: space-between;
+    margin-left: 30px;
     margin-bottom: 20px;
     margin: 20px;
 }
 
-.filter, .sort {
+.sort {
     flex-direction: column;
     gap: 5px;
     font-weight: bold;
     color: #333;
 }
 
-#filter, #sort {
+#sort {
     width: 160px;
     padding: 10px;
     border: 1px solid #ddd;
@@ -45,7 +46,7 @@ header.mainHeader {
 }
 
 
-#filter:hover, #sort:hover {
+#sort:hover {
     background-color: #e0f7f5;
     border-color: #3BCBBE;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -111,14 +112,19 @@ h2.subtitle {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .post {
     background-color: #fff;
-    padding: 20px;
+    padding: 30px;
     border-radius: 10px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .post:hover {
@@ -129,6 +135,7 @@ h2.subtitle {
 .post-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 15px;
 }
 
@@ -147,6 +154,19 @@ h2.subtitle {
     font-size: 1.1rem;
     margin-bottom: 20px;
     line-height: 1.8;
+}
+
+.post-image-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.post-image {
+    max-width: 100%; 
+    height: auto; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .post-footer {
@@ -244,6 +264,18 @@ h2.subtitle {
 .modal-content input:focus,
 .modal-content select:focus {
     border-color: #4FD1C5;
+}
+
+.modal-content label {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.modal-content input[type="file"] {
+    padding: 5px;
+    border: none;
+    outline: none;
 }
 
 /* Submit Button */

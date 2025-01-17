@@ -281,12 +281,12 @@ class Posts {
         }
 
         // Function to add post to the activity page
-        static async addNewPost (user_id, company_id, context, media_url, carbon_emission, energy_consumption, category, location) {
+        static async addNewPost (user_id, company_id, context, media_url) {
             try{
                 const connection = await sql.connect(dbConfig);
                 const query = `
-                INSERT INTO activity_feed (user_id, company_id, context, media_url, carbon_emission, energy_consumption, activity_type, location, date, time) 
-                VALUES (@user_id, @company_id, @context, @media_url, @carbon_emission, @energy_consumption, @category, @location, GETDATE(), GETDATE());
+                INSERT INTO activity_feed (user_id, company_id, context, media_url, date, time) 
+                VALUES (@user_id, @company_id, @context, @media_url, GETDATE(), GETDATE());
                 SELECT SCOPE_IDENTITY() AS post_id;`;
 
                 const request = connection.request();
@@ -294,10 +294,6 @@ class Posts {
                 request.input("company_id", sql.Int, company_id);
                 request.input("context", context);
                 request.input("media_url", media_url);
-                request.input("carbon_emission", carbon_emission);
-                request.input("energy_consumption", energy_consumption);
-                request.input("category", category);
-                request.input("location", location);
 
                 const result = await request.query(query);
                 connection.close();
@@ -305,6 +301,24 @@ class Posts {
                 return result.recordset[0];
             } catch (error) {
                 console.error("Error adding new post: ", error);
+                throw error;
+            }
+        }
+        
+        static async getMedia(post_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `SELECT media_url FROM activity_feed WHERE post_id = @post_id`;
+
+                const request = connection.request();
+                request.input("post_id", post_id);
+
+                const result = await request.query(query);
+                connection.close();
+
+                return result.recordset[0];
+            } catch (error) {
+                console.error("Error retrieving media: ", error);
                 throw error;
             }
         }
