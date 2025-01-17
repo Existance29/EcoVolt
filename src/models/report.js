@@ -416,10 +416,10 @@ class Report {
                     c.id = @company_id AND YEAR(CTec.date) = @year AND MONTH(CTec.date) = @month
                 UNION ALL
                 SELECT
-                    SUM(DCec.it_energy_mwh * 1000) AS radioEquipment,
-                    SUM(DCec.cooling_energy_mwh * 1000) AS cooling,
-                    SUM(DCec.backup_power_energy_mwh * 1000) AS backupPower,
-                    SUM(DCec.lighting_energy_mwh * 1000) AS misc
+                    SUM(DCec.it_energy_mwh) AS radioEquipment,
+                    SUM(DCec.cooling_energy_mwh) AS cooling,
+                    SUM(DCec.backup_power_energy_mwh) AS backupPower,
+                    SUM(DCec.lighting_energy_mwh) AS misc
                 FROM
                     data_center_energy_consumption DCec
                 INNER JOIN
