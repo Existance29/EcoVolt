@@ -117,10 +117,14 @@ CREATE TABLE data_center_carbon_emissions (
 );
 
 CREATE TABLE devices (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    data_center_id INT NOT NULL,
-    device_type VARCHAR(255),
-    FOREIGN KEY (data_center_id) REFERENCES data_centers(id)
+    id INT IDENTITY(1,1) PRIMARY KEY, -- Unique identifier for the device
+    data_center_id INT NOT NULL,       -- Reference to the data center
+    brand VARCHAR(255) NOT NULL,       -- Brand of the device
+    model VARCHAR(255) NOT NULL,       -- Model of the device
+    serial_number VARCHAR(255) NOT NULL UNIQUE, -- Unique serial number
+    device_type VARCHAR(255),          -- Type of the device (optional)
+    status VARCHAR(50) CHECK (status IN ('pending recycle', 'recycled', 'in use', 'not in use')), -- Status constraint
+    FOREIGN KEY (data_center_id) REFERENCES data_centers(id) -- Foreign key to data_centers table
 );
 
 -- Create table for sustainability goals
@@ -232,6 +236,21 @@ CREATE TABLE reward_history (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 ); 
 
+-- Create table for Recyclables
+CREATE TABLE recyclables (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    brand VARCHAR(255) NOT NULL,
+    model VARCHAR(255) NOT NULL,
+    serial_number VARCHAR(255) NOT NULL UNIQUE,
+    status VARCHAR(50) NOT NULL CHECK (status IN ('Pending Recycle','Awaiting Approval', 'Recycled', 'Approved', 'Rejected')),
+    type VARCHAR(50) NOT NULL CHECK (type IN ('Company', 'Personal')),
+    user_id INT NULL, -- Nullable for company recyclables
+    company_id INT NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    image_path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
 `;
 
 const insertData = `
@@ -377,165 +396,156 @@ VALUES
     (4, 'StarHub CT-5', 'On-Grid')
 
 -- Insert sample data into devices table
-INSERT INTO devices (data_center_id, device_type)
+INSERT INTO devices (data_center_id, brand, model, serial_number, device_type, status)
 VALUES
     -- Data center 1 - Singtel
-    (1, 'Server Rack 1'),
-    (1, 'Server Rack 2'),
-    (1, 'Cooling System 1'),
-    (1, 'Cooling System 2'),
-    (1, 'Backup Power Unit'),
-    (1, 'Lighting System'),
+    (1, 'Dell', 'PowerEdge R740', 'SN-10001', 'Server Rack', 'in use'),
+    (1, 'Dell', 'PowerEdge R740', 'SN-10002', 'Server Rack', 'in use'),
+    (1, 'Schneider', 'Cooling System Pro', 'SN-10003', 'Cooling System', 'in use'),
+    (1, 'Schneider', 'Cooling System Pro', 'SN-10004', 'Cooling System', 'in use'),
+    (1, 'APC', 'Smart-UPS 1500', 'SN-10005', 'Backup Power Unit', 'not in use'),
+    (1, 'Philips', 'Hue Light 5000', 'SN-10006', 'Lighting System', 'in use'),
 
-    (2, 'Server Rack 1'),
-    (2, 'Server Rack 2'),
-    (2, 'Cooling System 1'),
-    (2, 'Cooling System 2'),
-    (2, 'Backup Power Unit'),
-    (2, 'Lighting System'),
+    -- Data center 2
+    (2, 'Dell', 'PowerEdge R740', 'SN-20001', 'Server Rack', 'in use'),
+    (2, 'Dell', 'PowerEdge R740', 'SN-20002', 'Server Rack', 'pending recycle'),
+    (2, 'Schneider', 'Cooling System Pro', 'SN-20003', 'Cooling System', 'in use'),
+    (2, 'Schneider', 'Cooling System Pro', 'SN-20004', 'Cooling System', 'in use'),
+    (2, 'APC', 'Smart-UPS 1500', 'SN-20005', 'Backup Power Unit', 'recycled'),
+    (2, 'Philips', 'Hue Light 5000', 'SN-20006', 'Lighting System', 'in use'),
 
-    (3, 'Server Rack 1'),
-    (3, 'Server Rack 2'),
-    (3, 'Cooling System 1'),
-    (3, 'Cooling System 2'),
-    (3, 'Backup Power Unit'),
-    (3, 'Lighting System'),
+    -- Data center 3
+    (3, 'HP', 'ProLiant DL380', 'SN-30001', 'Server Rack', 'in use'),
+    (3, 'HP', 'ProLiant DL380', 'SN-30002', 'Server Rack', 'pending recycle'),
+    (3, 'Daikin', 'Cooling System X', 'SN-30003', 'Cooling System', 'in use'),
+    (3, 'Daikin', 'Cooling System X', 'SN-30004', 'Cooling System', 'in use'),
+    (3, 'Eaton', 'Power Xpert 9395', 'SN-30005', 'Backup Power Unit', 'recycled'),
+    (3, 'Osram', 'LED Pro 9000', 'SN-30006', 'Lighting System', 'in use'),
 
-    -- id 19-24
-    (4, 'Server Rack 1'),
-    (4, 'Server Rack 2'),
-    (4, 'Cooling System 1'),
-    (4, 'Cooling System 2'),
-    (4, 'Backup Power Unit'),
-    (4, 'Lighting System'),
+    -- Repeat similar patterns for other data centers (4 through 20)
 
-    -- id 25-30
-    (5, 'Server Rack 1'),
-    (5, 'Server Rack 2'),
-    (5, 'Cooling System 1'),
-    (5, 'Cooling System 2'),
-    (5, 'Backup Power Unit'),
-    (5, 'Lighting System'),
+    -- Example for Data center 4
+    (4, 'Dell', 'PowerEdge R740', 'SN-40001', 'Server Rack', 'in use'),
+    (4, 'Dell', 'PowerEdge R740', 'SN-40002', 'Server Rack', 'recycled'),
+    (4, 'Schneider', 'Cooling System Pro', 'SN-40003', 'Cooling System', 'in use'),
+    (4, 'Schneider', 'Cooling System Pro', 'SN-40004', 'Cooling System', 'in use'),
+    (4, 'APC', 'Smart-UPS 1500', 'SN-40005', 'Backup Power Unit', 'not in use'),
+    (4, 'Philips', 'Hue Light 5000', 'SN-40006', 'Lighting System', 'in use'),
 
-        -- Data center 6
-    (6, 'Server Rack 1'),
-    (6, 'Server Rack 2'),
-    (6, 'Cooling System 1'),
-    (6, 'Cooling System 2'),
-    (6, 'Backup Power Unit'),
-    (6, 'Lighting System'),
-
+    -- Data center 5
+    (5, 'Dell', 'PowerEdge R740', 'SN-50001', 'Server Rack', 'in use'),
+    (5, 'Dell', 'PowerEdge R740', 'SN-50002', 'Server Rack', 'pending recycle'),
+    (5, 'Schneider', 'Cooling System Pro', 'SN-50003', 'Cooling System', 'in use'),
+    (5, 'Schneider', 'Cooling System Pro', 'SN-50004', 'Cooling System', 'in use'),
+    (5, 'APC', 'Smart-UPS 1500', 'SN-50005', 'Backup Power Unit', 'not in use'),
+    (5, 'Philips', 'Hue Light 5000', 'SN-50006', 'Lighting System', 'in use'),
+    -- Data center 6
+    (6, 'Dell', 'PowerEdge R740', 'SN-60001', 'Server Rack', 'in use'),
+    (6, 'Dell', 'PowerEdge R740', 'SN-60002', 'Server Rack', 'pending recycle'),
+    (6, 'Schneider', 'Cooling System Pro', 'SN-60003', 'Cooling System', 'in use'),
+    (6, 'Schneider', 'Cooling System Pro', 'SN-60004', 'Cooling System', 'in use'),
+    (6, 'APC', 'Smart-UPS 1500', 'SN-60005', 'Backup Power Unit', 'not in use'),
+    (6, 'Philips', 'Hue Light 5000', 'SN-60006', 'Lighting System', 'in use'),
     -- Data center 7
-    (7, 'Server Rack 1'),
-    (7, 'Server Rack 2'),
-    (7, 'Cooling System 1'),
-    (7, 'Cooling System 2'),
-    (7, 'Backup Power Unit'),
-    (7, 'Lighting System'),
-
+    (7, 'Dell', 'PowerEdge R740', 'SN-70001', 'Server Rack', 'in use'),
+    (7, 'Dell', 'PowerEdge R740', 'SN-70002', 'Server Rack', 'pending recycle'),
+    (7, 'Schneider', 'Cooling System Pro', 'SN-70003', 'Cooling System', 'in use'),
+    (7, 'Schneider', 'Cooling System Pro', 'SN-70004', 'Cooling System', 'in use'),
+    (7, 'APC', 'Smart-UPS 1500', 'SN-70005', 'Backup Power Unit', 'not in use'),
+    (7, 'Philips', 'Hue Light 5000', 'SN-70006', 'Lighting System', 'in use'),
     -- Data center 8
-    (8, 'Server Rack 1'),
-    (8, 'Server Rack 2'),
-    (8, 'Cooling System 1'),
-    (8, 'Cooling System 2'),
-    (8, 'Backup Power Unit'),
-    (8, 'Lighting System'),
-
+    (8, 'Dell', 'PowerEdge R740', 'SN-80001', 'Server Rack', 'in use'),
+    (8, 'Dell', 'PowerEdge R740', 'SN-80002', 'Server Rack', 'pending recycle'),
+    (8, 'Schneider', 'Cooling System Pro', 'SN-80003', 'Cooling System', 'in use'),
+    (8, 'Schneider', 'Cooling System Pro', 'SN-80004', 'Cooling System', 'in use'),
+    (8, 'APC', 'Smart-UPS 1500', 'SN-80005', 'Backup Power Unit', 'not in use'),
+    (8, 'Philips', 'Hue Light 5000', 'SN-80006', 'Lighting System', 'in use'),
     -- Data center 9
-    (9, 'Server Rack 1'),
-    (9, 'Server Rack 2'),
-    (9, 'Cooling System 1'),
-    (9, 'Cooling System 2'),
-    (9, 'Backup Power Unit'),
-    (9, 'Lighting System'),
-
+    (9, 'Dell', 'PowerEdge R740', 'SN-90001', 'Server Rack', 'in use'),
+    (9, 'Dell', 'PowerEdge R740', 'SN-90002', 'Server Rack', 'pending recycle'),
+    (9, 'Schneider', 'Cooling System Pro', 'SN-90003', 'Cooling System', 'in use'),
+    (9, 'Schneider', 'Cooling System Pro', 'SN-90004', 'Cooling System', 'in use'),
+    (9, 'APC', 'Smart-UPS 1500', 'SN-90005', 'Backup Power Unit', 'not in use'),
+    (9, 'Philips', 'Hue Light 5000', 'SN-90006', 'Lighting System', 'in use'),
     -- Data center 10
-    (10, 'Server Rack 1'),
-    (10, 'Server Rack 2'),
-    (10, 'Cooling System 1'),
-    (10, 'Cooling System 2'),
-    (10, 'Backup Power Unit'),
-    (10, 'Lighting System'),
-
+    (10, 'Dell', 'PowerEdge R740', 'SN-100001', 'Server Rack', 'in use'),
+    (10, 'Dell', 'PowerEdge R740', 'SN-100002', 'Server Rack', 'pending recycle'),
+    (10, 'Schneider', 'Cooling System Pro', 'SN-100003', 'Cooling System', 'in use'),
+    (10, 'Schneider', 'Cooling System Pro', 'SN-100004', 'Cooling System', 'in use'),
+    (10, 'APC', 'Smart-UPS 1500', 'SN-100005', 'Backup Power Unit', 'not in use'),
+    (10, 'Philips', 'Hue Light 5000', 'SN-100006', 'Lighting System', 'in use'),
     -- Data center 11
-    (11, 'Server Rack 1'),
-    (11, 'Server Rack 2'),
-    (11, 'Cooling System 1'),
-    (11, 'Cooling System 2'),
-    (11, 'Backup Power Unit'),
-    (11, 'Lighting System'),
-
+    (11, 'Dell', 'PowerEdge R740', 'SN-110001', 'Server Rack', 'in use'),
+    (11, 'Dell', 'PowerEdge R740', 'SN-110002', 'Server Rack', 'pending recycle'),
+    (11, 'Schneider', 'Cooling System Pro', 'SN-110003', 'Cooling System', 'in use'),
+    (11, 'Schneider', 'Cooling System Pro', 'SN-110004', 'Cooling System', 'in use'),
+    (11, 'APC', 'Smart-UPS 1500', 'SN-110005', 'Backup Power Unit', 'not in use'),
+    (11, 'Philips', 'Hue Light 5000', 'SN-110006', 'Lighting System', 'in use'),
     -- Data center 12
-    (12, 'Server Rack 1'),
-    (12, 'Server Rack 2'),
-    (12, 'Cooling System 1'),
-    (12, 'Cooling System 2'),
-    (12, 'Backup Power Unit'),
-    (12, 'Lighting System'),
-
+    (12, 'Dell', 'PowerEdge R740', 'SN-120001', 'Server Rack', 'in use'),
+    (12, 'Dell', 'PowerEdge R740', 'SN-120002', 'Server Rack', 'pending recycle'),
+    (12, 'Schneider', 'Cooling System Pro', 'SN-120003', 'Cooling System', 'in use'),
+    (12, 'Schneider', 'Cooling System Pro', 'SN-120004', 'Cooling System', 'in use'),
+    (12, 'APC', 'Smart-UPS 1500', 'SN-120005', 'Backup Power Unit', 'not in use'),
+    (12, 'Philips', 'Hue Light 5000', 'SN-120006', 'Lighting System', 'in use'),
     -- Data center 13
-    (13, 'Server Rack 1'),
-    (13, 'Server Rack 2'),
-    (13, 'Cooling System 1'),
-    (13, 'Cooling System 2'),
-    (13, 'Backup Power Unit'),
-    (13, 'Lighting System'),
-
+    (13, 'Dell', 'PowerEdge R740', 'SN-130001', 'Server Rack', 'in use'),
+    (13, 'Dell', 'PowerEdge R740', 'SN-130002', 'Server Rack', 'pending recycle'),
+    (13, 'Schneider', 'Cooling System Pro', 'SN-130003', 'Cooling System', 'in use'),
+    (13, 'Schneider', 'Cooling System Pro', 'SN-130004', 'Cooling System', 'in use'),
+    (13, 'APC', 'Smart-UPS 1500', 'SN-130005', 'Backup Power Unit', 'not in use'),
+    (13, 'Philips', 'Hue Light 5000', 'SN-130006', 'Lighting System', 'in use'),
     -- Data center 14
-    (14, 'Server Rack 1'),
-    (14, 'Server Rack 2'),
-    (14, 'Cooling System 1'),
-    (14, 'Cooling System 2'),
-    (14, 'Backup Power Unit'),
-    (14, 'Lighting System'),
-
+    (14, 'Dell', 'PowerEdge R740', 'SN-140001', 'Server Rack', 'in use'),
+    (14, 'Dell', 'PowerEdge R740', 'SN-140002', 'Server Rack', 'pending recycle'),
+    (14, 'Schneider', 'Cooling System Pro', 'SN-140003', 'Cooling System', 'in use'),
+    (14, 'Schneider', 'Cooling System Pro', 'SN-140004', 'Cooling System', 'in use'),
+    (14, 'APC', 'Smart-UPS 1500', 'SN-140005', 'Backup Power Unit', 'not in use'),
+    (14, 'Philips', 'Hue Light 5000', 'SN-140006', 'Lighting System', 'in use'),
     -- Data center 15
-    (15, 'Server Rack 1'),
-    (15, 'Server Rack 2'),
-    (15, 'Cooling System 1'),
-    (15, 'Cooling System 2'),
-    (15, 'Backup Power Unit'),
-    (15, 'Lighting System'),
-
+    (15, 'Dell', 'PowerEdge R740', 'SN-150001', 'Server Rack', 'in use'),
+    (15, 'Dell', 'PowerEdge R740', 'SN-150002', 'Server Rack', 'pending recycle'),
+    (15, 'Schneider', 'Cooling System Pro', 'SN-150003', 'Cooling System', 'in use'),
+    (15, 'Schneider', 'Cooling System Pro', 'SN-150004', 'Cooling System', 'in use'),
+    (15, 'APC', 'Smart-UPS 1500', 'SN-150005', 'Backup Power Unit', 'not in use'),
+    (15, 'Philips', 'Hue Light 5000', 'SN-150006', 'Lighting System', 'in use'),
     -- Data center 16
-    (16, 'Server Rack 1'),
-    (16, 'Server Rack 2'),
-    (16, 'Cooling System 1'),
-    (16, 'Cooling System 2'),
-    (16, 'Backup Power Unit'),
-    (16, 'Lighting System'),
-
+    (16, 'Dell', 'PowerEdge R740', 'SN-160001', 'Server Rack', 'in use'),
+    (16, 'Dell', 'PowerEdge R740', 'SN-160002', 'Server Rack', 'pending recycle'),
+    (16, 'Schneider', 'Cooling System Pro', 'SN-160003', 'Cooling System', 'in use'),
+    (16, 'Schneider', 'Cooling System Pro', 'SN-160004', 'Cooling System', 'in use'),
+    (16, 'APC', 'Smart-UPS 1500', 'SN-160005', 'Backup Power Unit', 'not in use'),
+    (16, 'Philips', 'Hue Light 5000', 'SN-160006', 'Lighting System', 'in use'),
     -- Data center 17
-    (17, 'Server Rack 1'),
-    (17, 'Server Rack 2'),
-    (17, 'Cooling System 1'),
-    (17, 'Cooling System 2'),
-    (17, 'Backup Power Unit'),
-    (17, 'Lighting System'),
-
+    (17, 'Dell', 'PowerEdge R740', 'SN-170001', 'Server Rack', 'in use'),
+    (17, 'Dell', 'PowerEdge R740', 'SN-170002', 'Server Rack', 'pending recycle'),
+    (17, 'Schneider', 'Cooling System Pro', 'SN-170003', 'Cooling System', 'in use'),
+    (17, 'Schneider', 'Cooling System Pro', 'SN-170004', 'Cooling System', 'in use'),
+    (17, 'APC', 'Smart-UPS 1500', 'SN-170005', 'Backup Power Unit', 'not in use'),
+    (17, 'Philips', 'Hue Light 5000', 'SN-170006', 'Lighting System', 'in use'),
     -- Data center 18
-    (18, 'Server Rack 1'),
-    (18, 'Server Rack 2'),
-    (18, 'Cooling System 1'),
-    (18, 'Cooling System 2'),
-    (18, 'Backup Power Unit'),
-    (18, 'Lighting System'),
-
+    (18, 'Dell', 'PowerEdge R740', 'SN-180001', 'Server Rack', 'in use'),
+    (18, 'Dell', 'PowerEdge R740', 'SN-180002', 'Server Rack', 'pending recycle'),
+    (18, 'Schneider', 'Cooling System Pro', 'SN-180003', 'Cooling System', 'in use'),
+    (18, 'Schneider', 'Cooling System Pro', 'SN-180004', 'Cooling System', 'in use'),
+    (18, 'APC', 'Smart-UPS 1500', 'SN-180005', 'Backup Power Unit', 'not in use'),
+    (18, 'Philips', 'Hue Light 5000', 'SN-180006', 'Lighting System', 'in use'),
     -- Data center 19
-    (19, 'Server Rack 1'),
-    (19, 'Server Rack 2'),
-    (19, 'Cooling System 1'),
-    (19, 'Cooling System 2'),
-    (19, 'Backup Power Unit'),
-    (19, 'Lighting System'),
+    (19, 'Dell', 'PowerEdge R740', 'SN-190001', 'Server Rack', 'in use'),
+    (19, 'Dell', 'PowerEdge R740', 'SN-190002', 'Server Rack', 'pending recycle'),
+    (19, 'Schneider', 'Cooling System Pro', 'SN-190003', 'Cooling System', 'in use'),
+    (19, 'Schneider', 'Cooling System Pro', 'SN-190004', 'Cooling System', 'in use'),
+    (19, 'APC', 'Smart-UPS 1500', 'SN-190005', 'Backup Power Unit', 'not in use'),
+    (19, 'Philips', 'Hue Light 5000', 'SN-190006', 'Lighting System', 'in use'),
 
-    -- Data center 20
-    (20, 'Server Rack 1'),
-    (20, 'Server Rack 2'),
-    (20, 'Cooling System 1'),
-    (20, 'Cooling System 2'),
-    (20, 'Backup Power Unit'),
-    (20, 'Lighting System');
+    -- Repeat until Data center 20
+    (20, 'Dell', 'PowerEdge R740', 'SN-200001', 'Server Rack', 'in use'),
+    (20, 'Dell', 'PowerEdge R740', 'SN-200002', 'Server Rack', 'in use'),
+    (20, 'Schneider', 'Cooling System Pro', 'SN-200003', 'Cooling System', 'in use'),
+    (20, 'Schneider', 'Cooling System Pro', 'SN-200004', 'Cooling System', 'in use'),
+    (20, 'APC', 'Smart-UPS 1500', 'SN-200005', 'Backup Power Unit', 'pending recycle'),
+    (20, 'Philips', 'Hue Light 5000', 'SN-200006', 'Lighting System', 'in use');
+
 
 -- Insert sample data into data center energy_consumption table
 INSERT INTO data_center_energy_consumption (data_center_id, date, total_energy_mwh, it_energy_mwh, cooling_energy_mwh, backup_power_energy_mwh, lighting_energy_mwh, pue, cue, wue)

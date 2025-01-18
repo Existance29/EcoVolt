@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="recycleDetails.css">
+    <title>Recycle Details</title>
+</head>
+<body>
+    <div class="popup-content">
+        <div class="header-left">
+            <p class="title" id="device-title">Loading...</p>
+            <p class="subtitle" id="device-subtitle">Fetching data...</p>
+        </div>
+
+        <!-- Image container added here -->
+        <div class="image-container">
+            <div class="image" id="device-image" style="background-image: url('');"></div>
+        </div>
+
+        <div class="details-grid" id="details-grid">
+            <!-- Details will be dynamically populated -->
+        </div>
+
+        <div class="actions">
+            <button class="btn deny">Deny</button>
+            <button class="btn approve">Approve</button>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const serialNumber = urlParams.get('SN');
+
+        async function fetchDetails(SN) {
+            try {
+                console.log("serial number", SN);
+                const response = await fetch(`/device/details?SN=${SN}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch details: ${response.status}`);
+                }
+                const data = await response.json();
+                populateDetails(data);
+            } catch (error) {
+                console.error('Error fetching details:', error);
+            }
+        }
+
+        function populateDetails(data) {
+            document.getElementById('device-title').textContent = data.name || 'Unknown Device';
+            document.getElementById('device-subtitle').textContent = `Assigned to ${data.user || 'N/A'}`;
+            document.getElementById('device-image').style.backgroundImage = `url('${data.image_url || ''}')`;
+            document.getElementById('details-grid').innerHTML = `
+                <div class="detail-item"><p class="label">Brand</p><p class="value">${data.brand || 'N/A'}</p></div>
+                <div class="detail-item"><p class="label">Model</p><p class="value">${data.model || 'N/A'}</p></div>
+                <div class="detail-item"><p class="label">Serial Number</p><p class="value">${data.serial_number || 'N/A'}</p></div>
+                <div class="detail-item"><p class="label">User</p><p class="value">${data.user || 'N/A'}</p></div>
+            `;
+        }
+
+        if (serialNumber) fetchDetails(serialNumber);
+    </script>
+</body>
+</html>
