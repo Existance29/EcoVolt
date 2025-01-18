@@ -426,14 +426,14 @@ const generateReportPDF = async (req, res) => {
     }
 };
 
-// function to get exactly 5 AI recommendations, one from each category
+// Function to get exactly 5 AI recommendations, one from each category
 const getAllAIRecommendations = async (data, highestEnergyType) => {
     const categories = [
-        `Efficiency Improvements for ${highestEnergyType}`,
-        `Technology Upgrades for ${highestEnergyType}`,
-        `Sustainability Strategies for ${highestEnergyType}`,
-        `Behavioral Changes and Best Practices for ${highestEnergyType}`,
-        `Monitoring and Optimization of ${highestEnergyType}`,
+        `Advanced Efficiency Improvements for ${highestEnergyType}`,
+        `Innovative Technology Upgrades for ${highestEnergyType}`,
+        `Future-Oriented Sustainability Strategies for ${highestEnergyType}`,
+        `Behavioral and Operational Changes for ${highestEnergyType}`,
+        `Data-Driven Monitoring and Optimization of ${highestEnergyType}`,
     ];
 
     try {
@@ -451,35 +451,38 @@ const getAllAIRecommendations = async (data, highestEnergyType) => {
         return [];
     }
 };
-// function to generate a detailed AI recommendation for each category
+
+// Function to generate a detailed AI recommendation for each category
 async function generateAIRecommendations(data, category, highestEnergyType) {
-    const prompt = `Based on the following data for the company:
+    const prompt = `The company, having already implemented standard solutions, seeks cutting-edge recommendations. Based on the following data:
     - Top Energy Contributor: ${highestEnergyType}
     - Total Energy Consumption: ${data.totalEnergy} MWh
     - Total CO2 Emissions: ${data.co2Emissions} Tons
 
-    Provide a specific recommendation for "${category}" related to ${highestEnergyType}. Format the response as a JSON object with:
+    Provide a detailed recommendation for the category: "${category}" specific to optimizing ${highestEnergyType} operations. 
+    Recommendations should include:
+    1. Focus on innovative solutions or emerging technologies.
+    2. Assume that basic energy efficiency measures are already in place.
+    3. Leverage trends in AI, automation, or renewable integration to enhance outcomes.
+
+    Format the response as a JSON object with:
     {
         "recommendation": "<summary of the recommendation>",
         "actions": [
             {
-                "description": "<first action step>",
-                "explanation": "<why this action is effective>"
-            },
-            {
-                "description": "<second action step>",
-                "explanation": "<why this action is effective>"
+                "description": "<specific action>",
+                "explanation": "<how this action impacts energy or CO2 reduction and why it is effective>"
             },
             ...
         ],
-        "intendedImpact": "<overall impact>"
+        "intendedImpact": "<overall impact of the recommendation>"
     }`;
 
     try {
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
-            max_tokens: 300,
+            max_tokens: 400,
             temperature: 0.7,
         });
 
@@ -489,7 +492,6 @@ async function generateAIRecommendations(data, category, highestEnergyType) {
         throw error;
     }
 }
-
 // function to generate a conclusion
 async function generateConclusion(totalEnergy, totalCO2, recommendations) {
     let conclusion = '';
