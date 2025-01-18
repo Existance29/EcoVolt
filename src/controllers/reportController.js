@@ -525,6 +525,21 @@ async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEn
     }
 }
 
+async function generateDescription(highestEnergyType, year) {
+    const prompt = `Generate a short description for a report saying "${highestEnergyType}" is the highest contributor to energy consumption in the worst month of ${year}. Provide a concise analysis of its trend over the course of the year.`;
+    try {
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 100,
+            temperature: 0.7,
+        });
+        return response.choices[0].message.content;
+    } catch (error) {
+        console.error("Error generating description:", error);
+        return `No description available for ${highestEnergyType}.`;
+    }
+}
 
 const getAvailableYears = async (req, res) => {
     try {
@@ -563,6 +578,48 @@ const getEnergyBreakdown = async (req, res) => {
     }
 };
 
+const getYearlyEnergyBreakdown = async (req, res) => {
+    const { company_id } = req.params;
+    const { year } = req.query;
+
+    if (!company_id || !year) {
+        return res.status(400).json({ error: "Company ID and year are required parameters." });
+    }
+
+    try {
+        const energyData = await Report.getYearlyEnergyBreakdown(company_id, year);
+
+        // Identify the highest energy type for the entire year
+        const totalEnergyByType = energyData.reduce(
+            (totals, monthData) => {
+                totals.radioEquipment += monthData.radioEquipment;
+                totals.cooling += monthData.cooling;
+                totals.backupPower += monthData.backupPower;
+                totals.misc += monthData.misc;
+                return totals;
+            },
+            { radioEquipment: 0, cooling: 0, backupPower: 0, misc: 0 }
+        );
+
+        const highestEnergyType = Object.keys(totalEnergyByType).reduce((a, b) =>
+            totalEnergyByType[a] > totalEnergyByType[b] ? a : b
+        );
+        const description = await generateDescription(highestEnergyType, year);
+
+        // Return data filtered for the highest energy type
+        const filteredData = energyData.map((monthData) => ({
+            month: monthData.month,
+            totalEnergy: monthData[highestEnergyType],
+        }));
+
+        res.status(200).json({ highestEnergyType, data: filteredData, description });
+    } catch (error) {
+        console.error("Error fetching yearly energy breakdown:", error);
+        res.status(500).json({ error: "Failed to fetch yearly energy breakdown." });
+    }
+};
+
+
 
 module.exports = {
     getAllReport,
@@ -570,5 +627,7 @@ module.exports = {
     forceGenerateReportData,
     generateReportPDF,
     getAvailableYears,
-    getEnergyBreakdown
+    getEnergyBreakdown,
+    getYearlyEnergyBreakdown,
+    generateDescription
 };

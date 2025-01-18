@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const loadingScreen = document.getElementById('loading-screen');
 
+    const canvasElement = document.getElementById("energyLineChart");
+
+
     function showLoading() {
         loadingScreen.style.display = 'block';
         document.getElementById('reportContentWrapper').classList.add('hidden');
@@ -124,6 +127,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 const [year, month] = highestMonth.split("-");
                 await fetchEnergyBreakdown(year, parseInt(month, 10));
             }
+
+            await fetchYearlyEnergyData(year);
         } catch (error) {
             console.error('Error fetching report data:', error);
             statusMessage.innerText = "Failed to load report data.";
@@ -139,8 +144,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     
         const url = `/reports/${company_id}/energy-breakdown?year=${year}&month=${month}`;
-        statusMessage.innerText = "Loading energy breakdown...";
         showLoading();
+        statusMessage.innerText = "Loaded energy breakdown";
     
         try {
             const response = await fetch(url);
@@ -157,9 +162,102 @@ document.addEventListener('DOMContentLoaded', async function () {
             hideLoading();
         }
     }
+    async function fetchYearlyEnergyData(year) {
+        if (!company_id || !year) return;
+    
+        const url = `/reports/${company_id}/yearly-energy-breakdown?year=${year}`;
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch yearly energy data: ${response.statusText}`);
+            }
+    
+            const { highestEnergyType, data , description} = await response.json();
+            console.log(`Highest Energy Type: ${highestEnergyType}`);
+            console.log(`Yearly Data:`, data);
+            
+            // Render description on the page
+            const descriptionElement = document.getElementById('highestEnergyDescription');
+            descriptionElement.innerText = description;
+            // Render line chart
+            renderEnergyLineChart(canvasElement, data, highestEnergyType, "#4FD1C5");
+
+            const descriptionURL = `/reports/:company_id/energy-breakdown-description`
+        } catch (error) {
+            console.error("Error fetching yearly energy data:", error);
+        }
+    }
+    function renderEnergyLineChart(canvasElement, data, energyType, color = "#4FD1C5") {
+        const titleElement = document.getElementById('energyBreakdownTitle');
+        titleElement.textContent = `${energyType} Energy Breakdown for the Year`;
+    
+        if (!canvasElement || !canvasElement.getContext) {
+            console.error("Invalid canvas element provided:", canvasElement);
+            return;
+        }
+    
+        if (Chart.getChart(canvasElement.id)) {
+            Chart.getChart(canvasElement.id)?.destroy();
+        }
+    
+        const labels = data.map((item) => item.month);
+        const values = data.map((item) => item.totalEnergy);
+    
+        const ctx = canvasElement.getContext("2d");
+    
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvasElement.height);
+        gradient.addColorStop(0, `${color}80`);
+        gradient.addColorStop(1, `${color}00`);
+    
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: `${energyType} Energy Consumption`,
+                        data: values,
+                        backgroundColor: gradient,
+                        borderColor: color,
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2, // Adjust aspect ratio to your design
+                interaction: {
+                    mode: "index",
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => `${value.toLocaleString()} kWh`,
+                        },
+                    },
+                    x: {
+                        grid: {
+                            color: "#E2E8F0",
+                            borderDash: [8, 4],
+                        },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                    },
+                },
+            },
+        });
+    }
     
     function renderPieChart(data, year, month) {
-        const labels = ["Radio Equipment", "Cooling", "Backup Power", "Misc"];
+        const labels = ["Equipment", "Cooling", "Backup Power", "Misc"];
         const values = [
             data.radioEquipment || 0,
             data.cooling || 0,

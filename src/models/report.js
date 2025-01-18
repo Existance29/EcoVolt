@@ -451,6 +451,88 @@ class Report {
             if (connection) await connection.close();
         }
     }
+    static async getYearlyEnergyBreakdown(company_id, year) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+    
+            const query = `
+                SELECT
+                    YEAR(CTec.date) AS year,
+                    MONTH(CTec.date) AS month,
+                    SUM(CTec.radio_equipment_energy_kwh) AS radioEquipment,
+                    SUM(CTec.cooling_energy_kwh) AS cooling,
+                    SUM(CTec.backup_power_energy_kwh) AS backupPower,
+                    SUM(CTec.misc_energy_kwh) AS misc
+                FROM
+                    cell_tower_energy_consumption CTec
+                INNER JOIN
+                    companies c ON c.id = CTec.cell_tower_id
+                WHERE
+                    c.id = @company_id AND YEAR(CTec.date) = @year
+                GROUP BY
+                    YEAR(CTec.date), MONTH(CTec.date)
+    
+                UNION ALL
+    
+                SELECT
+                    YEAR(DCec.date) AS year,
+                    MONTH(DCec.date) AS month,
+                    SUM(DCec.it_energy_mwh) AS radioEquipment,
+                    SUM(DCec.cooling_energy_mwh) AS cooling,
+                    SUM(DCec.backup_power_energy_mwh) AS backupPower,
+                    SUM(DCec.lighting_energy_mwh) AS misc
+                FROM
+                    data_center_energy_consumption DCec
+                INNER JOIN
+                    data_centers dct ON DCec.data_center_id = dct.id
+                INNER JOIN
+                    companies c ON c.id = dct.company_id
+                WHERE
+                    c.id = @company_id AND YEAR(DCec.date) = @year
+                GROUP BY
+                    YEAR(DCec.date), MONTH(DCec.date)
+            `;
+    
+            const result = await connection
+                .request()
+                .input("company_id", sql.Int, company_id)
+                .input("year", sql.Int, year)
+                .query(query);
+    
+            // Combine data by month
+            const monthlyData = {};
+    
+            const processResult = (result) => {
+                result.recordset.forEach((row) => {
+                    const monthKey = `${row.year}-${row.month.toString().padStart(2, "0")}`;
+                    if (!monthlyData[monthKey]) {
+                        monthlyData[monthKey] = {
+                            month: monthKey,
+                            radioEquipment: 0,
+                            cooling: 0,
+                            backupPower: 0,
+                            misc: 0,
+                        };
+                    }
+                    monthlyData[monthKey].radioEquipment += row.radioEquipment || 0;
+                    monthlyData[monthKey].cooling += row.cooling || 0;
+                    monthlyData[monthKey].backupPower += row.backupPower || 0;
+                    monthlyData[monthKey].misc += row.misc || 0;
+                });
+            };
+    
+            processResult(result);
+    
+            // Convert the object to an array sorted by month
+            return Object.values(monthlyData).sort((a, b) => new Date(a.month) - new Date(b.month));
+        } catch (error) {
+            console.error("Error fetching yearly energy breakdown:", error);
+            throw error;
+        } finally {
+            if (connection) await connection.close();
+        }
+    }
     
     static async getMonthlyEnergyConsumption(company_id, year) {
         let connection;
