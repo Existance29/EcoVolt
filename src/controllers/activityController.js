@@ -1,5 +1,7 @@
 // Import
 const activityModel = require("../models/activityModel");
+const fs = require('fs');
+const path = require('path');
 
 // Controller to fetch all posts
 const getAllPosts = async (req, res) => {
@@ -97,22 +99,53 @@ const addNewComment = async (req, res) => {
 
 // Controller to add a new post
 const addNewPost = async (req, res) => {
-    const { user_id, company_id, context, media_url, carbon_emission, energy_consumption, category, location} = req.body;
-    try {
-        const newPost = await activityModel.addNewPost(
-            user_id, company_id, context, media_url, carbon_emission, energy_consumption, category, location
-        );
+    const { user_id, company_id, context } = req.body;
 
-        if (newPost) {
-            res.status(201).json({ message: "Post created successfully", post_id: newPost.post_id });
-            const postId = newPost.post_id;
-            await activityModel.trackActivity(user_id, company_id, postId, "posts", 20);
+    const tempPath = req.file.path;
+    const fileName = `${user_id}_${Date.now()}.png`;
+    const targetPath = path.join(__dirname, `../uploads/activity-feed/${fileName}`);
+
+    try {
+        if (path.extname(req.file.originalname).toLowerCase() === ".png") {
+            await fs.promises.rename(tempPath, targetPath);
+            const media_url = `${fileName}`;
+            const newPost = await activityModel.addNewPost(
+                user_id, company_id, context, media_url
+            );
+            if (newPost) {
+                res.status(201).json({ message: "Post created successfully", post_id: newPost.post_id });
+                const postId = newPost.post_id;
+                await activityModel.trackActivity(user_id, company_id, postId, "posts", 20);
+            } else {
+                await fs.promises.unline(targetPath);
+                res.status(500).json({ error: "Failed to create post" });
+            }
         } else {
-            res.status(500).json({ error: "Failed to create post" });
+            await fs.promises.unlink(tempPath);
+            res.status(403).json({ error: "Only .png files are allowed" });
         }
     } catch (error) {
         console.error("Error creating post: ", error);
         res.status(500).json({ error: "Failed to create post" });
+    }
+}
+
+const getMedia = async (req, res) => {
+    try {
+        const post_id = req.params.post_id;
+        console.log("post:id", post_id);
+        const media = await activityModel.getMedia(post_id);
+        if (!media || !media.media_url) {
+            return res.status(404).json({ error: "Media not found"})
+        }
+        
+        const mediaPath = path.join(__dirname, `../uploads/activity-feed/${media.media_url}`);
+        console.log("Serving file: ", mediaPath);
+
+        res.sendFile(mediaPath);
+    } catch (error) {
+        console.error("Error retrieving media: ", error);
+        res.status(500).send("Error retrieving post media");
     }
 }
 
@@ -182,6 +215,7 @@ module.exports = {
     getCommentsByPostId,
     addNewComment,
     addNewPost,
+    getMedia,
     trackActivity,
     getActivitySummary,
     redeemReward,

@@ -1,65 +1,99 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles/rewards.css">
-    <link rel="stylesheet" href="styles/common.css">
-    <!-- Linking to external stylesheets for icons -->
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope%3Awght%40400%3B500%3B700%3B800&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"/>
+      <link rel="stylesheet" href="styles/rewardHistory.css">
+      <link rel="stylesheet" href="styles/reward.css">
+      <link rel="stylesheet" href="styles/common.css">
+    <title>EcoVolt Rewards</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <link href='https://fonts.googleapis.com/css?family=Afacad' rel='stylesheet'>
-    <title>EcoVolt | Rewards</title>
-</head>
-<body>
-    <aside class="sidebar">
-    </aside>
-    <header class="header">
-        <h1>Reward Progress & Redemption</h1>
-        <button class="back-button" onclick="window.location.href = 'activityFeed.html'">←</button>
-    </header>
-    <main class="container">
-        <section class="daily-progress">
-            <h2>Daily Progress</h2>
-            <div class="progress-details">
-                <div class="progress-item">
-                    <span>Posts:</span>
-                    <span>1 post</span>
-                    <span>+10 points</span>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body>
+      <aside class="sidebar"></aside>
+
+      <main class="main-content">
+        <div class="layout-container">
+          <section class="redeem-section">
+            <div class="section-header">
+                <div class="header-row">
+                  <button class="back-button" onclick="
+                  (async function() {
+                    try {
+                      const response = await fetch('/api/reward_history/latest', { method: 'GET' });
+                      if (response.ok) {
+                        const data = await response.json();
+                        if (data.category === 'fitness') {
+                          window.location.href = 'fitness.html';
+                        } else if (data.category === 'activity') {
+                          window.location.href = 'activityfeed.html';
+                        } else {
+                          window.location.href = 'activityfeed.html'; // Fallback to activityfeed
+                        }
+                      } else {
+                        console.error('Failed to fetch the latest history.');
+                        window.location.href = 'activityfeed.html'; // Fallback to activityfeed
+                      }
+                    } catch (error) {
+                      console.error('Error fetching the latest history:', error);
+                      window.location.href = 'activityfeed.html'; // Fallback to activityfeed
+                    }
+                  })();
+                ">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="arrow-icon"
+                    width="24"
+                    height="24"
+                  >
+                    <path
+                      d="M10 19a1 1 0 0 1-.71-.29l-7-7a1 1 0 0 1 0-1.42l7-7a1 1 0 1 1 1.42 1.42L4.41 11H21a1 1 0 0 1 0 2H4.41l6.3 6.29A1 1 0 0 1 10 19z"
+                    ></path>
+                  </svg>
+                  <span>Back</span>
+                </button>                
+                  <div class="title-description">
+                    <h2 class="section-title">Redeem your points</h2>
+                    <p class="section-description">
+                      You can redeem your points for some of the best eco-friendly products on the market
+                    </p>
+                  </div>
                 </div>
-                <div class="progress-item">
-                    <span>Comments:</span>
-                    <span>3 comments</span>
-                    <span>+6 points</span>
+              </div>                                    
+            <div class="points-info">
+                <div class="points-details">
+                  <p class="points-title">Points Available</p>
+                  <p class="points-value">0</p>
                 </div>
-                <div class="progress-item">
-                    <span>Likes:</span>
-                    <span>5 likes</span>
-                    <span>+5 points</span>
+                <div class="points-history">
+                  <button class="points-history-btn" onclick="window.location.href='rewardHistory.html';">Points History</button>
                 </div>
-                <div class="progress-item">
-                    <span>Dislikes:</span>
-                    <span>2 dislikes</span>
-                    <span>+2 points</span>
-                </div>
-            </div>
-            <div class="total-points">
-                <h3>Total Points : <span>23</span></h3>
-            </div>
-        </section>
-        <section class="rewards-redemption">
-            <h2>Redeemable Rewards</h2>
-            <div class="reward-item">
-                <h3>Tree Planting Donation</h3>
-                <p>Contribute to a greener planet by donating for tree planting.</p>
-                <p>Points Required: 1000</p>
-                <button class="redeem-button">Redeem</button>
-            </div>
-        </section>
-    </main>
-    <script src="scripts/pages/rewards.js"></script>
-    <script src="./scripts/common.js"></script>
-</body>
+            </div>              
+            <div class="reward-details" id="reward-container">
+                <!-- Rewards will be dynamically inserted here -->
+              </div>              
+          </section>
+        </div>
+
+      </main>
+  </body>
 </html>
+<script src="./scripts/api.js"></script>
+<script src="./scripts/utils.js"></script>
+<script src="./scripts/common.js" defer></script>
+<script src="./scripts/rewardHistory.js"></script>
+<script src="./scripts/reward.js"></script>

@@ -69,7 +69,7 @@ async function loadPosts(user_id, company_id) {
 
         // Fetches and displays the posts
         if (posts.length > 0) {
-            posts.forEach((post) => {
+            posts.forEach(async (post) => {
                 // Create an element for each post
                 const postElement = document.createElement("div");
                 postElement.classList.add("post");
@@ -87,6 +87,35 @@ async function loadPosts(user_id, company_id) {
                 const postContent = document.createElement("p");
                 postContent.classList.add("post-content");
                 postContent.textContent = post.context || "No content available.";
+
+                const postImage = document.createElement('img');
+                postImage.classList.add('post-image');
+                postImage.alt = 'Post Media';
+
+                try {
+                    const mediaResponse = await fetch(`/getMedia/${post.post_id}`, {
+                        method:'GET', 
+                    });
+                    if (mediaResponse.ok) {
+                        const blob = await mediaResponse.blob();
+                        const media_url = URL.createObjectURL(blob);
+                        console.log("Media url : ", media_url);
+                        if (media_url) {
+                            postImage.src = media_url; // Set the image source to the fetched URL
+                            postImage.style.display = 'block';
+                        } else {
+                            console.warn("Media URL not found for post:", post.post_id);
+                            postImage.style.display = 'none';
+                        }
+                    } else {
+                        console.error(`Failed to fetch media for post ${post.post_id}:`, mediaResponse.status);
+                        postImage.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error("Error fetching media: ", error);
+                    postImage.style.display = 'none';
+                }
+                
 
                 const postFooter = document.createElement("div");
                 postFooter.classList.add("postfooter");
@@ -129,7 +158,7 @@ async function loadPosts(user_id, company_id) {
                 commentsContainer.classList.add("comments-container");
                 commentsContainer.style.display = "none";
 
-                postElement.append(postHeader, postContent, postFooter, commentsContainer);
+                postElement.append(postHeader, postContent, postImage, postFooter, commentsContainer);
 
                 postsContainer.appendChild(postElement);
             });
@@ -311,33 +340,23 @@ async function addComment(post_id, company_id, user_id, commentText, commentButt
 // Add a new post to the database and fetch it to the activity page 
 async function addNewPost(user_id, company_id) {
     const postContext = document.getElementById('postContext').value || null;
-    const postLocation = document.getElementById('postLocation').value || null;
-    const postCarbonEmission = parseFloat(document.getElementById('postCarbonEmission').value) || 0;
-    const postEnergyConsumption = parseFloat(document.getElementById('postEnergyConsumption').value) || 0;
-    const postCategory = document.getElementById('postCategory').value|| null;
     const postMediaUrl = document.getElementById('postMediaUrl').value || null;
-    
-    if (!postContext && !postLocation && !postCategory) {
-        alert("Please provide at least on field.")
+    const form = document.getElementById('postForm');
+
+    if (!postContext || !postMediaUrl) {
+        alert("Both fields are required.");
         return;
     }
+    const formData = new FormData(form);
+    formData.append("user_id", user_id);
+    formData.append("company_id", company_id);
+    formData.append("context", postContext);
+    formData.append("media", postMediaUrl);
 
     try {
         const response = await fetch('/addPost', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                user_id: user_id, 
-                company_id: company_id, 
-                context: postContext, 
-                media_url: postMediaUrl, 
-                carbon_emission: postCarbonEmission,
-                energy_consumption: postEnergyConsumption,
-                category: postCategory,
-                location: postLocation 
-            })
+            body: formData,
         });
 
         if (!response.ok) {
@@ -347,10 +366,6 @@ async function addNewPost(user_id, company_id) {
         const data = await response.json();
 
         document.getElementById('postContext').value = '';
-        document.getElementById('postLocation').value = '';
-        document.getElementById('postCarbonEmission').value = '';
-        document.getElementById('postEnergyConsumption').value = '';
-        document.getElementById('postCategory').value = '';
         document.getElementById('postMediaUrl').value = '';
         
         alert("Post added successfully!");
@@ -413,5 +428,26 @@ async function updateTotalPoints(user_id) {
 
     } catch (error) {
         console.error("Error fetching total points: ", error);
+    }
+}
+
+async function checkAndRedirect(event) {
+    event.preventDefault(); // Prevent the default link behavior
+
+    try {
+        // Make a GET request to check the user's Strava login status
+        const response = await get('/fitness/stats');
+
+        const isLoggedIn = response.ok; // If response is OK, the user is logged into Strava
+
+        // Redirect based on login status
+        if (isLoggedIn) {
+            window.location.href = 'fitnessLogIn.html'; // Redirect to the logged-in page
+        } else {
+            window.location.href = 'fitnessLogOut.html'; // Redirect to the logged-out page
+        }
+    } catch (error) {
+        console.error('Error checking Strava login status:', error);
+        alert('An error occurred while checking your login status. Please try again.');
     }
 }

@@ -64,6 +64,15 @@ CREATE TABLE users (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
+-- Create table for Employee access
+CREATE TABLE employee_access (
+    user_id INT REFERENCES users(id),
+    email VARCHAR(255) NOT NULL,
+    access_level INT NOT NULL,
+    company_id INT NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+);
+
 
 
 -- Create table for energy consumption data (cell tower)
@@ -238,15 +247,85 @@ VALUES
 -- Insert sample data into users table
 INSERT INTO users (name, email, password, company_id, about, profile_picture_file_name)
 VALUES
-    ('John Doe', 'jdoe@singtel.com', 'password123', 1, 'Hello! I am John', 'default.png'),
-    ('Jane Smith', 'jsmith@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
-    ('Alice Tan', 'alice.tan@simba.sg', 'password123', 3, 'NPC', 'default.png'),
-    ('Bob Lee', 'bob.lee@starhub.com', 'password123', 4, 'NPC', 'default.png'),
-    ('Apple Lim', 'apple.lim@singtel.com', 'password123', 1, 'NPC', 'default.png'),
-    ('Benedict Soh', 'bsoh@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
-    ('cadence Tan', 'cadence.tan@simba.sg', 'password123', 3, 'NPC', 'default.png'),
-    ('dominic Lee', 'dominic.lee@starhub.com', 'password123', 4, 'NPC', 'default.png');
+    ('John Doe', 'john_doe@singtel.com', 'password123', 1, 'Hello! I am John', 'default.png'),
+    ('Jane Smith', 'jane_smith@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
+    ('Alice Tan', 'alice_tan@simba.sg', 'password123', 3, 'NPC', 'default.png'),
+    ('Bob Lee', 'bob_lee@starhub.com', 'password123', 4, 'NPC', 'default.png'),
+    ('Apple Lim', 'apple_lim@singtel.com', 'password123', 1, 'NPC', 'default.png'),
+    ('Benedict Soh', 'benedict_soh@m1.com.sg', 'password123', 2, 'NPC', 'default.png'),
+    ('Cadence Tan', 'cadence_tan@simba.sg', 'password123', 3, 'NPC', 'default.png'),
+    ('Dominic Lee', 'dominic_lee@starhub.com', 'password123', 4, 'NPC', 'default.png');
 
+INSERT employee_access (user_id, email, access_level, company_id)
+SELECT * FROM (VALUES
+(NULL, 'e@singtel.com', 0, 1),
+(NULL, 'a@singtel.com', 1, 1),
+(NULL, 'employee@singtel.com', 0, 1),
+(NULL, 'admin@singtel.com', 1, 1),
+(NULL, 'john_doe@singtel.com', 0, 1),
+(NULL, 'jane_smith@singtel.com', 0, 1),
+(NULL, 'alex_taylor@singtel.com', 0, 1),
+(NULL, 'alice_tan@singtel.com', 0, 1),
+(NULL, 'dominic_lee@singtel.com', 0, 1),
+(NULL, 'benedict_soh@singtel.com', 0, 1),
+(NULL, 'apple_lim@singtel.com', 0, 1),
+(NULL, 'jane_doe@singtel.com', 1, 1),
+(NULL, 'daniel_jackson@singtel.com', 1, 1),
+(NULL, 'candence_tan@singtel.com', 1, 1),
+(NULL, 'jessica_morris@singtel.com', 1, 1),
+(NULL, 'william_bennet@singtel.com', 1, 1),
+(NULL, 'bob_lee@singtel.com', 1, 1),
+(NULL, 'e@m1.com.sg', 0, 2),
+(NULL, 'a@m1.com.sg', 1, 2),
+(NULL, 'employee@m1.com.sg', 0, 2),
+(NULL, 'admin@m1.com.sg', 1, 2),
+(NULL, 'john_doe@m1.com.sg', 0, 2),
+(NULL, 'jane_smith@m1.com.sg', 0, 2),
+(NULL, 'alex_taylor@m1.com.sg', 0, 2),
+(NULL, 'alice_tan@m1.com.sg', 0, 2),
+(NULL, 'dominic_lee@m1.com.sg', 0, 2),
+(NULL, 'benedict_soh@m1.com.sg', 0, 2),
+(NULL, 'apple_lim@m1.com.sg', 0, 2),
+(NULL, 'jane_doe@m1.com.sg', 1, 2),
+(NULL, 'daniel_jackson@m1.com.sg', 1, 2),
+(NULL, 'candence_tan@m1.com.sg', 1, 2),
+(NULL, 'jessica_morris@m1.com.sg', 1, 2),
+(NULL, 'william_bennet@m1.com.sg', 1, 2),
+(NULL, 'bob_lee@m1.com.sg', 1, 2),
+(NULL, 'e@simba.sg', 0, 3),
+(NULL, 'a@simba.sg', 1, 3),
+(NULL, 'employee@simba.sg', 0, 3),
+(NULL, 'admin@simba.sg', 1, 3),
+(NULL, 'john_doe@simba.sg', 0, 3),
+(NULL, 'jane_smith@simba.sg', 0, 3),
+(NULL, 'alex_taylor@simba.sg', 0, 3),
+(NULL, 'alice_tan@simba.sg', 0, 3),
+(NULL, 'dominic_lee@simba.sg', 0, 3),
+(NULL, 'benedict_soh@simba.sg', 0, 3),
+(NULL, 'apple_lim@simba.sg', 0, 3),
+(NULL, 'jane_doe@simba.sg', 1, 3),
+(NULL, 'daniel_jackson@simba.sg', 1, 3),
+(NULL, 'candence_tan@simba.sg', 1, 3),
+(NULL, 'jessica_morris@simba.sg', 1, 3),
+(NULL, 'william_bennet@simba.sg', 1, 3),
+(NULL, 'bob_lee@simba.sg', 1, 3),
+(NULL, 'e@starhub.com', 0, 4),
+(NULL, 'a@starhub.com', 1, 4),
+(NULL, 'employee@starhub.com', 0, 4),
+(NULL, 'admin@starhub.com', 1, 4),
+(NULL, 'john_doe@starhub.com', 0, 4),
+(NULL, 'jane_smith@starhub.com', 0, 4),
+(NULL, 'alex_taylor@starhub.com', 0, 4),
+(NULL, 'alice_tan@starhub.com', 0, 4),
+(NULL, 'dominic_lee@starhub.com', 0, 4),
+(NULL, 'benedict_soh@starhub.com', 0, 4),
+(NULL, 'apple_lim@starhub.com', 0, 4),
+(NULL, 'jane_doe@starhub.com', 1, 4),
+(NULL, 'daniel_jackson@starhub.com', 1, 4),
+(NULL, 'candence_tan@starhub.com', 1, 4),
+(NULL, 'jessica_morris@starhub.com', 1, 4),
+(NULL, 'william_bennet@starhub.com', 1, 4),
+(NULL, 'bob_lee@starhub.com', 1, 4)) AS temp (user_id, email, access_level, company_id);
 
 -- Insert sample data into data_centers table
 INSERT INTO data_centers (company_id, data_center_name)
@@ -814,28 +893,28 @@ VALUES
     -- 2024 (least carbon emissions, highest renewable energy percentage)
     (1, '2021-08-01', 4500.00, 50.0),
     (1, '2021-09-01', 4450.00, 51.0),
-    (1, '2021-10-01', 4400.00, 52.0),
-    (1, '2021-10-05', 4385.00, 52.5),
-    (1, '2021-10-10', 4365.00, 53.0),
-    (1, '2021-10-15', 4350.00, 53.5),
-    (1, '2021-10-20', 4330.00, 54.0),
-    (1, '2021-10-25', 4315.00, 54.5),
-    (1, '2021-10-30', 4300.00, 55.0),
+    (1, '2021-10-01', 1400.00, 52.0),
+    (1, '2021-10-05', 2385.00, 52.5),
+    (1, '2021-10-10', 2265.00, 53.0),
+    (1, '2021-10-15', 2350.00, 53.5),
+    (1, '2021-10-20', 2040.00, 54.0),
+    (1, '2021-10-25', 1315.00, 54.5),
+    (1, '2021-10-30', 2200.00, 55.0),
     -- 2023
-    (1, '2022-08-01', 5000.00, 45.0),
-    (1, '2022-09-01', 4950.00, 46.0),
-    (1, '2022-10-01', 4900.00, 47.0),
-    (1, '2022-10-05', 4925.00, 46.5),
+    (1, '2022-08-01', 5400.00, 45.0),
+    (1, '2022-09-01', 5450.00, 46.0),
+    (1, '2022-10-01', 5300.00, 47.0),
+    (1, '2022-10-05', 5925.00, 46.5),
     -- 2022
     (1, '2023-08-01', 5400.00, 40.0),
     (1, '2023-09-01', 5350.00, 41.0),
     (1, '2023-10-01', 5300.00, 42.0),
     (1, '2023-10-05', 5325.00, 41.5),
     -- 2021 (highest carbon emissions, lowest renewable energy percentage)
-    (1, '2024-08-01', 6000.00, 35.0),
-    (1, '2024-09-01', 5950.00, 36.0),
-    (1, '2024-10-01', 5900.00, 37.0),
-    (1, '2024-10-05', 5925.00, 36.5),
+    (1, '2024-08-01', 5300.00, 35.0),
+    (1, '2024-09-01', 5150.00, 36.0),
+    (1, '2024-10-01', 4005.00, 37.0),
+    (1, '2024-10-05', 5025.00, 36.5),
 
     -- Data center 2 - Singtel, 2024 (most efficient, lowest emissions, highest renewable percentage)
     (2, '2024-08-01', 500.00, 30.0),

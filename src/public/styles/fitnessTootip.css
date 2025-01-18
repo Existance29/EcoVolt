@@ -1,0 +1,603 @@
+.body-no-scroll {
+    position: fixed;
+    width: 100%;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+
+/* Popup Header (Tabs) */
+.popup-header {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.popup-header {
+    display: flex;
+    justify-content: center;
+    gap: 1rem; /* Aligns with page-navigation gap */
+    margin-bottom: 20px;
+        /* outline: 3px solid rgb(188, 20, 20); */
+
+}
+
+.popup-tab {
+    padding: 15px 25px; /* Same as nav-button */
+    border: 1px solid #4FD1C5; /* Same border color */
+    border-radius: 5px; /* Same border-radius */
+    background-color: #ffffff; /* Same background */
+    color: #4FD1C5; /* Same text color */
+    font-size: 1.1rem; /* Same font size */
+    cursor: pointer; /* Cursor for interactivity */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transitions */
+    margin-top: 50px;
+    /* outline: 3px solid rgb(188, 20, 20); */
+    z-index: 1010;
+}
+
+.popup-tab.active {
+    background-color: #4FD1C5; /* Same active state */
+    color: #ffffff; /* Same active state text color */
+}
+
+.popup-tab:hover {
+    background-color: #4FD1C5; /* Same hover state */
+    color: #ffffff; /* Same hover state text color */
+}
+
+.popup-content.active {
+    display: block;
+}
+
+
+
+.popup ul {
+    list-style: none;
+    padding: 0;
+}
+
+.popup ul li {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* Ensure overlay does not cover the popup */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 1000; /* Below the popup container */
+    display: none;
+}
+
+
+
+
+
+
+
+
+
+/* Close Popup Button */
+.close-popup {
+    position: absolute; /* Position relative to the popup container */
+    top: 15px; /* Adjust spacing from the top */
+    right: 15px; /* Adjust spacing from the right */
+    background-color: transparent; /* Transparent background */
+    border: none; /* Remove border */
+    font-size: 1.5rem; /* Increase font size */
+    font-weight: bold; /* Make it bold */
+    color: #000; /* Set to a visible color */
+    cursor: pointer; /* Pointer cursor */
+    z-index: 1010; /* Ensure it stays above other content */
+}
+
+.close-popup:hover {
+    color: #ff0000; /* Change color on hover */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Popup Container */
+.popup-container {
+    position: fixed;
+    top: 50%; /* Center vertically */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%, -50%); /* Adjust position to center */
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    max-width: 1200px; /* Restrict to max width */
+    max-height: 900px; /* Restrict to max height */
+    background: #fff; /* Background color for visibility */
+    padding: 0; /* Remove padding */
+    border-radius: 8px; /* Add a slight border radius */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Add a slight shadow for depth */
+    z-index: 1000; /* Ensure it's above other elements */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    text-align: center;
+    overflow-y: auto; /* Enable vertical scrolling */
+    /* outline: 5px solid red; */
+}
+
+/* Popup */
+.popup {
+    width: 100%; /* Match the width of the container */
+    height: 100%; /* Match the height of the container */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0; /* Remove any padding */
+    margin: 0; /* Remove any margin */
+    /* outline: 5px solid rgb(255, 0, 195); */
+}
+
+/* Popup Content */
+.popup-content {
+    width: 100%; /* Match the popup width */
+    height: 100%; /* Match the popup height */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribute content vertically */
+    align-items: center;
+    flex: 1;
+    /* outline: 10px solid blue; */
+}
+
+.tooltip-image {
+    position: relative; /* Changed to relative to allow content overlap */
+    width: 100%; /* Fill the container width */
+    height: auto; /* Maintain aspect ratio */
+    margin: 0; /* Remove any margin */
+    align-self: center; /* Center horizontally in the container */
+    flex-shrink: 0; /* Prevent the image from shrinking */
+    border-radius: 0; /* Remove rounded corners */
+    z-index: 1; /* Ensure it's below winners */
+    /* outline: 3px solid rgb(0, 0, 0); */
+    margin-top: -245px;
+}
+
+.button-container-1 {
+    margin-top: 50px;
+}
+
+
+/* Style the Redeem Now button */
+.redeem-now-button {
+    position: absolute;
+    bottom: 3%; /* Adjust this value to move the button up/down */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4FD1C5;
+    color: #fff;
+    border: none;
+    padding: 15px 25px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    z-index: 10; /* Ensure it's above the image */
+    font-weight: 400;
+}
+
+/* Button hover effect */
+.redeem-now-button:hover {
+    background-color: #45a29e;
+}
+
+
+
+
+
+
+
+
+
+
+
+.winner-list {
+    display: flex; /* Use flexbox to align items horizontally */
+    justify-content: center; /* Center the items horizontally */
+    align-items: flex-end; /* Align items to the bottom for overlap effect */
+    gap: 80px; /* Add spacing between winner blocks */
+    width: 100%; /* Ensure the list spans the container */
+    padding: 20px; /* Add padding for better spacing */
+    box-sizing: border-box; /* Include padding in width calculation */
+    position: relative; /* Relative positioning for z-index control */
+    z-index: 2; /* Ensure it's above the tooltip image */
+    margin-top: 90px; /* Adjust for overlap */
+}
+
+.winner-item {
+    position: relative; /* Position relative for z-index control */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    z-index: 3; /* Ensure it's above the tooltip image */
+    width: 170px; /* Fixed width for consistent alignment */
+    height: auto; /* Maintain dynamic height */
+    min-height: 210px;
+    background-color: #f9f9f9; /* Default background */
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+    margin-bottom: -30px; /* Adjust margin for overlap */
+    transform: translateY(0); /* Default position */
+        /* outline: 3px solid rgb(0, 0, 0); */
+}
+
+
+.winner-item .avatar {
+    width: 100px; /* Set the container size */
+    height: 100px;
+    border-radius: 50%; /* Keep the container round */
+    overflow: hidden; /* Ensure the image stays within the container */
+    margin-bottom: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow effect */
+    background-color: white;
+}
+
+.winner-item .avatar img {
+    width: 100%; /* Scale the image to fit the container */
+    height: 100%; /* Scale the image to fit the container */
+    object-fit: cover; /* Ensures the image covers the container */
+    border-radius: 50%; /* Ensures the image is round */
+}
+
+
+/* Winner Name */
+.winner-item .name {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    color: #000000;
+}
+
+/* Winner Stats */
+.winner-item .stats {
+    font-size: 14px;
+    color: #000000;
+    line-height: 1.4;
+    margin-top: 10px;
+}
+
+/* Winner Trees */
+.winner-item .trees {
+    font-size: 14px;
+    color: #000000;
+    margin-top: 5px;
+}
+
+/* Specific Styles for Each Winner */
+/* Specific Styles for Each Winner */
+.winner-item.winner-1 {
+    background-color: #c0c0c0; /* Silver */
+    transform: translateY(-25px); /* Adjust position */
+}
+
+.winner-item.winner-2 {
+    background-color: #daa521; /* Gold */
+    transform: translateY(-60px); /* Higher position */
+}
+
+.winner-item.winner-3 {
+    background-color: #cd8031; /* Bronze */
+    transform: translateY(-15px); /* Adjust position */
+}
+
+
+/* Style for the H2 (Title) */
+.popup-content h2 {
+    margin-top: 50px;
+    margin-bottom: -20px;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+
+
+
+
+/* Infographic Container */
+/* Infographic Container */
+.infographic {
+    display: flex;
+    justify-content: center; /* Center the image horizontally */
+    align-items: center;
+    width: 40%; /* Set width relative to the parent container */
+    height: 100%; /* Allow it to take up available height */
+    min-height: 500px; /* Increase the max height for more vertical space */
+    padding: 10px;
+    box-sizing: border-box;
+    /* outline: 3px solid rgb(0, 255, 128); For debugging, remove if unnecessary */
+}
+
+
+/* Infographic Image */
+.infographic img {
+    min-width: 100%; /* Reduce width to 50% of the container */
+    max-height: 300px; /* Limit the height */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 10px; /* Add rounded corners */
+}
+
+
+.campaign-container {
+    margin-top: -150px; /* Add spacing above the infographic */
+    display: flex; /* Align children in a row */
+    justify-content: center; /* Center align horizontally */
+    align-items: center; /* Center align vertically */
+    gap: 20px; /* Space between the infographic and steps */
+    padding: 20px;
+    box-sizing: border-box;
+    /* outline: 3px solid rgb(87, 131, 4);  */
+
+}
+
+
+.campaign-steps {
+    display: flex;
+    flex-direction: column; /* Stack the campaign steps vertically */
+    gap: 15px; /* Add space between campaign steps */
+    max-width: 600px; /* Restrict the width for better readability */
+    /* outline: 3px solid rgb(0, 30, 255); For debugging, remove if unnecessary */
+}
+
+.campaign-step {
+    background-color: #f9f9f9; /* Light background for contrast */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    font-size: 18px;
+    line-height: 1.5;
+    color: #333; /* Text color */
+    min-height: 120px;
+    /* outline: 3px solid rgb(251, 0, 255); */
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    text-align: center; /* Center text inside */
+}
+
+
+
+.how-it-works {
+    background-color: #f9f9f9;
+    max-width: 91%;
+    margin: 0 auto; /* Center horizontally */
+    padding: 20px; /* Add padding for spacing */
+    border-radius: 8px; /* Add rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    text-align: center; /* Center-align text inside the container */
+    /* outline: 3px solid rgba(100, 198, 255, 0.446); */
+}
+
+.how-it-works h3 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333; /* Text color */
+
+}
+
+
+.image-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Create a row with 3 equal columns */
+    gap: 0px; /* Add spacing between images */
+    justify-items: center; /* Center images horizontally */
+    align-items: center; /* Center images vertically */
+    padding: 10px;
+    width: 100%; /* Ensure the container takes full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+    /* outline: 3px solid rgba(100, 198, 255, 0.446); */
+}
+
+.image-container #image1,
+.image-container #image3 {
+    max-width: 70%; /* Make images responsive */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 30px; /* Optional rounded corners */
+    box-shadow: 0 0px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.image-container #image2 {
+    max-width: 40%; /* Adjust size for image2 */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.text-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Create a row with 3 equal columns */
+    gap: 10px; /* Add spacing between text items */
+    justify-items: center; /* Center text horizontally */
+    align-items: center; /* Center text vertically */
+    padding: 10px;
+    width: 100%; /* Ensure the container takes full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+    /* outline: 3px solid rgba(100, 198, 255, 0.446); */
+    margin-bottom: 30px;
+}
+
+.text-item {
+    font-size: 16px; /* Adjust font size as needed */
+    font-weight: bold; /* Make text bold */
+    color: #333; /* Text color */
+    text-align: center; /* Center text inside each item */
+    padding: 5px; /* Add some padding for spacing */
+}
+/* Styling for horizontal lines */
+.horizontal-line {
+    width: 100%; /* Full width */
+    max-width: 900px; /* Match the container width */
+    height: 2px; /* Line thickness */
+    background-color: #ccc; /* Line color */
+    margin: 20px auto; /* Center and add spacing above/below */
+    margin-top: 50px;
+}
+
+/* Styling for the CO₂ stats container */
+.co2-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    width: 100%;
+    max-width: 800px;
+    gap: 20px;
+    margin-top: 30px;
+    /* outline: 3px solid rgba(255, 187, 0, 0.446); */
+}
+
+/* Individual stat item styling */
+.stat-item {
+    text-align: center;
+    flex: 1;
+    /* outline: 3px solid rgba(21, 0, 255, 0.446); */
+}
+
+.stat-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-size: 64px;
+    font-weight: bold;
+    color: #000;
+    margin: 0;
+}
+
+.stat-description {
+    font-size: 16px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Divider between the stats */
+.divider {
+    height: 150px;
+    width: 2px;
+    background-color: #ccc;
+}
+
+/* Styling for steps container */
+.steps-container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr); /* Two columns for steps */
+    gap: 20px; /* Space between steps */
+    margin-top: 50px;
+    /* outline: 3px solid rgba(100, 198, 255, 0.446); */
+}
+
+/* Individual step styling */
+.step {
+    display: flex;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border: 1px solid #ddd;
+    /* outline: 3px solid rgba(153, 0, 255, 0.446); */
+}
+
+/* Step number styling */
+.step-number {
+    width: 80px;
+    height: 80px;
+    background-color: #e6e6e6;
+    color: white;
+    font-size: 48px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20%;
+    margin-right: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    /* outline: 3px solid rgba(153, 0, 255, 0.446); */
+}
+
+/* Step content styling */
+.step-content {
+    flex: 1;
+}
+
+.step-content h4 {
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    text-align: left;
+}
+
+.step-content p {
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.5;
+    text-align: left;
+}
+
+#step1  {
+    background-color: #FF8A50 ;
+}
+
+#step2  {
+    background-color: #FF8A50 ;
+}
+
+#step3  {
+    background-color: #FF8A50 ;
+}
+
+#step4 {
+    background-color: #FF8A50 ;
+}
