@@ -3,30 +3,560 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;700;800" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="styles/common.css">
-    <script src="./scripts/api.js"></script>
     <script src="./scripts/utils.js"></script>
     <script src="./scripts/common.js" defer></script>
+    <script src="./scripts/api.js"></script>
     <title>EcoVolt | Recycle</title>
 </head>
 <body>
+
     <aside class="sidebar"></aside>
+            <main class="main-content">
+                <header class="mainHeader" data-title="Recyce E-Waste" data-breadcrumb="Pages / Recycle E-Waste"></header>
 
-    <main class="main-content">
-        <header class="mainHeader" data-title="Recycle" data-breadcrumb="Pages / Recycle"></header>
+                <nav class="tabs">
+                    <a href="activityFeed.html">Activity Feed</a>
+                    <a href="leaderboard.html">LeaderBoard</a>
+                    <a href="recycle.html">Recycle Your E-waste</a>
+                    <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
+                </nav>
 
-        <nav class="tabs">
-            <a href="activityFeed.html">Activity Feed</a>
-            <a href="leaderboard.html">LeaderBoard</a>
-            <a href="recycle.html">Recycle Your E-waste</a>
-            <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
-        </nav>
+                <div class="did-you-know-container">
+                    <div class="content-wrapper">
+                      <div class="text-section">
+                        <div class="text-content">
+                          <p class="title">Did you know?</p>
+                          <p class="description">
+                            Recycling electronics reduces carbon emissions by up to 80% compared to manufacturing new products.
+                          </p>
+                        </div>
+                        <button class="learn-more-btn">
+                          <span class="truncate">Learn More</span>
+                        </button>
+                      </div>
+                      <div class="image-section"></div>
+                    </div>
+                  </div>
 
+              
+                
+                
+                  <section class="equipment-section">
+                    <h2 id="recycle-items-heading">Equipment</h2>
+                </section>                
+    
 
+                    <div class="search-bar">
+                        <label>
+                            <input type="text" id="search-input" placeholder="Search for a piece of equipment" />
+                        </label>
+                    </div>     
+                    
+                    <div class="filter-buttons">
+                        <button data-center-id="All" onclick="setActiveButton('All')">All</button>
+                        <button data-center-id="1" onclick="setActiveButton('1')">Data Center 1</button>
+                        <button data-center-id="2" onclick="setActiveButton('2')">Data Center 2</button>
+                        <button data-center-id="3" onclick="setActiveButton('3')">Data Center 3</button>
+                        <button data-center-id="4" onclick="setActiveButton('4')">Data Center 4</button>
+                        <button data-center-id="5" onclick="setActiveButton('5')">Data Center 5</button>
+                    </div>                    
+                    
+                    
+                    <section class="equipment-section">
+                    <!-- First table with unique ID -->
+                    <div class="equipment-table">
+                        <table id="equipment-table-1">
+                            <thead>
+                                <tr>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>S/N</th>
+                                    <th>Age</th>
+                                    <th>Carbon Emission</th>
+                                    <th>Energy Consumption</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-    </main>
+                    <h2>Pending Pick Up</h2>
+
+                    <div class="equipment-table">
+                        <table id="equipment-table-pending">
+                            <thead>
+                                <tr>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>S/N</th>
+                                    <th>Age</th>
+                                    <th>Carbon Emission</th>
+                                    <th>Energy Consumption</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+        
+                    <h2>Recycled Items</h2>
+
+                    <!-- Second table with unique ID -->
+                    <div class="equipment-table">
+                        <table id="equipment-table-2">
+                            <thead>
+                                <tr>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>S/N</th>
+                                    <th>Age</th>
+                                    <th>Carbon Emission</th>
+                                    <th>Energy Consumption</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <h2>IT devices of employees awaiting approval</h2>
+                    <!-- Second table with unique ID -->
+                    <div class="equipment-table">
+                        <table id="equipment-table-3">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>S/N</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <div id="details-modal" class="modal hidden">
+                    <div class="modal-content">
+                        <button class="modal-close" onclick="closeModal()">✖</button>
+                        <iframe id="modal-iframe" src="" frameborder="0"></iframe>
+                    </div>
+                </div>
+                
+            </main>
+
 
 </body>
 </html>
+<script>
+    let allData = []; // Cache all data for efficient filtering
+    let filteredDCData = [];
+    const company_id = getCompanyId(); // Get company ID dynamically
+
+    // Fetch and populate the table initially
+    async function populateTable() {
+        const tableBody = document.querySelector('#equipment-table-1 tbody');
+
+        try {
+            if (!company_id) {
+                throw new Error('Company ID not found');
+            }
+            console.log("company_id", company_id);
+
+            const response = await fetch(`/recycle/${company_id}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch data: ${response.status}`);
+            }
+
+            const data = await response.json();
+            allData = data; // Cache the data for real-time filtering
+            renderTable(data); // Populate the table with fetched data
+        } catch (error) {
+            console.error('Error populating table:', error);
+        }
+    }
+
+
+// Render the table with data
+function renderTable(data) {
+        const tableBody = document.querySelector('#equipment-table-1 tbody');
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        if (data.length === 0) {
+            // Display "No items found" if the data array is empty
+            const noDataRow = document.createElement('tr');
+            noDataRow.innerHTML = `
+                <td colspan="7" style="text-align: center;">No items found</td>
+            `;
+            tableBody.appendChild(noDataRow);
+            return;
+        }
+
+        // Populate the table with data
+        data.forEach(item => {
+            const row = document.createElement('tr');
+
+            // Add event listener to handle row click
+            row.addEventListener('click', () => {
+                const serialNumber = row.querySelector('td:nth-child(3)').textContent; // Get serial number
+                openModal(serialNumber); // Open the modal with the serial number
+            });
+            row.innerHTML = `
+                <td>${item.brand || 'N/A'}</td>
+                <td>${item.model || 'N/A'}</td>
+                <td>${item.serial_number || 'N/A'}</td>
+                <td>${item.device_age_years || 'N/A'}</td>
+                <td>${item.total_device_co2_emissions_tons?.toFixed(2) || 'N/A'}</td>
+                <td>${item.total_device_energy_mwh?.toFixed(2) || 'N/A'}</td>
+                <td>${item.status || 'N/A'}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+
+
+
+function filterTable() {
+    const searchTerm = document.querySelector('#search-input').value.trim().toLowerCase();
+
+    // Check if filteredDCData and filteredDCDataRecycled are empty
+    if (filteredDCData.length === 0) {
+        // Use the cached allData and recycledData if no filtered data is present
+        const filteredActiveData = allData.filter(item =>
+            (item.brand && item.brand.toLowerCase().includes(searchTerm)) ||
+            (item.model && item.model.toLowerCase().includes(searchTerm)) ||
+            (item.serial_number && item.serial_number.toLowerCase().includes(searchTerm)) ||
+            (item.device_age_years && item.device_age_years.toString().includes(searchTerm)) ||
+            (item.total_device_co2_emissions_tons && item.total_device_co2_emissions_tons.toString().includes(searchTerm)) ||
+            (item.total_device_energy_mwh && item.total_device_energy_mwh.toString().includes(searchTerm)) ||
+            (item.status && item.status.toLowerCase().includes(searchTerm))
+        );
+
+
+        // Render the tables using cached data
+        renderTable(filteredActiveData); // Update active items table
+    } else {
+        // Use filteredDCData and filteredDCDataRecycled if they are not empty
+        const filteredActiveData = filteredDCData.filter(item =>
+            (item.brand && item.brand.toLowerCase().includes(searchTerm)) ||
+            (item.model && item.model.toLowerCase().includes(searchTerm)) ||
+            (item.serial_number && item.serial_number.toLowerCase().includes(searchTerm)) ||
+            (item.device_age_years && item.device_age_years.toString().includes(searchTerm)) ||
+            (item.total_device_co2_emissions_tons && item.total_device_co2_emissions_tons.toString().includes(searchTerm)) ||
+            (item.total_device_energy_mwh && item.total_device_energy_mwh.toString().includes(searchTerm)) ||
+            (item.status && item.status.toLowerCase().includes(searchTerm))
+        );
+        // Render the tables using filtered data
+        renderTable(filteredActiveData); // Update active items table
+    }
+}
+
+
+    // Set the active class on the clicked button
+function setActiveButton(centerId) {
+    const buttons = document.querySelectorAll('.filter-buttons button');
+    buttons.forEach(button => {
+        button.classList.remove('active'); // Remove active class from all buttons
+    });
+
+    const activeButton = document.querySelector(`.filter-buttons button[data-center-id="${centerId}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active'); // Add active class to the clicked button
+    }
+
+    // Optionally, call the filter function
+    filterByCategory(centerId);
+}
+
+// Function to fetch and filter data by data center
+async function filterByCategory(dataCenterId) {
+    try {
+        if (!company_id) {
+            throw new Error('Company ID not found');
+        }
+
+        if (dataCenterId === "All") {
+            filteredDCData = [];
+            // If "All" is selected, call the populate functions for all items
+            populateTable(); // Populate the active items table with all data
+            return;
+        }
+        filteredDCData = [];
+        // Call the endpoint to fetch filtered data
+        const filterResponse = await fetch(`/recycle/${company_id}/search/filter/${dataCenterId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ dataCenterId }), // Send data center ID in the body if needed
+        });
+
+        if (!filterResponse.ok) {
+            throw new Error(`Failed to fetch filtered data: ${filterResponse.status}`);
+        }
+
+        // Parse the filtered data and store in global variable
+        filteredDCData = await filterResponse.json();
+
+
+        // Fetch filtered data for active items
+        const activeResponse = await fetch(`/recycle/${company_id}/filter/${dataCenterId}`);
+        if (!activeResponse.ok) {
+            throw new Error(`Failed to fetch active items: ${activeResponse.status}`);
+        }
+        const activeData = await activeResponse.json();
+
+        // Populate the active items table
+        renderTable(activeData);
+    } catch (error) {
+        console.error('Error filtering data by category:', error);
+    }
+}
+
+function openModal(serialNumber, isPersonal) {
+    const modal = document.getElementById('details-modal');
+    const iframe = document.getElementById('modal-iframe');
+    // Determine the type of item and include it as a flag
+    const itemType = isPersonal ? 'personal' : 'company';
+    // Load the content into the iframe with the serial number and flag
+    iframe.src = `recycleDetails.html?SN=${serialNumber}&type=${itemType}`;
+    modal.classList.remove('hidden'); // Show the modal
+    document.body.classList.add('modal-open'); // Disable scrolling on the background
+}
+
+
+function closeModal() {
+    const modal = document.getElementById('details-modal');
+    const iframe = document.getElementById('modal-iframe');
+    iframe.src = ''; // Clear the iframe content
+    modal.classList.add('hidden'); // Hide the modal
+    document.body.classList.remove('modal-open'); // Re-enable scrolling on the background
+}
+
+    // Attach the input event listener to the search field
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('#search-input').addEventListener('input', filterTable);
+        setActiveButton('All');
+        populateTable(); // Populate the table initially
+    });
+
+</script>
+
+<style>
+    .equipment-table tr:hover {
+    background-color: #f1f5f9; /* Light gray for hover effect */
+    cursor: pointer; /* Pointer cursor for interactive rows */
+}
+
+    h2 {
+  font-size: 2rem; /* Adjust the size as needed */
+  font-weight: bold; /* Make it bold */
+  color: #2F6D45; /* Match the color theme (optional) */
+  margin-bottom: 20px; /* Add spacing below */
+  text-align: left; /* Optional: align the heading */
+}
+
+.filter-buttons {
+    display: flex; /* Use flexbox layout */
+    gap: 15px; /* Increase spacing between buttons */
+    margin-bottom: 15px; /* Space below the buttons */
+    justify-content: flex-start; /* Align the buttons */
+    padding-left: 10%; /* Add padding to move them to the right */
+}
+
+.filter-buttons button {
+    padding: 12px 20px; /* Increase padding to make buttons bigger */
+    font-size: 16px; /* Increase font size */
+    border: none; /* Remove borders */
+    border-radius: 25px; /* Keep buttons rounded */
+    background-color: #f1f5f9; /* Light gray */
+    outline: #c9c9c9 solid 1px;
+    color: #1f2937; /* Dark gray */
+    cursor: pointer; /* Pointer cursor on hover */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+.filter-buttons button:hover {
+    background-color: #d1d5db; /* Slightly darker gray on hover */
+}
+
+.filter-buttons button.active {
+    background-color: #3b82f6; /* Blue color for active state */
+    color: #ffffff; /* White text */
+}
+
+
+.did-you-know-container {
+  padding: 16px;
+  display: flex; /* Center the container horizontally */
+  justify-content: center;
+}
+
+.content-wrapper {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 16px;
+  border-radius: 16px;
+  background-color: #ffffff;
+  padding: 16px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  max-width: 1300px; /* Reduce the width */
+  width: 100%; /* Make it responsive */
+}
+
+.text-section {
+  flex: 2 2 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.text-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.text-content .title {
+  color: #1c160c;
+  font-size: 1rem;
+  font-weight: bold;
+  line-height: 1.25;
+}
+
+.text-content .description {
+  color: #2F6D45;
+  font-size: 0.875rem;
+  font-weight: normal;
+  line-height: 1.5;
+}
+
+.learn-more-btn {
+  display: flex;
+  min-width: 84px;
+  max-width: 480px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 9999px;
+  height: 32px;
+  padding: 0 16px;
+  flex-direction: row-reverse;
+  background-color: #B9E4C9;
+  color: #2F6D45;
+  font-size: 0.875rem;
+  font-weight: medium;
+  line-height: normal;
+  width: fit-content;
+}
+
+.image-section {
+  width: 100%;
+  aspect-ratio: 16 / 9; /* Adjusts for a responsive aspect ratio */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 16px;
+  flex: 1;
+  background-image: url("https://cdn.usegalileo.ai/sdxl10/031c9ca1-866d-4f8b-940b-cac10d997645.png");
+}
+
+/* Modal styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none; /* Hide the modal initially */
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    height: 90%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#modal-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+/* When the modal is active, prevent scrolling */
+body.modal-open {
+    overflow: hidden; /* Disable scrolling */
+}
+
+</style>
