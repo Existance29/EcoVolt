@@ -190,8 +190,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
     function renderEnergyLineChart(canvasElement, data, energyType, color = "#4FD1C5") {
         const titleElement = document.getElementById('energyBreakdownTitle');
-        titleElement.textContent = `${energyType} Energy Breakdown for the Year`;
-    
+        titleElement.textContent = capitalizeWords(`${energyType} Energy Breakdown for the Year`);    
         if (!canvasElement || !canvasElement.getContext) {
             console.error("Invalid canvas element provided:", canvasElement);
             return;
@@ -267,20 +266,26 @@ document.addEventListener('DOMContentLoaded', async function () {
         ];
         const colors = ["#003366", "#0099CC", "#66CCCC", "#99CCFF"]; // Updated colors
         const dataSum = values.reduce((a, b) => a + b, 0);
-
-       // Convert numeric month to full month name
+    
+        // Convert numeric month to full month name
         const monthNames = [
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
         const fullMonthName = monthNames[month - 1];
-
+    
         // Update the title dynamically
         const nameElement = document.getElementById('name');
         nameElement.innerText = `${fullMonthName} ${year}`;
-
-        
-        const ctx = document.getElementById('energyPieChart').getContext('2d');
+    
+        const canvas = document.getElementById('energyPieChart');
+    
+        // Destroy the previous chart instance if it exists
+        if (Chart.getChart(canvas.id)) {
+            Chart.getChart(canvas.id).destroy();
+        }
+    
+        const ctx = canvas.getContext('2d');
         new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -809,3 +814,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 });
+
+function capitalizeWords(str) {
+    return str.replace(/\b\w/g, char => char.toUpperCase());
+}
