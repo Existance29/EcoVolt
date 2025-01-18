@@ -223,6 +223,23 @@ const generateReportData = async (req, res) => {
         if (!reports || reports.length === 0) {
             return res.status(404).json({ error: `No report data found for the year ${year}.` });
         }
+        // Fetch yearly energy breakdown to determine highestEnergyType
+        const energyData = await Report.getYearlyEnergyBreakdown(company_id, year);
+
+        const totalEnergyByType = energyData.reduce(
+            (totals, monthData) => {
+                totals.radioEquipment += monthData.radioEquipment || 0;
+                totals.cooling += monthData.cooling || 0;
+                totals.backupPower += monthData.backupPower || 0;
+                totals.misc += monthData.misc || 0;
+                return totals;
+            },
+            { radioEquipment: 0, cooling: 0, backupPower: 0, misc: 0 }
+        );
+
+        const highestEnergyType = Object.keys(totalEnergyByType).reduce((a, b) =>
+            totalEnergyByType[a] > totalEnergyByType[b] ? a : b
+        );
 
         // Fetch monthly CO2 emissions for the year
         const emissions = await Report.getMonthlyCarbonEmissions(company_id, year);
@@ -322,10 +339,16 @@ const generateReportData = async (req, res) => {
             monthlyCO2.map((item) => item.totalCO2),
             companyName
         );
-        const recommendations = await getAllAIRecommendations({
-            totalEnergy: monthlyEnergy.map((item) => item.totalEnergy),
-            co2Emissions: performanceSummary.co2Emissions.current,
-        });
+        const recommendations = await getAllAIRecommendations(
+            {
+                totalEnergy: monthlyEnergy.map((item) => item.totalEnergy),
+                co2Emissions: monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0),
+            },
+            highestEnergyType // Pass the top energy contributor
+        );
+        const description = await generateDescription(highestEnergyType, year);
+
+
         const conclusion = await generateConclusion(
             monthlyEnergy.map((item) => item.totalEnergy),
             performanceSummary.co2Emissions.current,
@@ -346,6 +369,7 @@ const generateReportData = async (req, res) => {
             performanceSummary,
             reportData: reports,
             emissions,
+            description
         };
 
         // Cache the data
@@ -403,20 +427,20 @@ const generateReportPDF = async (req, res) => {
 };
 
 // function to get exactly 5 AI recommendations, one from each category
-const getAllAIRecommendations = async (data) => {
+const getAllAIRecommendations = async (data, highestEnergyType) => {
     const categories = [
-        "Energy Efficiency Improvements",
-        "CO2 Emission Reduction Strategies",
-        "Renewable Energy Investments",
-        "Sustainable Cooling Technologies",
-        "Monitoring and Reporting Practices"
+        `Efficiency Improvements for ${highestEnergyType}`,
+        `Technology Upgrades for ${highestEnergyType}`,
+        `Sustainability Strategies for ${highestEnergyType}`,
+        `Behavioral Changes and Best Practices for ${highestEnergyType}`,
+        `Monitoring and Optimization of ${highestEnergyType}`,
     ];
 
     try {
         const recommendations = await Promise.all(
             categories.map(async (category, index) => {
-                await new Promise(resolve => setTimeout(resolve, index * 1000)); // Delay to avoid rate limiting
-                const detailedRecommendation = await generateAIRecommendations(data, category);
+                await new Promise((resolve) => setTimeout(resolve, index * 1000)); // Delay to avoid rate limiting
+                const detailedRecommendation = await generateAIRecommendations(data, category, highestEnergyType);
                 return detailedRecommendation || `Recommendation for ${category} is unavailable.`;
             })
         );
@@ -427,15 +451,14 @@ const getAllAIRecommendations = async (data) => {
         return [];
     }
 };
-
 // function to generate a detailed AI recommendation for each category
-async function generateAIRecommendations(data, category) {
-    const prompt = `Based on the following data for Singtel:
+async function generateAIRecommendations(data, category, highestEnergyType) {
+    const prompt = `Based on the following data for the company:
+    - Top Energy Contributor: ${highestEnergyType}
     - Total Energy Consumption: ${data.totalEnergy} MWh
     - Total CO2 Emissions: ${data.co2Emissions} Tons
-    - Current Progress: ${data.currentProgress}%
-    
-    Provide a specific recommendation for ${category} as a JSON object with the following structure:
+
+    Provide a specific recommendation for "${category}" related to ${highestEnergyType}. Format the response as a JSON object with:
     {
         "recommendation": "<summary of the recommendation>",
         "actions": [
@@ -457,12 +480,12 @@ async function generateAIRecommendations(data, category) {
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
             max_tokens: 300,
-            temperature: 0.7
+            temperature: 0.7,
         });
 
         return JSON.parse(response.choices[0].message.content);
     } catch (error) {
-        console.error(`Error fetching ${category} recommendations:`, error);
+        console.error(`Error fetching ${category} recommendations for ${highestEnergyType}:`, error);
         throw error;
     }
 }
@@ -604,7 +627,6 @@ const getYearlyEnergyBreakdown = async (req, res) => {
         const highestEnergyType = Object.keys(totalEnergyByType).reduce((a, b) =>
             totalEnergyByType[a] > totalEnergyByType[b] ? a : b
         );
-        const description = await generateDescription(highestEnergyType, year);
 
         // Return data filtered for the highest energy type
         const filteredData = energyData.map((monthData) => ({
@@ -612,7 +634,7 @@ const getYearlyEnergyBreakdown = async (req, res) => {
             totalEnergy: monthData[highestEnergyType],
         }));
 
-        res.status(200).json({ highestEnergyType, data: filteredData, description });
+        res.status(200).json({ highestEnergyType, data: filteredData });
     } catch (error) {
         console.error("Error fetching yearly energy breakdown:", error);
         res.status(500).json({ error: "Failed to fetch yearly energy breakdown." });
