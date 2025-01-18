@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     const loadingScreen = document.getElementById('loading-screen');
 
     const canvasElement = document.getElementById("energyLineChart");
-
+    // Render description on the page
+    const descriptionElement = document.getElementById('highestEnergyDescription');
 
     function showLoading() {
         loadingScreen.style.display = 'block';
@@ -102,6 +103,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             populatePerformanceSummaryAndMetrics(data.performanceSummary);
             document.getElementById('conclusion').innerText = data.conclusion;
             await fetchPredictionData(data);
+            descriptionElement.innerText = data.description;
+
     
             // Identify the month with the highest energy consumption
             const highestEnergyIndex = data.monthlyEnergy.indexOf(Math.max(...data.monthlyEnergy));
@@ -172,13 +175,11 @@ document.addEventListener('DOMContentLoaded', async function () {
                 throw new Error(`Failed to fetch yearly energy data: ${response.statusText}`);
             }
     
-            const { highestEnergyType, data , description} = await response.json();
+            const { highestEnergyType, data} = await response.json();
             console.log(`Highest Energy Type: ${highestEnergyType}`);
             console.log(`Yearly Data:`, data);
             
-            // Render description on the page
-            const descriptionElement = document.getElementById('highestEnergyDescription');
-            descriptionElement.innerText = description;
+            
             // Render line chart
             renderEnergyLineChart(canvasElement, data, highestEnergyType, "#4FD1C5");
 
