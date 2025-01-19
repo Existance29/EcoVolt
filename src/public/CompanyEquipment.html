@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles/CompanyEquipment.css">
+    <link rel="stylesheet" href="styles/Recycle.css">
     <link rel="stylesheet" href="styles/common.css">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;700;800" />
@@ -74,6 +74,7 @@
                         <table id="equipment-table-1">
                             <thead>
                                 <tr>
+                                    <th>Device Type</th>
                                     <th>Brand</th>
                                     <th>Model</th>
                                     <th>S/N</th>
@@ -92,17 +93,55 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
+                                    <td></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                <div id="details-modal" class="modal hidden">
-                    <div class="modal-content">
-                        <button class="modal-close" onclick="closeModal()">✖</button>
-                        <iframe id="modal-iframe" src="" frameborder="0"></iframe>
+                    <div id="details-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <button class="modal-close" onclick="closeModal()">✖</button>
+                            <iframe id="modal-iframe" src="" frameborder="0"></iframe>
+                            <div class="modal-footer">
+                                <button class="modal-Cancel" onclick="closeModal()">Cancel</button>
+                                <button class="modal-Placeholder" onclick="closeToRecycle()">Recycle</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+
+                    <div id="thank-you-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <button class="modal-close" onclick="closeThankYouModal()">✖</button>
+                            <h2 class="main-title">Thanks for recycling!</h2>
+                            <p class="main-description">
+                                You've made an impact and we're so grateful. Every bit helps to create a world where nothing is wasted.
+                            </p>
+                            <div class="info-container">
+                                <div class="info-box">
+                                    <div>
+                                        <p class="info-title">Recycling Tips</p>
+                                        <p class="info-description">
+                                            Rinse your recyclables, check local guidelines, and remove any non-recyclable items.
+                                        </p>
+                                    </div>
+                                    <a class="info-link" href="#">
+                                        Learn more
+                                        <div class="arrow-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                                                <path
+                                                    d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"
+                                                ></path>
+                                            </svg>
+                                        </div>
+                                    </a>
+                                </div>
+                                <!-- Add more info-box elements here if needed -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
                 
             </main>
 
@@ -159,10 +198,11 @@ function renderTable(data) {
 
             // Add event listener to handle row click
             row.addEventListener('click', () => {
-                const serialNumber = row.querySelector('td:nth-child(3)').textContent; // Get serial number
+                const serialNumber = row.querySelector('td:nth-child(4)').textContent; // Get serial number
                 openModal(serialNumber); // Open the modal with the serial number
             });
             row.innerHTML = `
+                <td>${item.device_type || 'N/A'}</td>
                 <td>${item.brand || 'N/A'}</td>
                 <td>${item.model || 'N/A'}</td>
                 <td>${item.serial_number || 'N/A'}</td>
@@ -186,6 +226,7 @@ function filterTable() {
         // Use the cached allData and recycledData if no filtered data is present
         const filteredActiveData = allData.filter(item =>
             (item.brand && item.brand.toLowerCase().includes(searchTerm)) ||
+            (item.device_type && item.device_type.toLowerCase().includes(searchTerm)) ||
             (item.model && item.model.toLowerCase().includes(searchTerm)) ||
             (item.serial_number && item.serial_number.toLowerCase().includes(searchTerm)) ||
             (item.device_age_years && item.device_age_years.toString().includes(searchTerm)) ||
@@ -193,14 +234,13 @@ function filterTable() {
             (item.total_device_energy_mwh && item.total_device_energy_mwh.toString().includes(searchTerm)) ||
             (item.status && item.status.toLowerCase().includes(searchTerm))
         );
-
-
         // Render the tables using cached data
         renderTable(filteredActiveData); // Update active items table
     } else {
         // Use filteredDCData and filteredDCDataRecycled if they are not empty
         const filteredActiveData = filteredDCData.filter(item =>
             (item.brand && item.brand.toLowerCase().includes(searchTerm)) ||
+            (item.device_type && item.device_type.toLowerCase().includes(searchTerm)) ||
             (item.model && item.model.toLowerCase().includes(searchTerm)) ||
             (item.serial_number && item.serial_number.toLowerCase().includes(searchTerm)) ||
             (item.device_age_years && item.device_age_years.toString().includes(searchTerm)) ||
@@ -226,7 +266,10 @@ function setActiveButton(centerId) {
         activeButton.classList.add('active'); // Add active class to the clicked button
     }
 
-    // Optionally, call the filter function
+    // Clear the search bar input
+    const searchInput = document.querySelector('#search-input');
+    searchInput.value = ''; // Reset the input value
+
     filterByCategory(centerId);
 }
 
@@ -275,25 +318,86 @@ async function filterByCategory(dataCenterId) {
     }
 }
 
-function openModal(serialNumber, isPersonal) {
+function openModal(serialNumber) {
     const modal = document.getElementById('details-modal');
     const iframe = document.getElementById('modal-iframe');
-    // Determine the type of item and include it as a flag
-    const itemType = isPersonal ? 'personal' : 'company';
-    // Load the content into the iframe with the serial number and flag
-    iframe.src = `recycleDetails.html?SN=${serialNumber}&type=${itemType}`;
+    const isPersonal = false;
+    iframe.src = `ConfirmRecycle.html?SN=${serialNumber}&isPersonal=${isPersonal}`;
     modal.classList.remove('hidden'); // Show the modal
     document.body.classList.add('modal-open'); // Disable scrolling on the background
 }
-
 
 function closeModal() {
     const modal = document.getElementById('details-modal');
     const iframe = document.getElementById('modal-iframe');
     iframe.src = ''; // Clear the iframe content
-    modal.classList.add('hidden'); // Hide the modal
+    modal.classList.add('hidden'); // Hide the main modal
     document.body.classList.remove('modal-open'); // Re-enable scrolling on the background
 }
+
+// on show send to db
+async function closeToRecycle() {
+    const modal = document.getElementById('details-modal');
+    const thankYouModal = document.getElementById('thank-you-modal');
+    const iframe = document.getElementById('modal-iframe');
+
+    try {
+        // Extract the serial number from the iframe src
+        const iframeUrl = new URL(iframe.src); // Create a URL object for iframe.src
+        const serialNumber = iframeUrl.searchParams.get('SN'); // Get the SN parameter
+
+        if (!serialNumber) {
+            throw new Error("Serial number is missing.");
+        }
+
+        console.log("Extracted Serial Number:", serialNumber);
+
+        // Send the serial number to get the data center ID
+        const dcResponse = await fetch(`/recycle/getDcId?SN=${serialNumber}`);
+        if (!dcResponse.ok) {
+            throw new Error(`Failed to get Data Center ID: ${dcResponse.statusText}`);
+        }
+
+        const { dataCenterId } = await dcResponse.json();
+        if (!dataCenterId) {
+            throw new Error("Data Center ID not found.");
+        }
+
+        console.log("Data Center ID:", dataCenterId);
+        const companyId = getCompanyId(); // Retrieve company ID
+
+        // Send the request to update the status
+        const response = await fetch(`/recycle/${dataCenterId}/status?SN=${serialNumber}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: 'Pending Pick Up', company_id: companyId}),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to update status: ${response.statusText}`);
+        }
+
+        console.log("Device status updated successfully.");
+    } catch (error) {
+        console.error("Error processing recycle request:", error);
+    } finally {
+        // Close the details modal
+        modal.classList.add('hidden');
+        document.body.classList.remove('modal-open');
+
+        // Show the "Thank You" modal
+        thankYouModal.classList.remove('hidden');
+    }
+}
+
+
+function closeThankYouModal() {
+    const thankYouModal = document.getElementById('thank-you-modal');
+    thankYouModal.classList.add('hidden'); // Hide the "Thank You" modal
+}
+
 
     // Attach the input event listener to the search field
     document.addEventListener('DOMContentLoaded', () => {

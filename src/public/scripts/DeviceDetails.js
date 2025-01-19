@@ -1,11 +1,36 @@
-document.getElementById('uploadButton').addEventListener('click', function () {
-    document.getElementById('fileInput').click();
-  });
-  
-  document.getElementById('fileInput').addEventListener('change', function (event) {
-    const fileName = event.target.files[0] ? event.target.files[0].name : 'No file chosen';
-    document.getElementById('fileName').value = fileName;
-  });
+// Ensure these are executed only once
+document.addEventListener('DOMContentLoaded', function () {
+    const fileInput = document.getElementById('fileInput');
+    const uploadButton = document.getElementById('uploadButton');
+    const fileNameInput = document.getElementById('fileName');
+
+    // Clear any existing listeners and add a fresh one
+    uploadButton.removeEventListener('click', handleUploadButtonClick);
+    uploadButton.addEventListener('click', handleUploadButtonClick);
+
+    fileInput.removeEventListener('change', handleFileInputChange);
+    fileInput.addEventListener('change', handleFileInputChange);
+
+    // Handle upload button click
+    function handleUploadButtonClick(event) {
+        // Prevent any default behavior and ensure single interaction
+        event.preventDefault();
+        fileInput.value = ''; // Reset the file input
+        fileInput.click(); // Open file dialog
+    }
+
+    // Handle file input change
+    function handleFileInputChange(event) {
+        if (event.target.files.length > 0) {
+            const fileName = event.target.files[0].name;
+            fileNameInput.value = fileName; // Update the display with the file name
+        } else {
+            fileNameInput.value = 'No file chosen';
+        }
+    }
+});
+
+
 
   document.querySelector('.submit-button').addEventListener('click', async function (event) {
     event.preventDefault(); // Prevent default form submission behavior
@@ -58,10 +83,11 @@ document.getElementById('uploadButton').addEventListener('click', function () {
 
         // Handle successful response
         const result = await response.json();
-        alert('Your device has been submitted successfully!');
+        alert('Your device has been submitted successfully! Redirecting you back to Activity Feeed...');
+        window.location.href = 'activityFeed.html';
         console.log('Submission response:', result);
     } catch (error) {
-        console.error('Error submitting form:', error);
+        console.error('Error submitting form:', error.message);
         alert('There was an error submitting your device. Please try again.');
     }
 });
