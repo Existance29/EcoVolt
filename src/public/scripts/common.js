@@ -21,25 +21,3 @@ document.addEventListener("DOMContentLoaded", function () {
   
   })
 
-
-
-  
-
-  document.getElementById('activityFeedButton').addEventListener('click', () => {
-    window.location.href = './activityFeed.html'; // Correct relative path
-  });
-  
-  document.getElementById('virtualGardenButton').addEventListener('click', () => {
-    window.location.href = './fitness.html'; // Correct relative path
-  });  
-
-// Dynamically set the active class based on the current page
-const currentPage1 = window.location.pathname;
-
-if (currentPage1.includes('activityFeed.html')) {
-  document.getElementById('activityFeedButton').classList.add('active');
-  document.getElementById('virtualGardenButton').classList.remove('active');
-} else if (currentPage1.includes('garden.html')) {
-  document.getElementById('virtualGardenButton').classList.add('active');
-  document.getElementById('activityFeedButton').classList.remove('active');
-}

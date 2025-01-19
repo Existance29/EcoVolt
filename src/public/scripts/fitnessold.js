@@ -7,9 +7,13 @@ const combinedContainer = document.getElementById('combined-container');
 const newContainers = document.getElementById('new-containers');
 const leaderboard = document.querySelector('.leaderboard');
 const leaderboardPerformance = document.querySelector('.leaderboard-performance'); // Select the leaderboard-performance
+const pointsMapping = {
+    1: 1000,
+    2: 500,
+    3: 100,
+};
 
-
-fetch('/fitness/stats')
+get('/fitness/stats')
     .then((response) => {
         if (response.status === 401) {
             setTimeout(() => {
@@ -193,17 +197,6 @@ async function fetchLeaderboard() {
         const month = now.toLocaleString('default', { month: 'long' });
         const year = now.getFullYear();
         document.querySelector('.leaderboard-header h2').textContent = `Leaderboard for ${month} ${year}`;
-
-        // // Check if today is the first day of the month
-        // if (now.getDate() === 13) {
-        //     localStorage.removeItem('shownMonth');
-        //     // Show the popup if it hasn't been shown for the current month
-        //     const shownMonth = localStorage.getItem('shownMonth');
-        //     if (shownMonth !== `${month}-${year}`) {
-        //         showWinnerPopup(data.slice(0, 3)); // Pass top 3 winners
-        //         localStorage.setItem('shownMonth', `${month}-${year}`);
-        //     }
-        // }
         // Populate podium and leaderboard
         populatePodium(data);
         populateLeaderboard(data);
@@ -307,6 +300,23 @@ fetchLeaderboard();
 
 
 
+async function redirectToStravaAuth() {
+    try {
+        const response = await get('/fitness/auth');
+
+        if (response.ok) {
+            const { authUrl } = await response.json();
+            window.location.href = authUrl; // Redirect user to Strava OAuth URL
+        } else {
+            const errorMessage = await response.text();
+            console.error(`Failed to initiate Strava authentication: ${errorMessage}`);
+            alert("Failed to start Strava authentication. Please try again.");
+        }
+    } catch (error) {
+        console.error('Error initiating Strava authentication:', error);
+        alert("An error occurred. Please try again.");
+    }
+}
 
 
 
@@ -317,6 +327,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (stravaLoginContainer) stravaLoginContainer.style.visibility = 'hidden';
     if (fitnessImage) fitnessImage.style.visibility = 'hidden';
 
+    const now = new Date();
+    const month = now.toLocaleString('default', { month: 'long' });
+    const year = now.getFullYear();
+    const currentMonthYear = `${month}-${year}`;
+    const is16th = now.getDate() === 16;
+
     // Ensure the user is signed in
     const signedIn = await isSignedIn(); // Check if the user is signed in
     console.log('Is user signed in?', signedIn);
@@ -324,7 +340,77 @@ document.addEventListener('DOMContentLoaded', async () => {
         await pageRequireSignIn(); // Redirect if not signed in
         return;
     }
+
+    // Fetch leaderboard data immediately to prioritize winners
+    let leaderboardData = [];
+    try {
+        const response = await get(`/fitness/display-leaderboard`);
+        if (!response.ok) {
+            throw new Error(`Error fetching leaderboard: ${response.status}`);
+        }
+        leaderboardData = await response.json();
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+    }
+
+    // Award points to the top 3 winners if today is the 16th
+    if (is16th) {
+        try {
+            const awardPointsResponse = await post('/fitness/add-points', { date: now.toISOString() });
+
+            if (awardPointsResponse.ok) {
+                const awardPointsData = await awardPointsResponse.json();
+                console.log(awardPointsData.message);
+                alert("Points have been awarded to the top 3 winners!");
+            } else {
+                const errorData = await awardPointsResponse.json();
+                console.error(errorData.error);
+                alert(errorData.error || "Failed to award points.");
+            }
+        } catch (error) {
+            console.error('Error awarding points:', error);
+            alert("An error occurred while awarding points.");
+        }
+    }
+
+    // Extract top 3 winners and store them in the popup dataset
+    const popupContainer = document.getElementById("popup-container");
+    const topWinners = leaderboardData.slice(0, 3).map((item) => ({
+        user_id: item.user_id,
+        name: item.name || 'Anonymous',
+        distance_cycled_km: item.distance_cycled_km,
+    }));
+    popupContainer.dataset.winners = JSON.stringify(topWinners);
+
+    const shownRules = localStorage.getItem("shownRules");
+    const shownMonth = localStorage.getItem("shownMonth");
+
+    if (!shownRules) {
+        // Show the rules tab first
+        showPopup("tooltip");
+        localStorage.setItem("shownRules", true);
+
+        if (is16th && shownMonth !== currentMonthYear) {
+            // Show the winners tab after the rules
+            setTimeout(() => {
+                showWinnersTab();
+                localStorage.setItem("shownMonth", currentMonthYear);
+            }, 5000); // Adjust delay if necessary
+        }
+    } else if (is16th && shownMonth !== currentMonthYear) {
+        // Directly show the winners tab
+        showWinnersTab();
+        localStorage.setItem("shownMonth", currentMonthYear);
+    }
+
+    // Load the rest of the leaderboard
+    if (leaderboardData.length > 0) {
+        populatePodium(leaderboardData);
+        populateLeaderboard(leaderboardData);
+    }
 });
+
+
 
 function applySpecialLayoutInline(isLoggedIn) {
     console.log("Applying layout. Is not logged in:", isLoggedIn);
@@ -441,8 +527,8 @@ async function leaderboardRanking(isLoggedIn) {
         }
 
         const { rank, percentage } = await response.json();
-        console.log(rank);
-        localStorage.setItem('rank', rank);
+        console.log("User rank:", rank);
+        localStorage.setItem('userRank', rank.toString());
 
         // Update UI with rank and percentage
         if (rankElement) {
@@ -462,143 +548,3 @@ async function leaderboardRanking(isLoggedIn) {
     }
 }
 
-
-async function stravaTooltip() {
-    try {
-        // Fetch leaderboard data
-        const response = await get(`/fitness/display-leaderboard`);
-        if (!response.ok) {
-            throw new Error(`Error fetching leaderboard: ${response.status}`);
-        }
-        const data = await response.json();
-
-        // Extract top 3 winners
-        const topWinners = data.slice(0, 3).map((item) => ({
-            user_id: item.user_id,
-            name: item.name || 'Anonymous',
-            distance_cycled_km: item.distance_cycled_km,
-        }));
-
-        // Show the popup with the tooltip tab active
-        // Store winners in the dataset for use when switching tabs
-        const popupContainer = document.getElementById("popup-container");
-        popupContainer.dataset.winners = JSON.stringify(topWinners);
-
-        // Show the tooltip tab
-        showPopup("tooltip");
-    } catch (error) {
-        console.error('Error fetching leaderboard:', error);
-    }
-}
-
-function showPopup(contentType) {
-    const popupOverlay = document.getElementById("popup-overlay");
-    const popupContainer = document.getElementById("popup-container");
-    const winnersContent = document.getElementById("winners-content");
-    const tooltipContent = document.getElementById("tooltip-content");
-    const winnersTab = document.getElementById("winners-tab");
-    const tooltipTab = document.getElementById("tooltip-tab");
-    const tooltipImage = document.querySelector(".tooltip-image");
-    const redeemBtn = document.getElementById("redeem-now-button");
-    const winnerList = document.getElementById("winner-list");
-    const header = document.querySelector(".popup-content h2");
-
-    // Show the popup and overlay
-    popupOverlay.style.display = "block";
-    popupContainer.style.display = "flex";
-
-    document.body.classList.add("body-no-scroll");
-
-    // Reset active tabs and content
-    winnersTab.classList.remove("active");
-    tooltipTab.classList.remove("active");
-    winnersContent.classList.remove("active");
-    tooltipContent.classList.remove("active");
-
-    // Handle content for the tooltip tab
-    if (contentType === "tooltip") {
-        tooltipTab.classList.add("active");
-        tooltipContent.style.display = "block"; // Ensure tooltip content is visible
-        tooltipImage.style.display = "none"; // Show the infographic image
-        winnerList.innerHTML = ""; // Clear existing content
-        if (redeemBtn) redeemBtn.style.display = "none"; // Hide "Redeem Now" button
-        if (header) {
-            header.textContent = "How the Campaign Works";
-        }
-    }
-
-    // Handle content for the winners tab
-    if (contentType === "winners") {
-        winnersTab.classList.add("active");
-        winnersContent.classList.add("active");
-        tooltipImage.style.display = "block"; // Show the image for winners tab
-        redeemBtn.style.display = "block"; // Show the "Redeem Now" button
-        if (header) {
-            header.textContent = "Congratulations to Our Top Performers!";
-        }
-        tooltipContent.style.display = "none";
-    
-        // Retrieve winners from dataset
-        const winners = JSON.parse(popupContainer.dataset.winners || "[]");
-        const userRank = parseInt(localStorage.getItem("userRank") || -1);
-        console.log("user rank: ", userRank);
-        // Hide the redeem button if the user is not in the top 3
-        if (userRank > 3 || userRank === -1) {
-            redeemBtn.style.display = "none";
-        } else {
-            redeemBtn.style.display = "block";
-        }
-        const winnerList = document.getElementById("winner-list");
-        winnerList.innerHTML = ""; // Clear existing content
-    
-        // Populate winners list
-        if (winners.length === 0) {
-            winnerList.innerHTML = "<p>No winners to display.</p>";
-        } else {
-            // Desired sequence for the winners: 2, 1, 3
-            const sequence = [1, 0, 2]; // Map indexes to new order: 2nd, 1st, 3rd
-        
-            sequence.forEach((mappedIndex, index) => {
-                const winner = winners[mappedIndex]; // Get the winner from the mapped index
-                const defaultProfilePicture = '/assets/profile/defaultprofilepic.jpg';
-                const avatarUrl = winner.user_id
-                    ? `/users/profile-picture/public/${winner.user_id}`
-                    : defaultProfilePicture;
-        
-                const carbonReduced = winner.distance_cycled_km * carbonEmissionPerKm; // Calculate carbon reduced in kg
-                const treesToPlant = Math.floor(carbonReduced / treeThreshold); // Calculate trees to plant
-        
-                const winnerDiv = document.createElement("div");
-                winnerDiv.classList.add("winner-item", `winner-${index + 1}`); // Add a specific class based on the new rank (1, 2, 3)
-        
-                winnerDiv.innerHTML = `
-                    <div class="name">${winner.name || "Anonymous"}</div>
-                    <div class="avatar">
-                        <img src="${avatarUrl}" alt="${winner.name || "Anonymous"} Avatar" onerror="this.src='${defaultProfilePicture}'">
-                    </div>
-                    <div class="stats">${winner.distance_cycled_km.toFixed(2)} km</div>
-                    <div class="trees">${treesToPlant} tree${treesToPlant === 1 ? "" : "s"}' effort</div>
-                `;
-        
-                winnerList.appendChild(winnerDiv);
-            });
-        }                
-    } 
-}
-
-function closePopup() {
-    const popupOverlay = document.getElementById("popup-overlay");
-    const popupContainer = document.getElementById("popup-container");
-
-    popupOverlay.style.display = "none";
-    popupContainer.style.display = "none";
-    document.body.classList.remove("body-no-scroll");
-}
-
-function showWinnersTab() {
-    showPopup("winners");
-}
-
-function showTooltipTab() {
-    showPopup("tooltip");
-}

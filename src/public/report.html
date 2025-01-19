@@ -54,7 +54,7 @@
                     <section class="report-section data-overview">
                         <h2 style="margin-top: 50px">Data Overview</h2>
                         <div id="chart-container">
-                            <canvas id="dataChart" width="800" height="400"></canvas>
+                            <canvas id="dataChart" width="800" height="600"></canvas>
                         </div>
                         <p id="dataAnalysis"></p>
                         
@@ -66,17 +66,17 @@
                             The following chart projects the timeline to achieve net-zero carbon emissions based on current trends and reduction rates.
                         </p>
                         <div id="prediction-chart-container">
-                            <canvas id="predictionChart" width="800" height="400"></canvas>
+                            <canvas id="predictionChart" width="800" height="600"></canvas>
                         </div>
                     </section>
-                    <h3 style="margin-left: 10px; font-size: 1.75em; color: #333;">Performance Summary</h3>
+                    <h3 style="margin-left: 10px; font-size: 1.75em; color: #333; margin-top: 50px;">Performance Summary</h3>
                     <section id="performanceSummary" class="performance-summary">
                         <!-- Dynamic content will be populated here by JavaScript -->
                     </section>
                     
                     <!-- Page 2: Data Insights -->
                     <section class="report-section data-insights-page page-break">
-                        <div class="chart-container" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                        <div class="chart-container" style="display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 40px;">
                             <h2 style="margin-bottom: 20px;">Energy Consumption Breakdown for Worst Month</h2>
                             <h3 id="name" style="margin-bottom: 25px;"></h3>
                             <canvas id="energyPieChart" style="max-width: 250px; max-height: 250px;"></canvas>
@@ -84,6 +84,9 @@
                                 <div class="label-column" style="display: flex; flex-direction: column; align-items: flex-end;"></div>
                                 <div class="value-column" style="display: flex; flex-direction: column; align-items: flex-start; margin-left: 10px;"></div>
                             </div>
+                            <p id="highestEnergyDescription" style="margin-top: 50px; text-align: left;"></p>
+                            <h3 id="energyBreakdownTitle" style="margin-top: 50px;"></h3>
+                            <canvas id="energyLineChart" width="800" height="400" ></canvas>
                         </div>
                     </section>                    
 
@@ -126,6 +129,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
