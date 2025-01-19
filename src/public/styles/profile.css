@@ -130,7 +130,6 @@ body, html {
     display: flex;
     align-items: center;
     margin-bottom: 20px;
-    padding: 10px;
 }
 
 .user-info img {
@@ -257,6 +256,21 @@ body, html {
 .info-group p {
     font-size: 1em;
     color: #777;
+}
+
+.tabs button{
+    text-decoration: none;
+    color: #555;
+    padding: 10px;
+    font-weight: 600;
+    transition: 0.3s ease;
+    font-size: 1.05rem;
+}
+  
+.tabs button:hover,
+.tabs button.active {
+    color: #4FD1C5;
+    border-bottom: 3px solid #4FD1C5;
 }
 
 /* Responsive Styles */
