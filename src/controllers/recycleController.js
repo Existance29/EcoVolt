@@ -18,21 +18,8 @@ class recycleController {
         }
     }
 
-    static async getCarbonAndEnergyPending(req, res) {
-        const company_id = parseInt(req.params.company_id);
-        try {
-            const data = await recyclables.getCarbonAndEnergyPending(company_id);
-            if (!data) {
-                return res.status(404).send('Energy and Carbon Data not found.');
-            }
-            return res.status(200).json(data);
-        } catch (error) {
-            console.error(error);
-            res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
-        }
-    }
 
-    static async getEnergyAndCarbonRecycled(req, res) {
+    static async getCompanyRecycled(req, res) {
         const company_id = parseInt(req.params.company_id);
         try {
             const data = await recyclables.getCarbonAndEnergyRecycled(company_id);
@@ -91,11 +78,10 @@ class recycleController {
         }
     }
 
-    static async filterByDcRecycled(req, res) {
-        const company_id = parseInt(req.params.company_id);
+    static async getCompanyRecycledByDc(req, res) {
         const data_center_id = parseInt(req.params.data_center_id);
         try {
-            const data = await recyclables.filterByDcRecycled(company_id, data_center_id);
+            const data = await recyclables.filterByDcRecycled(data_center_id);
             if (!data) {
                 return res.status(404).send('Energy and Carbon Data not found.');
             }
@@ -154,6 +140,20 @@ class recycleController {
         }
     }
 
+    static async filterByCompanySerialNumber(req, res) {
+        const { SN: serial_number } = req.query;
+        try {
+            const data = await recyclables.filterByCompanySerialNumber(serial_number);
+            if (!data) {
+                return res.status(404).send('Energy and Carbon Data not found.');
+            }
+            return res.status(200).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
+        }
+    }
+
     static async filterBySerialNumber(req, res) {
         const { SN: serial_number } = req.query;
         try {
@@ -162,7 +162,6 @@ class recycleController {
             if (!data) {
                 return res.status(404).send('Energy and Carbon Data not found.');
             }
-            console.log(data);
             return res.status(200).json(data);
         } catch (error) {
             console.error(error);
@@ -192,8 +191,10 @@ class recycleController {
                 serial_number,
                 "Awaiting Approval",
                 "Personal",
+                device_type,
                 userId,
                 company_id,
+                null,
                 uniqueFileName
             );
     
@@ -207,7 +208,7 @@ class recycleController {
         }
     }
 
-    static async getAllPersonalDevices(req, res) {
+    static async getPersonalDevicesAwaitingApproval(req, res) {
         const comppany_id = parseInt(req.params.company_id);
         try {
             const data = await recyclables.getPersonalDevicesAwaitingApproval(comppany_id);
@@ -220,7 +221,208 @@ class recycleController {
             res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
         }
     }
+
+    static async getPersonalDevicesRejected(req, res) {
+        const comppany_id = parseInt(req.params.company_id);
+        try {
+            const data = await recyclables.getPersonalDevicesRejected(comppany_id);
+            if (!data) {
+                return res.status(404).send('Energy and Carbon Data not found.');
+            }
+            return res.status(200).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
+        }
+    }
     
+    // static async getPersonalDevicesAwaitingApprovalByDc(req, res) {
+    //     const data_center_id = parseInt(req.params.data_center_id);
+    //     try {
+    //         const data = await recyclables.getPersonalDevicesAwaitingApprovalByDc(data_center_id);
+    //         if (!data) {
+    //             return res.status(404).send('Energy and Carbon Data not found.');
+    //         }
+    //         return res.status(200).json(data);
+    //     } catch (error) {
+    //         console.error(error);
+    //         res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
+    //     }
+    // }
+
+    static async getPersonalDevicesPendingPickUp(req, res) {
+        const company_id = parseInt(req.params.company_id);
+        try {
+            const data = await recyclables.getPersonalDevicesPendingPickUp(company_id);
+            if (!data) {
+                return res.status(404).send('Energy and Carbon Data not found.');
+            }
+            return res.status(200).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
+        }
+    }
+
+    static async getPersonalDevicesPendingPickUpByDc(req, res) {
+        const data_center_id = parseInt(req.params.data_center_id);
+        try {
+            const data = await recyclables.getPersonalDevicesPendingPickUpByDc(data_center_id);
+            if (!data) {
+                return res.status(404).send('Energy and Carbon Data not found.');
+            }
+            return res.status(200).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
+        }
+    }
+
+    static async getCompanyPendingPickUp(req, res) {
+        const company_id = parseInt(req.params.company_id);
+        try {
+            const data = await recyclables.getCarbonAndEnergyPending(company_id);
+            if (!data) {
+                return res.status(404).send('Energy and Carbon Data not found.');
+            }
+            return res.status(200).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
+        }
+    }
+    static async getCompanyPendingPickUpByDc(req, res) {
+        const data_center_id = parseInt(req.params.data_center_id);
+        try {
+            const data = await recyclables.getCompanyPendingPickUpByDc(data_center_id);
+            if (!data) {
+                return res.status(404).send('Energy and Carbon Data not found.');
+            }
+            return res.status(200).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
+        }
+    }
+
+    static async getPersonalDevicesRecycled(req, res) {
+        const company_id = parseInt(req.params.company_id);
+        try {
+            const data = await recyclables.getPersonalDevicesRecycled(company_id);
+            if (!data) {
+                return res.status(404).send('Energy and Carbon Data not found.');
+            }
+            return res.status(200).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
+        }
+    }
+
+    static async getPersonalDevicesRecycledByDc(req, res) {
+        const data_center_id = parseInt(req.params.data_center_id);
+        try {
+            const data = await recyclables.getPersonalDevicesRecycledByDc(data_center_id);
+            if (!data) {
+                return res.status(404).send('Energy and Carbon Data not found.');
+            }
+            return res.status(200).json(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
+        }
+    }
+
+    static async getDeviceBySN(req, res) {
+        const { SN: serial_number } = req.query;
+        if (!serial_number) {
+            return res.status(400).send('Serial number is required.');
+        }
+        try {
+            const data = await recyclables.getDeviceBySerialNumber(serial_number);
+            if (!data) {
+                return res.status(404).send('Device not found or status unchanged.');
+            }
+            const dataCenterId = data[0]?.data_center_id;
+            return res.status(200).json({ dataCenterId });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to retrieve Energy and Carbon Data: Internal Server Error.');
+        }
+    }
+
+
+    static async updateCompanyDeviceStatus(req, res) {
+        const { SN: serial_number } = req.query;
+        const { status, company_id } = req.body; // Assuming the new status is sent in the request body
+    
+        if (!serial_number || !status) {
+            return res.status(400).send('Serial number and status are required.');
+        }
+    
+        try {
+            // Update the device status in the devices table
+            const success = await recyclables.updateCompanyDeviceStatus(serial_number, status);
+    
+            if (!success) {
+                return res.status(404).send('Device not found or status unchanged.');
+            }
+    
+            // If the status is "Pending Pick Up", insert the device into the recyclables table
+            if (status === 'Pending Pick Up') {
+                // Retrieve the device details to insert into the recyclables table
+                const deviceData = await recyclables.filterByCompanySerialNumber(serial_number);
+                if (!deviceData || deviceData.length === 0) {
+                    return res.status(404).send('Device details not found for insertion into recyclables.');
+                }
+    
+                const device = deviceData[0];
+                const dcId = await recyclables.getDeviceBySerialNumber(device.serial_number);
+                const dataCenterId = dcId[0]?.data_center_id;
+                const details = {
+                    brand: device.brand,
+                    model: device.model,
+                    serial_number: device.serial_number,
+                    status: 'Pending Pick Up',
+                    type: 'Company', 
+                    device_type: device.device_type,
+                    user_id: null, // it's not a personal device
+                    company_id: company_id,
+                    data_center_id: dataCenterId,
+                    image_path: '34567890-.png',
+                };
+    
+                // Insert the device into the recyclables table
+                const insertSuccess = await recyclables.insertIntoRecyclables(details);
+                if (!insertSuccess) {
+                    console.error('Failed to insert into recyclables table.');
+                    return res.status(500).send('Failed to add device to recyclables.');
+                }
+            }
+    
+            return res.status(200).send('Device status updated successfully.');
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to update device status: Internal Server Error.');
+        }
+    }
+    
+    static async updatePersonalDeviceStatus(req, res) {
+        const { SN: serial_number } = req.query;
+        const { status } = req.body;
+        try {
+            const data = await recyclables.updateToRecyclables(serial_number, status);
+            if (!data) {
+                return res.status(404).send('Device not found or status unchanged.');
+            }
+            return res.status(200).send('Device status updated successfully.');
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Failed to update device status: Internal Server Error.');
+        }
+    }
+
+
 }
 
 module.exports = recycleController
