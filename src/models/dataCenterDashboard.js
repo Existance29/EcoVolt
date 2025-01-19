@@ -1303,7 +1303,7 @@ static async getDevicesCountByCompanyId(company_id) {
         FROM devices
         INNER JOIN data_centers ON devices.data_center_id = data_centers.id
         INNER JOIN companies ON companies.id = data_centers.company_id
-        WHERE companies.id = @company_id;
+        WHERE companies.id = @company_id AND devices.status != 'Recycled';
         `;
         const request = connection.request();
         request.input('company_id', company_id);
@@ -1323,11 +1323,11 @@ static async getDevicesCountByCompanyIdAndDc(company_id, dc) {
     try{
         connection = await sql.connect(dbConfig);
         const sqlQuery = `
-        SELECT COUNT(devices.device_type) AS device_count
+		SELECT COUNT(devices.device_type) AS device_count
         FROM devices
         INNER JOIN data_centers ON devices.data_center_id = data_centers.id
         INNER JOIN companies ON companies.id = data_centers.company_id
-        WHERE companies.id = @company_id AND data_centers.id = @dc;
+        WHERE companies.id = @company_id AND data_centers.id = @dc AND devices.status != 'Recycled';
         `;
         const request = connection.request();
         request.input('company_id', company_id);
@@ -1363,6 +1363,7 @@ static async getDeviceTypesByCompanyId(company_id) {
         INNER JOIN data_centers ON data_centers.id = devices.data_center_id
         INNER JOIN companies ON data_centers.company_id = companies.id
         WHERE companies.id = @company_id
+        AND devices.status != 'Recycled'
         GROUP BY 
             CASE 
                 WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
@@ -1399,7 +1400,10 @@ static async getDeviceTypesByCompanyIdAndDataCenter(company_id, dc) {
         FROM devices
         INNER JOIN data_centers ON data_centers.id = devices.data_center_id
         INNER JOIN companies ON data_centers.company_id = companies.id
-        WHERE companies.id = @company_id AND data_centers.id = @dc
+        WHERE 
+            companies.id = @company_id 
+            AND data_centers.id = @dc
+            AND devices.status != 'Recycled'
         GROUP BY 
             CASE 
                 WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
