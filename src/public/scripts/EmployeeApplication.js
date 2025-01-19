@@ -48,11 +48,11 @@ function renderTable(data, tableSelector, tableSource) {
     // Populate the table with data
     data.forEach(item => {
         const row = document.createElement('tr');
-
         // Add event listener to handle row click (if needed)
         row.addEventListener('click', () => {
             const serialNumber = item.serial_number; // Get serial number
-            openModal(serialNumber, tableSource); // Pass table source
+            const user_id = item.user_id;
+            openModal(serialNumber, tableSource, user_id); // Pass table source
         });
 
         const formattedDate = new Date(item.created_at).toLocaleString('en-US', {
@@ -75,7 +75,7 @@ function renderTable(data, tableSelector, tableSource) {
 }
 
 // Open modal logic remains unchanged
-function openModal(serialNumber, tableSource) {
+function openModal(serialNumber, tableSource, user_id) {
     const modal = document.getElementById('details-modal');
     const iframe = document.getElementById('modal-iframe');
     const isPersonal = true;
@@ -94,6 +94,7 @@ function openModal(serialNumber, tableSource) {
     }
     
     modal.setAttribute('data-serial-number', serialNumber);
+    modal.setAttribute('data-user-id', user_id);
     iframe.src = `ConfirmRecycle.html?SN=${serialNumber}&isPersonal=${isPersonal}`;
     modal.classList.remove('hidden'); // Show the modal
     document.body.classList.add('modal-open'); // Disable scrolling on the background
@@ -143,8 +144,10 @@ function filterTables() {
 
 async function approveDevice() {
     // Fetch serial number from the modal or context
-    const serialNumber = document.querySelector('#details-modal').getAttribute('data-serial-number');
+    const modal = document.querySelector('#details-modal'); // Select the modal
+    const serialNumber = modal.getAttribute('data-serial-number');
     const status = "Pending Pick Up"; // Define the new status
+    const userId = modal.getAttribute('data-user-id'); // Retrieve user_id
 
     try {
         const response = await fetch('/recycle/personal/status?SN=' + encodeURIComponent(serialNumber), {
@@ -156,6 +159,7 @@ async function approveDevice() {
         });        
 
         if (response.ok) {
+            await awardPoints(userId); // Award points to the user
             alert('Device status updated successfully.');
             closeModal(); // Close the modal on success
             location.reload(); // Reload the page to reflect changes
@@ -194,5 +198,28 @@ async function rejectDevice() {
     } catch (error) {
         console.error('Error rejecting device:', error);
         alert('An unexpected error occurred. Please try again.');
+    }
+}
+
+async function awardPoints(user_id) {
+    try {
+        // Sending a POST request with points and user_id
+        const response = await fetch('/recycle/award-points', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ user_id }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to award points: ${response.statusText}`);
+        }
+
+        const data = await response.json(); // Parse the JSON response
+        return data; // Return the server response
+    } catch (error) {
+        console.error('Error in awardPoints:', error);
+        throw error;
     }
 }

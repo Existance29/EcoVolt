@@ -3,6 +3,26 @@ const dbConfig = require("../database/dbConfig");
 
 class Reward {
 
+    static async checkUserById(user_id) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+            const sqlQuery = `
+            SELECT * FROM User_rewards WHERE user_id = @user_id
+            `;
+            const request = connection.request();
+            request.input('user_id', user_id);
+            const result = await request.query(sqlQuery);
+            return result.recordset.length > 0 ? result.recordset : null;
+        } catch (error) {
+            console.log(error);
+        } finally {
+            if (connection) {
+                connection.close();
+            }
+        }
+    }
+
     static async getCarbonAndEnergyNotRecycled(company_id) {
         let connection;
         try {
@@ -630,6 +650,100 @@ WHERE recyclables.type = 'Personal'
         }
     }
     
+
+    static async addActivityLogAndPoints(user_id, post_id, activity_type, points, date) {
+        let connection;
+        try {
+            // Establish a connection to the database
+            connection = await sql.connect(dbConfig);
     
+            // Define the SQL query with parameterized placeholders
+            const sqlQuery = `
+                INSERT INTO activity_points (user_id, post_id, activity_type, points_awarded, datetime)
+                VALUES (@user_id, @post_id, @activity_type, @points, @date)
+            `;
+    
+            // Create a request and add input parameters
+            const request = connection.request();
+            request.input('user_id', user_id); // Adjust type if needed
+            request.input('post_id', post_id); // If post_id is nullable, pass null
+            request.input('activity_type', activity_type);
+            request.input('points', points);
+            request.input('date', date);
+    
+            // Execute the query
+            const result = await request.query(sqlQuery);
+    
+            // Check if rows were affected
+            if (result.rowsAffected && result.rowsAffected[0] > 0) {
+                return { success: true, message: "Activity log and points added successfully." };
+            } else {
+                return { success: false, message: "Failed to add the activity log and points." };
+            }
+        } catch (error) {
+            console.error("Error adding activity log and points:", error);
+            throw new Error("Failed to add activity log and points.");
+        } finally {
+            // Ensure connection is closed even if an error occurs
+            if (connection) {
+                await connection.close();
+            }
+        }
+    }
+    
+
+    static async insertToUserRewards(user_id, points) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+            const sqlQuery = `
+            INSERT INTO user_rewards(user_id, total_points)
+		    VALUES(@user_id, @points)
+            `;
+            const request = connection.request();
+            request.input("user_id", user_id);
+            request.input("points", points);
+            const result = await request.query(sqlQuery);
+            return { success: true, message: "User rewards inserted successfully.", result: result.recordset };
+        } catch (error) {
+            console.error("Error inserting user rewards:", error);
+            throw new Error("Failed to insert user rewards.");
+        } finally {
+            if (connection) {
+                await connection.close();
+            }
+        }
+    }
+
+
+    static async updateToUserRewards(user_id, points) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+            const sqlQuery = `
+                UPDATE user_rewards
+                SET total_points = total_points + @points
+                WHERE user_id = @user_id
+            `;
+            const request = connection.request();
+            request.input("user_id", user_id);
+            request.input("points", points);
+            const result = await request.query(sqlQuery);
+            if (result.rowsAffected[0] > 0) {
+                return { success: true, message: "User rewards updated successfully." };
+            } else {
+                return { success: false, message: "User not found. No rewards updated." };
+            }
+        } catch (error) {
+            console.error("Error updating user rewards:", error);
+            throw new Error("Failed to update user rewards.");
+        } finally {
+            if (connection) {
+                await connection.close();
+            }
+        }
+    }
+    
+
 }
 module.exports = Reward;

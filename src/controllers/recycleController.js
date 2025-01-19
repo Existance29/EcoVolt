@@ -423,6 +423,54 @@ class recycleController {
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    static async addActivityLogAndPoints(req, res) {
+        const { user_id } = req.body;
+        const points = 1000;
+        const activity_type = "Recycled E-Waste";
+        const post_id = null; // Assuming no post is involved in this activity
+        const date = new Date();
+
+        try {
+            // Validate user_id
+            if (!user_id) {
+                return res.status(404).send({ error: "User ID not found" });
+            }
+            await recyclables.addActivityLogAndPoints(user_id, post_id, activity_type, points, date);
+            const checkUser = await recyclables.checkUserById(user_id);
+            if (!checkUser) {
+                await recyclables.insertToUserRewards(user_id, points);
+            } else {
+                await recyclables.updateToUserRewards(user_id, points);
+            }
+            return res.status(200).send({ message: "Activity log and points added successfully." });
+        } catch (error) {
+            console.error("Error in addActivityLogAndPoints:", error);
+            return res.status(500).send({ error: "An error occurred while adding activity log and points." });
+        }
+    }
+
+
 }
 
 module.exports = recycleController

@@ -37,6 +37,10 @@ const recycleRoute = (app) => {
     app.put('/recycle/:data_center_id/status', recycleController.updateCompanyDeviceStatus); // to move to recylables table
 
 
+    // --------------------------------------- Points -----------------------------------
+    
+    app.post('/recycle/award-points', recycleController.addActivityLogAndPoints);
+
 
 };
 
