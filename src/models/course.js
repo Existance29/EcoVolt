@@ -103,7 +103,10 @@ class course {
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
-            select COUNT(*) as lesson_count from lessons where course_id = @course_id
+            SELECT id 
+            FROM lessons 
+            WHERE course_id = @course_id
+            ORDER BY position ASC;
             `;
             const request = connection.request();
             request.input('course_id', course_id);

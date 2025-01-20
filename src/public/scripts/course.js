@@ -316,51 +316,55 @@ async function loadQuizQuestions() {
 
   async function loadProgress() {
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const courseId = urlParams.get("courseId");
-      const currentLessonId = parseInt(urlParams.get("lessonId"), 10);
-  
-      if (!courseId || isNaN(currentLessonId)) {
-        console.error("Missing courseId or invalid lessonId in URL parameters.");
-        return;
-      }
-  
-      // Fetch the total number of lessons for the course
-      const apiEndpoint = `/lessons/lesson-count/${courseId}`;
-      const response = await get(apiEndpoint);
-  
-      if (!response.ok) {
-        console.error("Failed to fetch lesson count:", response.statusText);
-        return;
-      }
-  
-      const data = await response.json();
-      const totalLessons = data[0].lesson_count; // Assuming the response contains a 'total_lessons' key
-  
-      if (!totalLessons || totalLessons < 1) {
-        console.warn("Invalid total lessons count.");
-        return;
-      }
-  
-      // Calculate the progress percentage
-      const progressPercentage = Math.min((currentLessonId / totalLessons) * 100, 100);
-  
-      // Update the progress bar and text
-      const progressTextElement = document.querySelector(".progress-text");
-      const progressFillElement = document.querySelector(".progress-fill");
-  
-      if (progressTextElement) {
-        progressTextElement.textContent = `${progressPercentage.toFixed(0)}% completed`;
-      }
-  
-      if (progressFillElement) {
-        progressFillElement.style.width = `${progressPercentage}%`;
-      }
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseId = urlParams.get("courseId");
+        const currentLessonId = parseInt(urlParams.get("lessonId"), 10);
+
+        if (!courseId || isNaN(currentLessonId)) {
+            console.error("Missing courseId or invalid lessonId in URL parameters.");
+            return;
+        }
+
+        // Fetch the ordered list of lessons for the course
+        const apiEndpoint = `/lessons/ordered-lessons/${courseId}`;
+        const response = await get(apiEndpoint);
+
+        if (!response.ok) {
+            console.error("Failed to fetch ordered lessons:", response.statusText);
+            return;
+        }
+
+        const lessons = await response.json(); // Array of lesson objects with { id }
+        console.log("lesson!!!!!!!!: ",lessons);
+        const lessonIds = lessons.map(lesson => lesson.id); // Extract IDs into an array
+
+        // Find the index of the current lesson in the ordered list
+        const currentIndex = lessonIds.indexOf(currentLessonId);
+
+        if (currentIndex === -1) {
+            console.error("Current lesson not found in the ordered list.");
+            return;
+        }
+
+        // Calculate progress percentage
+        const progressPercentage = Math.min(((currentIndex + 1) / lessonIds.length) * 100, 100);
+
+        // Update the progress bar and text
+        const progressTextElement = document.querySelector(".progress-text");
+        const progressFillElement = document.querySelector(".progress-fill");
+
+        if (progressTextElement) {
+            progressTextElement.textContent = `${progressPercentage.toFixed(0)}% completed`;
+        }
+
+        if (progressFillElement) {
+            progressFillElement.style.width = `${progressPercentage}%`;
+        }
     } catch (error) {
-      console.error("Error loading progress:", error);
+        console.error("Error loading progress:", error);
     }
-  }
-  
+}
+
 
   
   

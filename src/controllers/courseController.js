@@ -65,11 +65,11 @@ const getNextLesson = async (req, res) => {
 const lessonCount = async (req, res) => {
     const course_id = req.params.course_id;
     try {
+        console.log(course_id);
         const data = await course.lessonCount(course_id);
         if (!data) {
             return res.status(400).send("No lesson count Found");
         }
-        console.log(data);
         return res.status(200).json(data);
     } catch (error) {
         console.error(error);
@@ -85,7 +85,6 @@ const getVideoLink = async(req, res) => {
         if (!data) {
             return res.status(400).send("No video Found");
         }
-        console.log(data);
         return res.status(200).json(data);
     } catch (error) {
         console.error(error);
