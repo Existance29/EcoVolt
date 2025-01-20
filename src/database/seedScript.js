@@ -1621,6 +1621,186 @@ VALUES
 (5, 'Which renewable energy source is commonly used in data centers?', 'Wind energy', 'Geothermal energy', 'Solar energy', 'Hydropower', 'C'),
 (5, 'What is the first step in creating a carbon neutrality strategy?', 'Improve server speeds', 'Conduct a carbon audit', 'Upgrade cooling systems', 'Increase server capacity', 'B');
 
+-- Questions for Lesson 6
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(6, 'What is a common cooling challenge faced by data centers?', 'Overheating servers', 'Excessive power usage', 'Improper storage', 'Network downtime', 'A'),
+(6, 'Why is efficient cooling essential for data centers?', 'It improves employee comfort', 'It reduces operational costs and energy usage', 'It enhances network speed', 'It prevents hardware upgrades', 'B'),
+(6, 'What percentage of energy usage can cooling account for in data centers?', '10%', '20%', '30%', '50%', 'C'),
+(6, 'Which of the following is a sign of poor cooling in a data center?', 'Increased server lifespan', 'Frequent hardware failures', 'Reduced power usage', 'Lower operating costs', 'B'),
+(6, 'What is the primary purpose of cooling systems in data centers?', 'Improving network speed', 'Maintaining optimal temperatures for hardware', 'Enhancing user experience', 'Reducing server density', 'B');
+
+-- Questions for Lesson 7
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(7, 'What is the principle behind hot and cold aisle containment?', 'Separating hot and cold airflows', 'Combining hot and cold airflows', 'Using water cooling', 'Eliminating airflow entirely', 'A'),
+(7, 'How does hot aisle containment improve cooling efficiency?', 'By recycling air', 'By preventing mixing of hot and cold air', 'By increasing air circulation', 'By lowering humidity', 'B'),
+(7, 'Which of the following is a key consideration for implementing aisle containment?', 'Type of racks used', 'Server software versions', 'Network bandwidth', 'Power supply location', 'A'),
+(7, 'What is a common material used for aisle containment?', 'Plastic curtains', 'Metal sheets', 'Fiber glass', 'Rubber seals', 'A'),
+(7, 'What is the main goal of aisle containment?', 'Reducing cooling costs', 'Increasing server speed', 'Improving storage capacity', 'Enhancing power supply', 'A');
+
+-- Questions for Lesson 8
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(8, 'What is the primary advantage of liquid cooling systems?', 'Cost reduction', 'High-performance cooling with less energy use', 'Ease of installation', 'Compatibility with all hardware', 'B'),
+(8, 'What liquid is most commonly used in data center cooling?', 'Distilled water', 'Oil', 'Ethanol', 'Ammonia', 'A'),
+(8, 'Which of the following is a drawback of liquid cooling systems?', 'High installation cost', 'Low cooling efficiency', 'Increased power consumption', 'Reduced hardware lifespan', 'A'),
+(8, 'What is one example of a liquid cooling method?', 'Immersion cooling', 'Airflow cooling', 'Evaporation cooling', 'Conduction cooling', 'A'),
+(8, 'What factor must be considered when designing liquid cooling systems?', 'Network latency', 'Server density', 'Liquid viscosity', 'Rack dimensions', 'C');
+
+-- Questions for Lesson 9
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(9, 'What is the primary benefit of Computational Fluid Dynamics (CFD) in data centers?', 'Optimizing airflow', 'Increasing storage capacity', 'Improving power supply', 'Enhancing software performance', 'A'),
+(9, 'What does CFD primarily simulate?', 'Liquid flow', 'Airflow and cooling efficiency', 'Network traffic', 'Energy distribution', 'B'),
+(9, 'Which factor is essential for accurate CFD simulations?', 'Server operating system', 'Rack design and layout', 'Network bandwidth', 'Backup power supply', 'B'),
+(9, 'What tool is commonly used for CFD simulations?', 'Cooling fans', 'Thermal imaging cameras', 'Specialized software', 'Airflow ducts', 'C'),
+(9, 'How often should CFD simulations be performed in a data center?', 'Monthly', 'Annually', 'Before significant design changes', 'Every week', 'C');
+
+-- Questions for Lesson 10
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(10, 'Which of these is a common cooling optimization technique?', 'Reducing server density', 'Using renewable energy', 'Improving aisle containment', 'Installing more power units', 'C'),
+(10, 'Why is regular maintenance important for cooling optimization?', 'It increases server speed', 'It reduces hardware costs', 'It ensures consistent cooling efficiency', 'It eliminates downtime', 'C'),
+(10, 'What is a key metric for measuring cooling efficiency?', 'Power Usage Effectiveness (PUE)', 'Bandwidth usage', 'Server response time', 'Cooling hardware cost', 'A'),
+(10, 'What is the role of sensors in cooling optimization?', 'Detecting hardware issues', 'Monitoring temperature and humidity', 'Improving network bandwidth', 'Identifying storage limitations', 'B'),
+(10, 'Which practice improves airflow in data centers?', 'Overloading racks', 'Blocking unused rack spaces', 'Installing larger cooling units', 'Reducing humidity', 'B');
+
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(11, 'What is the primary goal of energy-efficient data center design?', 'Reducing server costs', 'Enhancing cooling efficiency', 'Minimizing energy consumption', 'Increasing storage capacity', 'C'),
+(11, 'What principle is key to energy-efficient design?', 'Scalability', 'Redundancy', 'Flexibility', 'Efficiency', 'D'),
+(11, 'Which element impacts energy efficiency in data centers?', 'Server placement', 'Cooling technology', 'Power management', 'All of the above', 'D'),
+(11, 'What is a key benefit of energy-efficient designs?', 'Increased hardware lifespan', 'Reduced cooling requirements', 'Lower operational costs', 'All of the above', 'D'),
+(11, 'What is an important first step in energy-efficient design?', 'Reducing server count', 'Assessing energy needs', 'Increasing cooling capacity', 'Installing larger racks', 'B');
+
+-- Questions for Lesson 12
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(12, 'Why is server placement important for energy efficiency?', 'It increases server speed', 'It optimizes airflow and reduces cooling needs', 'It decreases power consumption', 'It simplifies maintenance', 'B'),
+(12, 'Which factor should be considered when placing servers?', 'Network bandwidth', 'Airflow patterns', 'Server model', 'Cooling unit size', 'B'),
+(12, 'What is the purpose of hot aisle containment?', 'Improving airflow', 'Reducing cooling costs', 'Separating hot and cold airflows', 'All of the above', 'D'),
+(12, 'What can improper server placement lead to?', 'Increased hardware lifespan', 'Reduced cooling efficiency', 'Higher energy savings', 'Improved airflow', 'B'),
+(12, 'Which tool can assist with server placement planning?', 'Thermal imaging', 'Power meters', 'CFD simulations', 'Humidity sensors', 'C');
+
+-- Questions for Lesson 13
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(13, 'What does PUE stand for?', 'Power Usage Efficiency', 'Power Usage Effectiveness', 'Performance Utilization Effectiveness', 'Performance Usage Efficiency', 'B'),
+(13, 'What is considered a good PUE value?', '1.5 or higher', '2.0 or lower', '1.2 or lower', '2.5 or higher', 'C'),
+(13, 'What does a high PUE indicate?', 'Energy efficiency', 'Poor energy efficiency', 'High operational costs', 'Reduced cooling requirements', 'B'),
+(13, 'How is PUE calculated?', 'Total facility energy divided by IT equipment energy', 'Cooling energy divided by server energy', 'Power supply energy divided by network energy', 'Server energy divided by total energy', 'A'),
+(13, 'Which factor can improve PUE?', 'Increasing cooling efficiency', 'Reducing hardware density', 'Using renewable energy', 'All of the above', 'D');
+
+-- Questions for Lesson 14
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(14, 'What is the primary benefit of using renewable energy in data centers?', 'Lower upfront costs', 'Reduced carbon emissions', 'Simpler setup process', 'Increased cooling efficiency', 'B'),
+(14, 'Which of the following is an example of renewable energy?', 'Coal', 'Natural gas', 'Solar energy', 'Nuclear energy', 'C'),
+(14, 'What is a major challenge in using renewable energy for data centers?', 'Low efficiency', 'High operational costs', 'Intermittent availability', 'Lack of government support', 'C'),
+(14, 'What renewable energy source is most commonly integrated into data centers?', 'Wind energy', 'Solar energy', 'Hydropower', 'Geothermal energy', 'B'),
+(14, 'What is a common method for storing renewable energy in data centers?', 'Batteries', 'Fuel cells', 'Generators', 'Capacitors', 'A');
+
+-- Questions for Lesson 15: Future Trends in Data Center Design
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(15, 'Which of the following is an emerging trend in data center design?', 'Increased server density', 'AI-driven efficiency optimization', 'Manual cooling techniques', 'Decreasing storage capacity', 'B'),
+(15, 'What role does AI play in future data center designs?', 'Improves software reliability', 'Enhances cooling efficiency and energy management', 'Increases server performance', 'Reduces hardware costs', 'B'),
+(15, 'What material is being considered for sustainable data center construction?', 'Concrete', 'Sustainable wood', 'Recycled steel', 'All of the above', 'D'),
+(15, 'What is the benefit of modular data center designs?', 'Ease of scalability', 'Improved server speed', 'Lower initial investment', 'Simpler cooling techniques', 'A'),
+(15, 'What trend is driving future data center efficiency?', 'Using smaller racks', 'Deploying edge computing', 'Reducing server density', 'Decreasing renewable energy usage', 'B');
+
+-- Questions for Lesson 16: Introduction to Energy Monitoring
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(16, 'Why is energy monitoring important for data centers?', 'To improve network speed', 'To track energy usage and improve efficiency', 'To reduce hardware costs', 'To optimize storage capacity', 'B'),
+(16, 'What is a common tool used for energy monitoring?', 'Airflow sensors', 'Power meters', 'Liquid coolers', 'Server racks', 'B'),
+(16, 'Which of the following can be identified through energy monitoring?', 'Server bandwidth', 'Cooling inefficiencies', 'Data transfer speeds', 'Server storage issues', 'B'),
+(16, 'What is the primary goal of energy monitoring?', 'Improving hardware compatibility', 'Optimizing energy efficiency and reducing waste', 'Reducing cooling costs', 'Eliminating downtime', 'B'),
+(16, 'What type of data is collected in energy monitoring?', 'Server response times', 'Power consumption data', 'Network latency', 'Storage utilization', 'B');
+
+-- Questions for Lesson 17: Tools for Energy Monitoring
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(17, 'Which tool is commonly used for real-time energy monitoring?', 'Thermal cameras', 'Energy management software', 'Liquid cooling systems', 'Rack sensors', 'B'),
+(17, 'What is a key feature of energy monitoring tools?', 'Historical energy usage tracking', 'Improving server bandwidth', 'Reducing rack density', 'Eliminating airflow issues', 'A'),
+(17, 'Why are energy monitoring tools essential for sustainability?', 'They automate network tasks', 'They provide insights into energy inefficiencies', 'They simplify rack installations', 'They enhance server performance', 'B'),
+(17, 'Which metric is often monitored to optimize energy use?', 'Power Usage Effectiveness (PUE)', 'Server response time', 'Data transfer rates', 'Network latency', 'A'),
+(17, 'What is the benefit of using cloud-based energy monitoring tools?', 'Reduced server maintenance', 'Improved scalability and access to analytics', 'Increased cooling costs', 'Simpler hardware upgrades', 'B');
+
+-- Questions for Lesson 18: Identifying Energy Inefficiencies
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(18, 'What is a common sign of energy inefficiency in data centers?', 'Decreased server response times', 'High PUE values', 'Improved cooling efficiency', 'Low energy costs', 'B'),
+(18, 'Which of the following is a common cause of energy inefficiency?', 'High server density', 'Proper airflow management', 'Optimal cooling solutions', 'Regular maintenance', 'A'),
+(18, 'How can energy inefficiencies be identified?', 'By monitoring energy usage patterns', 'By increasing cooling capacity', 'By reducing storage', 'By upgrading hardware', 'A'),
+(18, 'What is a quick solution for improving airflow inefficiencies?', 'Installing thermal sensors', 'Sealing unused rack spaces', 'Increasing server density', 'Reducing humidity', 'B'),
+(18, 'Which energy monitoring tool can detect inefficiencies?', 'Thermal imaging', 'Power meters', 'Airflow sensors', 'All of the above', 'D');
+
+-- Questions for Lesson 19: Predictive Analytics for Energy Optimization
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(19, 'What is the primary goal of predictive analytics in energy optimization?', 'Improving server response times', 'Forecasting energy usage and improving efficiency', 'Increasing hardware lifespan', 'Enhancing storage capacity', 'B'),
+(19, 'Which technology powers predictive analytics?', 'Blockchain', 'Machine learning', 'Network routing', 'Cooling fans', 'B'),
+(19, 'What type of data is used in predictive analytics?', 'Historical energy usage data', 'Network bandwidth', 'Server uptime', 'Storage capacity', 'A'),
+(19, 'What is a key benefit of predictive analytics in energy management?', 'Identifying potential inefficiencies before they occur', 'Improving network performance', 'Reducing cooling capacity', 'Simplifying hardware installations', 'A'),
+(19, 'Which industry is most likely to benefit from predictive analytics in energy optimization?', 'Data centers', 'Retail', 'Healthcare', 'Education', 'A');
+
+-- Questions for Lesson 20: Developing an Energy Optimization Plan
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(20, 'What is the first step in creating an energy optimization plan?', 'Reducing rack density', 'Assessing current energy usage', 'Upgrading cooling systems', 'Increasing server count', 'B'),
+(20, 'Which of the following should be included in an energy optimization plan?', 'Specific energy goals', 'Implementation strategies', 'Monitoring methods', 'All of the above', 'D'),
+(20, 'Why is it important to set measurable goals in an energy optimization plan?', 'To reduce server response times', 'To track progress and ensure accountability', 'To lower rack density', 'To improve network bandwidth', 'B'),
+(20, 'What is a key challenge in implementing energy optimization strategies?', 'High implementation costs', 'Lack of available tools', 'Increased server density', 'Reduced cooling efficiency', 'A'),
+(20, 'How often should an energy optimization plan be reviewed?', 'Weekly', 'Monthly', 'Periodically, based on performance data', 'Annually', 'C');
+
+-- Questions for Lesson 21: Understanding Carbon Neutrality
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(21, 'What does carbon neutrality mean?', 'Eliminating all carbon emissions', 'Balancing emitted carbon with offsetting measures', 'Reducing energy consumption to zero', 'Replacing all fossil fuels with renewable energy', 'B'),
+(21, 'What is the main goal of achieving carbon neutrality?', 'Improving cooling efficiency', 'Reducing overall energy usage', 'Eliminating the carbon footprint of operations', 'Increasing server capacity', 'C'),
+(21, 'Which activity contributes to carbon emissions in data centers?', 'Using renewable energy', 'Running cooling systems', 'Upgrading hardware', 'Installing racks', 'B'),
+(21, 'What is one way data centers can work towards carbon neutrality?', 'Using carbon offsets', 'Increasing rack density', 'Reducing server speeds', 'Eliminating backup power systems', 'A'),
+(21, 'What is the primary benefit of achieving carbon neutrality?', 'Reduced cooling costs', 'Improved employee productivity', 'Mitigating climate change', 'Lower storage requirements', 'C');
+
+-- Questions for Lesson 22: Carbon Offset Initiatives
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(22, 'What is a carbon offset?', 'A way to reduce energy consumption directly', 'A method to compensate for emissions by supporting environmental projects', 'A tax imposed on carbon emissions', 'A replacement for renewable energy', 'B'),
+(22, 'Which of the following is an example of a carbon offset initiative?', 'Installing additional cooling systems', 'Planting trees to absorb CO2', 'Reducing server count', 'Increasing storage capacity', 'B'),
+(22, 'What type of projects are commonly funded by carbon offsets?', 'Software development', 'Renewable energy projects', 'Server maintenance', 'Cooling optimization', 'B'),
+(22, 'What is the main challenge in implementing carbon offset initiatives?', 'High energy usage', 'Verification and accountability', 'Increased cooling costs', 'Server performance issues', 'B'),
+(22, 'How do carbon offsets help data centers achieve carbon neutrality?', 'By directly reducing emissions', 'By compensating for emissions through external projects', 'By improving server response time', 'By increasing energy consumption', 'B');
+
+-- Questions for Lesson 23: Renewable Energy Integration for Carbon Neutrality
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(23, 'Why is renewable energy important for carbon neutrality?', 'It eliminates emissions from energy production', 'It is cheaper than all other energy sources', 'It requires no maintenance', 'It improves hardware performance', 'A'),
+(23, 'Which renewable energy source is most scalable for data centers?', 'Solar power', 'Geothermal energy', 'Nuclear power', 'Hydropower', 'A'),
+(23, 'What is a major barrier to renewable energy adoption in data centers?', 'High cooling requirements', 'Intermittent energy availability', 'Increased server density', 'Reduced energy demand', 'B'),
+(23, 'What is a Power Purchase Agreement (PPA)?', 'A contract to buy renewable energy', 'A tool for measuring energy usage', 'A method to reduce cooling costs', 'An agreement to upgrade servers', 'A'),
+(23, 'How can renewable energy integration reduce operational costs?', 'By increasing server efficiency', 'By reducing dependency on fossil fuels', 'By requiring less cooling', 'By eliminating power outages', 'B');
+
+-- Questions for Lesson 24: Measuring Carbon Footprints
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(24, 'What is the purpose of measuring a carbon footprint?', 'To improve server response time', 'To calculate the environmental impact of operations', 'To enhance cooling efficiency', 'To monitor server utilization', 'B'),
+(24, 'Which tool is commonly used to measure carbon footprints?', 'Energy management software', 'Carbon accounting tools', 'Cooling sensors', 'Thermal imaging', 'B'),
+(24, 'What is included in a data center''s carbon footprint calculation?', 'Energy consumption', 'Cooling requirements', 'Hardware production impact', 'All of the above', 'D'),
+(24, 'Why is it important to track carbon footprints regularly?', 'To monitor server speed', 'To identify areas for emission reduction', 'To calculate cooling requirements', 'To ensure compliance with storage regulations', 'B'),
+(24, 'What unit is typically used to express carbon footprints?', 'Kilowatt-hours', 'Tons of CO2 equivalent (CO2e)', 'Gigabytes', 'Degrees Celsius', 'B');
+
+-- Questions for Lesson 25: Creating a Carbon Neutral Strategy
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(25, 'What is the first step in creating a carbon neutral strategy?', 'Reducing server density', 'Assessing the current carbon footprint', 'Increasing cooling capacity', 'Deploying new hardware', 'B'),
+(25, 'Which of the following is a key element of a carbon neutral strategy?', 'Setting measurable goals', 'Eliminating cooling systems', 'Increasing server speeds', 'Decreasing network bandwidth', 'A'),
+(25, 'What is a major challenge in achieving carbon neutrality?', 'Lack of renewable energy sources', 'High operational costs', 'Difficulty in measuring emissions accurately', 'All of the above', 'D'),
+(25, 'Which stakeholders should be involved in a carbon neutral strategy?', 'Only IT staff', 'Only management', 'All stakeholders including employees, customers, and vendors', 'Only external consultants', 'C'),
+(25, 'How often should a carbon neutral strategy be reviewed and updated?', 'Once every 5 years', 'Only when emissions increase', 'Periodically, based on progress and new developments', 'Every month', 'C');
+
+
 `;
 
 async function seedDatabase() {
