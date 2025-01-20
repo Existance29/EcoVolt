@@ -1,0 +1,124 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900&display=swap");
+
+body {
+    margin: 0;
+    font-family: Lexend, "Noto Sans", sans-serif;
+    background-color: #f8fbfa;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.layout-container {
+    width: 100%;
+    padding: 40px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+    text-align: center;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0e1b15;
+    margin: 20px 0;
+}
+
+.description {
+    font-size: 16px;
+    color: #0e1b15;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #0e1b15;
+    margin: 20px 0;
+}
+
+.score-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.score-box {
+    background: #e8f3ee;
+    border-radius: 8px;
+    padding: 20px;
+    flex: 1;
+    text-align: center;
+}
+
+.label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #0e1b15;
+}
+
+.value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0e1b15;
+}
+
+.points-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.breakdown-item {
+    border-top: 1px solid #d1e6dd;
+    padding: 10px 0;
+}
+
+.subject {
+    font-size: 14px;
+    color: #509577;
+}
+
+.score {
+    font-size: 14px;
+    color: #0e1b15;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.download-button,
+.share-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.download-button {
+    background: #1cca7f;
+    color: #0e1b15;
+}
+
+.share-button {
+    background: #e8f3ee;
+    color: #0e1b15;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galileo Design</title>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+  <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/SubmitSuggestion.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;700;800" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="./scripts/utils.js"></script>
+  <script src="./scripts/submitSuggestion.js"></script>
+  <script src="./scripts/common.js" defer></script>
+  <script src="./scripts/api.js"></script>
+</head>
+<body>
+
+    <aside class="sidebar"></aside>
+    <main class="main-content">
+        <header class="mainHeader" data-title="Recyce E-Waste" data-breadcrumb="Activities / Submit Suggestions"></header>
+
+        <nav class="tabs">
+          <a href="activityFeed.html">Activity Feed</a>
+          <a href="events.html">Courses & Events</a>
+          <a href="leaderboard.html">LeaderBoard</a>
+          <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
+      </nav>
+        <div class="layout-content-container">
+          <div class="header-section">
+            <div class="header-text">
+              <p class="main-heading">Recycle your personal IT devices</p>
+              <p class="sub-heading">
+                We make it easy to recycle your personal IT devices, regardless of brand or condition. Get started by telling us about the devices you'd like to recycle.
+              </p>
+            </div>
+          </div>
+          <div class="info-section">
+            <div class="info-card">
+              <div class="info-content">
+                <p class="info-title">Did You Know?</p>
+                <p class="info-text">
+                  Recycling one million laptops saves the energy equivalent to the electricity used by more than 3,500 US homes in a year.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <label class="form-group">
+              <p class="form-label">Title</p>
+              <input type="text" placeholder="E.g. Ways to reduce carbon emissions" class="form-input">
+            </label>
+            <label class="form-group">
+              <p class="form-label">Your Actionable Idea</p>
+              <input type="text" placeholder="E.g. We could reduce the carbon footprint by..." class="form-input-2">
+            </label>            
+          </div>
+          <div class="button-container">
+            <button class="submit-button">
+              <span class="truncate">Submit</span>
+            </button>
+          </div>          
+        </div>
+    </main>
+
+</body>
+</html>

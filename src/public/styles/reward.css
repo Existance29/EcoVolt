@@ -188,3 +188,77 @@ body {
 .redeem-btn:hover {
     background-color: #e0e6e4;
 }
+
+/*for the first section*/
+
+.course-card {
+  flex: 1;
+  min-width: 158px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.course-image {
+  width: 100%;
+  aspect-ratio: 1;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  /* outline: #ff0040 solid 5px; */
+}
+
+/* Course Details */
+.course-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Ensure 4 columns */
+  gap: 16px; /* Maintain spacing between grid items */
+  margin-bottom: 16px;
+}
+
+.course-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensures consistent spacing */
+  gap: 8px;
+  border: 1px solid #dce5e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Add a slight shadow */
+  padding: 16px;
+}
+
+.course-description {
+  flex-grow: 1; /* Allow the description to take up remaining space */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.course-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111814;
+}
+
+.course-cost {
+  font-size: 14px;
+  color: #638872;
+}
+
+.participate-btn {
+  margin-top: auto; /* Push the button to the bottom */
+  align-self: center; /* Center the button horizontally */
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #f0f4f2;
+  color: #111814;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.participate-btn:hover {
+  background-color: #e0e6e4;
+}

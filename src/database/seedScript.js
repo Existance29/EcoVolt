@@ -254,6 +254,53 @@ CREATE TABLE recyclables (
     FOREIGN KEY (company_id) REFERENCES companies(id),
     FOREIGN KEY (data_center_id) REFERENCES data_centers(id) -- New foreign key to data_centers
 );
+CREATE TABLE courses (
+    id INT IDENTITY(1,1) PRIMARY KEY, -- Unique course identifier
+    title VARCHAR(255) NOT NULL,      -- Course title
+    description TEXT NOT NULL,         -- Detailed course description
+    points INT NOT NULL,              -- Total number of points in the course
+    image_path VARCHAR(255) NOT NULL  -- Path to the course image
+);
+CREATE TABLE lessons (
+    id INT IDENTITY(1,1) PRIMARY KEY, -- Unique lesson identifier
+    course_id INT NOT NULL,           -- References the associated course
+    title VARCHAR(255) NOT NULL,      -- Lesson title
+    content TEXT NOT NULL,            -- Lesson content or description
+    duration VARCHAR(255) NOT NULL,   -- Estimated duration
+    position INT NOT NULL,            -- Order of the lesson in the course
+    video_link VARCHAR(2083),         -- Video link for the lesson
+    FOREIGN KEY (course_id) REFERENCES courses(id)
+);
+CREATE TABLE key_concepts (
+    id INT IDENTITY(1,1) PRIMARY KEY,     -- Unique concept identifier
+    lesson_id INT NOT NULL,               -- References the associated lesson
+    title VARCHAR(255) NOT NULL,          -- Key concept title
+    description TEXT NOT NULL,            -- Key concept description
+    FOREIGN KEY (lesson_id) REFERENCES lessons(id) -- Foreign key to lessons table
+);
+CREATE TABLE questions (
+    id INT IDENTITY(1,1) PRIMARY KEY,       -- Unique question identifier
+    lesson_id INT NOT NULL,                 -- References the associated lesson
+    question_text TEXT NOT NULL,            -- The text of the question
+    option_a VARCHAR(255) NOT NULL,         -- Option A for the question
+    option_b VARCHAR(255) NOT NULL,         -- Option B for the question
+    option_c VARCHAR(255) NOT NULL,         -- Option C for the question
+    option_d VARCHAR(255) NOT NULL,         -- Option D for the question
+    correct_option CHAR(1) NOT NULL,        -- The correct option (e.g., 'A', 'B', 'C', or 'D')
+    FOREIGN KEY (lesson_id) REFERENCES lessons(id) -- Links to the lessons table
+);
+-- Create table for Suggestions
+CREATE TABLE suggestions (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL, -- The user who made the suggestion
+    company_id INT NULL, -- Optional: Company related to the suggestion
+    title VARCHAR(255) NOT NULL, -- A short title for the suggestion
+    suggestion_text TEXT NOT NULL, -- The suggestion content
+    created_at DATETIME DEFAULT GETDATE(), -- Timestamp for when the suggestion was made
+    status VARCHAR(50) DEFAULT 'Pending', -- Status of the suggestion (e.g., Pending, Reviewed, Implemented, Rejected)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
 `;
 
 const insertData = `
@@ -1316,7 +1363,265 @@ VALUES
 (4, 4, '2024-08-10', '19:00:00'),
 (5, 5, '2024-10-10', '05:00:00');
 
-    `;
+INSERT INTO courses (title, description, points, image_path)
+VALUES 
+('Introduction to Data Center Sustainability', 
+ 'Understand the principles of sustainability in data centers. Learn how energy-efficient practices, renewable energy integration, and advanced monitoring systems help reduce carbon footprints while maintaining operational efficiency.', 
+ 50, './assets/courses/course1.jpg'),
+('Advanced Cooling Strategies for Data Centers', 
+ 'Explore advanced cooling methods to optimize airflow and reduce energy consumption in data centers. This course covers techniques like hot and cold aisle containment, liquid cooling systems, and the role of Computational Fluid Dynamics (CFD) in cooling optimization.', 
+ 70, './assets/courses/course2.jpg'),
+('Energy-Efficient Infrastructure Design', 
+ 'Dive into the design and implementation of energy-efficient infrastructures for data centers. Learn about efficient server placement, power usage effectiveness (PUE) metrics, and the adoption of renewable energy sources to reduce emissions.', 
+ 40, './assets/courses/course3.jpg'),
+('Monitoring and Optimizing Data Center Energy Usage', 
+ 'Master the tools and techniques required to monitor and optimize energy consumption in data centers. Learn about real-time monitoring systems, predictive analytics, and strategies to identify inefficiencies and reduce carbon emissions.', 
+ 60, './assets/courses/course4.jpg'),
+('Achieving Carbon Neutrality in Data Centers', 
+ 'Gain in-depth knowledge of the strategies and technologies involved in achieving carbon neutrality in data centers. This course focuses on renewable energy integration, carbon offset initiatives, and industry best practices for sustainable operations.', 
+ 80, './assets/courses/course5.jpg');
+
+INSERT INTO lessons (course_id, title, content, duration, position, video_link)
+VALUES
+-- Lessons for Course 1: Introduction to Data Center Sustainability
+(1, 'Understanding Sustainability in Data Centers', 
+    'In this lesson, you will learn about the importance of sustainability in data center operations. We will explore how sustainability initiatives contribute to environmental preservation and operational efficiency. By the end of this lesson, you will understand key sustainability concepts and their role in data centers.', 
+    '20 min', 1, 'https://www.youtube.com/watch?v=XORuHW3CxAg'),
+(1, 'Energy Efficiency Basics', 
+    'In this lesson, you will learn the fundamentals of energy efficiency and why it is critical for data centers. Topics include strategies to minimize energy waste and real-world examples of successful energy efficiency implementations.', 
+    '25 min', 2, 'https://www.youtube.com/watch?v=xGSdf2uLtlo'),
+(1, 'Renewable Energy Integration', 
+    'In this lesson, you will learn how to integrate renewable energy sources into data center operations. We will discuss the types of renewable energy available and the benefits they bring, along with challenges and solutions for implementation.', 
+    '30 min', 3, 'https://www.youtube.com/watch?v=UFK4hqeRhIc'),
+(1, 'Monitoring Sustainability Efforts', 
+    'In this lesson, you will learn how to monitor and track the success of sustainability initiatives in data centers. Key topics include metrics for measuring progress and tools to ensure sustainability efforts are maintained over time.', 
+    '20 min', 4, 'https://www.youtube.com/watch?v=VaZo_xua8uM'),
+(1, 'Future of Sustainable Data Centers', 
+    'In this lesson, you will learn about the latest trends and emerging technologies that are shaping the future of sustainable data centers. Topics include advancements in energy storage, AI-driven efficiency optimizations, and futuristic design principles.', 
+    '25 min', 5, 'https://www.youtube.com/watch?v=fUIvY_OI3hE'),
+
+-- Lessons for Course 2: Advanced Cooling Strategies for Data Centers
+(2, 'Introduction to Cooling Challenges', 
+    'In this lesson, you will learn about the common cooling challenges faced by data centers and their impact on energy consumption. You will also understand why efficient cooling is essential for sustainability and operational reliability.', 
+    '20 min', 1, 'https://www.youtube.com/watch?v=uDG5QX7QEnk'),
+(2, 'Hot and Cold Aisle Containment', 
+    'In this lesson, you will learn the principles of hot and cold aisle containment and how this strategy enhances cooling efficiency in data centers. We will cover design considerations and practical implementation techniques.', 
+    '25 min', 2, 'https://www.youtube.com/watch?v=2BfNGZiO4GU'),
+(2, 'Liquid Cooling Systems', 
+    'In this lesson, you will learn about liquid cooling systems and their role in achieving high-performance cooling while reducing energy use. Topics include system design, implementation, and examples of successful deployments.', 
+    '30 min', 3, 'https://www.youtube.com/watch?v=0BCXySecMoI'),
+(2, 'Using Computational Fluid Dynamics (CFD)', 
+    'In this lesson, you will learn how Computational Fluid Dynamics (CFD) simulations are used to optimize airflow and cooling in data centers. We will discuss the basics of CFD, its benefits, and how to interpret simulation results.', 
+    '20 min', 4, 'https://www.youtube.com/watch?v=aPsuhKNcQmw'),
+(2, 'Best Practices for Cooling Optimization', 
+    'In this lesson, you will learn about the best practices and techniques for maintaining efficient cooling systems in data centers. We will explore maintenance strategies, energy-saving tips, and emerging trends in cooling technology.', 
+    '25 min', 5, 'https://www.youtube.com/watch?v=Zr5eL4Hqvds'),
+
+-- Lessons for Course 3: Energy-Efficient Infrastructure Design
+(3, 'Introduction to Energy-Efficient Design', 
+    'In this lesson, you will learn the fundamentals of designing energy-efficient infrastructures for data centers. Topics include the key principles of efficiency, design frameworks, and practical applications.', 
+    '20 min', 1, 'https://www.youtube.com/watch?v=wIxe6C_f4Yw'),
+(3, 'Optimizing Server Placement', 
+    'In this lesson, you will learn about optimizing server placement to enhance energy efficiency. We will discuss strategies to reduce cooling requirements and improve airflow, with real-world examples of effective layouts.', 
+    '25 min', 2, 'https://www.youtube.com/watch?v=eAHDmkfcq-k'),
+(3, 'Understanding PUE (Power Usage Effectiveness)', 
+    'In this lesson, you will learn how to calculate and improve Power Usage Effectiveness (PUE) in data centers. We will explore the importance of PUE as a key metric and provide practical tips for its optimization.', 
+    '30 min', 3, 'https://www.youtube.com/watch?v=0mQAiZcA5K4'),
+(3, 'Renewable Energy Solutions', 
+    'In this lesson, you will learn about the benefits and challenges of incorporating renewable energy solutions into data center design. We will discuss solar, wind, and other renewable sources, along with their potential impact.', 
+    '20 min', 4, 'https://www.youtube.com/watch?v=OPoNDxByOxc'),
+(3, 'Future Trends in Data Center Design', 
+    'In this lesson, you will learn about the future trends shaping energy-efficient data center designs. Topics include innovations in hardware, sustainable construction materials, and AI-driven optimization techniques.', 
+    '25 min', 5, 'https://www.youtube.com/watch?v=Mt4Z63nd84g'),
+
+-- Lessons for Course 4: Monitoring and Optimizing Data Center Energy Usage
+(4, 'Introduction to Energy Monitoring', 
+    'In this lesson, you will learn why monitoring energy usage is essential for data center efficiency and sustainability. We will cover the basics of energy monitoring and its benefits for long-term operational success.', 
+    '20 min', 1, 'https://www.youtube.com/watch?v=uDG5QX7QEnk'),
+(4, 'Tools for Energy Monitoring', 
+    'In this lesson, you will learn about the tools and systems available for real-time energy monitoring in data centers. Topics include selecting the right tools and interpreting monitoring data effectively.', 
+    '25 min', 2, 'https://www.youtube.com/watch?v=2BfNGZiO4GU'),
+(4, 'Identifying Energy Inefficiencies', 
+    'In this lesson, you will learn techniques to identify and address energy inefficiencies in data centers. We will explore common inefficiency sources and actionable solutions for improvement.', 
+    '30 min', 3, 'https://www.youtube.com/watch?v=0BCXySecMoI'),
+(4, 'Predictive Analytics for Energy Optimization', 
+    'In this lesson, you will learn how predictive analytics can enhance energy optimization. We will discuss data modeling, forecasting, and practical examples of predictive technologies.', 
+    '20 min', 4, 'https://www.youtube.com/watch?v=aPsuhKNcQmw'),
+(4, 'Developing an Energy Optimization Plan', 
+    'In this lesson, you will learn how to create a comprehensive energy optimization plan. Topics include setting goals, implementing strategies, and measuring success.', 
+    '25 min', 5, 'https://www.youtube.com/watch?v=Zr5eL4Hqvds'),
+
+-- Lessons for Course 5: Achieving Carbon Neutrality in Data Centers
+(5, 'Understanding Carbon Neutrality', 
+    'In this lesson, you will learn about the concept of carbon neutrality and its importance for data centers. We will cover the environmental benefits and steps required to achieve it.', 
+    '20 min', 1, 'https://www.youtube.com/watch?v=1vdoEes-fts'),
+(5, 'Carbon Offset Initiatives', 
+    'In this lesson, you will learn about various carbon offset initiatives that can be implemented to reduce your data center''s carbon footprint. We will discuss practical examples and their impact.', 
+    '25 min', 2, 'https://www.youtube.com/watch?v=paFUg1nN7sQ'),
+(5, 'Renewable Energy Integration for Carbon Neutrality', 
+    'In this lesson, you will learn about the role of renewable energy in achieving carbon neutrality. We will explore strategies to integrate solar, wind, and other renewable energy sources.', 
+    '30 min', 3, 'https://www.youtube.com/watch?v=UFK4hqeRhIc'),
+(5, 'Measuring Carbon Footprints', 
+    'In this lesson, you will learn how to measure and track your data center''s carbon footprint. Topics include carbon accounting methods, tools, and best practices.', 
+    '20 min', 4, 'https://www.youtube.com/watch?v=0mQAiZcA5K4'),
+(5, 'Creating a Carbon Neutral Strategy', 
+    'In this lesson, you will learn the steps required to develop a comprehensive strategy for achieving carbon neutrality in your data center operations. We will discuss goal setting, stakeholder collaboration, and monitoring progress.', 
+    '25 min', 5, 'https://www.youtube.com/watch?v=wIxe6C_f4Yw');
+
+ 
+INSERT INTO key_concepts (lesson_id, title, description)
+VALUES
+-- Key Concepts for Lesson 1: Introduction to Data Center Sustainability
+(1, 'Definition of Sustainability', 'Learn the principles of sustainability in data centers and its environmental impact.'),
+(1, 'Benefits of Sustainable Practices', 'Explore the operational and cost benefits of adopting sustainable practices.'),
+(1, 'Key Drivers', 'Understand the role of regulations, corporate responsibility, and technology advancements.'),
+
+(2, 'Energy Consumption', 'Discover how data centers consume energy and areas to reduce waste.'),
+(2, 'Efficiency Metrics', 'Learn about PUE (Power Usage Effectiveness) as a measure of energy efficiency.'),
+(2, 'Strategies for Energy Reduction', 'Explore practices like server optimization and efficient cooling systems.'),
+
+(3, 'Types of Renewable Energy', 'Understand solar, wind, and geothermal energy sources for data centers.'),
+(3, 'Integration Challenges', 'Learn about grid dependency and energy storage solutions.'),
+(3, 'Environmental Benefits', 'Explore how renewables reduce carbon footprints.'),
+
+(4, 'Importance of Monitoring', 'Track energy usage to measure sustainability progress.'),
+(4, 'Tools for Monitoring', 'Learn about power meters and real-time dashboards.'),
+(4, 'Data Analytics', 'Use analytics to identify inefficiencies and set improvement goals.'),
+
+(5, 'Emerging Technologies', 'Discover the potential of AI and ML in sustainability.'),
+(5, 'Carbon Neutral Data Centers', 'Understand strategies for achieving carbon neutrality.'),
+(5, 'Global Trends', 'Explore innovations like modular and edge data centers.'),
+
+-- Key Concepts for Lesson 2: Advanced Cooling Strategies for Data Centers
+(6, 'Cooling Requirements', 'Learn why cooling is critical in data centers.'),
+(6, 'Energy Costs', 'Understand the impact of inefficient cooling on energy consumption.'),
+(6, 'Common Issues', 'Explore challenges like hotspots and airflow obstructions.'),
+
+(7, 'Aisle Containment Basics', 'Understand how hot and cold aisle containment works.'),
+(7, 'Improving Airflow', 'Explore airflow management to increase cooling efficiency.'),
+(7, 'Benefits of Containment', 'Reduce energy costs and improve server reliability.'),
+
+(8, 'Liquid Cooling Benefits', 'Learn how liquid cooling achieves higher efficiency than air cooling.'),
+(8, 'System Components', 'Explore pipes, pumps, and heat exchangers in liquid cooling.'),
+(8, 'Applications', 'Understand its usage in high-performance computing environments.'),
+
+(9, 'Role of CFD', 'Use CFD to simulate airflow in data centers.'),
+(9, 'Identifying Issues', 'Discover hotspots and inefficiencies through simulation.'),
+(9, 'Optimization', 'Optimize cooling systems based on CFD results.'),
+
+(10, 'Regular Maintenance', 'Ensure cooling systems operate at peak efficiency.'),
+(10, 'Airflow Management', 'Use raised floors and vents for better airflow.'),
+(10, 'Energy-Efficient Equipment', 'Invest in advanced cooling technologies.'),
+
+-- Key Concepts for Lesson 3: Energy-Efficient Infrastructure Design
+(11, 'Design Principles', 'Explore principles for energy-efficient data center infrastructure.'),
+(11, 'Energy Goals', 'Set measurable energy efficiency goals.'),
+(11, 'Role of Technology', 'Leverage smart technologies for optimization.'),
+
+(12, 'Server Layouts', 'Learn optimal server placements for better airflow.'),
+(12, 'Heat Management', 'Reduce hotspots by spreading server loads.'),
+(12, 'Density Management', 'Balance server density to optimize cooling.'),
+
+(13, 'PUE Basics', 'Learn how to calculate and improve PUE.'),
+(13, 'Energy Balance', 'Understand the balance between IT equipment and facility energy.'),
+(13, 'Benchmarking', 'Use PUE for performance comparison.'),
+
+(14, 'Adopting Renewables', 'Explore solar and wind energy options for data centers.'),
+(14, 'Energy Storage', 'Understand battery systems for backup and storage.'),
+(14, 'Grid Integration', 'Learn to manage renewable energy with traditional grids.'),
+
+(15, 'Modular Data Centers', 'Discover benefits of modular designs for scalability.'),
+(15, 'AI and ML', 'Use AI and ML for predictive maintenance and efficiency.'),
+(15, 'Sustainable Materials', 'Explore eco-friendly materials in construction.'),
+
+-- Key Concepts for Lesson 4: Monitoring and Optimizing Data Center Energy Usage
+(16, 'Energy Monitoring Basics', 'Learn why monitoring is critical for energy management.'),
+(16, 'Key Metrics', 'Explore metrics like energy usage and cooling efficiency.'),
+(16, 'Monitoring Tools', 'Discover tools like IoT sensors and dashboards.'),
+
+(17, 'Power Meters', 'Measure real-time energy consumption.'),
+(17, 'Cooling Monitors', 'Track cooling system performance.'),
+(17, 'Energy Dashboards', 'Use dashboards for actionable insights.'),
+
+(18, 'Heat Maps', 'Identify hotspots through energy mapping.'),
+(18, 'Anomaly Detection', 'Use analytics to spot inefficiencies.'),
+(18, 'Optimization Strategies', 'Implement corrective measures based on findings.'),
+
+(19, 'Predictive Models', 'Use analytics to forecast energy needs.'),
+(19, 'Proactive Maintenance', 'Reduce downtime with predictive insights.'),
+(19, 'Energy Optimization Goals', 'Set achievable energy reduction targets.'),
+
+(20, 'Plan Framework', 'Create a detailed energy management plan.'),
+(20, 'Stakeholder Roles', 'Assign roles for plan execution.'),
+(20, 'Continuous Improvement', 'Monitor and update the plan for long-term results.'),
+
+-- Key Concepts for Lesson 5: Achieving Carbon Neutrality in Data Centers
+(21, 'Carbon Neutrality Basics', 'Learn the definition and importance of carbon neutrality.'),
+(21, 'Impact of Emissions', 'Understand the effects of carbon emissions on the environment.'),
+(21, 'Reduction Strategies', 'Explore strategies like energy reduction and carbon offsets.'),
+
+(22, 'What Are Offsets?', 'Learn how offsets reduce net carbon emissions.'),
+(22, 'Offset Programs', 'Explore tree-planting and renewable energy initiatives.'),
+(22, 'Implementation', 'Integrate offsets into your carbon neutrality strategy.'),
+
+(23, 'Renewable Energy Benefits', 'Understand how renewables reduce carbon emissions.'),
+(23, 'Grid Independence', 'Learn to minimize reliance on traditional energy grids.'),
+(23, 'Challenges and Solutions', 'Address barriers to renewable energy adoption.'),
+
+(24, 'Carbon Footprint Basics', 'Learn how to calculate your data center''s carbon footprint.'),
+(24, 'Emission Sources', 'Identify primary sources of carbon emissions.'),
+(24, 'Tracking Progress', 'Use tools to monitor emission reductions over time.'),
+
+(25, 'Strategy Framework', 'Develop a step-by-step plan for carbon neutrality.'),
+(25, 'Stakeholder Involvement', 'Ensure all teams contribute to the strategy.'),
+(25, 'Sustainability Metrics', 'Use metrics to measure and achieve goals.');
+
+-- Questions for Lesson 1: Understanding Sustainability in Data Centers
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(1, 'What is the primary benefit of sustainability in data centers?', 'Reduced operational costs', 'Lower carbon emissions', 'Increased uptime', 'Faster network speeds', 'B'),
+(1, 'Which factor contributes most to a data centers carbon footprint?', 'Cooling systems', 'Server placement', 'Employee behavior', 'Lighting systems', 'A'),
+(1, 'What is the purpose of renewable energy in data centers?', 'Reduce energy costs', 'Lower carbon emissions', 'Increase efficiency', 'Improve reliability', 'B'),
+(1, 'Which sustainability practice involves energy-efficient hardware?', 'Recycling', 'Server virtualization', 'Reducing lighting', 'Using hybrid cooling', 'B'),
+(1, 'What is the role of monitoring systems in sustainability?', 'Reducing costs', 'Improving energy awareness', 'Enhancing cooling speed', 'Preventing outages', 'B');
+
+-- Questions for Lesson 2: Advanced Cooling Strategies for Data Centers
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(2, 'What is the purpose of hot and cold aisle containment?', 'Improve server uptime', 'Enhance airflow management', 'Reduce server density', 'Lower lighting costs', 'B'),
+(2, 'Which cooling method is most energy-efficient for high-performance data centers?', 'Air cooling', 'Liquid cooling', 'Mechanical fans', 'Open vents', 'B'),
+(2, 'What is the primary function of Computational Fluid Dynamics (CFD)?', 'Improve server reliability', 'Optimize airflow', 'Track power usage', 'Enhance cooling system durability', 'B'),
+(2, 'What is a common problem with inefficient cooling systems?', 'Slow network speeds', 'Increased energy consumption', 'Reduced server capacity', 'Frequent downtimes', 'B'),
+(2, 'How does raised flooring impact cooling efficiency?', 'Enhances airflow distribution', 'Reduces humidity', 'Improves energy monitoring', 'Prevents server overheating', 'A');
+
+-- Questions for Lesson 3: Energy-Efficient Infrastructure Design
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(3, 'What does PUE (Power Usage Effectiveness) measure?', 'Server performance', 'Energy efficiency', 'Cooling efficiency', 'Airflow effectiveness', 'B'),
+(3, 'Which strategy improves energy efficiency in server placement?', 'Randomized placement', 'Clustered placement', 'Hot aisle placement', 'Cold aisle placement', 'D'),
+(3, 'What is a major advantage of renewable energy for data centers?', 'Increased server uptime', 'Reduced operational costs', 'Lower carbon footprint', 'Improved cooling speeds', 'C'),
+(3, 'How can efficient lighting contribute to sustainability?', 'Reduces carbon emissions', 'Improves server performance', 'Enhances cooling systems', 'Lowers network latency', 'A'),
+(3, 'What is a key factor in designing energy-efficient data centers?', 'Random server configurations', 'Predictive energy monitoring', 'Open-air cooling', 'Minimized airflow management', 'B');
+
+-- Questions for Lesson 4: Monitoring and Optimizing Data Center Energy Usage
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(4, 'What is the purpose of real-time energy monitoring?', 'Reduce server capacity', 'Identify inefficiencies', 'Improve cooling speed', 'Increase uptime', 'B'),
+(4, 'Which tool is commonly used for energy audits?', 'Power meters', 'Cooling fans', 'Airflow blockers', 'Server optimizers', 'A'),
+(4, 'What is predictive analytics used for in data centers?', 'Prevent overheating', 'Predict future energy usage', 'Optimize server placement', 'Enhance airflow systems', 'B'),
+(4, 'Which strategy helps reduce energy consumption?', 'Overcooling servers', 'Improving airflow management', 'Using mechanical cooling only', 'Increasing energy input', 'B'),
+(4, 'What is the role of machine learning in energy optimization?', 'Increase cooling speed', 'Reduce costs', 'Predict energy inefficiencies', 'Track uptime metrics', 'C');
+
+-- Questions for Lesson 5: Achieving Carbon Neutrality in Data Centers
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(5, 'What is the definition of carbon neutrality?', 'Zero energy usage', 'Offsetting all carbon emissions', 'Using renewable energy only', 'Eliminating cooling systems', 'B'),
+(5, 'How can data centers offset carbon emissions?', 'Install more servers', 'Use renewable energy', 'Reduce airflow', 'Increase fan speeds', 'B'),
+(5, 'What is a common method to measure carbon footprints?', 'Server uptime analysis', 'Carbon calculators', 'Cooling efficiency audits', 'Lighting usage reports', 'B'),
+(5, 'Which renewable energy source is commonly used in data centers?', 'Wind energy', 'Geothermal energy', 'Solar energy', 'Hydropower', 'C'),
+(5, 'What is the first step in creating a carbon neutrality strategy?', 'Improve server speeds', 'Conduct a carbon audit', 'Upgrade cooling systems', 'Increase server capacity', 'B');
+
+`;
 
 async function seedDatabase() {
   try {

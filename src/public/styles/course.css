@@ -1,0 +1,292 @@
+body {
+    font-family: "Lexend", "Noto Sans", sans-serif;
+    background-color: #f8fbfa;
+    margin: 0;
+    padding: 0;
+  }
+
+  
+  .lesson-title p {
+    font-size: 32px;
+    font-weight: bold;
+    color: #0e1b15;
+    margin-bottom: 24px; /* Added spacing below title */
+  }
+  
+  /* .video-section {
+    position: relative;
+    background-image: url('https://cdn.usegalileo.ai/sdxl10/d4927834-b932-4cc6-961f-c6cdda5c68a1.png');
+    background-size: cover;
+    background-position: center;
+    aspect-ratio: 16 / 9;
+    margin-bottom: 24px; /* Added spacing below video section */
+  
+  
+
+  .lesson-description {
+    color: #0e1b15;
+    font-size: 16px;
+    line-height: 1.8; /* Increased line height for better readability */
+    margin-bottom: 32px; /* Added spacing below description */
+  }
+  
+  .section-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0e1b15;
+    margin-bottom: 16px; /* Added spacing below section titles */
+  }
+  
+  .key-concepts {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px; /* Added spacing below key concepts */
+  }
+  
+  .concept-card {
+    border: 1px solid #d1e6dd;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #f8fbfa;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .quiz {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px; /* Added spacing below quiz section */
+}
+
+/* Styling for quiz card layout */
+.quiz-item {
+    background-color: #ffffff;
+    border: 1px solid #e1e1e1;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+input[type="radio"] {
+    cursor: pointer;
+    accent-color: #1cca7f;
+}
+
+label {
+    font-size: 16px;
+    cursor: pointer;
+    color: #0e1b15;
+    transition: color 0.3s ease;
+}
+
+label:hover {
+    color: #1cca7f;
+}
+  
+  .submit-button-container {
+    text-align: right;
+  }
+  
+  .submit-button {
+    background-color: #e8f3ee;
+    color: #0e1b15;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .infographic {
+    margin-bottom: 32px; /* Added spacing below infographic section */
+  }
+  
+  .image-container {
+    background-size: cover;
+    background-position: center;
+    height: 300px; /* Set a consistent height for the infographic */
+    border-radius: 8px;
+  }
+  
+  .progress-container {
+    padding: 16px;
+    z-index: 1000;
+    margin-bottom: 2%;
+  }
+
+  body {
+    font-family: "Lexend", "Noto Sans", sans-serif;
+    background-color: #f8fbfa;
+    margin: 0;
+    padding: 0;
+  }
+
+  
+  .lesson-title p {
+    font-size: 32px;
+    font-weight: bold;
+    color: #0e1b15;
+    margin-bottom: 24px; /* Added spacing below title */
+  }
+  
+  /* .video-section {
+    position: relative;
+    background-image: url('https://cdn.usegalileo.ai/sdxl10/d4927834-b932-4cc6-961f-c6cdda5c68a1.png');
+    background-size: cover;
+    background-position: center;
+    aspect-ratio: 16 / 9;
+    margin-bottom: 24px; /* Added spacing below video section */
+  
+  
+
+  .lesson-description {
+    color: #0e1b15;
+    font-size: 16px;
+    line-height: 1.8; /* Increased line height for better readability */
+    margin-bottom: 32px; /* Added spacing below description */
+  }
+  
+  .section-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0e1b15;
+    margin-bottom: 16px; /* Added spacing below section titles */
+  }
+  
+  .key-concepts {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px; /* Added spacing below key concepts */
+  }
+  
+  .concept-card {
+    border: 1px solid #d1e6dd;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #f8fbfa;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .quiz {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px; /* Added spacing below quiz section */
+}
+
+/* Styling for quiz card layout */
+.quiz-item {
+    background-color: #ffffff;
+    border: 1px solid #e1e1e1;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+input[type="radio"] {
+    cursor: pointer;
+    accent-color: #1cca7f;
+}
+
+label {
+    font-size: 16px;
+    cursor: pointer;
+    color: #0e1b15;
+    transition: color 0.3s ease;
+}
+
+label:hover {
+    color: #1cca7f;
+}
+  
+  .submit-button-container {
+    text-align: right;
+  }
+  
+  .submit-button {
+    background-color: #e8f3ee;
+    color: #0e1b15;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .infographic {
+    margin-bottom: 32px; /* Added spacing below infographic section */
+  }
+  
+  .image-container {
+    background-size: cover;
+    background-position: center;
+    height: 300px; /* Set a consistent height for the infographic */
+    border-radius: 8px;
+  }
+  
+  .progress-container {
+    padding: 16px;
+    z-index: 1000;
+    margin-bottom: 2%;
+  }
+
+
+  
+
+
+
+  .video-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .video-overlay {
+    position: relative;
+    width: 1200px; /* Wider width */
+    height: 675px; /* Adjusted height to maintain 16:9 aspect ratio */
+    overflow: hidden;
+  }
+  
+  .youtube-video {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  

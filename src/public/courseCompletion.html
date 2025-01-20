@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope%3Awght%40400%3B500%3B700%3B800&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"/>
+    <link rel="stylesheet" href="styles/courseCompletion.css">
+    <link rel="stylesheet" href="styles/common.css">
+    <title>EcoVolt Rewards</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Afacad' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="./scripts/utils.js"></script>
+    <script src="./scripts/courseCompletion.js"></script>
+    <script src="./scripts/common.js" defer></script>
+    <script src="./scripts/api.js"></script>
+  </head>
+  <body>
+    <aside class="sidebar"></aside>
+
+    <main class="main-content">
+        <header class="mainHeader" data-title="Recyce E-Waste" data-breadcrumb="Events / Course"></header>
+
+        <nav class="tabs">
+            <a href="activityFeed.html">Activity Feed</a>
+            <a href="events.html">Courses & Events</a>
+            <a href="leaderboard.html">LeaderBoard</a>
+            <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
+        </nav>
+
+        <div class="layout-container">
+            <div class="content">
+                <h1 class="title">Congratulations!</h1>
+                <p class="description">
+                    You've completed the course and are now a certified Sustainability Expert. You can download or share your certification below.
+                </p>
+                <h2 class="section-title">Final Score</h2>
+                <div class="score-container">
+                    <div class="score-box">
+                        <p class="label">Total Points</p>
+                        <p class="value" id="total-points">Loading...</p>
+                    </div>                    
+                    <div class="score-box">
+                        <p class="label">Completion Rate</p>
+                        <p class="value">100%</p>
+                    </div>
+                </div>
+                <h2 class="section-title">Points Breakdown</h2>
+                <div class="points-breakdown">
+                    <div class="breakdown-item">
+                        <p class="subject">Introduction to Sustainability</p>
+                        <p class="score">30/30</p>
+                    </div>
+                    <div class="breakdown-item">
+                        <p class="subject">Principles of Sustainable Business</p>
+                        <p class="score">30/30</p>
+                    </div>
+                    <div class="breakdown-item">
+                        <p class="subject">Sustainable Operations</p>
+                        <p class="score">30/30</p>
+                    </div>
+                    <div class="breakdown-item">
+                        <p class="subject">Sustainability Reporting</p>
+                        <p class="score">30/30</p>
+                    </div>
+                    <div class="breakdown-item">
+                        <p class="subject">Sustainable Product Design</p>
+                        <p class="score">30/30</p>
+                    </div>
+                    <div class="breakdown-item">
+                        <p class="subject">Stakeholder Engagement</p>
+                        <p class="score">30/30</p>
+                    </div>
+                    <div class="breakdown-item">
+                        <p class="subject">Sustainable Supply Chain Management</p>
+                        <p class="score">30/30</p>
+                    </div>
+                    <div class="breakdown-item">
+                        <p class="subject">Sustainable Finance</p>
+                        <p class="score">30/30</p>
+                    </div>
+                    <div class="breakdown-item">
+                        <p class="subject">Sustainability Leadership & Governance</p>
+                        <p class="score">30/30</p>
+                    </div>
+                    <div class="breakdown-item">
+                        <p class="subject">Sustainability Communications & Marketing</p>
+                        <p class="score">30/30</p>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <button id="download-certificate" class="download-button" onclick="downloadCertificate()">Download Certificate</button>
+                    <button class="share-button">
+                        <div class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                                <path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path>
+                            </svg>
+                        </div>
+                        <span>Share Certificate</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
