@@ -28,7 +28,7 @@ async function loadQuizQuestions() {
         console.log(question);
         const questionHtml = `
         <div class="quiz-content quiz-item" data-question-id="${question.id}">
-          <p class="question">${question.question_text}</p>
+          <p class="question"><strong>${question.question_text}</strong></p>
           <div class="options">
             <div class="option">
               <input type="radio" id="option-a-${question.id}" name="question-${question.id}" value="A">

@@ -129,6 +129,14 @@ body {
   padding: 16px;
 }
 
+.lessons-list {
+  gap: 8px;
+  border: 1px solid #dce5e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Add a slight shadow */
+  padding: 16px;
+}
+
 .lesson-item {
   display: flex;
   justify-content: space-between;
@@ -140,14 +148,17 @@ body {
 
 .lesson-details {
   display: flex;
-  gap: 16px;
   align-items: center;
+  width: 90%; /* Adjust width as needed */
+  max-width: 2000px; /* Set a max width for larger screens */
+  box-sizing: border-box; /* Ensure padding doesn't affect total width */
 }
+
 
 .lesson-title {
   font-size: 16px;
   color: #0e1b15;
-  font-weight: 500;
+  font-weight: bold;
 }
 
 .lesson-description {
