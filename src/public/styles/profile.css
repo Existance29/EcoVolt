@@ -113,6 +113,8 @@ body, html {
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding-bottom: 20px !important;    
+    padding-top: 20px !important; 
 }
 
 .profile-header {
@@ -120,10 +122,6 @@ body, html {
     font-size: 1.2em;
     font-weight: 600;
     color: #333;
-}
-
-.profile-container {
-    margin: 20px 0;
 }
 
 .user-info {
@@ -271,6 +269,30 @@ body, html {
 .tabs button.active {
     color: #4FD1C5;
     border-bottom: 3px solid #4FD1C5;
+}
+
+.post .body{
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.post .date{
+    margin-top: 0.7rem;
+    font-size: 0.95rem;
+    color: #999
+}
+
+.post .stats-container{
+    display: flex;
+    margin-top: 1rem;
+    color: #646464;
+    font-weight: 600;
+    gap: 1.3rem;
+}
+
+.post .stats-container .stats{
+    display: flex;
+    cursor: pointer;
 }
 
 /* Responsive Styles */

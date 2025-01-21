@@ -11,6 +11,7 @@
     <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -30,7 +31,7 @@
                     <div class="user-info">
                         <img src="assets/profile/defaultprofilepic.jpg" alt="User Photo">
                         <div>
-                            <h3 style="font-size: 1.5rem;">Username</h3>
+                            <h3 style="font-size: 1.4rem;">Username</h3>
                             <p style="margin-top: 0.4rem;">Company</p>
                             <p style="margin-top: 0.2rem;">0 Likes</p>
                         </div>
@@ -41,12 +42,35 @@
                 </div>
             </section>
 
-            <section class="profile-section">
-                <nav class="tabs">
-                    <button class="active">Posts</button>
-                    <button href="#">Comments</button>
-                </nav>
-                
+            <nav class="tabs">
+                <button class="active">Posts</button>
+                <button href="#">Comments</button>
+            </nav>
+            
+            <section id="posts">
+                <div class="post profile-section">
+                    <div class="body">Title</div>
+                    <div class="date">2025-08-43</div>
+                    <div class="stats-container">
+                        <div class="stat" style="color: rgb(153, 224, 147);">
+                            <i class="fa-regular fa-thumbs-up" aria-hidden="true"></i>
+                            <span>0</span>
+                        </div>
+                        <div class="stat" style="color: rgb(247, 143, 140);">
+                            <i class="fa-regular fa-thumbs-down" aria-hidden="true"></i>
+                            <span>0</span>
+                        </div>
+                        <div class="stat" style="color: rgb(90, 215, 253);">
+                            <i class="fa-regular fa-comment" aria-hidden="true"></i>
+                            <span>0</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="comments">
+                <div class="post profile-section">
+                    <div class="comment">Sigma Sigma rizz</div>
+                </div>
             </section>
         </main>
     </div>
