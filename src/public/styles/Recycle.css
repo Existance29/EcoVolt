@@ -15,51 +15,70 @@ body {
 }
 
 
-/* .equipment-section {
-    display: flex;
-    flex-direction: column;
-    max-width: 960px;
-    flex-grow: 1;
-    gap: 1rem;
-} */
-
-.equipment-section h1 {
-    color: #1c160c;
-    font-size: 2.25rem;
-    font-weight: 900;
-    line-height: 1.25;
-    letter-spacing: -0.033em;
+.equipment-section-header {
+  display: flex;
+  flex-direction: column;
+  max-width: 960px;
+  flex-grow: 1;
+  gap: 1rem;
+  justify-content: flex-start; /* Align items at the start vertically */
+  align-items: flex-start; /* Align items to the left horizontally */
+  margin-left: 3.5%;
 }
 
+.equipment-section-header h2 {
+  color: #1c160c;
+  font-size: 15px;
+  font-weight: 900;
+  margin-top: 20px; /* Replace 'top' with margin */
+  margin-bottom: 20px; /* Replace 'bottom' with margin */
+  letter-spacing: -0.033em;
+}
+
+
 .search-bar {
-    width: 100%; /* Match the table's width */
-    max-width: 1300px; /* Match the table's max-width */
-    margin: 0 auto; /* Center the search bar */
-    margin-bottom: 1%;
+  width: 100%; /* Match the table's width */
+  max-width: 200px; /* Match the table's max-width */
+  margin: 0 auto; /* Center the search bar */
+  margin-bottom: 20px;
+  position: relative; /* For positioning the icon */
+  float: right;
+  margin-right: 3.3%;
 }
 
 .search-bar label {
-    display: block; /* Prevent flex layout for the label */
-    width: 100%;
+  display: block; /* Prevent flex layout for the label */
+  width: 100%;
+  position: relative; /* For positioning the icon */
 }
 
 .search-bar input {
-    width: 100%; /* Ensure the input fills the container */
-    height: 3rem;
-    border: none;
-    border-radius: 0.75rem;
-    background-color: #B9E4C9;
-    padding: 0 1rem;
-    font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
-    color: #1c160c;
-    outline: none;
-    box-sizing: border-box; /* Avoid unexpected padding issues */
+  width: 100%; /* Ensure the input fills the container */
+  height: 3rem;
+  border: none;
+  border-radius: 0.75rem;
+  background-color: #9FE6DF;
+  padding: 0 3rem 0 1rem; /* Add padding on the right for the icon */
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #1c160c;
+  outline: none;
+  box-sizing: border-box; /* Avoid unexpected padding issues */
 }
 
 .search-bar input::placeholder {
-    color: #2F6D45;
+  color: #2F6D45;
+}
+
+.search-bar .search-icon {
+  position: absolute;
+  right: 1rem; /* Position the icon inside the input */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.25rem; /* Adjust the size of the icon */
+  color: #2F6D45; /* Match placeholder color */
+  pointer-events: none; /* Allow clicks to pass through to the input */
 }
 
 
@@ -67,14 +86,14 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center; /* Center content horizontally */
-    max-width: 1500px; /* Increase the maximum width */
+    max-width: 100%; /* Increase the maximum width */
     margin: 0 auto; /* Center the section on the page */
     gap: 1rem;
 }
 
 .equipment-table {
     width: 100%; /* Set the table width to occupy the full section width */
-    max-width: 1300px; /* Add a max-width if necessary */
+    max-width: 1500px; /* Add a max-width if necessary */
     overflow: hidden;
     border: 1px solid #B9E4C9;
     border-radius: 0.75rem;
@@ -156,12 +175,14 @@ h2 {
     display: flex; /* Use flexbox layout */
     gap: 15px; /* Increase spacing between buttons */
     margin-bottom: 15px; /* Space below the buttons */
-    justify-content: flex-start; /* Align the buttons */
-    padding-left: 10%; /* Add padding to move them to the right */
+    justify-content: left; /* Align the buttons */
+    margin-left: 3.5%;
+    margin-top: 10px;
+  
 }
 
 .filter-buttons button {
-    padding: 12px 20px; /* Increase padding to make buttons bigger */
+    padding: 12px 30px; /* Increase padding to make buttons bigger */
     font-size: 16px; /* Increase font size */
     border: none; /* Remove borders */
     border-radius: 25px; /* Keep buttons rounded */
@@ -177,7 +198,7 @@ h2 {
 }
 
 .filter-buttons button.active {
-    background-color: #3b82f6; /* Blue color for active state */
+    background-color: #4FD1C5; /* Blue color for active state */
     color: #ffffff; /* White text */
 }
 
@@ -452,7 +473,7 @@ body.modal-open {
 /* General Container */
 .countdown-delivery-container {
     padding: 16px;
-    max-width: 1350px;
+    max-width: 1530px;
     margin: 0 auto;
   }
   

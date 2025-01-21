@@ -67,16 +67,18 @@
               
                 
                 
-                  <section class="equipment-section">
-                    <h2 id="recycle-items-heading">Company Equipment Pending Pick Up</h2>
-                </section>                
+                               
     
 
-                    <div class="search-bar">
-                        <label>
-                            <input type="text" id="search-input" placeholder="Search for a piece of equipment" />
-                        </label>
-                    </div>     
+                  <div class="search-bar">
+                    <label>
+                        <input type="text" id="search-input" placeholder="Search...." />
+                        <span class="search-icon">&#128269;</span> <!-- Unicode for magnifying glass -->
+                    </label>
+                </div>
+                
+
+                   
                     
                     <div class="filter-buttons">
                         <button data-center-id="All" onclick="setActiveButton('All')">All</button>
@@ -85,7 +87,14 @@
                         <button data-center-id="3" onclick="setActiveButton('3')">Data Center 3</button>
                         <button data-center-id="4" onclick="setActiveButton('4')">Data Center 4</button>
                         <button data-center-id="5" onclick="setActiveButton('5')">Data Center 5</button>
-                    </div>                    
+                    </div> 
+                    
+                    <br>
+                    
+                    <section class="equipment-section-header">
+                        <h2 id="recycle-items-heading">Company Equipment Pending Pick Up</h2>
+                    </section>   
+                    
                     
                     
                     <section class="equipment-section">
@@ -119,7 +128,10 @@
                         </table>
                     </div>
 
-                    <h2>Employee's Devices Pending Pick Up</h2>
+
+                    
+                        <h2>Employee's Devices Pending Pick Up</h2>
+                   
 
                     <div class="equipment-table">
                         <table id="equipment-table-1">

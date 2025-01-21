@@ -30,41 +30,78 @@
             <a href="rewards.html">Rewards</a>
         </nav>
 
-        <div class="stats-wrapper">          
-            <!-- Right-Side Containers -->
-            <div class="info-panel">
-              <div class="number-of-rides">
-                <p class="title">Number of Rides</p>
-                <div class="value">0</div>
-              </div>
-              <div class="time-travelled">
-                <p class="title">Time Travelled</p>
-                <div class="value">0h 0m</div>
-              </div>
+        <!-- headergreet -->
+
+        <div class="greetingsHeader">
+            <div class="greeting">
+                <h1 id="greeting-message">Good Morning, <span id="user-name">User</span></h1>
+                <p>Two Wheels, Zero Emissions. Cycle Now!</p>
             </div>
-        </div>  
-
-<!-- Unified Container for Carbon Emission Reduced Section -->
-<div id="carbon-emission-section" class="carbon-emission-reduced">
-    <!-- Donut Chart Container -->
-    <div id="donut-container" class="donut-container">
-        <div class="chart-overlay">
-            <canvas id="donutChart"></canvas>
+            
+            <div class="controls">
+                <div class="dropdown">
+                    <a href="leaderboard.html" class="dropdown-button">
+                        LeaderBoard <span class="arrow">►</span>
+                    </a>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <!-- Carbon Emission and Visualization -->
-    <div class="visualization-container">
-        <p id="carbon-avoided">Carbon Avoided: 0 kg</p>
-
-        <!-- Tree Visualization and Garden Image -->
-        <div id="container-tree" class="tree-visualization"></div>
-        <img id="garden-image" src="/assets/fitness/garden.jpg" alt="Carbon Emission Reduced" class="carbon-emission-image">
-
-        <p id="total-distance">Total distance cycled: 0 km</p>
-        <p id="trees-planted-message">Your distance cycled is equivalent to the carbon absorption of 0 trees</p>
-    </div>
-</div>   
+        
+        <!-- end of headergreet -->
+        <div class="stats-wrapper">
+            <!-- Left Section: Info Panel and Donut Chart -->
+            <div class="left-panel">
+                <div class="info-panel">
+                    <div class="number-of-rides">
+                        <div class="icon-circle">
+                            <img src="assets/fitness/cycling.png" alt="Number of Rides Icon" class="icon" />
+                        </div>
+                        <div class="value">0</div>
+                        <p class="title">Number of Rides</p>
+                    </div>
+        
+                    <div class="time-travelled">
+                        <div class="icon-circle">
+                            <img src="assets/fitness/time-left.png" alt="Time Travelled Icon" class="icon" />
+                        </div>
+                        <div class="value">0h 0m</div>
+                        <p class="title">Time Travelled</p>
+                    </div>
+                </div>
+        
+                <div class="donut-container">
+                    <div class="chart-details">
+                        <h3 class="chart-title">Distance Travelled</h3>
+                        <p class="chart-number">34</p>
+                        <p class="chart-subtitle">km completed</p>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #4FD1C5;"></span>
+                                <span class="legend-label">Completed</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #E0E0E0;"></span>
+                                <span class="legend-label">Remaining</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-overlay">
+                        <canvas id="donutChart"></canvas>
+                    </div>
+                </div>
+                
+            </div>
+        
+            <!-- Right Section: Visualization Container -->
+            <div class="visualization-container">
+                <p id="carbon-avoided">Carbon Avoided: 1.06 kg</p>
+                <div id="container-tree" class="tree-visualization"></div>
+                <img id="garden-image" src="/assets/fitness/garden.jpg" alt="Carbon Emission Reduced" class="carbon-emission-image">
+                <p id="total-distance">Total distance cycled: 9.81 km</p>
+                <p id="trees-planted-message">Your distance cycled is equivalent to the carbon absorption of 0 trees</p>
+            </div>
+        </div>
+        
           
           
         <div class="contribution-container">
