@@ -176,7 +176,7 @@ document.getElementById("edit-profile-picture").addEventListener("change", async
             method: "POST",
             body: formData,
             headers: {
-                "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`
+                "Authorization": `Bearer ${sessionStorage.getItem("accessToken") || localStorage.getItem("accessToken")}`
             }
         });
 
