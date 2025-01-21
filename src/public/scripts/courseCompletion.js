@@ -27,9 +27,9 @@ async function fetchTotalPoints(courseTotalPoints, courseName) {
         const response = await get("/rewards/available-points");
         if (response.ok) {
             const data = await response.json();
-            // Calculate total points including the course points
-            const totalPoints = (data.points || 0) + courseTotalPoints;
-            document.getElementById("total-points").textContent = totalPoints;
+
+            // User's current points
+            const userPoints = data.points || 0;
 
             // Add points to the user using the provided `post` helper function
             const addPointsResponse = await post("/course/addPoints", {
@@ -38,8 +38,18 @@ async function fetchTotalPoints(courseTotalPoints, courseName) {
             });
 
             if (!addPointsResponse.ok) {
-                console.error("Failed to add points:", await addPointsResponse.text());
+                if (addPointsResponse.status === 400) {
+                    // If 400 error, show only the user's current points
+                    console.warn("Course already completed. Showing current points only.");
+                    document.getElementById("total-points").textContent = userPoints;
+                } else {
+                    console.error("Failed to add points:", await addPointsResponse.text());
+                    document.getElementById("total-points").textContent = "Error";
+                }
             } else {
+                // Successful addition: display updated total points
+                const totalPoints = userPoints + courseTotalPoints;
+                document.getElementById("total-points").textContent = totalPoints;
                 console.log("Points added successfully.");
             }
         } else {

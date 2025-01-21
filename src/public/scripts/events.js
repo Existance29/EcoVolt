@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="reward-image" style="background-image: url('${imagePath}');"></div>
           <div class="reward-description">
             <p class="reward-title">${course.title}</p>
-            <p class="reward-cost">Enroll for ${course.points} Points</p>
+            <p class="reward-cost">Complete course for ${course.points} Points</p>
             <p class="reward-description-text">${course.description}</p>
           <button class="redeem-btn" onclick="window.location.href='courseContent.html?courseId=${course.id}'">Enroll Now</button>
           </div>
