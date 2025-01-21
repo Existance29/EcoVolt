@@ -25,47 +25,19 @@
       <aside class="sidebar"></aside>
 
       <main class="main-content">
+        <header class="mainHeader" data-title="Rewards" data-breadcrumb="Activities / Rewards"></header>
+
+        <nav class="tabs">
+          <a href="activityFeed.html">Activity Feed</a>
+          <a href="events.html">Courses & Events</a>
+          <a href="leaderboard.html">LeaderBoard</a>
+          <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
+          <a href="rewards.html">Rewards</a>
+      </nav>
         <div class="layout-container">
           <section class="redeem-section">
             <div class="section-header">
-                <div class="header-row">
-                  <button class="back-button" onclick="
-                  (async function() {
-                    try {
-                      const response = await fetch('/api/reward_history/latest', { method: 'GET' });
-                      if (response.ok) {
-                        const data = await response.json();
-                        if (data.category === 'fitness') {
-                          window.location.href = 'fitness.html';
-                        } else if (data.category === 'activity') {
-                          window.location.href = 'activityfeed.html';
-                        } else {
-                          window.location.href = 'activityfeed.html'; // Fallback to activityfeed
-                        }
-                      } else {
-                        console.error('Failed to fetch the latest history.');
-                        window.location.href = 'activityfeed.html'; // Fallback to activityfeed
-                      }
-                    } catch (error) {
-                      console.error('Error fetching the latest history:', error);
-                      window.location.href = 'activityfeed.html'; // Fallback to activityfeed
-                    }
-                  })();
-                ">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    class="arrow-icon"
-                    width="24"
-                    height="24"
-                  >
-                    <path
-                      d="M10 19a1 1 0 0 1-.71-.29l-7-7a1 1 0 0 1 0-1.42l7-7a1 1 0 1 1 1.42 1.42L4.41 11H21a1 1 0 0 1 0 2H4.41l6.3 6.29A1 1 0 0 1 10 19z"
-                    ></path>
-                  </svg>
-                  <span>Back</span>
-                </button>                
+                <div class="header-row">             
                   <div class="title-description">
                     <h2 class="section-title">Redeem your points</h2>
                     <p class="section-description">
