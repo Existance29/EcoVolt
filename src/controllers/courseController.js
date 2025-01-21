@@ -65,7 +65,6 @@ const getNextLesson = async (req, res) => {
 const lessonCount = async (req, res) => {
     const course_id = req.params.course_id;
     try {
-        console.log(course_id);
         const data = await course.lessonCount(course_id);
         if (!data) {
             return res.status(400).send("No lesson count Found");
@@ -128,7 +127,7 @@ const addPoints = async (req, res) => {
     const courseName = req.body.courseName;
     try {
         const isLogged = await course.checkActivityPoints(user_id, `Completed ${courseName}`);
-        if (isLogged.length > 0) {
+        if (isLogged) {
             return res.status(400).send("You have already completed this course");
         }
         const checkUser = await course.checkUserRewards(user_id);
@@ -137,6 +136,8 @@ const addPoints = async (req, res) => {
             data = await course.addPoints(user_id, points);
         }
         else {
+            points += checkUser.total_points;
+            console.log(points);
             data = await course.updatePoints(user_id, points);
         }
         if (!data) {
