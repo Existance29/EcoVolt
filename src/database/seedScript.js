@@ -216,7 +216,7 @@ CREATE TABLE activity_points (
     user_id INT NOT NULL,
     company_id INT NOT NULL,
     post_id INT,
-    activity_type VARCHAR(50), 
+    activity_type VARCHAR(255), 
     points_awarded INT,
     datetime DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (user_id) REFERENCES users(id),

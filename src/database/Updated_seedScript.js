@@ -203,7 +203,7 @@ CREATE TABLE activity_points (
     activity_id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
     post_id INT,
-    activity_type VARCHAR(50), 
+    activity_type VARCHAR(255), 
     points_awarded INT,
     datetime DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (user_id) REFERENCES users(id),
