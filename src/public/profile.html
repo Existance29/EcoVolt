@@ -29,56 +29,38 @@
                 <div class="profile-container" style="padding: 10px;">
                     <!-- User Info Section -->
                     <div class="user-info">
-                        <img src="assets/profile/defaultprofilepic.jpg" alt="User Photo">
+                        <img alt="User Photo" id="profile-picture">
                         <div>
-                            <h3 style="font-size: 1.4rem;">Username</h3>
-                            <p style="margin-top: 0.4rem;">Company</p>
+                            <h3 style="font-size: 1.4rem;" id="name">Username</h3>
+                            <p style="margin-top: 0.4rem;" id="company">Company</p>
                             <p style="margin-top: 0.2rem;">0 Likes</p>
                         </div>
                     </div>
                     <!--About me-->
                     <h3 style="margin-top: 2rem;">About</h3>
-                    <p style="margin-top: 1.3rem;">About me here.</p>
+                    <p style="margin-top: 0.7rem;" id="about">About me here.</p>
                 </div>
             </section>
 
             <nav class="tabs">
-                <button class="active">Posts</button>
-                <button href="#">Comments</button>
+                <button class="active" id="posts-btn">Posts</button>
+                <button id="comments-btn">Comments</button>
             </nav>
             
-            <section id="posts">
-                <div class="post profile-section">
-                    <div class="body">Title</div>
-                    <div class="date">2025-08-43</div>
-                    <div class="stats-container">
-                        <div class="stat" style="color: rgb(153, 224, 147);">
-                            <i class="fa-regular fa-thumbs-up" aria-hidden="true"></i>
-                            <span>0</span>
-                        </div>
-                        <div class="stat" style="color: rgb(247, 143, 140);">
-                            <i class="fa-regular fa-thumbs-down" aria-hidden="true"></i>
-                            <span>0</span>
-                        </div>
-                        <div class="stat" style="color: rgb(90, 215, 253);">
-                            <i class="fa-regular fa-comment" aria-hidden="true"></i>
-                            <span>0</span>
-                        </div>
-                    </div>
-                </div>
+            <section id="posts" class="scrollable">
+                User has no posts
             </section>
-            <section id="comments">
-                <div class="post profile-section">
-                    <div class="comment">Sigma Sigma rizz</div>
-                </div>
+            <section id="comments" class="scrollable">
+                User has no comments
             </section>
         </main>
     </div>
 
     <!-- Custom JavaScript -->
-    <script src="./scripts/pages/overviewDashboard.js"></script>
-    <script src="./scripts/generateReport.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="./scripts/common.js"></script>
+    <script src="./scripts/api.js"></script>
+    <script src="./scripts/utils.js"></script>
+    <script src="./scripts/pages/profile.js"></script>
 </body>
 </html>
