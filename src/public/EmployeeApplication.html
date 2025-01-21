@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="styles/Recycle.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;700;800" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="./scripts/utils.js"></script>
+    <script src="./scripts/common.js" defer></script>
+    <script src="./scripts/api.js"></script>
+    <script src="./scripts/EmployeeApplication.js"></script>
+    <title>EcoVolt | Recycle</title>
+</head>
+<body>
+
+    <aside class="sidebar"></aside>
+            <main class="main-content">
+                <header class="mainHeader" data-title="Recyce E-Waste" data-breadcrumb="Pages / Recycle E-Waste"></header>
+
+                <nav class="tabs">
+                    <a href="CompanyEquipment.html">Company Equipment</a>
+                    <a href="EmployeeApplication.html">Employee's Application</a>
+                    <a href="PendingPickUp.html">Pending Pick Up</a>
+                    <a href="Recycled.html">Recycled</a>
+                </nav>
+
+                <div class="did-you-know-container">
+                    <div class="content-wrapper">
+                      <div class="text-section">
+                        <div class="text-content">
+                          <p class="title">Did you know?</p>
+                          <p class="description">
+                            Recycling electronics reduces carbon emissions by up to 80% compared to manufacturing new products.
+                          </p>
+                        </div>
+                        <button class="learn-more-btn">
+                          <span class="truncate">Learn More</span>
+                        </button>
+                      </div>
+                      <div class="image-section"></div>
+                    </div>
+                  </div>
+
+              
+                
+                
+                  <section class="equipment-section">
+                    <h2 id="recycle-items-heading">Equipment</h2>
+                </section>                
+    
+
+                    <div class="search-bar">
+                        <label>
+                            <input type="text" id="search-input" placeholder="Search for a piece of equipment" />
+                        </label>
+                    </div>     
+                    
+                    <section class="equipment-section">
+                    <!-- First table with unique ID -->
+                    <div class="equipment-table">
+                        <table id="equipment-table-1">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Device Type</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>Serial Number</th>
+                                    <th>Submit Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <section class="equipment-section">
+                        <h2 id="recycle-items-heading">Rejected Application</h2>
+                    </section>  
+
+                    <div class="equipment-table">
+                        <table id="equipment-table-2">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Device Type</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>Serial Number</th>
+                                    <th>Submit Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="details-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <button class="modal-close" onclick="closeModal()">✖</button>
+                            <iframe id="modal-iframe" src="" frameborder="0"></iframe>
+                            <div class="modal-footer">
+                                <button class="modal-Cancel" onclick="rejectDevice()">Reject</button>
+                                <button class="modal-Placeholder" onclick="approveDevice()">Approve</button>
+                                <button class="modal-Close hidden" onclick="closeModal()">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                
+            </main>
+
+
+</body>
+</html>

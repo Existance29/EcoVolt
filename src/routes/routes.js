@@ -9,6 +9,7 @@ const fitnessRoute = require('./fitness.js');
 const forecastRoute = require("./forecastRoutes.js");
 const rewardRoute = require("./rewardRoute.js");
 const recycleRoute = require("./recycleRoutes.js");
+const courseRoute = require("./courseRoute.js");
 
 const route = (app) => {
     userRoute(app);
@@ -22,6 +23,7 @@ const route = (app) => {
     forecastRoute(app);
     rewardRoute(app);
     recycleRoute(app);
+    courseRoute(app);
 };
 
 module.exports = route;

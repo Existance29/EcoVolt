@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?display=swap&family=Lexend:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900');
+
+body {
+  font-family: 'Lexend', 'Noto Sans', sans-serif;
+  margin: 0;
+  background-color: #f8fbfa;
+}
+
+.design-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  padding: 40px;
+}
+
+.content-wrapper {
+  max-width: 960px;
+  margin: auto;
+}
+
+.content-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+}
+
+.header-text {
+  flex: 1;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: bold;
+  color: #0e1b15;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #509577;
+}
+
+.progress-container {
+  padding: 16px;
+}
+
+.progress-text {
+  font-size: 16px;
+  color: #0e1b15;
+}
+
+.progress-bar {
+  background-color: #d1e6dd;
+  border-radius: 4px;
+  height: 8px;
+}
+
+.progress-fill {
+  background-color: #1cca7f;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.main-content {
+  padding: 20px;
+}
+
+.intro-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.image-section {
+  background-size: cover;
+  background-position: center;
+  aspect-ratio: 16/9;
+  flex: 1;
+  border-radius: 12px;
+}
+
+.text-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* Centers the content horizontally */
+    gap: 16px; /* Adds spacing between elements */
+  }
+  
+  .text-section h1 {
+    font-size: 32px;
+    font-weight: bold;
+    color: #0e1b15;
+    text-align: center; /* Centers the heading text */
+  }
+  
+  .text-section h2 {
+    font-size: 16px;
+    color: #0e1b15;
+    text-align: center; /* Centers the subtitle text */
+  }
+  
+  .start-button {
+    padding: 12px 24px;
+    background-color: #1cca7f;
+    color: #0e1b15;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 24px; /* Adds space above the button */
+    align-self: center; /* Ensures the button is centered in the text section */
+  }
+  
+
+.section-title {
+  font-size: 22px;
+  font-weight: bold;
+  padding: 16px;
+}
+
+.lessons-list {
+  gap: 8px;
+  border: 1px solid #dce5e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Add a slight shadow */
+  padding: 16px;
+}
+
+.lesson-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background-color: #f8fbfa;
+  border-radius: 8px;
+}
+
+.lesson-details {
+  display: flex;
+  align-items: center;
+  width: 90%; /* Adjust width as needed */
+  max-width: 2000px; /* Set a max width for larger screens */
+  box-sizing: border-box; /* Ensure padding doesn't affect total width */
+}
+
+
+.lesson-title {
+  font-size: 16px;
+  color: #0e1b15;
+  font-weight: bold;
+}
+
+.lesson-description {
+  font-size: 14px;
+  color: #509577;
+}
+
+.lesson-duration {
+  color: #509577;
+}
+
+.enroll-container {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+
+.enroll-button {
+  padding: 12px 24px;
+  background-color: #1cca7f;
+  color: #0e1b15;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.note {
+  text-align: center;
+  font-size: 14px;
+  color: #509577;
+  text-decoration: underline;
+}
