@@ -327,21 +327,21 @@ const generateReportData = async (req, res) => {
         // Generate other sections
         const companyName = reports[0]?.companyName || "Company";
         const executiveSummary = await generateExecutiveSummary(
-            monthlyEnergy.map((item) => item.totalEnergy),
+            totalEnergy,
             performanceSummary.co2Emissions.current,
             months,
-            monthlyEnergy,
+            monthlyEnergy.map((item) => item.totalEnergy),
             monthlyCO2.map((item) => item.totalCO2),
             companyName
         );
         const dataAnalysis = await generateDataAnalysis(
-            monthlyEnergy,
+            monthlyEnergy.map((item) => item.totalEnergy),
             monthlyCO2.map((item) => item.totalCO2),
             companyName
         );
         const recommendations = await getAllAIRecommendations(
             {
-                totalEnergy: monthlyEnergy.map((item) => item.totalEnergy),
+                totalEnergy: totalEnergy,
                 co2Emissions: monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0),
             },
             highestEnergyType // Pass the top energy contributor
@@ -350,7 +350,7 @@ const generateReportData = async (req, res) => {
 
 
         const conclusion = await generateConclusion(
-            monthlyEnergy.map((item) => item.totalEnergy),
+            totalEnergy,
             performanceSummary.co2Emissions.current,
             recommendations
         );
@@ -452,6 +452,10 @@ const getAllAIRecommendations = async (data, highestEnergyType) => {
     }
 };
 
+function sanitizeJSON(input) {
+    return input.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+}
+
 // Function to generate a detailed AI recommendation for each category
 async function generateAIRecommendations(data, category, highestEnergyType) {
     const prompt = `The company, having already implemented standard solutions, seeks cutting-edge recommendations. Based on the following data:
@@ -486,7 +490,13 @@ async function generateAIRecommendations(data, category, highestEnergyType) {
             temperature: 0.7,
         });
 
-        return JSON.parse(response.choices[0].message.content);
+        const rawContent = response.choices[0].message.content;
+
+        // Sanitize the response
+        const sanitizedContent = sanitizeJSON(rawContent);
+
+        // Parse the sanitized JSON
+        return JSON.parse(sanitizedContent);
     } catch (error) {
         console.error(`Error fetching ${category} recommendations for ${highestEnergyType}:`, error);
         throw error;

@@ -1,57 +1,42 @@
-import lightgbm as lgb
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
-from sklearn.preprocessing import StandardScaler
+import joblib
 import numpy as np
 
-# Load preprocessed data
-data = pd.read_csv("./data/preprocessed_data.csv")
+# Load the dataset
+data = pd.read_csv("data/synthetic_data.csv")
 
 # Feature engineering
-features = ['total_energy_kwh', 'renewable_energy_kwh']
-target = 'carbon_emission_kg'
+data['month'] = pd.to_datetime(data['month'], format='%Y-%m')
+data['year'] = data['month'].dt.year
+data['month_num'] = data['month'].dt.month
+
+# Define features (X) and target (y)
+features = [
+    'cell_tower_energy', 'cell_tower_radio', 'cell_tower_cooling',
+    'cell_tower_backup', 'cell_tower_misc',
+    'data_center_energy', 'data_center_it', 'data_center_cooling',
+    'data_center_backup', 'data_center_misc', 'year', 'month_num'
+]
+target = 'total_emission'
+
 X = data[features]
 y = data[target]
 
-# Debugging: Check data
-print("Features before preprocessing:")
-print(X.describe())
-
-# Scale features
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
 # Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Train LightGBM model
-train_data = lgb.Dataset(X_train, label=y_train)
-valid_data = lgb.Dataset(X_test, label=y_test, reference=train_data)
+# Train the Linear Regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
 
-params = {
-    "objective": "regression",
-    "metric": "rmse",
-    "learning_rate": 0.01,
-    "num_leaves": 7,
-    "min_data_in_leaf": 1,
-    "min_data_in_bin": 3,
-    "feature_pre_filter": False,
-}
-
-# Train the model
-model = lgb.train(
-    params,
-    train_data,
-    valid_sets=[train_data, valid_data],
-    valid_names=["train", "valid"],
-    num_boost_round=1000
-)
-
-# Evaluate model
-y_pred = model.predict(X_test, num_iteration=model.best_iteration)
+# Evaluate the model
+y_pred = model.predict(X_test)
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 print(f"RMSE: {rmse}")
 
 # Save the model
-model.save_model("./fine_tuned_model/model.txt")
+joblib.dump(model, "carbon_emission_model_lr.pkl")
+print("Model saved as 'carbon_emission_model_lr.pkl'")

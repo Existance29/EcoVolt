@@ -332,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     
         try {
             const allYears = Array.from(yearSelector.options).map(option => parseInt(option.value, 10));
-            const recentYears = allYears.slice(0, 4).reverse(); // Take the latest 4 years and reverse them
+            const recentYears = allYears.slice(0, 5).reverse(); // Take the latest 4 years and reverse them
     
             if (recentYears.length === 0) {
                 throw new Error("No years available for prediction.");
