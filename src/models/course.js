@@ -511,7 +511,29 @@ static async logActivityPoints(user_id, post_id, activityType, points) {
 }
 
 
-
+static async getCoursesCompleted(user_id) {
+    let connection;
+    try {
+        connection = await sql.connect(dbConfig);
+        const query = `
+            SELECT user_courses.user_id, courses.title, courses.points, courses.description, courses.image_path, user_courses.completed_at
+            FROM user_courses
+            INNER JOIN courses ON user_courses.course_id = courses.id
+            WHERE user_courses.user_id = @user_id;
+        `;
+        const result = await connection.request()
+            .input("user_id", user_id)
+            .query(query);
+        return result.recordset;
+    } catch (error) {
+        console.error("Error fetching completed courses:", error);
+        throw error;
+    } finally {
+        if (connection) {
+            connection.close();
+        }
+    }
+}
 
 
 

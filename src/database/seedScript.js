@@ -291,7 +291,7 @@ CREATE TABLE questions (
 );
 CREATE TABLE user_courses (
     id INT IDENTITY(1,1) PRIMARY KEY,         -- Unique identifier for the record
-    user_id INT NOT NULL UNIQUE,                     -- References the user
+    user_id INT NOT NULL,                     -- References the user
     course_id INT NOT NULL,                   -- References the course
     started_at DATETIME NOT NULL DEFAULT GETDATE(), -- Date and time the course was started
     completed_at DATETIME NULL,               -- Date and time the course was completed

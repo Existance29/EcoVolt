@@ -16,8 +16,9 @@ const courseRoute = (app) => {
 
     app.get('/user/points', authenticateToken, courseController.getUserPoints);
     app.post('/course/addPoints', authenticateToken, courseController.addPoints); // for course completion page
-    // app.post('/course/addPoints', authenticateToken, courseController.addPoints);
-    app.post("/generate-certificate", authenticateToken, courseController.downloadCertificate);
+    app.post("/generate-certificate", authenticateToken, courseController.downloadCertificate); // for course completion page
+
+    app.get('/profile/completed-courses', authenticateToken, courseController.getCoursesCompleted); // for profile page
 
     // ------- for submission of suggestions
     app.post('/submit-suggesiton/:company_id', authenticateToken, courseController.submitSuggestion);
