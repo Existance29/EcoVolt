@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   
     try {
       // Fetch the courses from the backend
-      const response = await get('/course');
+      const response = await get('/courses');
       const data = await response.json(); // Parse the JSON response
       console.log("Parsed data:", data);
 

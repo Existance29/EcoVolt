@@ -314,6 +314,24 @@ CREATE TABLE questions (
     correct_option CHAR(1) NOT NULL,        -- The correct option (e.g., 'A', 'B', 'C', or 'D')
     FOREIGN KEY (lesson_id) REFERENCES lessons(id) -- Links to the lessons table
 );
+CREATE TABLE user_courses (
+    id INT IDENTITY(1,1) PRIMARY KEY,         -- Unique identifier for the record
+    user_id INT NOT NULL UNIQUE,                     -- References the user
+    course_id INT NOT NULL,                   -- References the course
+    started_at DATETIME NOT NULL DEFAULT GETDATE(), -- Date and time the course was started
+    completed_at DATETIME NULL,               -- Date and time the course was completed
+    progress_percentage INT NOT NULL DEFAULT 0, -- Progress percentage (0-100)
+    FOREIGN KEY (user_id) REFERENCES users(id), -- Foreign key to the users table
+    FOREIGN KEY (course_id) REFERENCES courses(id) -- Foreign key to the courses table
+);
+CREATE TABLE user_lessons (
+    id INT IDENTITY(1,1) PRIMARY KEY,       -- Unique identifier
+    user_id INT NOT NULL,                   -- References the user
+    lesson_id INT NOT NULL,                 -- References the lesson
+    completed_at DATETIME NOT NULL DEFAULT GETDATE(), -- Completion timestamp
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (lesson_id) REFERENCES lessons(id)
+);
 -- Create table for Suggestions
 CREATE TABLE suggestions (
     id INT IDENTITY(1,1) PRIMARY KEY,
