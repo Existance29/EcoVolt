@@ -51,13 +51,15 @@ async function loadData(){
     //activtity
     let activityData = await(await get(`/users/activity/public/${userId}`)).json()
     let postHTML = ""
+    let totalLikes = 0
     for (const post of activityData.posts){
         const mediaResponse = await get(`/getMedia/${post.post_id}`)
         let showImage = false
         if (mediaResponse.ok) showImage = true
         const blob = await mediaResponse.blob()
         const media_url = URL.createObjectURL(blob)
-
+        
+        totalLikes += post.likes
         postHTML += `
             <div class="post profile-section">
                 <div class="body">${post.context}</div>
@@ -94,5 +96,8 @@ async function loadData(){
         `
     }
     if (commentHTML) document.getElementById("comments").innerHTML = commentHTML
+
+    //user's likes
+    document.getElementById("likes").innerText = `${totalLikes} ${totalLikes === 1 ? "Like" : "Likes"}`
 }
 loadData()

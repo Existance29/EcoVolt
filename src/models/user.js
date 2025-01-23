@@ -83,10 +83,11 @@ class User{
             LEFT JOIN users u ON u.id = af.user_id
             WHERE af.user_id=@id
             GROUP BY af.post_id, af.context, af.date
+            ORDER BY af.post_id DESC
         `, {"id": id})).recordset
 
         const comments = (await query.query(
-            `SELECT comment_id, c.post_id, comment_text, c.date, context FROM comments AS c INNER JOIN activity_feed AS p ON c.post_id = p.post_id WHERE c.user_id=@id`
+            `SELECT comment_id, c.post_id, comment_text, c.date, context FROM comments AS c INNER JOIN activity_feed AS p ON c.post_id = p.post_id WHERE c.user_id=@id ORDER BY comment_id DESC`
             , {"id": id})).recordset
 
         const result = {
