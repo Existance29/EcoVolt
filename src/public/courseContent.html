@@ -26,7 +26,6 @@
       <nav class="tabs">
         <a href="activityFeed.html">Activity Feed</a>
         <a href="events.html">Courses & Events</a>
-        <a href="leaderboard.html">LeaderBoard</a>
         <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
         <a href="rewards.html">Rewards</a>
     </nav>
@@ -38,12 +37,12 @@
       </div>
     </section>
 
-    <!-- <section class="progress-container">
-      <p class="progress-text">20% completed</p>
+    <section class="progress-container">
+      <p class="progress-text">0% completed</p>
       <div class="progress-bar">
         <div class="progress-fill" style="width: 20%;"></div>
       </div>
-    </section> -->
+    </section>
 
     <section class="intro-section">
       <div 
@@ -62,7 +61,11 @@
     <h2 class="section-title">What's inside</h2>
 
     <section class="lessons-list" id="lessons-list">
-      <!-- Dynamic lesson content will be populated here -->
+        <div>
+          <p class="lesson-title">${lesson.title}</p>
+          <p class="lesson-description">${lesson.content}</p>
+      </div>
+      <p class="lesson-duration">${lesson.duration}</p>
     </section>
     <p class="note">
       <br><br>

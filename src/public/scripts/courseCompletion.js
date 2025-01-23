@@ -1,79 +1,129 @@
-async function getCourseTotalPoints(courseId) {
+async function getCourseById(courseId) {
+    const url = `/courses/${courseId}`;
+    
     try {
-        const response = await get(`/course/${courseId}`);
-        if (response.ok) {
+        const response = await get(url);
+
+        if (response.status === 200) {
             const data = await response.json();
-            if (data.length > 0) {
-                return { 
-                    points: data[0].points || 0, 
-                    courseName: data[0].title || "Unknown Course" 
-                }; // Return points and course name
-            } else {
-                console.error("No course data found.");
-                return { points: 0, courseName: "Unknown Course" };
-            }
+            return data; // Successfully fetched course data
         } else {
-            console.error("Failed to fetch course points:", response.statusText);
-            return { points: 0, courseName: "Unknown Course" };
+            console.error("Error fetching course data:", response.status);
+            return null; // Error occurred
         }
     } catch (error) {
-        console.error("Error fetching course points:", error);
-        return { points: 0, courseName: "Unknown Course" };
+        console.error("Error fetching course data:", error);
+        return null; // Error occurred
+    }
+}
+async function getUserPoints() {
+    const url = '/user/points';
+
+    try {
+        const response = await get(url);
+
+        if (response.status === 200) {
+            const data = await response.json();
+            return data; // Successfully fetched user points
+        } else if (response.status === 404) {
+            console.warn("User points not found (404). Defaulting to 0.");
+            return { points: 0 }; // Default to 0 points if not found
+        } else {
+            console.error("Error fetching user points:", response.status);
+            return null; // Error occurred
+        }
+    } catch (error) {
+        console.error("Error fetching user points:", error);
+        return null; // Error occurred
     }
 }
 
-async function fetchTotalPoints(courseTotalPoints, courseName) {
+async function handleTotalPoints(courseId) {
     try {
-        const response = await get("/rewards/available-points");
-        if (response.ok) {
+        let course = await getCourseById(courseId);
+        let userPoints = await getUserPoints();
+
+        if (!course) {
+            console.error("Failed to fetch course details.");
+            alert("Unable to retrieve course information.");
+            return;
+        }
+
+        if (!userPoints) {
+            console.error("Failed to fetch user points.");
+            return;
+        }
+        console.log("Course Data:", course);
+        const coursePoints = course[0].course_points || 0; // Default to 0 if undefined
+        const userTotalPoints = userPoints.points || 0; // Default to 0 if undefined
+        await addCourseCompletionPoints(courseId, course[0].course_points, course[0].course_title);
+        const totalPoints = coursePoints + userTotalPoints;
+        document.getElementById("total-points").textContent = totalPoints;
+    } catch (error) {
+        console.error("Error handling total points:", error);
+        alert("An unexpected error occurred. Please try again later.");
+    }
+}
+
+async function addCourseCompletionPoints(courseId, points, courseName) {
+    const url = '/course/addPoints';
+    const requestData = {
+        courseId: courseId,
+        points: points,
+        courseName
+    };
+
+    try {
+        const response = await post(url, requestData);
+
+        if (response.status === 200) {
             const data = await response.json();
-
-            // User's current points
-            const userPoints = data.points || 0;
-
-            // Add points to the user using the provided `post` helper function
-            const addPointsResponse = await post("/course/addPoints", {
-                points: courseTotalPoints,
-                courseName
-            });
-
-            if (!addPointsResponse.ok) {
-                if (addPointsResponse.status === 400) {
-                    // If 400 error, show only the user's current points
-                    console.warn("Course already completed. Showing current points only.");
-                    document.getElementById("total-points").textContent = userPoints;
-                } else {
-                    console.error("Failed to add points:", await addPointsResponse.text());
-                    document.getElementById("total-points").textContent = "Error";
-                }
-            } else {
-                // Successful addition: display updated total points
-                const totalPoints = userPoints + courseTotalPoints;
-                document.getElementById("total-points").textContent = totalPoints;
-                console.log("Points added successfully.");
-            }
+            return data; // Successfully added points
         } else {
-            console.error("Failed to fetch points:", response.statusText);
-            document.getElementById("total-points").textContent = "Error";
+            console.error("Error adding points:", response.status);
+            return null; // Error occurred
         }
     } catch (error) {
-        console.error("Error fetching points:", error);
-        document.getElementById("total-points").textContent = "Error";
+        console.error("Error adding points:", error);
+        return null; // Error occurred
     }
 }
 
 
 // Call the functions to fetch points on page load
 document.addEventListener("DOMContentLoaded", async () => {
-    const courseId = new URLSearchParams(window.location.search).get("courseId");
+    const courseId = new URLSearchParams(window.location.search).get("course_id");
     if (courseId) {
-        const { points: courseTotalPoints, courseName } = await getCourseTotalPoints(courseId);
-        await fetchTotalPoints(courseTotalPoints, courseName);
+        const completionResponse = await markCourseAsCompleted(courseId);
+        console.log("Completion Response:", completionResponse);
+        await handleTotalPoints(courseId);
     } else {
         console.error("Course ID not found in URL.");
         document.getElementById("total-points").textContent = "No Course ID";
     }
 });
+
+async function markCourseAsCompleted(courseId) {
+    if (!courseId || isNaN(courseId) || courseId <= 0) {
+        console.error("Invalid course ID provided.");
+        return;
+    }
+    try {
+        const response = await put('/courses/complete', { course_id: parseInt(courseId) });
+
+        if (!response.ok) {
+            throw new Error(`Failed to complete the course. Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Course marked as completed successfully:", data);
+        return data; // Return data for further processing if needed
+    } catch (error) {
+        console.error("Error marking the course as completed:", error);
+        throw error; // Re-throw error for handling elsewhere if needed
+    }
+}
+
 
 async function downloadCertificate() {
     const courseId = new URLSearchParams(window.location.search).get("courseId");

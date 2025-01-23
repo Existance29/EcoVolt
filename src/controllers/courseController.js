@@ -3,170 +3,250 @@
 const course = require('../models/course');
 const sharp = require("sharp");
 const path = require("path");
+const { get } = require('http');
 
 
-const getCourseById = async (req, res) => {
-    const course_id = req.params.course_id;
+
+const startCourse = async (req, res) => {
+    const course_id = parseInt(req.body.course_id);
+    const user_id = req.user.userId;
     try {
-        const data = await course.getCourseById(course_id);
-        if (!data) {
-            return res.status(400).send("No Courses Found");
+        const courses = await course.startCourse(course_id, user_id);
+        if (!courses) {
+            return res.status(404).send("Did not log start course.");
         }
-        return res.status(200).json(data);
+        return res.status(200).json(courses);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to retrieve Courses: Internal Server Error.');
+        console.error("Error fetching content for selected course:", error);
+        res.status(500).send("Failed to fetch content for selected course: Internal Server Error.");
+    }
+}
+
+const completeCourse = async (req, res) => {
+    const { course_id } = req.body;
+    const user_id = req.user.userId;
+    try {
+        const courses = await course.completeCourse(user_id, course_id);
+        if (!courses) {
+            return res.status(404).send("did not log complete course.");
+        }
+        return res.status(200).json(courses);
+    } catch (error) {
+        console.error("Error fetching content for selected course:", error);
+        res.status(500).send("Failed to fetch content for selected course: Internal Server Error.");
     }
 }
 
 
 const getAllCourses = async (req, res) => {
     try {
-        const data = await course.getAllCourses();
-        if (!data) {
-            return res.status(400).send("No Data Centers found.");
+        const courses = await course.getAllCourses();
+        if (!courses) {
+            return res.status(404).send("No courses found.");
         }
-        return res.status(200).json(data);
+        return res.status(200).json(courses);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to retrieve Data Centers: Internal Server Error.');
-    }
-}
-
-const getLessonsByCourseId = async (req, res) => {
-    const course_id = req.params.course_id;
-    try {
-        const data = await course.getLessonsByCourseId(course_id);
-        if (!data) {
-            return res.status(400).send("No Lessons Found");
-        }
-        return res.status(200).json(data);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to retrieve Lessons: Internal Server Error.');
-    }
-}
-
-const getNextLesson = async (req, res) => {
-    const lesson_id = req.params.lesson_id;
-    const couse_id = req.params.course_id;
-    try {
-        const nextLesson = await course.getNextLesson(lesson_id, couse_id); // Add this function in your course model
-        if (!nextLesson) {
-            return res.status(404).send("No more lessons available.");
-        }
-        return res.status(200).json(nextLesson);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to retrieve the next lesson: Internal Server Error.');
+        console.error("Error fetching courses:", error);
+        res.status(500).send("Failed to fetch courses: Internal Server Error.");
     }
 };
 
-const lessonCount = async (req, res) => {
-    const course_id = req.params.course_id;
+const getCourseByIdForContentPage = async (req, res) => {
+    const course_id = parseInt(req.params.course_id);
     try {
-        const data = await course.lessonCount(course_id);
-        if (!data) {
-            return res.status(400).send("No lesson count Found");
+        const courses = await course.getCourseByIdForContentPage(course_id);
+        if (!courses) {
+            return res.status(404).send("No content for selected course found.");
         }
-        return res.status(200).json(data);
+        return res.status(200).json(courses);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to retrieve lesson count: Internal Server Error.');
+        console.error("Error fetching content for selected course:", error);
+        res.status(500).send("Failed to fetch content for selected course: Internal Server Error.");
     }
 }
 
-const getVideoLink = async(req, res) => {
-    const lesson_id = req.params.lesson_id;
-    const course_id = req.params.course_id;
+const calculateUserProgress = async (req, res) => {
+    const course_id = parseInt(req.params.course_id);
+    const user_id = req.user.userId;
+
     try {
-        const data = await course.getVideoLink(lesson_id, course_id);
-        if (!data) {
-            return res.status(400).send("No video Found");
-        }
-        return res.status(200).json(data);
+        // Fetch the progress percentage
+        const progressPercentage = await course.getUserProgress(user_id, course_id);
+
+        // Respond with the progress
+        res.status(200).json({ success: true, course_id, user_id, progressPercentage });
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to retrieve video: Internal Server Error.');
+        console.error('Error calculating user progress:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to calculate user progress',
+        });
+    }
+};
+
+const getWhichLessonUserLeftOff = async (req, res) => {
+    const course_id = parseInt(req.params.course_id);
+    const user_id = req.user.userId;
+
+    try {
+        // Fetch the lesson the user left off
+        const lastLesson = await course.getLastLessonForUser(user_id, course_id);
+        if (lastLesson) {
+            res.status(200).json({ success: true, course_id, user_id, lesson: lastLesson });
+        } else {
+            res.status(404).json({
+                success: false,
+                message: "No lessons found for this user in this course.",
+            });
+        }
+    } catch (error) {
+        console.error("Error fetching the last lesson:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to retrieve the lesson the user left off.",
+        });
+    }
+};
+
+
+
+// ------------------------------- lesson related below 
+const getLessonById = async (req, res) => {
+    const lesson_id = parseInt(req.params.lesson_id);
+    const course_id = parseInt(req.params.course_id);
+    try {
+        const check = await course.getLessonByCourseIdAndLessonId(course_id, lesson_id);
+        if (!check) {
+            return res.status(404).send("No lesson found.");
+        }
+        const lesson = await course.getLessonById(course_id, lesson_id);
+        if (!lesson) {
+            return res.status(404).send("No lesson found.");
+        }
+        return res.status(200).json(lesson);
+    } catch (error) {
+        console.error("Error fetching lesson:", error);
+        res.status(500).send("Failed to fetch lesson: Internal Server Error.");
     }
 }
 
 
-const getQuestionsByLessonId = async (req, res) => {
-    const lesson_id = req.params.lesson_id;
-    const course_id = req.params.course_id;
-    try {
-        const data = await course.getQuestionsByLessonId(lesson_id, course_id);
-        if (!data) {
-            return res.status(400).send("No Lessons Found");
-        }
-        return res.status(200).json(data);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to retrieve Lessons: Internal Server Error.');
-    }
-}
+const increaseUserProgress = async (req, res) => {
+    const user_id = req.user.userId;
+    const { course_id, lesson_id } = req.params;
 
-const getKeyConceptsByLessonId = async (req, res) => {
-    const lesson_id = parseInt(req.params.lesson_id, 10); // Corrected key name
     try {
-        const data = await course.getKeyConceptsByLessonId(lesson_id);
-        if (!data) {
-            return res.status(400).send("No Key Concept Found");
+        const updatedProgress = await course.increaseUserProgress(user_id, course_id, lesson_id);
+        if (!updatedProgress) {
+            return res.status(404).json({
+                success: false,
+                message: "Course or lesson not found or invalid request."
+            });
         }
-        return res.status(200).json(data);
+
+        return res.status(200).json({
+            success: true,
+            message: "User progress updated successfully.",
+            progress: updatedProgress
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to retrieve Key Concepts: Internal Server Error.');
+        console.error("Error updating user progress:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update user progress."
+        });
+    }
+};
+
+
+
+
+const getUserPoints = async (req, res) => {
+    const user_id = req.user.userId;
+    try {
+        const points = await course.getUserPoints(user_id);
+        if (!points) {
+            return res.status(404).send("User not found.");
+        }
+        return res.status(200).json({points});
+    } catch (error) {
+        console.error("Error fetching user points:", error);
+        res.status(500).send("Failed to fetch user points: Internal Server Error.");
     }
 }
 
 const addPoints = async (req, res) => {
-    const user_id = req.user.userId;
-    const points = req.body.points;
-    const courseName = req.body.courseName;
+    const user_id = req.user.userId; // User ID from the authenticated token
+    const points = parseInt(req.body.points, 10);
+    const courseName = req.body.courseName; // Assuming this is passed in the request body
+    const activityType = `Completed ${courseName}`;
     try {
-        const isLogged = await course.checkActivityPoints(user_id, `Completed ${courseName}`);
-        if (isLogged) {
-            return res.status(400).send("You have already completed this course");
+        // Check if the user has already been awarded for this activity
+        const hasAwarded = await course.checkIfActivityExists(user_id, activityType);
+
+        if (hasAwarded) {
+            return res.status(400).json({
+                success: false,
+                message: "User has already been awarded points for this activity.",
+            });
         }
-        const checkUser = await course.checkUserRewards(user_id);
-        let data;
-        if (!checkUser) {
-            data = await course.addPoints(user_id, points);
+
+        // Ensure the user exists in the `user_rewards` table
+        const userExists = await course.checkIfUserExistsInRewards(user_id);
+
+        if (!userExists) {
+            // Add user to `user_rewards` table with initial points
+            await course.addUserToRewards(user_id, points);
+        } else {
+            // Update user's total points
+            await course.updateUserPoints(user_id, points);
         }
-        else {
-            points += checkUser.total_points;
-            console.log(points);
-            data = await course.updatePoints(user_id, points);
-        }
-        if (!data) {
-            return res.status(400).send("No points added");
-        }
-        await course.logActivity(user_id, null, `Completed ${courseName}`, points, new Date());
-        return res.status(200).json(data);
+
+        // Log the activity in the `activity_points` table
+        await course.logActivityPoints(user_id, null, activityType, points);
+
+        return res.status(200).json({
+            success: true,
+            message: "Points added successfully.",
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Failed to add points: Internal Server Error.');
-    }
-}
-
-
-const checkActivityPoints = async (req, res) => {
-    const user_id = req.user.userId; // Ensure `userId` is valid
-    const activityType = req.body.activityType; // Get activityType from the request body
-    if (!user_id || !activityType) {
-        return res.status(400).send("User ID and Activity Type are required.");
-    }
-
-    try {
-        const isTaken = await course.checkActivityPoints(user_id, activityType);
-        return res.status(200).json({ isTaken });
-    } catch (error) {
-        console.error("Error checking activity points:", error);
-        res.status(500).send("Failed to check course activity: Internal Server Error.");
+        console.error("Error adding points:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to add points: Internal Server Error.",
+        });
     }
 };
+
+
+
+
+const getCoursesCompleted = async (req, res) => {
+    const user_id = req.user.userId;
+    try {
+        console.log(user_id);
+        const completedCourses = await course.getCoursesCompleted(user_id);
+        if (!completedCourses || completedCourses.length === 0) {
+            return res.status(404).send("No completed courses found.");
+        }
+        const formattedCourses = completedCourses.map(course => ({
+            ...course,
+            completed_at: course.completed_at ? course.completed_at : "In Progress"
+        }));
+        console.log(formattedCourses);
+        return res.status(200).json(formattedCourses);
+    } catch (error) {
+        console.error("Error fetching completed courses:", error);
+        res.status(500).send("Failed to fetch completed courses: Internal Server Error.");
+    }
+};
+
+
+
+
+
+
+
 
 const submitSuggestion = async (req, res) => {
     const user_id = req.user.userId;
@@ -256,18 +336,23 @@ const downloadCertificate = async (req, res) => {
 
 
 module.exports = {
-    getCourseById,
+    startCourse,
+    completeCourse,
     getAllCourses,
-    getLessonsByCourseId,
-    getQuestionsByLessonId,
-    getNextLesson,
+    getCourseByIdForContentPage,
+    calculateUserProgress,
+    getWhichLessonUserLeftOff,
+    getLessonById,
+    increaseUserProgress,
     addPoints,
-    checkActivityPoints,
+    getUserPoints,
+    getCoursesCompleted,
+
+
+
+
     generateCertificate,
     downloadCertificate,
-    getKeyConceptsByLessonId,
-    getVideoLink,
-    lessonCount,
-    submitSuggestion
+    submitSuggestion,
 
 }

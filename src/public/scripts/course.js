@@ -1,378 +1,257 @@
-async function loadQuizQuestions() {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const courseId = urlParams.get("courseId");
-      const lessonId = urlParams.get("lessonId");
-  
-      if (!courseId || !lessonId) {
-        console.error("Missing courseId or lessonId in URL parameters.");
-        return;
-      }
-  
-      // Fetch the questions for the current lesson
-      const apiEndpoint = `/lessons/question/${courseId}/${lessonId}`;
-      const response = await get(apiEndpoint);
-  
-      if (!response.ok) {
-        console.error("Failed to fetch questions:", response.statusText);
-        return;
-      }
-  
-      const questions = await response.json();
-      const quizContainer = document.getElementById("quiz-container");
-  
-      // Store questions globally to check answers later
-      window.currentQuestions = questions;
-  
-      questions.forEach((question) => {
-        console.log(question);
-        const questionHtml = `
-        <div class="quiz-content quiz-item" data-question-id="${question.id}">
-          <p class="question"><strong>${question.question_text}</strong></p>
-          <div class="options">
-            <div class="option">
-              <input type="radio" id="option-a-${question.id}" name="question-${question.id}" value="A">
-              <label for="option-a-${question.id}">${question.option_a}</label>
-            </div>
-            <div class="option">
-              <input type="radio" id="option-b-${question.id}" name="question-${question.id}" value="B">
-              <label for="option-b-${question.id}">${question.option_b}</label>
-            </div>
-            <div class="option">
-              <input type="radio" id="option-c-${question.id}" name="question-${question.id}" value="C">
-              <label for="option-c-${question.id}">${question.option_c}</label>
-            </div>
-            <div class="option">
-              <input type="radio" id="option-d-${question.id}" name="question-${question.id}" value="D">
-              <label for="option-d-${question.id}">${question.option_d}</label>
-            </div>
+async function fetchLessonDetails(courseId, lessonId) {
+  const endpoint = `/lesson/${courseId}/${lessonId}`;
+  try {
+    const response = await get(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch lesson details. Status: ${response.status}`);
+    }
+
+    const lessonData = await response.json();
+    return lessonData; // Return the data for further processing
+  } catch (error) {
+    console.error("Error fetching lesson details:", error);
+    return null;
+  }
+}
+
+async function fetchUserProgress(courseId) {
+  const endpoint = `/courses/check-progress/${courseId}`;
+  try {
+    const response = await get(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user progress. Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.success) {
+      return data.progressPercentage;
+    } else {
+      throw new Error("Failed to fetch user progress.");
+    }
+  } catch (error) {
+    console.error("Error fetching user progress:", error);
+    return 0; // Default to 0% if there's an error
+  }
+}
+
+function updateProgressBar(progressPercentage) {
+  const progressText = document.querySelector(".progress-text");
+  const progressFill = document.querySelector(".progress-fill");
+
+  // Update the progress text and fill width
+  progressText.textContent = `${progressPercentage}% completed`;
+  progressFill.style.width = `${progressPercentage}%`;
+
+  // Handle edge cases (e.g., 0% or 100%)
+  if (progressPercentage === 0) {
+    progressText.textContent = "You are just starting the course. Let's begin with the first lesson!";
+  } else if (progressPercentage === 100) {
+    progressText.textContent = "Congratulations! You've completed this course.";
+  }
+}
+
+function populateVideoSection(videoLink) {
+  const videoOverlay = document.querySelector(".video-overlay");
+
+  if (!videoLink) {
+    console.error("Video link is missing.");
+    videoOverlay.innerHTML = "<p>No video available for this lesson.</p>";
+    return;
+  }
+
+  // Replace 'watch?v=' with 'embed/' for YouTube links
+  const embedLink = videoLink.replace("watch?v=", "embed/");
+
+  // Insert the iframe dynamically into the video-overlay div
+  videoOverlay.innerHTML = `
+    <iframe
+      class="youtube-video"
+      src="${embedLink}"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+    ></iframe>`;
+}
+
+function populateLessonDescription(description) {
+  const lessonDescription = document.querySelector(".lesson-description");
+  if (!description) {
+    lessonDescription.textContent = "No description available for this lesson.";
+    return;
+  }
+  lessonDescription.textContent = description;
+}
+
+function populateKeyConcepts(keyConcepts) {
+  keyConcepts.forEach((concept, index) => {
+    const titleElement = document.getElementById(`concept-title-${index + 1}`);
+    const descriptionElement = document.getElementById(`concept-description-${index + 1}`);
+
+    if (titleElement && descriptionElement) {
+      titleElement.textContent = concept.concept_title || `Concept Title ${index + 1}`;
+      descriptionElement.textContent = concept.concept_description || "Description not available.";
+    }
+  });
+}
+
+function populateMiniQuiz(questions) {
+  const quizContainer = document.getElementById("quiz-container");
+  quizContainer.innerHTML = ""; // Clear any existing content
+
+  if (!questions || questions.length === 0) {
+    quizContainer.innerHTML = "<p>No quiz available for this lesson.</p>";
+    return;
+  }
+
+  questions.forEach((question) => {
+    console.log(question.question_correct_option);
+    const questionHtml = `
+      <div class="quiz-content quiz-item" data-question-id="${question.question_id}">
+        <p class="question"><strong>${question.question_text}</strong></p>
+        <div class="options">
+          <div class="option">
+            <input type="radio" id="option-a-${question.question_id}" name="question-${question.question_id}" value="A">
+            <label for="option-a-${question.question_id}">${question.question_option_a}</label>
+          </div>
+          <div class="option">
+            <input type="radio" id="option-b-${question.question_id}" name="question-${question.question_id}" value="B">
+            <label for="option-b-${question.question_id}">${question.question_option_b}</label>
+          </div>
+          <div class="option">
+            <input type="radio" id="option-c-${question.question_id}" name="question-${question.question_id}" value="C">
+            <label for="option-c-${question.question_id}">${question.question_option_c}</label>
+          </div>
+          <div class="option">
+            <input type="radio" id="option-d-${question.question_id}" name="question-${question.question_id}" value="D">
+            <label for="option-d-${question.question_id}">${question.question_option_d}</label>
           </div>
         </div>
-      `;      
-        quizContainer.insertAdjacentHTML("beforeend", questionHtml);
-      });
-  
-      // Check if there's a next lesson
-      await checkForNextLesson(courseId, lessonId);
-    } catch (error) {
-      console.error("Error loading quiz questions:", error);
+      </div>`;
+    quizContainer.innerHTML += questionHtml;
+  });
+}
+
+function evaluateQuiz(questions) {
+  let allCorrect = true;
+
+  questions.forEach((question) => {
+    const selectedOption = document.querySelector(`input[name="question-${question.question_id}"]:checked`);
+
+    // If the user didn't select an option or the selected option is incorrect
+    if (!selectedOption || selectedOption.value !== question.question_correct_option) {
+      allCorrect = false;
     }
-  }
-  async function checkForNextLesson(courseId, lessonId) {
-    try {
-      const nextLessonEndpoint = `/lessons/next/${courseId}/${lessonId}`;
-      const response = await get(nextLessonEndpoint);
-  
-      if (response.status === 404) {
-        console.log("404: No next lesson found.");
-        const submitButton = document.getElementById("submit-quiz");
-        if (submitButton) {
-          submitButton.textContent = "Complete";
-          submitButton.onclick = () => {
-            checkAnswers(null, courseId); // Final check and handle course completion
-          };
-        } else {
-          console.error("Submit button with id 'submit-quiz' not found.");
-        }
-        return; // Exit the function if it's a 404
-      }
-  
-      if (!response.ok) {
-        console.error(`Failed to check next lesson. Status: ${response.statusText}`);
-        return;
-      }
-  
-      const nextLesson = await response.json();
-      const submitButton = document.getElementById("submit-quiz");
-  
-      if (nextLesson && nextLesson.id) {
-        // Next lesson exists
-        console.log("Next lesson found:", nextLesson);
-        if (submitButton) {
-          submitButton.textContent = "Next";
-          submitButton.onclick = () => {
-            checkAnswers(nextLesson.id, courseId);
-          };
-        }
-      } else {
-        // No next lesson (unexpected scenario if 404 is handled)
-        console.log("No next lesson found, updating button text to 'Complete'.");
-        if (submitButton) {
-          submitButton.textContent = "Complete";
-          submitButton.onclick = () => {
-            checkAnswers(null, courseId); // Final check and handle course completion
-          };
-        }
-      }
-    } catch (error) {
-      console.error("Error checking for the next lesson:", error);
-    }
-  }
-  
-  
-  function checkAnswers(nextLessonId, courseId) {
-    const selectedAnswers = {};
-    const questions = window.currentQuestions;
-  
-    questions.forEach((question) => {
-      const selectedOption = document.querySelector(`input[name="question-${question.id}"]:checked`);
-      if (selectedOption) {
-        selectedAnswers[question.id] = selectedOption.value;
-      } else {
-        console.warn(`No answer selected for question ID ${question.id}`);
-      }
-    });
-  
-    // Compare selected answers with correct answers
-    let allCorrect = true;
-    questions.forEach((question) => {
-      const userAnswer = selectedAnswers[question.id];
-      if (userAnswer !== question.correct_option) {
-        allCorrect = false;
-        console.warn(`Incorrect answer for question ID ${question.id}`);
-      }
-    });
-  
-    if (allCorrect) {
-      alert("All answers are correct! Proceeding...");
-      if (nextLessonId) {
-        // Redirect to the next lesson
-        window.location.href = `course.html?courseId=${courseId}&lessonId=${nextLessonId}`;
-      } else {
-        // Handle course completion
-        alert("Congratulations! You have completed the course.");
-        window.location.href = `courseCompletion.html?courseId=${courseId}`;
-      }
-    } else {
-      alert("Some answers are incorrect. Please review and try again.");
-    }
-  }
-  
-  async function loadKeyConcepts() {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const lesson_id = urlParams.get("lessonId"); // Get lessonId from URL query
-      console.log("lesson id ",lesson_id);
-  
-      if (!lesson_id) {
-        console.error("Missing lessonId in URL parameters.");
-        return;
-      }
-  
-      // Fetch key concepts for the lesson
-      const apiEndpoint = `/lessons/key-concept/${lesson_id}`;
-      const response = await get(apiEndpoint);
-  
-      if (!response.ok) {
-        console.error("Failed to fetch key concepts:", response.statusText);
-        return;
-      }
-  
-      const keyConcepts = await response.json();
-  
-      // Populate the content dynamically
-      keyConcepts.forEach((concept, index) => {
-        const titleElement = document.getElementById(`concept-title-${index + 1}`);
-        const descriptionElement = document.getElementById(`concept-description-${index + 1}`);
-  
-        if (titleElement && descriptionElement) {
-          titleElement.textContent = concept.title; // Set the title
-          descriptionElement.textContent = concept.description; // Set the description
-        } else {
-          console.warn(`Key concept elements for index ${index + 1} not found.`);
-        }
-      });
-    } catch (error) {
-      console.error("Error loading key concepts:", error);
-    }
-  }
-  
-  
-  async function loadVideoLink() {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const courseId = urlParams.get("courseId");
-      const lessonId = urlParams.get("lessonId");
-  
-      if (!courseId || !lessonId) {
-        console.error("Missing courseId or lessonId in URL parameters.");
-        return;
-      }
-  
-      // Fetch the video link for the current lesson
-      const apiEndpoint = `/lessons/video-link/${courseId}/${lessonId}`;
-      const response = await get(apiEndpoint);
-  
-      if (!response.ok) {
-        console.error("Failed to fetch video link:", response.statusText);
-        return;
-      }
-  
-      const data = await response.json();
-      console.log(data);
-      const videoLink = data[0].video_link;
-  
-      if (!videoLink) {
-        console.warn("No video link found for this lesson.");
-        return;
-      }
-  
-      // Embed the video in the video overlay
-      const videoOverlay = document.querySelector(".video-overlay");
-      if (videoOverlay) {
-        videoOverlay.innerHTML = `
-          <iframe
-            class="youtube-video"
-            src="${videoLink.replace("watch?v=", "embed/")}"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-          ></iframe>
-        `;
-      } else {
-        console.error("Video overlay not found in the DOM.");
-      }
-    } catch (error) {
-      console.error("Error loading video link:", error);
-    }
-  }
-  
-  async function loadLessonContent() {
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const courseId = urlParams.get("courseId");
-      const lessonId = urlParams.get("lessonId");
-  
-      if (!courseId || !lessonId) {
-        console.error("Missing courseId or lessonId in URL parameters.");
-        return;
-      }
-  
-      // Fetch the lesson content (title, video link, description) for the current lesson
-      const apiEndpoint = `/lessons/video-link/${courseId}/${lessonId}`;
-      const response = await get(apiEndpoint);
-  
-      if (!response.ok) {
-        console.error("Failed to fetch lesson data:", response.statusText);
-        return;
-      }
-  
-      const data = await response.json();
-      console.log(data);
-  
-      // Update the video link
-      const videoLink = data[0].video_link;
-      if (videoLink) {
-        const videoOverlay = document.querySelector(".video-overlay");
-        if (videoOverlay) {
-          videoOverlay.innerHTML = `
-            <iframe
-              class="youtube-video"
-              src="${videoLink.replace("watch?v=", "embed/")}"
-              title="YouTube video player"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
-          `;
-        } else {
-          console.error("Video overlay not found in the DOM.");
-        }
-      } else {
-        console.warn("No video link found for this lesson.");
-      }
-  
-      // Update the lesson description
-      const lessonDescription = data[0].content; // Assuming 'content' contains the description
-      if (lessonDescription) {
-        const descriptionElement = document.querySelector(".lesson-description");
-        if (descriptionElement) {
-          descriptionElement.textContent = lessonDescription;
-        } else {
-          console.error("Lesson description element not found in the DOM.");
-        }
-      } else {
-        console.warn("No lesson description found for this lesson.");
-      }
-  
-      // Update the lesson title
-      const lessonTitle = data[0].title; // Assuming 'title' contains the lesson title
-      if (lessonTitle) {
-        const titleElement = document.querySelector(".lesson-title p");
-        if (titleElement) {
-          titleElement.textContent = lessonTitle;
-        } else {
-          console.error("Lesson title element not found in the DOM.");
-        }
-      } else {
-        console.warn("No lesson title found for this lesson.");
-      }
-    } catch (error) {
-      console.error("Error loading lesson content:", error);
-    }
-  }
-  
+  });
 
-  async function loadProgress() {
-    try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const courseId = urlParams.get("courseId");
-        const currentLessonId = parseInt(urlParams.get("lessonId"), 10);
-
-        if (!courseId || isNaN(currentLessonId)) {
-            console.error("Missing courseId or invalid lessonId in URL parameters.");
-            return;
-        }
-
-        // Fetch the ordered list of lessons for the course
-        const apiEndpoint = `/lessons/ordered-lessons/${courseId}`;
-        const response = await get(apiEndpoint);
-
-        if (!response.ok) {
-            console.error("Failed to fetch ordered lessons:", response.statusText);
-            return;
-        }
-
-        const lessons = await response.json(); // Array of lesson objects with { id }
-        console.log("lesson!!!!!!!!: ",lessons);
-        const lessonIds = lessons.map(lesson => lesson.id); // Extract IDs into an array
-
-        // Find the index of the current lesson in the ordered list
-        const currentIndex = lessonIds.indexOf(currentLessonId);
-
-        if (currentIndex === -1) {
-            console.error("Current lesson not found in the ordered list.");
-            return;
-        }
-
-        // Calculate progress percentage
-        const progressPercentage = Math.min(((currentIndex + 1) / lessonIds.length) * 100, 100);
-
-        // Update the progress bar and text
-        const progressTextElement = document.querySelector(".progress-text");
-        const progressFillElement = document.querySelector(".progress-fill");
-
-        if (progressTextElement) {
-            progressTextElement.textContent = `${progressPercentage.toFixed(0)}% completed`;
-        }
-
-        if (progressFillElement) {
-            progressFillElement.style.width = `${progressPercentage}%`;
-        }
-    } catch (error) {
-        console.error("Error loading progress:", error);
-    }
+  return allCorrect;
 }
 
 
-  
-  
-  document.addEventListener("DOMContentLoaded", () => {
-    loadQuizQuestions(); // Call the function to load quiz questions
-    loadKeyConcepts();   // Call the function to load key concepts
-    loadVideoLink();     // Call the function to load the video link
-    loadLessonContent();
-    loadProgress();
-  });
-  
+async function handleQuizSubmission(courseId, lessonId, questions) {
+  // Evaluate quiz answers
+  const allCorrect = evaluateQuiz(questions);
+
+  if (!allCorrect) {
+    alert("Some answers are incorrect. Please try again.");
+    return;
+  }
+
+  try {
+    // Use the `post` helper function to update progress
+    const response = await post(`/lessons/${courseId}/${lessonId}/progress`, {});
+
+    if (!response.ok) {
+      throw new Error("Failed to update progress.");
+    }
+
+    const data = await response.json();
+    if (data.success) {
+      // Check if there is a next lesson
+      const nextLessonId = parseInt(lessonId) + 1;
+      const hasNextLesson = await checkNextLesson(courseId, nextLessonId);
+
+      if (hasNextLesson) {
+        alert("Progress updated! Proceeding to the next lesson...");
+        window.location.href = `course.html?course_id=${courseId}&lesson_id=${nextLessonId}`;
+      } else {
+        // No more lessons; update button text to "Submit"
+        const submitButton = document.getElementById("submit-quiz");
+        submitButton.textContent = "Submit";
+        submitButton.disabled = true; // Optional: Disable the button after submission
+        alert("You have completed the course! Congratulations!");
+        window.location.href = `courseCompletion.html?course_id=${courseId}`;
+      }
+    } else {
+      alert("Failed to update progress. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error updating progress:", error);
+    alert("An error occurred while updating your progress.");
+  }
+}
+
+
+
+async function checkNextLesson(courseId, nextLessonId) {
+  const endpoint = `/lesson/${courseId}/${nextLessonId}`;
+  try {
+    const response = await get(endpoint);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return false; // No next lesson exists
+      }
+      throw new Error("Failed to fetch next lesson details.");
+    }
+
+    const lessonData = await response.json();
+    return !!lessonData; // Return true if lesson data exists
+  } catch (error) {
+    console.error("Error checking next lesson:", error);
+    return false;
+  }
+}
+
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const courseId = urlParams.get("course_id");
+  const lessonId = urlParams.get("lesson_id");
+
+  if (!courseId || !lessonId) {
+    console.error("Course ID or Lesson ID is missing from the URL.");
+    return;
+  }
+
+  const lessonData = await fetchLessonDetails(courseId, lessonId);
+
+  if (lessonData) {
+    // Populate all sections
+    populateVideoSection(lessonData.lesson_video_link);
+    populateLessonDescription(lessonData.lesson_content);
+    populateKeyConcepts(lessonData.key_concepts);
+    populateMiniQuiz(lessonData.questions);
+    const progressPercentage = await fetchUserProgress(courseId);
+    updateProgressBar(progressPercentage);
+    // Check if there is a next lesson
+    const nextLessonId = parseInt(lessonId) + 1;
+    const hasNextLesson = await checkNextLesson(courseId, nextLessonId);
+
+    // Update button text if no next lesson
+    const submitButton = document.getElementById("submit-quiz");
+    if (!hasNextLesson) {
+      submitButton.textContent = "Submit";
+    }
+
+    // Attach the event listener to the submit button
+    submitButton.addEventListener("click", () => {
+      handleQuizSubmission(courseId, lessonId, lessonData.questions || []);
+    });
+  } else {
+    console.error("Failed to load lesson data.");
+  }
+});
+

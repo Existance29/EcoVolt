@@ -133,7 +133,7 @@ class FitnessController {
             if (!data) {
                 return res.status(404).send("No records available");
             }
-            res.json(data);
+            return res.json(data);
         } catch (error) {
             console.error(error)
             res.status(500).send("Error retrieving users' records")
