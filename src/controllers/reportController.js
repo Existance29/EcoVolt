@@ -575,7 +575,14 @@ async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEn
             temperature: 0.7
         });
 
-        return response.choices[0].message.content;
+        let summary = response.choices[0].message.content;
+
+        // Remove "Executive Summary:" if present
+        if (summary.startsWith("Executive Summary:")) {
+            summary = summary.replace("Executive Summary:", "").trim();
+        }
+
+        return summary;
     } catch (error) {
         console.error("Error generating executive summary:", error);
         throw error;
