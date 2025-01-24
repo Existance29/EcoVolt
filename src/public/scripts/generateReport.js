@@ -739,6 +739,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                     ${formatChange(summary.co2Emissions.percentageChange)}
                 </p>
             </div>`;
+        const RenewableHtml = `
+        <div class="performance-card">
+            <i class="fas fa-cloud icon"></i>
+            <h3>Renewable Energy</h3>
+            <p><strong>${summary.renewableEnergy.current.toFixed(2)} kWh</strong></p>
+            <p class="stat-change ${summary.renewableEnergy.percentageChange > 0 ? 'increase' : 'decrease'}">
+                ${formatChange(summary.renewableEnergy.percentageChange)}
+            </p>
+        </div>`;
     
         // Generate the HTML for PUE
         const pueHtml = `
@@ -777,6 +786,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         performanceSummarySection.innerHTML = `
             ${totalEnergyHtml}
             ${co2EmissionsHtml}
+            ${RenewableHtml}
             ${pueHtml}
             ${cueHtml}
             ${wueHtml}
