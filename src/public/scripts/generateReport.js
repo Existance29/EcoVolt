@@ -190,8 +190,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
     function renderEnergyLineChart(canvasElement, data, energyType, color = "#4FD1C5") {
         const titleElement = document.getElementById('energyBreakdownTitle');
-        titleElement.textContent = `${energyType} Energy Breakdown for the Year`;
-    
+        titleElement.textContent = capitalizeWords(`${energyType} Energy Breakdown for the Year`);    
         if (!canvasElement || !canvasElement.getContext) {
             console.error("Invalid canvas element provided:", canvasElement);
             return;
@@ -267,20 +266,26 @@ document.addEventListener('DOMContentLoaded', async function () {
         ];
         const colors = ["#003366", "#0099CC", "#66CCCC", "#99CCFF"]; // Updated colors
         const dataSum = values.reduce((a, b) => a + b, 0);
-
-       // Convert numeric month to full month name
+    
+        // Convert numeric month to full month name
         const monthNames = [
             "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
         const fullMonthName = monthNames[month - 1];
-
+    
         // Update the title dynamically
         const nameElement = document.getElementById('name');
         nameElement.innerText = `${fullMonthName} ${year}`;
-
-        
-        const ctx = document.getElementById('energyPieChart').getContext('2d');
+    
+        const canvas = document.getElementById('energyPieChart');
+    
+        // Destroy the previous chart instance if it exists
+        if (Chart.getChart(canvas.id)) {
+            Chart.getChart(canvas.id).destroy();
+        }
+    
+        const ctx = canvas.getContext('2d');
         new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -327,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     
         try {
             const allYears = Array.from(yearSelector.options).map(option => parseInt(option.value, 10));
-            const recentYears = allYears.slice(0, 4).reverse(); // Take the latest 4 years and reverse them
+            const recentYears = allYears.slice(0, 5).reverse(); // Take the latest 4 years and reverse them
     
             if (recentYears.length === 0) {
                 throw new Error("No years available for prediction.");
@@ -734,6 +739,15 @@ document.addEventListener('DOMContentLoaded', async function () {
                     ${formatChange(summary.co2Emissions.percentageChange)}
                 </p>
             </div>`;
+        const RenewableHtml = `
+        <div class="performance-card">
+            <i class="fas fa-cloud icon"></i>
+            <h3>Renewable Energy</h3>
+            <p><strong>${summary.renewableEnergy.current.toFixed(2)} kWh</strong></p>
+            <p class="stat-change ${summary.renewableEnergy.percentageChange > 0 ? 'increase' : 'decrease'}">
+                ${formatChange(summary.renewableEnergy.percentageChange)}
+            </p>
+        </div>`;
     
         // Generate the HTML for PUE
         const pueHtml = `
@@ -772,6 +786,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         performanceSummarySection.innerHTML = `
             ${totalEnergyHtml}
             ${co2EmissionsHtml}
+            ${RenewableHtml}
             ${pueHtml}
             ${cueHtml}
             ${wueHtml}
@@ -809,3 +824,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
 });
+
+function capitalizeWords(str) {
+    return str.replace(/\b\w/g, char => char.toUpperCase());
+}

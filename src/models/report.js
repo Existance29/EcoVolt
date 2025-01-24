@@ -694,6 +694,176 @@ class Report {
             if (connection) await sql.close();
         }
     }
+
+    static async getTotalRenewableEnergy(company_id, year) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+    
+            // Query for total data center renewable energy
+            const dataCenterQuery = `
+                SELECT 
+                    ISNULL(SUM(DCec.total_energy_mwh * (DCce.renewable_energy_percentage / 100)), 0) AS totalDataCenterRenewableEnergy
+                FROM 
+                    data_center_energy_consumption DCec
+                LEFT JOIN 
+                    data_center_carbon_emissions DCce 
+                    ON DCec.data_center_id = DCce.data_center_id 
+                    AND YEAR(DCec.date) = YEAR(DCce.date) 
+                    AND MONTH(DCec.date) = MONTH(DCce.date)
+                INNER JOIN 
+                    data_centers dct ON DCec.data_center_id = dct.id
+                WHERE 
+                    dct.company_id = @company_id
+                    ${year ? `AND YEAR(DCec.date) = @year` : ''};
+            `;
+    
+            // Query for total cell tower renewable energy
+            const cellTowerQuery = `
+                SELECT 
+                    ISNULL(SUM(CTec.renewable_energy_kwh / 1000.0), 0) AS totalCellTowerRenewableEnergy
+                FROM 
+                    cell_tower_energy_consumption CTec
+                INNER JOIN 
+                    cell_towers ctt ON CTec.cell_tower_id = ctt.id
+                WHERE 
+                    ctt.company_id = @company_id
+                    ${year ? `AND YEAR(CTec.date) = @year` : ''};
+            `;
+    
+            // Execute both queries in parallel
+            const [dataCenterResult, cellTowerResult] = await Promise.all([
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(dataCenterQuery),
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(cellTowerQuery),
+            ]);
+    
+            const totalDataCenterRenewableEnergy = dataCenterResult.recordset[0]?.totalDataCenterRenewableEnergy || 0;
+            const totalCellTowerRenewableEnergy = cellTowerResult.recordset[0]?.totalCellTowerRenewableEnergy || 0;
+    
+            // Calculate total renewable energy
+            const totalRenewableEnergy = totalDataCenterRenewableEnergy + totalCellTowerRenewableEnergy;
+    
+            return {
+                totalDataCenterRenewableEnergy,
+                totalCellTowerRenewableEnergy,
+                totalRenewableEnergy,
+            };
+        } catch (error) {
+            console.error("Error fetching total renewable energy:", error);
+            throw error;
+        } finally {
+            if (connection) await sql.close();
+        }
+    }
+
+    static async getMonthlyRenewableEnergy(company_id, year) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+    
+            // Query for data center monthly renewable energy
+            const dataCenterQuery = `
+                SELECT 
+                    YEAR(DCec.date) AS year,
+                    MONTH(DCec.date) AS month,
+                    SUM(ISNULL(DCec.total_energy_mwh * (DCce.renewable_energy_percentage / 100), 0)) AS totalDataCenterRenewableEnergy
+                FROM 
+                    data_center_energy_consumption DCec
+                LEFT JOIN 
+                    data_center_carbon_emissions DCce 
+                    ON DCec.data_center_id = DCce.data_center_id 
+                    AND YEAR(DCec.date) = YEAR(DCce.date) 
+                    AND MONTH(DCec.date) = MONTH(DCce.date)
+                INNER JOIN 
+                    data_centers dct ON DCec.data_center_id = dct.id
+                WHERE 
+                    dct.company_id = @company_id
+                    ${year ? `AND YEAR(DCec.date) = @year` : ''}
+                GROUP BY 
+                    YEAR(DCec.date), MONTH(DCec.date)
+                ORDER BY 
+                    YEAR(DCec.date), MONTH(DCec.date);
+            `;
+    
+            // Query for cell tower monthly renewable energy
+            const cellTowerQuery = `
+                SELECT 
+                    YEAR(CTec.date) AS year,
+                    MONTH(CTec.date) AS month,
+                    SUM(ISNULL(CTec.renewable_energy_kwh / 1000.0, 0)) AS totalCellTowerRenewableEnergy
+                FROM 
+                    cell_tower_energy_consumption CTec
+                INNER JOIN 
+                    cell_towers ctt ON CTec.cell_tower_id = ctt.id
+                WHERE 
+                    ctt.company_id = @company_id
+                    ${year ? `AND YEAR(CTec.date) = @year` : ''}
+                GROUP BY 
+                    YEAR(CTec.date), MONTH(CTec.date)
+                ORDER BY 
+                    YEAR(CTec.date), MONTH(CTec.date);
+            `;
+    
+            // Execute both queries
+            const [dataCenterResult, cellTowerResult] = await Promise.all([
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(dataCenterQuery),
+                connection.request()
+                    .input("company_id", sql.Int, company_id)
+                    .input("year", sql.Int, year)
+                    .query(cellTowerQuery),
+            ]);
+    
+            // Format results into a unified structure
+            const monthlyRenewableEnergy = {};
+            dataCenterResult.recordset.forEach((row) => {
+                const key = `${row.year}-${row.month}`;
+                if (!monthlyRenewableEnergy[key]) {
+                    monthlyRenewableEnergy[key] = {
+                        year: row.year,
+                        month: row.month,
+                        dataCenterRenewableEnergy: 0,
+                        cellTowerRenewableEnergy: 0,
+                    };
+                }
+                monthlyRenewableEnergy[key].dataCenterRenewableEnergy += row.totalDataCenterRenewableEnergy || 0;
+            });
+    
+            cellTowerResult.recordset.forEach((row) => {
+                const key = `${row.year}-${row.month}`;
+                if (!monthlyRenewableEnergy[key]) {
+                    monthlyRenewableEnergy[key] = {
+                        year: row.year,
+                        month: row.month,
+                        dataCenterRenewableEnergy: 0,
+                        cellTowerRenewableEnergy: 0,
+                    };
+                }
+                monthlyRenewableEnergy[key].cellTowerRenewableEnergy += row.totalCellTowerRenewableEnergy || 0;
+            });
+    
+            // Convert the object to an array sorted by year and month
+            const result = Object.values(monthlyRenewableEnergy).sort((a, b) => {
+                if (a.year === b.year) return a.month - b.month;
+                return a.year - b.year;
+            });
+    
+            return result;
+        } catch (error) {
+            console.error("Error fetching monthly renewable energy:", error);
+            throw error;
+        } finally {
+            if (connection) await connection.close();
+        }
+    }
 }
 
 module.exports = Report;

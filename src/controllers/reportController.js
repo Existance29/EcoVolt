@@ -251,8 +251,8 @@ const generateReportData = async (req, res) => {
         }));
 
         // Fetch monthly energy consumption for the year
-        const energy = await Report.getMonthlyEnergyConsumption(company_id, year);
-        const monthlyEnergy = energy.map((entry) => ({
+        const Monthlyenergy = await Report.getMonthlyEnergyConsumption(company_id, year);
+        const monthlyEnergy = Monthlyenergy.map((entry) => ({
             month: `${entry.year}-${entry.month.toString().padStart(2, '0')}`,
             dataCenterEnergy: entry.dataCenterEnergyConsumption,
             cellTowerEnergy: entry.cellTowerEnergyConsumption,
@@ -261,12 +261,12 @@ const generateReportData = async (req, res) => {
 
         // Calculate total energy consumption
         const totalEnergy = monthlyEnergy.reduce((sum, entry) => sum + entry.totalEnergy, 0);
-
         // Initialize unique months
         const months = monthlyEnergy.map((entry) => entry.month);
 
         // Fetch efficiency metrics for the current year
         const currentYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, year);
+        const totalRenewableEnergy = await Report.getTotalRenewableEnergy(company_id, year);
 
         // Fetch previous year data for comparison
         const previousYear = parseInt(year) - 1;
@@ -282,6 +282,10 @@ const generateReportData = async (req, res) => {
         const totalPreviousYearEnergy = previousYearReports.length > 0
             ? await Report.getTotalEnergyConsumption(company_id, previousYear)
             : { totalEnergyConsumption: 0 };
+
+        const totalPreviousYearRenewableEnergy = previousYearReports.length > 0
+            ? await Report.getTotalRenewableEnergy(company_id, previousYear)
+            : { totalRenewableEnergy: 0 };
         // Performance summary
         const performanceSummary = {
             totalEnergy: {
@@ -297,6 +301,13 @@ const generateReportData = async (req, res) => {
                 percentageChange: totalPreviousYearCO2.totalCO2Emissions
                     ? ((monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0) - totalPreviousYearCO2.totalCO2Emissions) /
                         totalPreviousYearCO2.totalCO2Emissions) * 100
+                    : "Not Applicable",
+            },
+            renewableEnergy: {
+                current: totalRenewableEnergy.totalRenewableEnergy || 0,
+                previous: totalPreviousYearRenewableEnergy.totalRenewableEnergy || 0,
+                percentageChange: totalPreviousYearRenewableEnergy.totalRenewableEnergy
+                    ? ((totalRenewableEnergy.totalRenewableEnergy - totalPreviousYearRenewableEnergy.totalRenewableEnergy) / totalPreviousYearRenewableEnergy.totalRenewableEnergy) * 100
                     : "Not Applicable",
             },
             efficiencyMetrics: {
@@ -327,21 +338,21 @@ const generateReportData = async (req, res) => {
         // Generate other sections
         const companyName = reports[0]?.companyName || "Company";
         const executiveSummary = await generateExecutiveSummary(
-            monthlyEnergy.map((item) => item.totalEnergy),
+            totalEnergy,
             performanceSummary.co2Emissions.current,
             months,
-            monthlyEnergy,
+            monthlyEnergy.map((item) => item.totalEnergy),
             monthlyCO2.map((item) => item.totalCO2),
             companyName
         );
         const dataAnalysis = await generateDataAnalysis(
-            monthlyEnergy,
+            monthlyEnergy.map((item) => item.totalEnergy),
             monthlyCO2.map((item) => item.totalCO2),
             companyName
         );
         const recommendations = await getAllAIRecommendations(
             {
-                totalEnergy: monthlyEnergy.map((item) => item.totalEnergy),
+                totalEnergy: totalEnergy,
                 co2Emissions: monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0),
             },
             highestEnergyType // Pass the top energy contributor
@@ -350,7 +361,7 @@ const generateReportData = async (req, res) => {
 
 
         const conclusion = await generateConclusion(
-            monthlyEnergy.map((item) => item.totalEnergy),
+            totalEnergy,
             performanceSummary.co2Emissions.current,
             recommendations
         );
@@ -426,14 +437,14 @@ const generateReportPDF = async (req, res) => {
     }
 };
 
-// function to get exactly 5 AI recommendations, one from each category
+// Function to get exactly 5 AI recommendations, one from each category
 const getAllAIRecommendations = async (data, highestEnergyType) => {
     const categories = [
-        `Efficiency Improvements for ${highestEnergyType}`,
-        `Technology Upgrades for ${highestEnergyType}`,
-        `Sustainability Strategies for ${highestEnergyType}`,
-        `Behavioral Changes and Best Practices for ${highestEnergyType}`,
-        `Monitoring and Optimization of ${highestEnergyType}`,
+        `Advanced Efficiency Improvements for ${highestEnergyType}`,
+        `Innovative Technology Upgrades for ${highestEnergyType}`,
+        `Future-Oriented Sustainability Strategies for ${highestEnergyType}`,
+        `Behavioral and Operational Changes for ${highestEnergyType}`,
+        `Data-Driven Monitoring and Optimization of ${highestEnergyType}`,
     ];
 
     try {
@@ -451,64 +462,85 @@ const getAllAIRecommendations = async (data, highestEnergyType) => {
         return [];
     }
 };
-// function to generate a detailed AI recommendation for each category
+
+function sanitizeJSON(input) {
+    return input.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+}
+
+// Function to generate a detailed AI recommendation for each category
 async function generateAIRecommendations(data, category, highestEnergyType) {
-    const prompt = `Based on the following data for the company:
+    const prompt = `The company, having already implemented standard solutions, seeks cutting-edge recommendations. Based on the following data:
     - Top Energy Contributor: ${highestEnergyType}
     - Total Energy Consumption: ${data.totalEnergy} MWh
     - Total CO2 Emissions: ${data.co2Emissions} Tons
 
-    Provide a specific recommendation for "${category}" related to ${highestEnergyType}. Format the response as a JSON object with:
+    Provide a detailed recommendation for the category: "${category}" specific to optimizing ${highestEnergyType} operations. 
+    Recommendations should include:
+    1. Focus on innovative solutions or emerging technologies.
+    2. Assume that basic energy efficiency measures are already in place.
+    3. Leverage trends in AI, automation, or renewable integration to enhance outcomes.
+
+    Format the response as a JSON object with:
     {
         "recommendation": "<summary of the recommendation>",
         "actions": [
             {
-                "description": "<first action step>",
-                "explanation": "<why this action is effective>"
-            },
-            {
-                "description": "<second action step>",
-                "explanation": "<why this action is effective>"
+                "description": "<specific action>",
+                "explanation": "<how this action impacts energy or CO2 reduction and why it is effective>"
             },
             ...
         ],
-        "intendedImpact": "<overall impact>"
+        "intendedImpact": "<overall impact of the recommendation>"
     }`;
 
     try {
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
-            max_tokens: 300,
+            max_tokens: 400,
             temperature: 0.7,
         });
 
-        return JSON.parse(response.choices[0].message.content);
+        const rawContent = response.choices[0].message.content;
+
+        // Sanitize the response
+        const sanitizedContent = sanitizeJSON(rawContent);
+
+        // Parse the sanitized JSON
+        return JSON.parse(sanitizedContent);
     } catch (error) {
         console.error(`Error fetching ${category} recommendations for ${highestEnergyType}:`, error);
         throw error;
     }
 }
-
 // function to generate a conclusion
-async function generateConclusion(totalEnergy, totalCO2, recommendations) {
+async function generateConclusion(totalEnergy, totalCO2, recommendations, sustainabilityContext = true) {
     let conclusion = '';
     let retries = 0;
 
-    while (conclusion.length < 300 && retries < 3) { // Ensure minimum length and limit retries
+    while (conclusion.length < 300 && retries < 3) {
         try {
+            const prompt = `
+                Provide a structured conclusion for the Singtel Sustainability Report, including:
+                - Total energy consumption: ${totalEnergy.toLocaleString()} kWh
+                - CO2 emissions: ${totalCO2.toFixed(2)} tons
+                - Highlights of recommendations and their intended impact.
+                ${sustainabilityContext ? `
+                - Add a paragraph to include sustainability context:
+                    - Highlight how reducing energy consumption aligns with sustainability goals.
+                    - Link energy and emissions reductions to broader climate targets, such as:
+                        "This aligns with Singtel’s commitment to supporting the UN’s Sustainable Development Goals (Goal 13: Climate Action)."
+                ` : ''}
+                - Predictive actions to achieve net-zero goals by adopting renewables, enhancing energy efficiency, and reducing emissions.
+            `;
+
             const response = await openai.chat.completions.create({
                 model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: `
-                    Provide a final, structured conclusion for the Singtel Sustainability Report, including:
-                    - Total energy consumption ${totalEnergy.toLocaleString()} kWh and CO2 emissions ${totalCO2.toFixed(2)} tons
-                    - Highlights of recommendations and their intended impact.
-                    - Predictive actions to achieve net-zero goals by adopting renewables, enhancing energy efficiency, and reducing emissions.
-                ` }],
-                max_tokens: 250,
+                messages: [{ role: "user", content: prompt }],
+                max_tokens: 300,
                 temperature: 0.7
             });
-            
+
             conclusion = response.choices[0].message.content;
             retries++;
         } catch (error) {
@@ -531,13 +563,15 @@ async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEn
     - Monthly Energy Consumption: ${monthlyEnergy.join(", ")} kWh for months ${months.join(", ")}
     - Monthly CO2 Emissions: ${monthlyCO2.join(", ")} tons for months ${months.join(", ")}
 
-    The summary should highlight any notable trends or changes over time, with insights on how ${companyName}'s energy consumption and emissions have evolved.`;
+    The summary should highlight any notable trends or changes over time, with insights on how ${companyName}'s energy consumption and emissions have evolved.
+
+    Additionally, include a note on how this report aligns with the Sustainability Accounting Standards Board (SASB) framework, focusing on energy consumption, renewable energy, and CO2 emissions reduction. Emphasize ${companyName}'s commitment to global climate action goals, including the UN Sustainable Development Goal 13: Climate Action.`;
 
     try {
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
-            max_tokens: 200,
+            max_tokens: 250,
             temperature: 0.7
         });
 
