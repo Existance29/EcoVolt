@@ -1,0 +1,37 @@
+{
+    "intents": {
+      "carbon emissions": {
+        "keywords": ["carbon emissions", "co2 emissions", "ghg emissions", "carbon footprint"],
+        "response": "Carbon emissions refer to the release of carbon dioxide (CO2) and other greenhouse gases into the atmosphere. Let me know if you would like to explore further!",
+        "contextualResponses": {
+          "company": "The company's total carbon emissions are {{totalCO2}} tons for the year, with energy consumption of {{totalEnergy}} kWh."
+        }
+      },
+      "total emissions": {
+        "keywords": ["total emissions", "total carbon emissions", "overall emissions", "total co2"],
+        "response": "The total carbon emissions for the year are {{totalCO2}} tons, with a total energy consumption of {{totalEnergy}} kWh.",
+        "contextualResponses": {
+          "company": "The total carbon emissions for the company are {{totalCO2}} tons, with energy consumption of {{totalEnergy}} kWh."
+        }
+      },
+      "highest emission": {
+        "keywords": ["highest emission", "biggest emission", "largest emission", "max emission"],
+        "response": "The highest-emitting data center is {{highestDataCenterName}} with {{highestDataCenterCO2}} tons, and the highest-emitting cell tower is {{highestCellTowerName}} with {{highestCellTowerCO2}} kg."
+      },
+      "recommendations": {
+        "keywords": ["recommendations", "solutions", "suggestions", "how to reduce emissions"],
+        "response": "Here are the top recommendations for optimizing energy usage and reducing emissions:\n- {{recommendationsList}}"
+      },
+      "net zero": {
+        "keywords": ["net zero", "sustainability", "progress"],
+        "response": "The current progress towards net zero is at {{netZeroProgress}}%."
+      },
+      "energy breakdown": {
+        "keywords": ["energy breakdown", "energy usage"],
+        "response": "The energy breakdown for the year is: \n{{energyBreakdown}}"
+      },
+      "default": {
+        "response": "I can provide insights on highest emissions, total emissions, energy breakdown, recommendations, or progress towards net-zero. Let me know what you'd like to learn more about!"
+      }
+    }
+  }

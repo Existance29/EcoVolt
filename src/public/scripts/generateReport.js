@@ -169,6 +169,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (!company_id || !year) return;
     
         const url = `/reports/${company_id}/yearly-energy-breakdown?year=${year}`;
+        
         try {
             const response = await fetch(url);
             if (!response.ok) {
@@ -182,8 +183,6 @@ document.addEventListener('DOMContentLoaded', async function () {
             
             // Render line chart
             renderEnergyLineChart(canvasElement, data, highestEnergyType, "#4FD1C5");
-
-            const descriptionURL = `/reports/:company_id/energy-breakdown-description`
         } catch (error) {
             console.error("Error fetching yearly energy data:", error);
         }

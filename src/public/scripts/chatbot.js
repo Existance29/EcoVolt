@@ -86,10 +86,8 @@ async function sendMessage() {
         // Fetch available years and the latest report
         const availableYears = await fetchAvailableYears(companyId);
         const latestYear = availableYears[0];
-        console.log(`[DEBUG] Using the latest year: ${latestYear}`);
 
         const reportData = await fetchReportData(companyId, latestYear);
-        console.log(`[DEBUG] Fetched report data:`, reportData);
 
         // Send user message along with report data to the chatbot backend
         const response = await fetch("/chatbot", {
