@@ -19,6 +19,7 @@ const handleChatbotMessage = async (req, res) => {
     }
 
     try {
+        const dashboardSummary = await overviewDashboardController.getDashboardSummaryDataOnly(companyId);
         // Safely access reportData properties
         const totalCO2 = reportData.totalCO2 || "N/A";
         const totalEnergy = reportData.totalEnergy || "N/A";
@@ -72,7 +73,7 @@ Month: ${monthData.month}
             recommendationsList: recommendations
                 .map((rec, idx) => `(${idx + 1}) ${rec.recommendation}`)
                 .join("\n- "),
-            netZeroProgress: calculateNetZeroProgress(reportData),
+            netZeroProgress: calculateNetZeroProgress(dashboardSummary),
             totalEnergyBreakdown: totalEnergyBreakdownText,
             monthlyEnergyBreakdown: monthlyEnergyBreakdownText,
         };
@@ -135,6 +136,7 @@ const replacePlaceholders = (responseTemplate, dynamicValues) =>
 // Helper Function: Calculate Net Zero Progress
 const calculateNetZeroProgress = (reportData) => {
     const sustainabilityGoals = reportData.sustainabilityGoals || [];
+
     if (sustainabilityGoals.length === 0) {
         return "No data available";
     }
@@ -145,24 +147,36 @@ const calculateNetZeroProgress = (reportData) => {
     sustainabilityGoals.forEach((goal) => {
         let progressPercentage = 0;
 
-        if (goal.goal_name === "Renewable Energy Usage") {
-            progressPercentage =
-                goal.current_value >= goal.target_value
-                    ? 100
-                    : (goal.current_value / goal.target_value) * 100;
+        // Ensure target_value and current_value are properly defined
+        if (goal.target_value && goal.current_value) {
+            if (goal.goal_name === "Renewable Energy Usage") {
+                progressPercentage =
+                    goal.current_value >= goal.target_value
+                        ? 100
+                        : (goal.current_value / goal.target_value) * 100;
+            } else {
+                progressPercentage =
+                    goal.current_value <= goal.target_value
+                        ? 100
+                        : (goal.target_value / goal.current_value) * 100;
+            }
         } else {
-            progressPercentage =
-                goal.current_value <= goal.target_value
-                    ? 100
-                    : (goal.target_value / goal.current_value) * 100;
+            console.warn(`Goal "${goal.goal_name}" has missing values for target or current.`);
         }
 
-        const weight = goal.weight || 1;
+        const weight = goal.weight || 1; // Default weight is 1 if undefined
         weightedTotalProgress += Math.min(progressPercentage, 100) * weight;
         totalWeight += weight;
     });
 
-    return (weightedTotalProgress / totalWeight).toFixed(1);
+    if (totalWeight === 0) {
+        console.warn("No valid weights found for sustainability goals.");
+        return "No data available";
+    }
+
+    // Calculate the weighted average progress
+    const averageProgress = (weightedTotalProgress / totalWeight).toFixed(1);
+    return `${averageProgress}%`;
 };
 
 module.exports = {
