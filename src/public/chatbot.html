@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="styles/chatbot.css">
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chatbot-header">
+            <h4>Chat with Us</h4>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <!-- Initial bot message -->
+            <div class="message bot-message">Hello! How can I assist you today?</div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="userMessage" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script src="scripts/chatbot.js"></script>
+</body>
+</html>

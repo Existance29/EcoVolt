@@ -354,7 +354,58 @@ body, html {
     font-weight: 400;
 }
 
+/* Chatbot Modal */
+.chatbot-modal {
+    display: none;
+    position: fixed;
+    bottom: 20px; /* Align to bottom */
+    right: 20px; /* Align to right */
+    width: 400px;
+    height: 600px;
+    z-index: 1000;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
 
+/* Chatbot Iframe */
+.chatbot-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Close Button */
+.close-chatbot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Chatbot Toggle Button */
+.chatbot-toggle {
+    position: fixed;
+    bottom: 20px; /* Adjust the vertical positioning */
+    right: 20px; /* Adjust the horizontal positioning */
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
 /* Page break styling for printing */
 @media print {
     .page-break {

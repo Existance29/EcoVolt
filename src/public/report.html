@@ -108,25 +108,13 @@
     </div>
 
 
-    <!-- Chatbot Floating Button and Content -->
-    <div class="chatbot-container">
-        <button class="chatbot-toggle" onclick="toggleChatbot()">
-            <i class="fas fa-comments"></i>
-        </button>
-        <div class="chatbot-content" id="chatbotContent" style="display: none;">
-            <div class="chatbot-header">
-                <h4>Chat with Us</h4>
-                <button class="close-chatbot" onclick="toggleChatbot()">✕</button>
-            </div>
-            <div class="chatbot-messages" id="chatbotMessages">
-                <!-- Initial bot message -->
-                <div class="message bot-message">Hello! How can I assist you with carbon emissions today?</div>
-            </div>
-            <div class="chatbot-input">
-                <input type="text" id="userMessage" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
-                <button onclick="sendMessage()">Send</button>
-            </div>
-        </div>
+   <!-- Chatbot Button -->
+    <button class="chatbot-toggle" onclick="openChatbotModal()">💬</button>
+
+    <!-- Chatbot Modal -->
+    <div class="chatbot-modal" id="chatbotModal">
+        <iframe src="chatbot.html" class="chatbot-iframe"></iframe>
+        <button class="close-chatbot" onclick="closeChatbotModal()">✕</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

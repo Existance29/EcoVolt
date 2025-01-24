@@ -1,37 +1,36 @@
-// Toggle chatbot visibility
-function toggleChatbot() {
-    const chatbotContent = document.getElementById("chatbotContent");
-    if (chatbotContent) {
-        chatbotContent.style.display = chatbotContent.style.display === "none" ? "block" : "none";
+function openChatbotModal() {
+    const chatbotModal = document.getElementById("chatbotModal");
+    if (chatbotModal) {
+        chatbotModal.style.display = "flex"; // Display the modal in flex layout
     } else {
-        console.error("Chatbot content element not found.");
+        console.error("Chatbot modal not found.");
     }
 }
 
-// Handle Enter key press in input field
+function closeChatbotModal() {
+    const chatbotModal = document.getElementById("chatbotModal");
+    if (chatbotModal) {
+        chatbotModal.style.display = "none"; // Hide the modal
+    } else {
+        console.error("Chatbot modal not found.");
+    }
+}
 function handleKeyPress(event) {
     if (event.key === "Enter") {
         sendMessage();
     }
 }
 
-// Display message in chat window
 function displayMessage(message, className) {
     const messageContainer = document.createElement("div");
     messageContainer.className = `message ${className}`;
     messageContainer.textContent = message;
-    document.getElementById("chatbotMessages").appendChild(messageContainer);
 
-    // Scroll to the bottom of the messages
-    const messagesContainer = document.querySelector(".chatbot-messages");
-    if (messagesContainer) {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    } else {
-        console.error("Chatbot messages container not found.");
-    }
+    const messages = document.getElementById("chatbotMessages");
+    messages.appendChild(messageContainer);
+    messages.scrollTop = messages.scrollHeight; // Ensure the latest message is visible
 }
 
-// Send user message to the backend and display the bot's response
 async function sendMessage() {
     const userMessage = document.getElementById("userMessage").value.trim();
     if (!userMessage) return;
@@ -57,11 +56,10 @@ async function sendMessage() {
     }
 }
 
-// Set up event listeners once the DOM content is loaded
 document.addEventListener("DOMContentLoaded", () => {
     const userMessageInput = document.getElementById("userMessage");
     const chatbotToggle = document.getElementById("chatbotToggle");
 
     if (userMessageInput) userMessageInput.addEventListener("keypress", handleKeyPress);
-    if (chatbotToggle) chatbotToggle.addEventListener("click", toggleChatbot);
+    if (chatbotToggle) chatbotToggle.addEventListener("click", openChatbotModal);
 });
