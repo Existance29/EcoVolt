@@ -47,18 +47,18 @@ Total Energy Breakdown for this year:
 - Miscellaneous: ${totalEnergyBreakdown.misc.toFixed(2)} kWh
         `;
 
-        // Create the monthly energy breakdown text
+        // Create the monthly energy breakdown text with explicit "NEW PARAGRAPH" markers
         const monthlyEnergyBreakdownText = monthlyEnergyBreakdown
             .map(
                 (monthData) => `
+NEW PARAGRAPH
 Month: ${monthData.month}
 - Radio Equipment: ${monthData.radioEquipment.toFixed(2)} kWh
 - Cooling: ${monthData.cooling.toFixed(2)} kWh
 - Backup Power: ${monthData.backupPower.toFixed(2)} kWh
-- Miscellaneous: ${monthData.misc.toFixed(2)} kWh
-                `
+- Miscellaneous: ${monthData.misc.toFixed(2)} kWh`
             )
-            .join("\n");
+            .join("");
 
         // Dynamic values for response placeholders
         const dynamicValues = {

@@ -28,7 +28,11 @@
       },
       "energy breakdown": {
         "keywords": ["energy breakdown", "energy usage"],
-        "response": "The energy breakdown for the year is: \n{{energyBreakdown}}"
+        "response": "Here is the total energy breakdown for the specified period:\n\n{{totalEnergyBreakdown}}"
+      },
+      "monthly energy breakdown": {
+        "keywords": ["monthly energy breakdown", "detailed energy usage"],
+        "response": "Here is the detailed monthly energy breakdown:\n\n{{monthlyEnergyBreakdown}}"
       },
       "default": {
         "response": "I can provide insights on highest emissions, total emissions, energy breakdown, recommendations, or progress towards net-zero. Let me know what you'd like to learn more about!"

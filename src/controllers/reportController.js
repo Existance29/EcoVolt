@@ -329,8 +329,7 @@ async function generateAIRecommendations(data, category, highestEnergyType) {
             {
                 "description": "<specific action>",
                 "explanation": "<how this action impacts energy or CO2 reduction and why it is effective>"
-            },
-            ...
+            }
         ],
         "intendedImpact": "<overall impact of the recommendation>"
     }`;
@@ -345,14 +344,14 @@ async function generateAIRecommendations(data, category, highestEnergyType) {
 
         const rawContent = response.choices[0].message.content;
 
-        // Sanitize the response
+        // Sanitize and parse the JSON response
         const sanitizedContent = sanitizeJSON(rawContent);
 
-        // Parse the sanitized JSON
         return JSON.parse(sanitizedContent);
     } catch (error) {
-        console.error(`Error fetching ${category} recommendations for ${highestEnergyType}:`, error);
-        throw error;
+        console.error(`Error parsing JSON for ${category} recommendations:`, error);
+        console.error("Raw Response:", rawContent || "No raw content available");
+        throw error; // Re-throw the error after logging
     }
 }
 // function to generate a conclusion
