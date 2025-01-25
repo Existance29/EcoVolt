@@ -325,27 +325,29 @@ function sanitizeJSON(input) {
 
 // Function to generate a detailed AI recommendation for each category
 async function generateAIRecommendations(data, category, highestEnergyType) {
-    const prompt = `The company, having already implemented standard solutions, seeks cutting-edge recommendations. Based on the following data:
+    const prompt = `The company, having already implemented standard solutions, seeks cutting-edge recommendations and also the company already has renewable energy integration so you dont need to focus on that. Based on the following data:
     - Top Energy Contributor: ${highestEnergyType}
     - Total Energy Consumption: ${data.totalEnergy} MWh
     - Total CO2 Emissions: ${data.co2Emissions} Tons
 
-    Provide a detailed recommendation for the category: "${category}" specific to optimizing ${highestEnergyType} operations. 
+    Provide a concise recommendation for the category: "${category}" specific to optimizing ${highestEnergyType} operations.
     Recommendations should include:
     1. Focus on innovative solutions or emerging technologies.
     2. Assume that basic energy efficiency measures are already in place.
     3. Leverage trends in AI, automation, or renewable integration to enhance outcomes.
 
-    Format the response as a JSON object with:
+    **Include exactly 3 actions** in the recommendation.
+
+    Limit the response to no more than **400 words** or less than **350** words and Format the response as a JSON object with:
     {
         "recommendation": "<summary of the recommendation>",
         "actions": [
             {
                 "description": "<specific action>",
-                "explanation": "<how this action impacts energy or CO2 reduction and why it is effective>"
+                "explanation": "<why this action is effective in one sentence>"
             }
         ],
-        "intendedImpact": "<overall impact of the recommendation>"
+        "intendedImpact": "<overall impact in one concise sentence>"
     }`;
 
     let rawContent = "";
