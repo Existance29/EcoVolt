@@ -307,8 +307,12 @@ const getAllAIRecommendations = async (data, highestEnergyType) => {
 
 function sanitizeJSON(input) {
     try {
-        // Remove trailing commas inside objects or arrays
-        const sanitizedInput = input.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+        // Add commas between properties that are missing them
+        const sanitizedInput = input
+            .replace(/}\s*{/g, '},{') // Fix adjacent objects
+            .replace(/"\s*"/g, '","') // Fix adjacent strings
+            .replace(/,\s*}/g, '}')   // Remove trailing commas in objects
+            .replace(/,\s*]/g, ']');  // Remove trailing commas in arrays
 
         // Validate JSON syntax
         JSON.parse(sanitizedInput);
@@ -481,14 +485,14 @@ const getAvailableYears = async (req, res) => {
 
 const getEnergyBreakdown = async (req, res) => {
     const { company_id } = req.params;
-    const { year } = req.query;
+    const { year, month } = req.query;
 
     if (!company_id || !year ) {
         return res.status(400).json({ error: 'Company ID, year are required parameters.' });
     }
 
     try {
-        const data = await Report.getMonthlyEnergyBreakdown(company_id, year);
+        const data = await Report.getMonthlyEnergyBreakdown(company_id, year, month);
         if (!data) {
             return res.status(404).json({ error: `No data found for ${year}.` });
         }
