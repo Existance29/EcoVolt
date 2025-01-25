@@ -23,12 +23,12 @@
 
                 <nav class="tabs">
                     <a href="CompanyEquipment.html">Company Equipment</a>
-                    <a href="EmployeeApplication.html">Employee's Application</a>
+                    <a href="EmployeeApplication.html" class="active">Employee's Application</a>
                     <a href="PendingPickUp.html">Pending Pick Up</a>
                     <a href="Recycled.html">Recycled</a>
                 </nav>
 
-                <div class="did-you-know-container">
+                <div class="did-you-know-container" style="background-image: url('assets/fitness/BANNER.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                     <div class="content-wrapper">
                       <div class="text-section">
                         <div class="text-content">
@@ -41,23 +41,25 @@
                           <span class="truncate">Learn More</span>
                         </button>
                       </div>
-                      <div class="image-section"></div>
                     </div>
                   </div>
+                  
 
               
+                  <div class="search-bar-application">
+                    <label>
+                        <input type="text" id="search-input" placeholder="Search...." />
+                        <span class="search-icon">&#128269;</span> <!-- Unicode for magnifying glass -->
+                    </label>
+                </div>
+                <br>
                 
-                
-                  <section class="equipment-section">
+                  <section class="equipment-section-header">
                     <h2 id="recycle-items-heading">Equipment</h2>
                 </section>                
     
 
-                    <div class="search-bar">
-                        <label>
-                            <input type="text" id="search-input" placeholder="Search for a piece of equipment" />
-                        </label>
-                    </div>     
+                       
                     
                     <section class="equipment-section">
                     <!-- First table with unique ID -->
@@ -86,10 +88,13 @@
                             </tbody>
                         </table>
                     </div>
+                    </section>
 
-                    <section class="equipment-section">
+                    <section class="equipment-section-header">
                         <h2 id="recycle-items-heading">Rejected Application</h2>
                     </section>  
+
+                    <section class="equipment-section">
 
                     <div class="equipment-table">
                         <table id="equipment-table-2">
@@ -116,6 +121,7 @@
                             </tbody>
                         </table>
                     </div>
+                </section>
 
                     <div id="details-modal" class="modal hidden">
                         <div class="modal-content">

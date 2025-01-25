@@ -25,10 +25,10 @@
                     <a href="CompanyEquipment.html">Company Equipment</a>
                     <a href="EmployeeApplication.html">Employee's Application</a>
                     <a href="PendingPickUp.html">Pending Pick Up</a>
-                    <a href="Recycled.html">Recycled</a>
+                    <a href="Recycled.html" class="active">Recycled</a>
                 </nav>
 
-                <div class="did-you-know-container">
+                <div class="did-you-know-container" style="background-image: url('assets/fitness/BANNER.png'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                     <div class="content-wrapper">
                       <div class="text-section">
                         <div class="text-content">
@@ -41,23 +41,23 @@
                           <span class="truncate">Learn More</span>
                         </button>
                       </div>
-                      <div class="image-section"></div>
                     </div>
                   </div>
+                  
 
               
                 
                 
-                  <section class="equipment-section">
-                    <h2 id="recycle-items-heading">Recycled Company Equipment</h2>
-                </section>                
-    
+                  
 
-                    <div class="search-bar">
-                        <label>
-                            <input type="text" id="search-input" placeholder="Search for a piece of equipment" />
-                        </label>
-                    </div>     
+                  <div class="search-bar">
+                    <label>
+                        <input type="text" id="search-input" placeholder="Search...." />
+                        <span class="search-icon">&#128269;</span> <!-- Unicode for magnifying glass -->
+                    </label>
+                </div>
+                    
+                   
                     
                     <div class="filter-buttons">
                         <button data-center-id="All" onclick="setActiveButton('All')">All</button>
@@ -66,7 +66,13 @@
                         <button data-center-id="3" onclick="setActiveButton('3')">Data Center 3</button>
                         <button data-center-id="4" onclick="setActiveButton('4')">Data Center 4</button>
                         <button data-center-id="5" onclick="setActiveButton('5')">Data Center 5</button>
-                    </div>                    
+                    </div>    
+                    
+                    
+                    <section class="equipment-section-header">
+                        <h2 id="recycle-items-heading">Recycled Company Equipment</h2>
+                    </section>                
+        
                     
                     
                     <section class="equipment-section">
@@ -99,9 +105,17 @@
                             </tbody>
                         </table>
                     </div>
+                    
+                    </section>
 
-                    <h2>Recycled Employee's Devices</h2>
 
+                    <section class="equipment-section-header">
+                        <h2 id="recycle-items-heading">Recycled Employee's Devices</h2>
+                    </section>                
+        
+
+                    
+                    <section class="equipment-section">
                     <div class="equipment-table">
                         <table id="equipment-table-1">
                             <thead>
@@ -127,6 +141,7 @@
                             </tbody>
                         </table>
                     </div>
+                    </section>
 
 
                     <div id="details-modal" class="modal hidden">

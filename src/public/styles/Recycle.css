@@ -163,13 +163,6 @@ body {
     cursor: pointer; /* Pointer cursor for interactive rows */
 }
 
-h2 {
-  font-size: 2rem; /* Adjust the size as needed */
-  font-weight: bold; /* Make it bold */
-  color: #2F6D45; /* Match the color theme (optional) */
-  margin-bottom: 20px; /* Add spacing below */
-  text-align: left; /* Optional: align the heading */
-}
 
 .filter-buttons {
     display: flex; /* Use flexbox layout */
@@ -204,81 +197,71 @@ h2 {
 
 
 .did-you-know-container {
-  padding: 16px;
-  display: flex; /* Center the container horizontally */
-  justify-content: center;
-}
-
-.content-wrapper {
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  gap: 16px;
+  position: relative;
+  width: 100%;
+  max-width: 1500px;
+  min-height: 250px; /* Adjust as needed */
   border-radius: 16px;
-  background-color: #ffffff;
-  padding: 16px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-  max-width: 1300px; /* Reduce the width */
-  width: 100%; /* Make it responsive */
-}
-
-.text-section {
-  flex: 2 2 0px;
+  padding: 20px;
+  color: white; /* Ensures text stands out */
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.text-content {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.text-content .title {
-  color: #1c160c;
-  font-size: 1rem;
-  font-weight: bold;
-  line-height: 1.25;
-}
-
-.text-content .description {
-  color: #2F6D45;
-  font-size: 0.875rem;
-  font-weight: normal;
-  line-height: 1.5;
-}
-
-.learn-more-btn {
-  display: flex;
-  min-width: 84px;
-  max-width: 480px;
-  cursor: pointer;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  border-radius: 9999px;
-  height: 32px;
-  padding: 0 16px;
-  flex-direction: row-reverse;
-  background-color: #B9E4C9;
-  color: #2F6D45;
-  font-size: 0.875rem;
-  font-weight: medium;
-  line-height: normal;
-  width: fit-content;
+  text-align: center;
+  margin-left: 53px;
+  margin-bottom: 35px;
 }
 
-.image-section {
+/* Dark overlay for better readability */
+.did-you-know-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  aspect-ratio: 16 / 9; /* Adjusts for a responsive aspect ratio */
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* Adjust opacity if needed */
   border-radius: 16px;
-  flex: 1;
-  background-image: url("https://cdn.usegalileo.ai/sdxl10/031c9ca1-866d-4f8b-940b-cac10d997645.png");
+  z-index: 1;
 }
+
+/* Ensures content stays on top */
+.did-you-know-container .content-wrapper {
+  position: relative;
+  z-index: 2;
+  max-width: 600px; /* Adjust width as needed */
+}
+
+/* Title Styling */
+.did-you-know-container .title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Description Styling */
+.did-you-know-container .description {
+  font-size: 18px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+/* Button Styling */
+.learn-more-btn {
+  background-color: #4FD1C5; /* Adjust button color */
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.learn-more-btn:hover {
+  background-color: #9FE6DF;
+}
+
 
 /* Modal styling */
 .modal {
@@ -553,5 +536,54 @@ body.modal-open {
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-box-orient: vertical;
+  }
+  
+
+
+  /* extra asearch bar for only application */
+
+  .search-bar-application {
+    width: 100%; /* Match the table's width */
+    max-width: 1505px; /* Match the table's max-width */
+    margin: 0 auto; /* Center the search bar */
+    margin-bottom: 20px;
+    position: relative; /* For positioning the icon */
+    float: right;
+    margin-right: 3.3%;
+  }
+  
+  .search-bar-application  label {
+    display: block; /* Prevent flex layout for the label */
+    width: 100%;
+    position: relative; /* For positioning the icon */
+  }
+  
+  .search-bar-application  input {
+    width: 100%; /* Ensure the input fills the container */
+    height: 3rem;
+    border: none;
+    border-radius: 0.75rem;
+    background-color: #9FE6DF;
+    padding: 0 3rem 0 1rem; /* Add padding on the right for the icon */
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #1c160c;
+    outline: none;
+    box-sizing: border-box; /* Avoid unexpected padding issues */
+  }
+  
+  .search-bar-application  input::placeholder {
+    color: #2F6D45;
+  }
+  
+  .search-bar-application  .search-icon {
+    position: absolute;
+    right: 1rem; /* Position the icon inside the input */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem; /* Adjust the size of the icon */
+    color: #2F6D45; /* Match placeholder color */
+    pointer-events: none; /* Allow clicks to pass through to the input */
   }
   
