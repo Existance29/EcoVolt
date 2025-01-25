@@ -23,7 +23,7 @@
       },
       "highest emission": {
         "keywords": ["highest emission", "biggest emission", "largest emission", "max emission"],
-        "response": "The highest-emitting data center is {{highestDataCenterName}} with {{highestDataCenterCO2}} tons, and the highest-emitting cell tower is {{highestCellTowerName}} with {{highestCellTowerCO2}} kg."
+        "response": "The highest-emitting data center is {{highestDataCenterName}} with {{highestDataCenterCO2}} tons, and the highest-emitting cell tower is {{highestCellTowerName}} with {{highestCellTowerCO2}} tons."
       },
       "recommendations": {
         "keywords": ["recommendations", "solutions", "suggestions", "how to reduce emissions"],
