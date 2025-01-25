@@ -32,6 +32,23 @@ function displayMessage(message, className) {
     messages.scrollTop = messages.scrollHeight; // Ensure the latest message is visible
 }
 
+function displayTypingIndicator() {
+    const messages = document.getElementById("chatbotMessages");
+    const typingIndicator = document.createElement("div");
+    typingIndicator.id = "typing-indicator";
+    typingIndicator.className = "message bot-message";
+    typingIndicator.textContent = "...";
+    messages.appendChild(typingIndicator);
+    messages.scrollTop = messages.scrollHeight; // Scroll to the latest message
+}
+
+function removeTypingIndicator() {
+    const typingIndicator = document.getElementById("typing-indicator");
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
 async function fetchAvailableYears(companyId) {
     try {
         const response = await fetch(`/reports/${companyId}/years`);
@@ -74,8 +91,12 @@ async function sendMessage() {
     const userMessage = document.getElementById("userMessage").value.trim();
     if (!userMessage) return;
 
+    // Display the user's message
     displayMessage(userMessage, "user-message");
     document.getElementById("userMessage").value = "";
+
+    // Show typing indicator
+    displayTypingIndicator();
 
     try {
         const companyId = sessionStorage.getItem("company_id");
@@ -86,7 +107,6 @@ async function sendMessage() {
         // Fetch available years and the latest report
         const availableYears = await fetchAvailableYears(companyId);
         const latestYear = availableYears[0];
-
         const reportData = await fetchReportData(companyId, latestYear);
 
         // Send user message along with report data to the chatbot backend
@@ -102,6 +122,9 @@ async function sendMessage() {
             }),
         });
 
+        // Remove typing indicator once response is received
+        removeTypingIndicator();
+
         if (!response.ok) {
             throw new Error(`Chatbot API call failed. Status: ${response.status}`);
         }
@@ -110,6 +133,7 @@ async function sendMessage() {
         displayMessage(data.reply || "Server error. Please try again.", "bot-message");
     } catch (error) {
         console.error("Error:", error);
+        removeTypingIndicator(); // Ensure typing indicator is removed in case of error
         displayMessage("Server error. Please try again.", "bot-message");
     }
 }
