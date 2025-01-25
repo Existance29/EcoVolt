@@ -4,6 +4,7 @@ $(document).ready(function() {
     $("footer").load("commonHTML/footer.html");
     $(".mainHeader").load("commonHTML/mainHeader.html");
     $(".sidebar").load("commonHTML/sidebar.html");
+    $(".chatbot").load("commonHTML/chatbot.html");
 });
 
 //prevent reloading page when form submitted
