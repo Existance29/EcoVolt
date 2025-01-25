@@ -98,6 +98,9 @@ const generateReportData = async (req, res) => {
             totalEnergy: entry.dataCenterEnergyConsumption + entry.cellTowerEnergyConsumption,
         }));
 
+        const totalCO2Yearly = await Report.getTotalCarbonEmissions(company_id, year);
+        const totalEnergyYearly = await Report.getTotalEnergyConsumption(company_id, year);
+
         // Calculate total energy consumption
         const totalEnergy = monthlyEnergy.reduce((sum, entry) => sum + entry.totalEnergy, 0);
         // Initialize unique months
@@ -222,7 +225,11 @@ const generateReportData = async (req, res) => {
             performanceSummary,
             reportData: reports,
             emissions,
-            description
+            description, 
+            totalDataCenterCO2 : totalCO2Yearly.dataCenterCO2Emissions,
+            totalCellTowerCO2 : totalCO2Yearly.cellTowerCO2Emissions,
+            totalDataCenterEnergy : totalEnergyYearly.totalDataCenterEnergy,
+            totalCellTowerEnergy : totalEnergyYearly.totalCellTowerEnergy
         };
 
         // Cache the data

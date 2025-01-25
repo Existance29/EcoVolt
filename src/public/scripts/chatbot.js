@@ -119,6 +119,7 @@ async function sendMessage() {
             body: JSON.stringify({
                 userMessage,
                 reportData,
+                latestYear
             }),
         });
 

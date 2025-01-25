@@ -27,7 +27,10 @@ const handleChatbotMessage = async (req, res) => {
         const description = reportData.description || "No detailed energy breakdown available.";
         const renewableEnergy = reportData.performanceSummary?.renewableEnergy?.current || "N/A";
         const monthlyEnergyBreakdown = reportData.monthlyEnergyBreakdown || [];
-
+        const totalDataCenterCO2 = reportData.totalDataCenterCO2 || "N/A";
+        const totalCellTowerCO2 = reportData.totalCellTowerCO2 || "N/A";
+        const totalDataCenterEnergy = reportData.totalDataCenterEnergy || "N/A";
+        const totalCellTowerEnergy = reportData.totalCellTowerEnergy || "N/A";
         // Calculate total energy breakdown
         const totalEnergyBreakdown = monthlyEnergyBreakdown.reduce(
             (totals, monthData) => {
@@ -76,7 +79,11 @@ const handleChatbotMessage = async (req, res) => {
             netZeroProgress: calculateNetZeroProgress(dashboardSummary),
             totalEnergyBreakdown: totalEnergyBreakdownText,
             monthlyEnergyBreakdown: monthlyEnergyBreakdownText,
-            totalrenewableEnergy: renewableEnergy
+            totalrenewableEnergy: renewableEnergy,
+            totalDataCenterCO2: totalDataCenterCO2,
+            totalCellTowerCO2: totalCellTowerCO2,
+            totalDataCenterEnergy: totalDataCenterEnergy,
+            totalCellTowerEnergy: totalCellTowerEnergy
         };
 
         // Parse intents from JSON
