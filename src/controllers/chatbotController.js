@@ -41,32 +41,32 @@ const handleChatbotMessage = async (req, res) => {
         );
 
         const totalEnergyBreakdownText = `
-Total Energy Breakdown for this year:
-- Radio Equipment: ${totalEnergyBreakdown.radioEquipment.toFixed(2)} kWh
-- Cooling: ${totalEnergyBreakdown.cooling.toFixed(2)} kWh
-- Backup Power: ${totalEnergyBreakdown.backupPower.toFixed(2)} kWh
-- Miscellaneous: ${totalEnergyBreakdown.misc.toFixed(2)} kWh
+            Total Energy Breakdown for this year:
+            - Radio Equipment: ${totalEnergyBreakdown.radioEquipment.toFixed(2)} kWh
+            - Cooling: ${totalEnergyBreakdown.cooling.toFixed(2)} kWh
+            - Backup Power: ${totalEnergyBreakdown.backupPower.toFixed(2)} kWh
+            - Miscellaneous: ${totalEnergyBreakdown.misc.toFixed(2)} kWh
         `;
 
         // Create the monthly energy breakdown text with explicit "NEW PARAGRAPH" markers
         const monthlyEnergyBreakdownText = monthlyEnergyBreakdown
             .map(
                 (monthData) => `
-NEW PARAGRAPH
-Month: ${monthData.month}
-- Radio Equipment: ${monthData.radioEquipment.toFixed(2)} kWh
-- Cooling: ${monthData.cooling.toFixed(2)} kWh
-- Backup Power: ${monthData.backupPower.toFixed(2)} kWh
-- Miscellaneous: ${monthData.misc.toFixed(2)} kWh`
+                    NEW PARAGRAPH
+                    Month: ${monthData.month}
+                    - Radio Equipment: ${monthData.radioEquipment.toFixed(2)} kWh
+                    - Cooling: ${monthData.cooling.toFixed(2)} kWh
+                    - Backup Power: ${monthData.backupPower.toFixed(2)} kWh
+                    - Miscellaneous: ${monthData.misc.toFixed(2)} kWh`
             )
             .join("");
 
         // Dynamic values for response placeholders
         const dynamicValues = {
-            highestDataCenterName: reportData.highestDataCenter?.data_center_name || "N/A",
-            highestDataCenterCO2: reportData.highestDataCenter?.co2_emissions_tons || "N/A",
-            highestCellTowerName: reportData.highestCellTower?.cell_tower_name || "N/A",
-            highestCellTowerCO2: reportData.highestCellTower?.total_emissions || "N/A",
+            highestDataCenterName: dashboardSummary.highestDataCenter?.data_center_name || "N/A",
+            highestDataCenterCO2: dashboardSummary.highestDataCenter?.co2_emissions_tons || "N/A",
+            highestCellTowerName: dashboardSummary.highestCellTower?.cell_tower_name || "N/A",
+            highestCellTowerCO2: dashboardSummary.highestCellTower?.total_emissions || "N/A",
             totalCO2: totalCO2.toFixed(2),
             totalEnergy: totalEnergy.toLocaleString(),
             description,
@@ -76,6 +76,7 @@ Month: ${monthData.month}
             netZeroProgress: calculateNetZeroProgress(dashboardSummary),
             totalEnergyBreakdown: totalEnergyBreakdownText,
             monthlyEnergyBreakdown: monthlyEnergyBreakdownText,
+            totalrenewableEnergy: renewableEnergy
         };
 
         // Parse intents from JSON
@@ -88,7 +89,7 @@ Month: ${monthData.month}
             intentKeys
         );
 
-        if (matchedIntent.bestMatch.rating >= 0.6) {
+        if (matchedIntent.bestMatch.rating >= 0.5) {
             const matchedKey = matchedIntent.bestMatch.target;
             const intent = intents[matchedKey];
 

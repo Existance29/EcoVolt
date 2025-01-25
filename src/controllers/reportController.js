@@ -306,7 +306,17 @@ const getAllAIRecommendations = async (data, highestEnergyType) => {
 };
 
 function sanitizeJSON(input) {
-    return input.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+    try {
+        // Remove trailing commas inside objects or arrays
+        const sanitizedInput = input.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+
+        // Validate JSON syntax
+        JSON.parse(sanitizedInput);
+        return sanitizedInput;
+    } catch (error) {
+        console.error("Error sanitizing JSON:", error);
+        throw new Error("Invalid JSON format");
+    }
 }
 
 // Function to generate a detailed AI recommendation for each category
@@ -334,6 +344,8 @@ async function generateAIRecommendations(data, category, highestEnergyType) {
         "intendedImpact": "<overall impact of the recommendation>"
     }`;
 
+    let rawContent = "";
+
     try {
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
@@ -342,16 +354,21 @@ async function generateAIRecommendations(data, category, highestEnergyType) {
             temperature: 0.7,
         });
 
-        const rawContent = response.choices[0].message.content;
+        rawContent = response.choices[0].message.content;
 
-        // Sanitize and parse the JSON response
+        // Sanitize and parse JSON
         const sanitizedContent = sanitizeJSON(rawContent);
-
         return JSON.parse(sanitizedContent);
     } catch (error) {
         console.error(`Error parsing JSON for ${category} recommendations:`, error);
         console.error("Raw Response:", rawContent || "No raw content available");
-        throw error; // Re-throw the error after logging
+
+        // Provide a fallback recommendation in case of failure
+        return {
+            recommendation: `Unable to generate a recommendation for "${category}" due to an error.`,
+            actions: [],
+            intendedImpact: "No impact data available",
+        };
     }
 }
 // function to generate a conclusion
