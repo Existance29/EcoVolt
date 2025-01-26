@@ -22,3 +22,23 @@ document.addEventListener("DOMContentLoaded", function () {
   
   })
 
+  async function checkAndRedirect(event) {
+    event.preventDefault(); // Prevent the default link behavior
+
+    try {
+        // Make a GET request to check the user's Strava login status
+        const response = await get('/fitness/stats');
+
+        const isLoggedIn = response.ok; // If response is OK, the user is logged into Strava
+
+        // Redirect based on login status
+        if (isLoggedIn) {
+            window.location.href = 'fitnessLogIn.html'; // Redirect to the logged-in page
+        } else {
+            window.location.href = 'fitnessLogOut.html'; // Redirect to the logged-out page
+        }
+    } catch (error) {
+        console.error('Error checking Strava login status:', error);
+        alert('An error occurred while checking your login status. Please try again.');
+    }
+}
