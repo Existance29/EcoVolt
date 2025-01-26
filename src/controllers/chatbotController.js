@@ -31,6 +31,7 @@ const handleChatbotMessage = async (req, res) => {
         const totalCellTowerCO2 = reportData.totalCellTowerCO2 || "N/A";
         const totalDataCenterEnergy = reportData.totalDataCenterEnergy || "N/A";
         const totalCellTowerEnergy = reportData.totalCellTowerEnergy || "N/A";
+
         // Calculate total energy breakdown
         const totalEnergyBreakdown = monthlyEnergyBreakdown.reduce(
             (totals, monthData) => {
@@ -51,7 +52,6 @@ const handleChatbotMessage = async (req, res) => {
             - Miscellaneous: ${totalEnergyBreakdown.misc.toFixed(2)} kWh
         `;
 
-        // Create the monthly energy breakdown text with explicit "NEW PARAGRAPH" markers
         const monthlyEnergyBreakdownText = monthlyEnergyBreakdown
             .map(
                 (monthData) => `
@@ -64,7 +64,6 @@ const handleChatbotMessage = async (req, res) => {
             )
             .join("");
 
-        // Dynamic values for response placeholders
         const dynamicValues = {
             highestDataCenterName: dashboardSummary.highestDataCenter?.data_center_name || "N/A",
             highestDataCenterCO2: dashboardSummary.highestDataCenter?.co2_emissions_tons || "N/A",
@@ -83,7 +82,7 @@ const handleChatbotMessage = async (req, res) => {
             totalDataCenterCO2: totalDataCenterCO2,
             totalCellTowerCO2: totalCellTowerCO2,
             totalDataCenterEnergy: totalDataCenterEnergy,
-            totalCellTowerEnergy: totalCellTowerEnergy
+            totalCellTowerEnergy: totalCellTowerEnergy,
         };
 
         // Parse intents from JSON
@@ -100,8 +99,10 @@ const handleChatbotMessage = async (req, res) => {
             const matchedKey = matchedIntent.bestMatch.target;
             const intent = intents[matchedKey];
 
-            // Handle specific keywords in user input
-            if (matchedKey === "energy breakdown") {
+            // Handle "company initiatives" explicitly
+            if (matchedKey === "company initiatives") {
+                contextData = intent.response; // Return response directly, no placeholders
+            } else if (matchedKey === "energy breakdown") {
                 contextData = `Here is the total energy breakdown for the specified period:\n\n${dynamicValues.totalEnergyBreakdown}`;
             } else if (matchedKey === "monthly energy breakdown") {
                 contextData = `Here is the detailed monthly energy breakdown:\n\n${dynamicValues.monthlyEnergyBreakdown}`;
@@ -117,15 +118,15 @@ const handleChatbotMessage = async (req, res) => {
             contextData = intents["default"].response;
         }
 
-        // Construct OpenAI Prompt
         const prompt = `User message: "${userMessage}"
         Context: ${contextData}
-        Provide a clear, concise, and well-formatted response.`;
+        Provide a clear, concise, and well-formatted response.
+        The following response needs to sound more natural while keeping all the original points intact:\n\n"${contextData}"\n\nMake the response flow naturally without removing or altering any of the core points.`;
 
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
-            max_tokens: 400, // Increased for detailed responses
+            max_tokens: 400,
             temperature: 0.5,
         });
 
@@ -178,7 +179,6 @@ const calculateNetZeroProgress = (reportData) => {
     });
 
     if (totalWeight === 0) {
-        console.warn("No valid weights found for sustainability goals.");
         return "No data available";
     }
 
