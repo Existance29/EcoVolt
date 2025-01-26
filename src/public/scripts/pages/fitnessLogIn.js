@@ -17,18 +17,18 @@ async function checkStravaLogin() {
         const response = await get('/fitness/stats');
         if (!response.ok) {
             // If not logged into Strava
-            window.location.href = 'fitnessLogOut.html';
+            // window.location.href = 'fitnessLogOut.html';
         } else {
             const data = await response.json();
             if (!data || !data.totalDistance) {
                 // If Strava data is missing
-                window.location.href = 'fitnessLogOut.html';
+                // window.location.href = 'fitnessLogOut.html';
             }
         }
     } catch (error) {
         console.error('Error checking Strava login status:', error);
         // Redirect to fitnessLogOut.html on error
-        window.location.href = 'fitnessLogOut.html';
+    //     window.location.href = 'fitnessLogOut.html';
     }
 }
 
@@ -226,42 +226,40 @@ async function updatestats() {
 
 function initializeDonutChart() {
     const ctx = document.getElementById('donutChart').getContext('2d');
+    
 
     const chart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Completed', 'Remaining'],
+            labels: ['Completed', 'Remaining'], // Labels remain as per your context
             datasets: [
                 {
-                    data: [0, 1], // Initial values: 0 completed, 1 remaining
-                    backgroundColor: ['#4FD1C5', '#e0e0e0'],
-                    borderWidth: 1,
+                    data: [34, 66], // Example data: 34 completed, 66 remaining
+                    backgroundColor: ['#4FD1C5', '#E0E0E0'], // Green for Completed, Gray for Remaining
+                    borderWidth: 0, // No border
                 },
             ],
         },
         options: {
             responsive: true,
-            cutout: '70%',
+            cutout: '70%', // Creates the ring effect
             plugins: {
                 tooltip: {
                     callbacks: {
                         label: (tooltipItem) => {
-                            const label = tooltipItem.label;
-                            const value = tooltipItem.raw;
-                            return `${label}: ${value.toFixed(2)} km`;
+                            const label = tooltipItem.label; // Get the label ('Completed' or 'Remaining')
+                            const value = tooltipItem.raw; // Get the value
+                            return `${label}: ${value.toFixed(2)} km`; // Format as kilometers
                         },
                     },
                 },
                 legend: {
-                    position: 'left', // Move the legend to the left side
-                    labels: {
-                        boxWidth: 20, // Adjust box size for legend items
-                        padding: 10,  // Adjust spacing around legend items
-                    },
-                },                
+                    display: false, // Hide built-in legend (custom legend is used)
+                },
                 centerText: {
                     display: true,
-                    text: '0 km',
+                    text: '34',
+                    subtext: 'Completed',
                 },
             },
         },
@@ -282,30 +280,49 @@ async function updateDonutChart(chart) {
         chart.data.datasets[0].data = [progress, remaining];
         chart.options.plugins.centerText.text = `${progress.toFixed(2)} km`;
 
+        // Update the chart-number element
+        const chartNumberElement = document.querySelector('.chart-number');
+        if (chartNumberElement) {
+            chartNumberElement.textContent = `${progress.toFixed(2)}`;
+        }
+
         chart.update();
     } catch (error) {
         console.error('Error updating donut chart:', error);
     }
 }
 
+
+
+
+// Plugin for center text
 Chart.register({
     id: 'centerText',
     beforeDraw: (chart) => {
         if (chart.options.plugins.centerText && chart.options.plugins.centerText.display) {
             const ctx = chart.ctx;
-            const { width, height, chartArea } = chart;
+            const { width } = chart;
             const text = chart.options.plugins.centerText.text;
+            const subtext = chart.options.plugins.centerText.subtext;
 
             ctx.save();
-            ctx.font = '24px Arial'; // Adjust font size for visibility
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle'; // Correct baseline alignment
-            ctx.fillStyle = '#000'; // Text color
 
-            // Calculate vertical position using chartArea
-            const textX = (chartArea.left + chartArea.right) / 2; // Horizontally center within the chart area
-            const textY = (chartArea.top + chartArea.bottom) / 2; // Vertically center within the chart area
-            ctx.fillText(text, textX, textY); // Draw the text at calculated position
+            // Main text (large number)
+            ctx.font = 'bold 25px Arial'; // Bold and larger font size
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#000'; // Black color for the text
+
+            const centerX = width / 2;
+            const centerY = chart.chartArea.top + (chart.chartArea.bottom - chart.chartArea.top) / 2 - 10; // Adjusted slightly higher
+
+            ctx.fillText(text, centerX, centerY); // Draw the central number
+
+            // Subtext (smaller label below the main text)
+            ctx.font = '14px Arial'; // Smaller font size for the subtext
+            ctx.fillStyle = '#666'; // Gray color for the subtext
+            ctx.fillText(subtext, centerX, centerY + 20); // Positioned below the number
+
             ctx.restore();
         }
     },
@@ -320,3 +337,4 @@ function formatTime(seconds) {
     }
     return `${hours}h ${minutes}m`;
 }
+

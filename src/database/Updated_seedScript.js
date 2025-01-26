@@ -110,10 +110,14 @@ CREATE TABLE data_center_carbon_emissions (
 );
 
 CREATE TABLE devices (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    data_center_id INT NOT NULL,
-    device_type VARCHAR(255),
-    FOREIGN KEY (data_center_id) REFERENCES data_centers(id)
+    id INT IDENTITY(1,1) PRIMARY KEY, -- Unique identifier for the device
+    data_center_id INT NOT NULL,       -- Reference to the data center
+    brand VARCHAR(255) NOT NULL,       -- Brand of the device
+    model VARCHAR(255) NOT NULL,       -- Model of the device
+    serial_number VARCHAR(255) NOT NULL UNIQUE, -- Unique serial number
+    device_type VARCHAR(255),          -- Type of the device (optional)
+    status VARCHAR(50) CHECK (status IN ('Pending Pick Up', 'recycled', 'in use', 'not in use')), -- Status constraint
+    FOREIGN KEY (data_center_id) REFERENCES data_centers(id) -- Foreign key to data_centers table
 );
 
 -- Create table for sustainability goals
@@ -199,7 +203,7 @@ CREATE TABLE activity_points (
     activity_id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
     post_id INT,
-    activity_type VARCHAR(50), 
+    activity_type VARCHAR(255), 
     points_awarded INT,
     datetime DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (user_id) REFERENCES users(id),
@@ -247,6 +251,26 @@ CREATE TABLE strava_tokens (
     token_expiry DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- Create table for Recyclables with data_center_id
+CREATE TABLE recyclables (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    brand VARCHAR(255) NOT NULL,
+    model VARCHAR(255) NOT NULL,
+    serial_number VARCHAR(255) NOT NULL UNIQUE,
+    status VARCHAR(50) NOT NULL CHECK (status IN ('Pending Pick Up','Awaiting Approval', 'Recycled', 'Approved', 'Rejected')),
+    type VARCHAR(50) NOT NULL CHECK (type IN ('Company', 'Personal')),
+    device_type VARCHAR(50) NOT NULL,
+    user_id INT NULL, -- Nullable for company recyclables
+    company_id INT NOT NULL,
+    data_center_id INT NULL, -- Directly links recyclables to a data center
+    created_at DATETIME DEFAULT GETDATE(),
+    image_path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (data_center_id) REFERENCES data_centers(id) -- New foreign key to data_centers
+);
+
 -- Create table for Employee access
 CREATE TABLE employee_access (
     user_id INT REFERENCES users(id),
@@ -255,7 +279,71 @@ CREATE TABLE employee_access (
     company_id INT NOT NULL,
     FOREIGN KEY (company_id) REFERENCES companies(id),
 );
-
+CREATE TABLE courses (
+    id INT IDENTITY(1,1) PRIMARY KEY, -- Unique course identifier
+    title VARCHAR(255) NOT NULL,      -- Course title
+    description TEXT NOT NULL,         -- Detailed course description
+    points INT NOT NULL,              -- Total number of points in the course
+    image_path VARCHAR(255) NOT NULL  -- Path to the course image
+);
+CREATE TABLE lessons (
+    id INT IDENTITY(1,1) PRIMARY KEY, -- Unique lesson identifier
+    course_id INT NOT NULL,           -- References the associated course
+    title VARCHAR(255) NOT NULL,      -- Lesson title
+    content TEXT NOT NULL,            -- Lesson content or description
+    duration VARCHAR(255) NOT NULL,   -- Estimated duration of the lesson (e.g., "2 hours")
+    position INT NOT NULL,            -- Order of the lesson in the course
+    video_link VARCHAR(2083),         -- Optional: Video link for the lesson
+    FOREIGN KEY (course_id) REFERENCES courses(id) -- Links lesson to the associated course
+);
+CREATE TABLE key_concepts (
+    id INT IDENTITY(1,1) PRIMARY KEY,     -- Unique concept identifier
+    lesson_id INT NOT NULL,               -- References the associated lesson
+    title VARCHAR(255) NOT NULL,          -- Key concept title
+    description TEXT NOT NULL,            -- Key concept description
+    FOREIGN KEY (lesson_id) REFERENCES lessons(id) -- Foreign key to lessons table
+);
+CREATE TABLE questions (
+    id INT IDENTITY(1,1) PRIMARY KEY,       -- Unique question identifier
+    lesson_id INT NOT NULL,                 -- References the associated lesson
+    question_text TEXT NOT NULL,            -- The text of the question
+    option_a VARCHAR(255) NOT NULL,         -- Option A for the question
+    option_b VARCHAR(255) NOT NULL,         -- Option B for the question
+    option_c VARCHAR(255) NOT NULL,         -- Option C for the question
+    option_d VARCHAR(255) NOT NULL,         -- Option D for the question
+    correct_option CHAR(1) NOT NULL,        -- The correct option (e.g., 'A', 'B', 'C', or 'D')
+    FOREIGN KEY (lesson_id) REFERENCES lessons(id) -- Links to the lessons table
+);
+CREATE TABLE user_courses (
+    id INT IDENTITY(1,1) PRIMARY KEY,         -- Unique identifier for the record
+    user_id INT NOT NULL,                     -- References the user
+    course_id INT NOT NULL,                   -- References the course
+    started_at DATETIME NOT NULL DEFAULT GETDATE(), -- Date and time the course was started
+    completed_at DATETIME NULL,               -- Date and time the course was completed
+    progress_percentage INT NOT NULL DEFAULT 0, -- Progress percentage (0-100)
+    FOREIGN KEY (user_id) REFERENCES users(id), -- Foreign key to the users table
+    FOREIGN KEY (course_id) REFERENCES courses(id) -- Foreign key to the courses table
+);
+CREATE TABLE user_lessons (
+    id INT IDENTITY(1,1) PRIMARY KEY,       -- Unique identifier
+    user_id INT NOT NULL,                   -- References the user
+    lesson_id INT NOT NULL,                 -- References the lesson
+    completed_at DATETIME NOT NULL DEFAULT GETDATE(), -- Completion timestamp
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (lesson_id) REFERENCES lessons(id)
+);
+-- Create table for Suggestions
+CREATE TABLE suggestions (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL, -- The user who made the suggestion
+    company_id INT NULL, -- Optional: Company related to the suggestion
+    title VARCHAR(255) NOT NULL, -- A short title for the suggestion
+    suggestion_text TEXT NOT NULL, -- The suggestion content
+    created_at DATETIME DEFAULT GETDATE(), -- Timestamp for when the suggestion was made
+    status VARCHAR(50) DEFAULT 'Pending', -- Status of the suggestion (e.g., Pending, Reviewed, Implemented, Rejected)
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
 `;
 
 const insertData = `
@@ -1154,165 +1242,155 @@ VALUES
     (18, '2024-10-08', 134.80, 83, 40, 6, 5.0, 95, 22.1);
 
 -- Insert sample data into devices table
-INSERT INTO devices (data_center_id, device_type)
+INSERT INTO devices (data_center_id, brand, model, serial_number, device_type, status)
 VALUES
     -- Data center 1 - Singtel
-    (1, 'Server Rack 1'),
-    (1, 'Server Rack 2'),
-    (1, 'Cooling System 1'),
-    (1, 'Cooling System 2'),
-    (1, 'Backup Power Unit'),
-    (1, 'Lighting System'),
+    (1, 'Dell', 'PowerEdge R740', 'SN-10001', 'Server Rack', 'in use'),
+    (1, 'Dell', 'PowerEdge R740', 'SN-10002', 'Server Rack', 'in use'),
+    (1, 'Schneider', 'Cooling System Pro', 'SN-10003', 'Cooling System', 'in use'),
+    (1, 'Schneider', 'Cooling System Pro', 'SN-10004', 'Cooling System', 'in use'),
+    (1, 'APC', 'Smart-UPS 1500', 'SN-10005', 'Backup Power Unit', 'not in use'),
+    (1, 'Philips', 'Hue Light 5000', 'SN-10006', 'Lighting System', 'in use'),
 
-    (2, 'Server Rack 1'),
-    (2, 'Server Rack 2'),
-    (2, 'Cooling System 1'),
-    (2, 'Cooling System 2'),
-    (2, 'Backup Power Unit'),
-    (2, 'Lighting System'),
+    -- Data center 2
+    (2, 'Dell', 'PowerEdge R740', 'SN-20001', 'Server Rack', 'in use'),
+    (2, 'Dell', 'PowerEdge R740', 'SN-20002', 'Server Rack', 'Pending Pick Up'),
+    (2, 'Schneider', 'Cooling System Pro', 'SN-20003', 'Cooling System', 'in use'),
+    (2, 'Schneider', 'Cooling System Pro', 'SN-20004', 'Cooling System', 'in use'),
+    (2, 'APC', 'Smart-UPS 1500', 'SN-20005', 'Backup Power Unit', 'recycled'),
+    (2, 'Philips', 'Hue Light 5000', 'SN-20006', 'Lighting System', 'in use'),
 
-    (3, 'Server Rack 1'),
-    (3, 'Server Rack 2'),
-    (3, 'Cooling System 1'),
-    (3, 'Cooling System 2'),
-    (3, 'Backup Power Unit'),
-    (3, 'Lighting System'),
+    -- Data center 3
+    (3, 'HP', 'ProLiant DL380', 'SN-30001', 'Server Rack', 'in use'),
+    (3, 'HP', 'ProLiant DL380', 'SN-30002', 'Server Rack', 'Pending Pick Up'),
+    (3, 'Daikin', 'Cooling System X', 'SN-30003', 'Cooling System', 'in use'),
+    (3, 'Daikin', 'Cooling System X', 'SN-30004', 'Cooling System', 'in use'),
+    (3, 'Eaton', 'Power Xpert 9395', 'SN-30005', 'Backup Power Unit', 'recycled'),
+    (3, 'Osram', 'LED Pro 9000', 'SN-30006', 'Lighting System', 'in use'),
 
-    -- id 19-24
-    (4, 'Server Rack 1'),
-    (4, 'Server Rack 2'),
-    (4, 'Cooling System 1'),
-    (4, 'Cooling System 2'),
-    (4, 'Backup Power Unit'),
-    (4, 'Lighting System'),
+    -- Repeat similar patterns for other data centers (4 through 20)
 
-    -- id 25-30
-    (5, 'Server Rack 1'),
-    (5, 'Server Rack 2'),
-    (5, 'Cooling System 1'),
-    (5, 'Cooling System 2'),
-    (5, 'Backup Power Unit'),
-    (5, 'Lighting System'),
+    -- Example for Data center 4
+    (4, 'Dell', 'PowerEdge R740', 'SN-40001', 'Server Rack', 'in use'),
+    (4, 'Dell', 'PowerEdge R740', 'SN-40002', 'Server Rack', 'recycled'),
+    (4, 'Schneider', 'Cooling System Pro', 'SN-40003', 'Cooling System', 'in use'),
+    (4, 'Schneider', 'Cooling System Pro', 'SN-40004', 'Cooling System', 'in use'),
+    (4, 'APC', 'Smart-UPS 1500', 'SN-40005', 'Backup Power Unit', 'not in use'),
+    (4, 'Philips', 'Hue Light 5000', 'SN-40006', 'Lighting System', 'in use'),
 
-        -- Data center 6
-    (6, 'Server Rack 1'),
-    (6, 'Server Rack 2'),
-    (6, 'Cooling System 1'),
-    (6, 'Cooling System 2'),
-    (6, 'Backup Power Unit'),
-    (6, 'Lighting System'),
-
+    -- Data center 5
+    (5, 'Dell', 'PowerEdge R740', 'SN-50001', 'Server Rack', 'in use'),
+    (5, 'Dell', 'PowerEdge R740', 'SN-50002', 'Server Rack', 'Pending Pick Up'),
+    (5, 'Schneider', 'Cooling System Pro', 'SN-50003', 'Cooling System', 'in use'),
+    (5, 'Schneider', 'Cooling System Pro', 'SN-50004', 'Cooling System', 'in use'),
+    (5, 'APC', 'Smart-UPS 1500', 'SN-50005', 'Backup Power Unit', 'not in use'),
+    (5, 'Philips', 'Hue Light 5000', 'SN-50006', 'Lighting System', 'in use'),
+    -- Data center 6
+    (6, 'Dell', 'PowerEdge R740', 'SN-60001', 'Server Rack', 'in use'),
+    (6, 'Dell', 'PowerEdge R740', 'SN-60002', 'Server Rack', 'Pending Pick Up'),
+    (6, 'Schneider', 'Cooling System Pro', 'SN-60003', 'Cooling System', 'in use'),
+    (6, 'Schneider', 'Cooling System Pro', 'SN-60004', 'Cooling System', 'in use'),
+    (6, 'APC', 'Smart-UPS 1500', 'SN-60005', 'Backup Power Unit', 'not in use'),
+    (6, 'Philips', 'Hue Light 5000', 'SN-60006', 'Lighting System', 'in use'),
     -- Data center 7
-    (7, 'Server Rack 1'),
-    (7, 'Server Rack 2'),
-    (7, 'Cooling System 1'),
-    (7, 'Cooling System 2'),
-    (7, 'Backup Power Unit'),
-    (7, 'Lighting System'),
-
+    (7, 'Dell', 'PowerEdge R740', 'SN-70001', 'Server Rack', 'in use'),
+    (7, 'Dell', 'PowerEdge R740', 'SN-70002', 'Server Rack', 'Pending Pick Up'),
+    (7, 'Schneider', 'Cooling System Pro', 'SN-70003', 'Cooling System', 'in use'),
+    (7, 'Schneider', 'Cooling System Pro', 'SN-70004', 'Cooling System', 'in use'),
+    (7, 'APC', 'Smart-UPS 1500', 'SN-70005', 'Backup Power Unit', 'not in use'),
+    (7, 'Philips', 'Hue Light 5000', 'SN-70006', 'Lighting System', 'in use'),
     -- Data center 8
-    (8, 'Server Rack 1'),
-    (8, 'Server Rack 2'),
-    (8, 'Cooling System 1'),
-    (8, 'Cooling System 2'),
-    (8, 'Backup Power Unit'),
-    (8, 'Lighting System'),
-
+    (8, 'Dell', 'PowerEdge R740', 'SN-80001', 'Server Rack', 'in use'),
+    (8, 'Dell', 'PowerEdge R740', 'SN-80002', 'Server Rack', 'Pending Pick Up'),
+    (8, 'Schneider', 'Cooling System Pro', 'SN-80003', 'Cooling System', 'in use'),
+    (8, 'Schneider', 'Cooling System Pro', 'SN-80004', 'Cooling System', 'in use'),
+    (8, 'APC', 'Smart-UPS 1500', 'SN-80005', 'Backup Power Unit', 'not in use'),
+    (8, 'Philips', 'Hue Light 5000', 'SN-80006', 'Lighting System', 'in use'),
     -- Data center 9
-    (9, 'Server Rack 1'),
-    (9, 'Server Rack 2'),
-    (9, 'Cooling System 1'),
-    (9, 'Cooling System 2'),
-    (9, 'Backup Power Unit'),
-    (9, 'Lighting System'),
-
+    (9, 'Dell', 'PowerEdge R740', 'SN-90001', 'Server Rack', 'in use'),
+    (9, 'Dell', 'PowerEdge R740', 'SN-90002', 'Server Rack', 'Pending Pick Up'),
+    (9, 'Schneider', 'Cooling System Pro', 'SN-90003', 'Cooling System', 'in use'),
+    (9, 'Schneider', 'Cooling System Pro', 'SN-90004', 'Cooling System', 'in use'),
+    (9, 'APC', 'Smart-UPS 1500', 'SN-90005', 'Backup Power Unit', 'not in use'),
+    (9, 'Philips', 'Hue Light 5000', 'SN-90006', 'Lighting System', 'in use'),
     -- Data center 10
-    (10, 'Server Rack 1'),
-    (10, 'Server Rack 2'),
-    (10, 'Cooling System 1'),
-    (10, 'Cooling System 2'),
-    (10, 'Backup Power Unit'),
-    (10, 'Lighting System'),
-
+    (10, 'Dell', 'PowerEdge R740', 'SN-100001', 'Server Rack', 'in use'),
+    (10, 'Dell', 'PowerEdge R740', 'SN-100002', 'Server Rack', 'Pending Pick Up'),
+    (10, 'Schneider', 'Cooling System Pro', 'SN-100003', 'Cooling System', 'in use'),
+    (10, 'Schneider', 'Cooling System Pro', 'SN-100004', 'Cooling System', 'in use'),
+    (10, 'APC', 'Smart-UPS 1500', 'SN-100005', 'Backup Power Unit', 'not in use'),
+    (10, 'Philips', 'Hue Light 5000', 'SN-100006', 'Lighting System', 'in use'),
     -- Data center 11
-    (11, 'Server Rack 1'),
-    (11, 'Server Rack 2'),
-    (11, 'Cooling System 1'),
-    (11, 'Cooling System 2'),
-    (11, 'Backup Power Unit'),
-    (11, 'Lighting System'),
-
+    (11, 'Dell', 'PowerEdge R740', 'SN-110001', 'Server Rack', 'in use'),
+    (11, 'Dell', 'PowerEdge R740', 'SN-110002', 'Server Rack', 'Pending Pick Up'),
+    (11, 'Schneider', 'Cooling System Pro', 'SN-110003', 'Cooling System', 'in use'),
+    (11, 'Schneider', 'Cooling System Pro', 'SN-110004', 'Cooling System', 'in use'),
+    (11, 'APC', 'Smart-UPS 1500', 'SN-110005', 'Backup Power Unit', 'not in use'),
+    (11, 'Philips', 'Hue Light 5000', 'SN-110006', 'Lighting System', 'in use'),
     -- Data center 12
-    (12, 'Server Rack 1'),
-    (12, 'Server Rack 2'),
-    (12, 'Cooling System 1'),
-    (12, 'Cooling System 2'),
-    (12, 'Backup Power Unit'),
-    (12, 'Lighting System'),
-
+    (12, 'Dell', 'PowerEdge R740', 'SN-120001', 'Server Rack', 'in use'),
+    (12, 'Dell', 'PowerEdge R740', 'SN-120002', 'Server Rack', 'Pending Pick Up'),
+    (12, 'Schneider', 'Cooling System Pro', 'SN-120003', 'Cooling System', 'in use'),
+    (12, 'Schneider', 'Cooling System Pro', 'SN-120004', 'Cooling System', 'in use'),
+    (12, 'APC', 'Smart-UPS 1500', 'SN-120005', 'Backup Power Unit', 'not in use'),
+    (12, 'Philips', 'Hue Light 5000', 'SN-120006', 'Lighting System', 'in use'),
     -- Data center 13
-    (13, 'Server Rack 1'),
-    (13, 'Server Rack 2'),
-    (13, 'Cooling System 1'),
-    (13, 'Cooling System 2'),
-    (13, 'Backup Power Unit'),
-    (13, 'Lighting System'),
-
+    (13, 'Dell', 'PowerEdge R740', 'SN-130001', 'Server Rack', 'in use'),
+    (13, 'Dell', 'PowerEdge R740', 'SN-130002', 'Server Rack', 'Pending Pick Up'),
+    (13, 'Schneider', 'Cooling System Pro', 'SN-130003', 'Cooling System', 'in use'),
+    (13, 'Schneider', 'Cooling System Pro', 'SN-130004', 'Cooling System', 'in use'),
+    (13, 'APC', 'Smart-UPS 1500', 'SN-130005', 'Backup Power Unit', 'not in use'),
+    (13, 'Philips', 'Hue Light 5000', 'SN-130006', 'Lighting System', 'in use'),
     -- Data center 14
-    (14, 'Server Rack 1'),
-    (14, 'Server Rack 2'),
-    (14, 'Cooling System 1'),
-    (14, 'Cooling System 2'),
-    (14, 'Backup Power Unit'),
-    (14, 'Lighting System'),
-
+    (14, 'Dell', 'PowerEdge R740', 'SN-140001', 'Server Rack', 'in use'),
+    (14, 'Dell', 'PowerEdge R740', 'SN-140002', 'Server Rack', 'Pending Pick Up'),
+    (14, 'Schneider', 'Cooling System Pro', 'SN-140003', 'Cooling System', 'in use'),
+    (14, 'Schneider', 'Cooling System Pro', 'SN-140004', 'Cooling System', 'in use'),
+    (14, 'APC', 'Smart-UPS 1500', 'SN-140005', 'Backup Power Unit', 'not in use'),
+    (14, 'Philips', 'Hue Light 5000', 'SN-140006', 'Lighting System', 'in use'),
     -- Data center 15
-    (15, 'Server Rack 1'),
-    (15, 'Server Rack 2'),
-    (15, 'Cooling System 1'),
-    (15, 'Cooling System 2'),
-    (15, 'Backup Power Unit'),
-    (15, 'Lighting System'),
-
+    (15, 'Dell', 'PowerEdge R740', 'SN-150001', 'Server Rack', 'in use'),
+    (15, 'Dell', 'PowerEdge R740', 'SN-150002', 'Server Rack', 'Pending Pick Up'),
+    (15, 'Schneider', 'Cooling System Pro', 'SN-150003', 'Cooling System', 'in use'),
+    (15, 'Schneider', 'Cooling System Pro', 'SN-150004', 'Cooling System', 'in use'),
+    (15, 'APC', 'Smart-UPS 1500', 'SN-150005', 'Backup Power Unit', 'not in use'),
+    (15, 'Philips', 'Hue Light 5000', 'SN-150006', 'Lighting System', 'in use'),
     -- Data center 16
-    (16, 'Server Rack 1'),
-    (16, 'Server Rack 2'),
-    (16, 'Cooling System 1'),
-    (16, 'Cooling System 2'),
-    (16, 'Backup Power Unit'),
-    (16, 'Lighting System'),
-
+    (16, 'Dell', 'PowerEdge R740', 'SN-160001', 'Server Rack', 'in use'),
+    (16, 'Dell', 'PowerEdge R740', 'SN-160002', 'Server Rack', 'Pending Pick Up'),
+    (16, 'Schneider', 'Cooling System Pro', 'SN-160003', 'Cooling System', 'in use'),
+    (16, 'Schneider', 'Cooling System Pro', 'SN-160004', 'Cooling System', 'in use'),
+    (16, 'APC', 'Smart-UPS 1500', 'SN-160005', 'Backup Power Unit', 'not in use'),
+    (16, 'Philips', 'Hue Light 5000', 'SN-160006', 'Lighting System', 'in use'),
     -- Data center 17
-    (17, 'Server Rack 1'),
-    (17, 'Server Rack 2'),
-    (17, 'Cooling System 1'),
-    (17, 'Cooling System 2'),
-    (17, 'Backup Power Unit'),
-    (17, 'Lighting System'),
-
+    (17, 'Dell', 'PowerEdge R740', 'SN-170001', 'Server Rack', 'in use'),
+    (17, 'Dell', 'PowerEdge R740', 'SN-170002', 'Server Rack', 'Pending Pick Up'),
+    (17, 'Schneider', 'Cooling System Pro', 'SN-170003', 'Cooling System', 'in use'),
+    (17, 'Schneider', 'Cooling System Pro', 'SN-170004', 'Cooling System', 'in use'),
+    (17, 'APC', 'Smart-UPS 1500', 'SN-170005', 'Backup Power Unit', 'not in use'),
+    (17, 'Philips', 'Hue Light 5000', 'SN-170006', 'Lighting System', 'in use'),
     -- Data center 18
-    (18, 'Server Rack 1'),
-    (18, 'Server Rack 2'),
-    (18, 'Cooling System 1'),
-    (18, 'Cooling System 2'),
-    (18, 'Backup Power Unit'),
-    (18, 'Lighting System'),
-
+    (18, 'Dell', 'PowerEdge R740', 'SN-180001', 'Server Rack', 'in use'),
+    (18, 'Dell', 'PowerEdge R740', 'SN-180002', 'Server Rack', 'Pending Pick Up'),
+    (18, 'Schneider', 'Cooling System Pro', 'SN-180003', 'Cooling System', 'in use'),
+    (18, 'Schneider', 'Cooling System Pro', 'SN-180004', 'Cooling System', 'in use'),
+    (18, 'APC', 'Smart-UPS 1500', 'SN-180005', 'Backup Power Unit', 'not in use'),
+    (18, 'Philips', 'Hue Light 5000', 'SN-180006', 'Lighting System', 'in use'),
     -- Data center 19
-    (19, 'Server Rack 1'),
-    (19, 'Server Rack 2'),
-    (19, 'Cooling System 1'),
-    (19, 'Cooling System 2'),
-    (19, 'Backup Power Unit'),
-    (19, 'Lighting System'),
+    (19, 'Dell', 'PowerEdge R740', 'SN-190001', 'Server Rack', 'in use'),
+    (19, 'Dell', 'PowerEdge R740', 'SN-190002', 'Server Rack', 'Pending Pick Up'),
+    (19, 'Schneider', 'Cooling System Pro', 'SN-190003', 'Cooling System', 'in use'),
+    (19, 'Schneider', 'Cooling System Pro', 'SN-190004', 'Cooling System', 'in use'),
+    (19, 'APC', 'Smart-UPS 1500', 'SN-190005', 'Backup Power Unit', 'not in use'),
+    (19, 'Philips', 'Hue Light 5000', 'SN-190006', 'Lighting System', 'in use'),
 
-    -- Data center 20
-    (20, 'Server Rack 1'),
-    (20, 'Server Rack 2'),
-    (20, 'Cooling System 1'),
-    (20, 'Cooling System 2'),
-    (20, 'Backup Power Unit'),
-    (20, 'Lighting System');
+    -- Repeat until Data center 20
+    (20, 'Dell', 'PowerEdge R740', 'SN-200001', 'Server Rack', 'in use'),
+    (20, 'Dell', 'PowerEdge R740', 'SN-200002', 'Server Rack', 'in use'),
+    (20, 'Schneider', 'Cooling System Pro', 'SN-200003', 'Cooling System', 'in use'),
+    (20, 'Schneider', 'Cooling System Pro', 'SN-200004', 'Cooling System', 'in use'),
+    (20, 'APC', 'Smart-UPS 1500', 'SN-200005', 'Backup Power Unit', 'Pending Pick Up'),
+    (20, 'Philips', 'Hue Light 5000', 'SN-200006', 'Lighting System', 'in use');
 
 -- Insert sample data into data center energy_consumption table
 INSERT INTO data_center_energy_consumption (data_center_id, date, total_energy_mwh, it_energy_mwh, cooling_energy_mwh, backup_power_energy_mwh, lighting_energy_mwh, pue, cue, wue)
@@ -1667,7 +1745,7 @@ VALUES
 INSERT INTO data_center_carbon_emissions (data_center_id, date, co2_emissions_tons, renewable_energy_percentage)
 VALUES
 
-    -- 2024 (least carbon emissions, highest renewable energy percentage)
+    -- 2021 (least carbon emissions, highest renewable energy percentage)
     (1, '2021-08-01', 4500.00, 50.0),
     (1, '2021-09-01', 4450.00, 51.0),
     (1, '2021-10-01', 4400.00, 52.0),
@@ -1677,17 +1755,17 @@ VALUES
     (1, '2021-10-20', 4330.00, 54.0),
     (1, '2021-10-25', 4315.00, 54.5),
     (1, '2021-10-30', 4300.00, 55.0),
-    -- 2023
-    (1, '2022-08-01', 5000.00, 45.0),
-    (1, '2022-09-01', 4950.00, 46.0),
-    (1, '2022-10-01', 4900.00, 47.0),
-    (1, '2022-10-05', 4925.00, 46.5),
     -- 2022
-    (1, '2023-08-01', 5400.00, 40.0),
-    (1, '2023-09-01', 5350.00, 41.0),
-    (1, '2023-10-01', 5300.00, 42.0),
-    (1, '2023-10-05', 5325.00, 41.5),
-    -- 2021 (highest carbon emissions, lowest renewable energy percentage)
+    (1, '2022-08-01', 12400.00, 45.0),
+    (1, '2022-09-01', 12450.00, 46.0),
+    (1, '2022-10-01', 1200.00, 47.0),
+    (1, '2022-10-05', 10925.00, 46.5),
+    -- 2023
+    (1, '2023-08-01', 8400.00, 40.0),
+    (1, '2023-09-01', 8350.00, 41.0),
+    (1, '2023-10-01', 8300.00, 42.0),
+    (1, '2023-10-05', 7325.00, 41.5),
+    -- 2024 (highest carbon emissions, lowest renewable energy percentage)
     (1, '2024-08-01', 6000.00, 35.0),
     (1, '2024-09-01', 5950.00, 36.0),
     (1, '2024-10-01', 5900.00, 37.0),
@@ -3686,42 +3764,42 @@ VALUES
 INSERT INTO leaderboard (user_id, distance_cycled_km, number_of_rides, time_travelled_hours, trees_planted, month, year)
 VALUES
     -- General users
-    (1, 1.50, 10, 8.5, 1, 1, 2025), -- John Doe
-    (2, 8.75, 7, 6.0, 0, 1, 2025),   -- Jane Smith
-    (3, 0.10, 15, 12.0, 2, 1, 2025),-- Alice Tan
-    (4, 0.25, 5, 4.0, 0, 1, 2025),   -- Bob Lee
-    (5, 0.20, 14, 10.5, 2, 1, 2025),-- Apple Lim
-    (6, 0.60, 8, 7.0, 1, 1, 2025),   -- Benedict Soh
-    (7, 0.80, 6, 5.0, 0, 1, 2025),   -- Cadence Tan
-    (8, 0.75, 12, 9.5, 1, 1, 2025), -- Dominic Lee
+    (1, 227.5, 10, 8.5, 1, 1, 2025), -- John Doe
+    (2, 227.5, 7, 6.0, 1, 1, 2025), -- Jane Smith
+    (3, 455.0, 15, 12.0, 2, 1, 2025), -- Alice Tan
+    (4, 227.5, 5, 4.0, 1, 1, 2025), -- Bob Lee
+    (5, 455.0, 14, 10.5, 2, 1, 2025), -- Apple Lim
+    (6, 227.5, 8, 7.0, 1, 1, 2025), -- Benedict Soh
+    (7, 227.5, 6, 5.0, 1, 1, 2025), -- Cadence Tan
+    (8, 227.5, 12, 9.5, 1, 1, 2025), -- Dominic Lee
 
     -- Singtel users
-    (9, 5.00, 20, 15.5, 2, 1, 2025), -- Eve Koh
-    (10, 3.75, 18, 14.0, 1, 1, 2025), -- Francis Wong
-    (11, 2.10, 16, 12.5, 1, 1, 2025), -- Gina Lim
-    (12, 7.50, 22, 18.0, 3, 1, 2025), -- Henry Tan
-    (13, 4.25, 19, 14.5, 2, 1, 2025), -- Ivy Chua
+    (9, 455.0, 20, 15.5, 2, 1, 2025), -- Eve Koh
+    (10, 227.5, 18, 14.0, 1, 1, 2025), -- Francis Wong
+    (11, 227.5, 16, 12.5, 1, 1, 2025), -- Gina Lim
+    (12, 682.5, 22, 18.0, 3, 1, 2025), -- Henry Tan
+    (13, 455.0, 19, 14.5, 2, 1, 2025), -- Ivy Chua
 
     -- M1 users
-    (14, 6.00, 25, 20.0, 3, 1, 2025), -- Olivia Tan
-    (15, 2.50, 14, 10.0, 1, 1, 2025), -- Patrick Goh
-    (16, 3.80, 17, 13.0, 1, 1, 2025), -- Queenie Wong
-    (17, 5.25, 21, 16.5, 2, 1, 2025), -- Ryan Teo
-    (18, 1.50, 12, 8.0, 0, 1, 2025),  -- Sarah Chan
+    (14, 682.5, 25, 20.0, 3, 1, 2025), -- Olivia Tan
+    (15, 227.5, 14, 10.0, 1, 1, 2025), -- Patrick Goh
+    (16, 227.5, 17, 13.0, 1, 1, 2025), -- Queenie Wong
+    (17, 455.0, 21, 16.5, 2, 1, 2025), -- Ryan Teo
+    (18, 227.5, 12, 8.0, 1, 1, 2025), -- Sarah Chan
 
     -- Simba users
-    (19, 4.80, 23, 17.5, 2, 1, 2025), -- Yvonne Goh
-    (20, 7.20, 26, 21.0, 3, 1, 2025), -- Zachary Lee
-    (21, 3.10, 18, 14.5, 1, 1, 2025), -- Aaron Tan
-    (22, 2.90, 15, 12.0, 1, 1, 2025), -- Brianna Ho
-    (23, 6.75, 24, 19.5, 3, 1, 2025), -- Clement Ong
+    (19, 455.0, 23, 17.5, 2, 1, 2025), -- Yvonne Goh
+    (20, 682.5, 26, 21.0, 3, 1, 2025), -- Zachary Lee
+    (21, 227.5, 18, 14.5, 1, 1, 2025), -- Aaron Tan
+    (22, 227.5, 15, 12.0, 1, 1, 2025), -- Brianna Ho
+    (23, 682.5, 24, 19.5, 3, 1, 2025), -- Clement Ong
 
     -- StarHub users
-    (24, 5.50, 22, 17.0, 2, 1, 2025), -- Isaac Low
-    (25, 3.60, 19, 14.0, 1, 1, 2025), -- Jessica Chua
-    (26, 4.40, 21, 16.0, 2, 1, 2025), -- Keith Ho
-    (27, 7.00, 28, 22.0, 3, 1, 2025), -- Lena Tan
-    (28, 2.75, 13, 10.5, 1, 1, 2025); -- Megan Teo
+    (24, 455.0, 22, 17.0, 2, 1, 2025), -- Isaac Low
+    (25, 227.5, 19, 14.0, 1, 1, 2025), -- Jessica Chua
+    (26, 455.0, 21, 16.0, 2, 1, 2025), -- Keith Ho
+    (27, 682.5, 28, 22.0, 3, 1, 2025), -- Lena Tan
+    (28, 227.5, 13, 10.5, 1, 1, 2025); -- Megan Teo
 
 
 INSERT INTO rewards_catalog (reward_name, reward_image, reward_description, points_required)
@@ -3765,6 +3843,444 @@ VALUES
     '/assets/rewards/cottonBag.png', 
     'A durable and reusable tote bag made from 100% organic cotton.', 
     1200);
+
+INSERT INTO courses (title, description, points, image_path)
+VALUES 
+('Introduction to Data Center Sustainability', 
+ 'Understand the principles of sustainability in data centers. Learn how energy-efficient practices, renewable energy integration, and advanced monitoring systems help reduce carbon footprints while maintaining operational efficiency.', 
+ 50, './assets/courses/course1.jpg'),
+('Advanced Cooling Strategies for Data Centers', 
+ 'Explore advanced cooling methods to optimize airflow and reduce energy consumption in data centers. This course covers techniques like hot and cold aisle containment, liquid cooling systems, and the role of Computational Fluid Dynamics (CFD) in cooling optimization.', 
+ 70, './assets/courses/course2.jpg'),
+('Energy-Efficient Infrastructure Design', 
+ 'Dive into the design and implementation of energy-efficient infrastructures for data centers. Learn about efficient server placement, power usage effectiveness (PUE) metrics, and the adoption of renewable energy sources to reduce emissions.', 
+ 40, './assets/courses/course3.jpg'),
+('Monitoring and Optimizing Data Center Energy Usage', 
+ 'Master the tools and techniques required to monitor and optimize energy consumption in data centers. Learn about real-time monitoring systems, predictive analytics, and strategies to identify inefficiencies and reduce carbon emissions.', 
+ 60, './assets/courses/course4.jpg'),
+('Achieving Carbon Neutrality in Data Centers', 
+ 'Gain in-depth knowledge of the strategies and technologies involved in achieving carbon neutrality in data centers. This course focuses on renewable energy integration, carbon offset initiatives, and industry best practices for sustainable operations.', 
+ 80, './assets/courses/course5.jpg');
+
+INSERT INTO lessons (course_id, title, content, duration, position, video_link)
+VALUES
+-- Lessons for Course 1: Introduction to Data Center Sustainability
+(1, 'Understanding Sustainability in Data Centers', 
+    'In this lesson, you will learn about the importance of sustainability in data center operations. We will explore how sustainability initiatives contribute to environmental preservation and operational efficiency. By the end of this lesson, you will understand key sustainability concepts and their role in data centers.', 
+    '20 min', 1, 'https://www.youtube.com/watch?v=XORuHW3CxAg'),
+(1, 'Energy Efficiency Basics', 
+    'In this lesson, you will learn the fundamentals of energy efficiency and why it is critical for data centers. Topics include strategies to minimize energy waste and real-world examples of successful energy efficiency implementations.', 
+    '25 min', 2, 'https://www.youtube.com/watch?v=xGSdf2uLtlo'),
+(1, 'Renewable Energy Integration', 
+    'In this lesson, you will learn how to integrate renewable energy sources into data center operations. We will discuss the types of renewable energy available and the benefits they bring, along with challenges and solutions for implementation.', 
+    '30 min', 3, 'https://www.youtube.com/watch?v=UFK4hqeRhIc'),
+(1, 'Monitoring Sustainability Efforts', 
+    'In this lesson, you will learn how to monitor and track the success of sustainability initiatives in data centers. Key topics include metrics for measuring progress and tools to ensure sustainability efforts are maintained over time.', 
+    '20 min', 4, 'https://www.youtube.com/watch?v=VaZo_xua8uM'),
+(1, 'Future of Sustainable Data Centers', 
+    'In this lesson, you will learn about the latest trends and emerging technologies that are shaping the future of sustainable data centers. Topics include advancements in energy storage, AI-driven efficiency optimizations, and futuristic design principles.', 
+    '25 min', 5, 'https://www.youtube.com/watch?v=fUIvY_OI3hE'),
+
+-- Lessons for Course 2: Advanced Cooling Strategies for Data Centers
+(2, 'Introduction to Cooling Challenges', 
+    'In this lesson, you will learn about the common cooling challenges faced by data centers and their impact on energy consumption. You will also understand why efficient cooling is essential for sustainability and operational reliability.', 
+    '20 min', 1, 'https://www.youtube.com/watch?v=uDG5QX7QEnk'),
+(2, 'Hot and Cold Aisle Containment', 
+    'In this lesson, you will learn the principles of hot and cold aisle containment and how this strategy enhances cooling efficiency in data centers. We will cover design considerations and practical implementation techniques.', 
+    '25 min', 2, 'https://www.youtube.com/watch?v=2BfNGZiO4GU'),
+(2, 'Liquid Cooling Systems', 
+    'In this lesson, you will learn about liquid cooling systems and their role in achieving high-performance cooling while reducing energy use. Topics include system design, implementation, and examples of successful deployments.', 
+    '30 min', 3, 'https://www.youtube.com/watch?v=0BCXySecMoI'),
+(2, 'Using Computational Fluid Dynamics (CFD)', 
+    'In this lesson, you will learn how Computational Fluid Dynamics (CFD) simulations are used to optimize airflow and cooling in data centers. We will discuss the basics of CFD, its benefits, and how to interpret simulation results.', 
+    '20 min', 4, 'https://www.youtube.com/watch?v=aPsuhKNcQmw'),
+(2, 'Best Practices for Cooling Optimization', 
+    'In this lesson, you will learn about the best practices and techniques for maintaining efficient cooling systems in data centers. We will explore maintenance strategies, energy-saving tips, and emerging trends in cooling technology.', 
+    '25 min', 5, 'https://www.youtube.com/watch?v=Zr5eL4Hqvds'),
+
+-- Lessons for Course 3: Energy-Efficient Infrastructure Design
+(3, 'Introduction to Energy-Efficient Design', 
+    'In this lesson, you will learn the fundamentals of designing energy-efficient infrastructures for data centers. Topics include the key principles of efficiency, design frameworks, and practical applications.', 
+    '20 min', 1, 'https://www.youtube.com/watch?v=wIxe6C_f4Yw'),
+(3, 'Optimizing Server Placement', 
+    'In this lesson, you will learn about optimizing server placement to enhance energy efficiency. We will discuss strategies to reduce cooling requirements and improve airflow, with real-world examples of effective layouts.', 
+    '25 min', 2, 'https://www.youtube.com/watch?v=eAHDmkfcq-k'),
+(3, 'Understanding PUE (Power Usage Effectiveness)', 
+    'In this lesson, you will learn how to calculate and improve Power Usage Effectiveness (PUE) in data centers. We will explore the importance of PUE as a key metric and provide practical tips for its optimization.', 
+    '30 min', 3, 'https://www.youtube.com/watch?v=0mQAiZcA5K4'),
+(3, 'Renewable Energy Solutions', 
+    'In this lesson, you will learn about the benefits and challenges of incorporating renewable energy solutions into data center design. We will discuss solar, wind, and other renewable sources, along with their potential impact.', 
+    '20 min', 4, 'https://www.youtube.com/watch?v=OPoNDxByOxc'),
+(3, 'Future Trends in Data Center Design', 
+    'In this lesson, you will learn about the future trends shaping energy-efficient data center designs. Topics include innovations in hardware, sustainable construction materials, and AI-driven optimization techniques.', 
+    '25 min', 5, 'https://www.youtube.com/watch?v=Mt4Z63nd84g'),
+
+-- Lessons for Course 4: Monitoring and Optimizing Data Center Energy Usage
+(4, 'Introduction to Energy Monitoring', 
+    'In this lesson, you will learn why monitoring energy usage is essential for data center efficiency and sustainability. We will cover the basics of energy monitoring and its benefits for long-term operational success.', 
+    '20 min', 1, 'https://www.youtube.com/watch?v=uDG5QX7QEnk'),
+(4, 'Tools for Energy Monitoring', 
+    'In this lesson, you will learn about the tools and systems available for real-time energy monitoring in data centers. Topics include selecting the right tools and interpreting monitoring data effectively.', 
+    '25 min', 2, 'https://www.youtube.com/watch?v=2BfNGZiO4GU'),
+(4, 'Identifying Energy Inefficiencies', 
+    'In this lesson, you will learn techniques to identify and address energy inefficiencies in data centers. We will explore common inefficiency sources and actionable solutions for improvement.', 
+    '30 min', 3, 'https://www.youtube.com/watch?v=0BCXySecMoI'),
+(4, 'Predictive Analytics for Energy Optimization', 
+    'In this lesson, you will learn how predictive analytics can enhance energy optimization. We will discuss data modeling, forecasting, and practical examples of predictive technologies.', 
+    '20 min', 4, 'https://www.youtube.com/watch?v=aPsuhKNcQmw'),
+(4, 'Developing an Energy Optimization Plan', 
+    'In this lesson, you will learn how to create a comprehensive energy optimization plan. Topics include setting goals, implementing strategies, and measuring success.', 
+    '25 min', 5, 'https://www.youtube.com/watch?v=Zr5eL4Hqvds'),
+
+-- Lessons for Course 5: Achieving Carbon Neutrality in Data Centers
+(5, 'Understanding Carbon Neutrality', 
+    'In this lesson, you will learn about the concept of carbon neutrality and its importance for data centers. We will cover the environmental benefits and steps required to achieve it.', 
+    '20 min', 1, 'https://www.youtube.com/watch?v=1vdoEes-fts'),
+(5, 'Carbon Offset Initiatives', 
+    'In this lesson, you will learn about various carbon offset initiatives that can be implemented to reduce your data center''s carbon footprint. We will discuss practical examples and their impact.', 
+    '25 min', 2, 'https://www.youtube.com/watch?v=paFUg1nN7sQ'),
+(5, 'Renewable Energy Integration for Carbon Neutrality', 
+    'In this lesson, you will learn about the role of renewable energy in achieving carbon neutrality. We will explore strategies to integrate solar, wind, and other renewable energy sources.', 
+    '30 min', 3, 'https://www.youtube.com/watch?v=UFK4hqeRhIc'),
+(5, 'Measuring Carbon Footprints', 
+    'In this lesson, you will learn how to measure and track your data center''s carbon footprint. Topics include carbon accounting methods, tools, and best practices.', 
+    '20 min', 4, 'https://www.youtube.com/watch?v=0mQAiZcA5K4'),
+(5, 'Creating a Carbon Neutral Strategy', 
+    'In this lesson, you will learn the steps required to develop a comprehensive strategy for achieving carbon neutrality in your data center operations. We will discuss goal setting, stakeholder collaboration, and monitoring progress.', 
+    '25 min', 5, 'https://www.youtube.com/watch?v=wIxe6C_f4Yw');
+
+INSERT INTO key_concepts (lesson_id, title, description)
+VALUES
+-- Key Concepts for Lesson 1: Introduction to Data Center Sustainability
+(1, 'Definition of Sustainability', 'Learn the principles of sustainability in data centers and its environmental impact.'),
+(1, 'Benefits of Sustainable Practices', 'Explore the operational and cost benefits of adopting sustainable practices.'),
+(1, 'Key Drivers', 'Understand the role of regulations, corporate responsibility, and technology advancements.'),
+
+(2, 'Energy Consumption', 'Discover how data centers consume energy and areas to reduce waste.'),
+(2, 'Efficiency Metrics', 'Learn about PUE (Power Usage Effectiveness) as a measure of energy efficiency.'),
+(2, 'Strategies for Energy Reduction', 'Explore practices like server optimization and efficient cooling systems.'),
+
+(3, 'Types of Renewable Energy', 'Understand solar, wind, and geothermal energy sources for data centers.'),
+(3, 'Integration Challenges', 'Learn about grid dependency and energy storage solutions.'),
+(3, 'Environmental Benefits', 'Explore how renewables reduce carbon footprints.'),
+
+(4, 'Importance of Monitoring', 'Track energy usage to measure sustainability progress.'),
+(4, 'Tools for Monitoring', 'Learn about power meters and real-time dashboards.'),
+(4, 'Data Analytics', 'Use analytics to identify inefficiencies and set improvement goals.'),
+
+(5, 'Emerging Technologies', 'Discover the potential of AI and ML in sustainability.'),
+(5, 'Carbon Neutral Data Centers', 'Understand strategies for achieving carbon neutrality.'),
+(5, 'Global Trends', 'Explore innovations like modular and edge data centers.'),
+
+-- Key Concepts for Lesson 2: Advanced Cooling Strategies for Data Centers
+(6, 'Cooling Requirements', 'Learn why cooling is critical in data centers.'),
+(6, 'Energy Costs', 'Understand the impact of inefficient cooling on energy consumption.'),
+(6, 'Common Issues', 'Explore challenges like hotspots and airflow obstructions.'),
+
+(7, 'Aisle Containment Basics', 'Understand how hot and cold aisle containment works.'),
+(7, 'Improving Airflow', 'Explore airflow management to increase cooling efficiency.'),
+(7, 'Benefits of Containment', 'Reduce energy costs and improve server reliability.'),
+
+(8, 'Liquid Cooling Benefits', 'Learn how liquid cooling achieves higher efficiency than air cooling.'),
+(8, 'System Components', 'Explore pipes, pumps, and heat exchangers in liquid cooling.'),
+(8, 'Applications', 'Understand its usage in high-performance computing environments.'),
+
+(9, 'Role of CFD', 'Use CFD to simulate airflow in data centers.'),
+(9, 'Identifying Issues', 'Discover hotspots and inefficiencies through simulation.'),
+(9, 'Optimization', 'Optimize cooling systems based on CFD results.'),
+
+(10, 'Regular Maintenance', 'Ensure cooling systems operate at peak efficiency.'),
+(10, 'Airflow Management', 'Use raised floors and vents for better airflow.'),
+(10, 'Energy-Efficient Equipment', 'Invest in advanced cooling technologies.'),
+
+-- Key Concepts for Lesson 3: Energy-Efficient Infrastructure Design
+(11, 'Design Principles', 'Explore principles for energy-efficient data center infrastructure.'),
+(11, 'Energy Goals', 'Set measurable energy efficiency goals.'),
+(11, 'Role of Technology', 'Leverage smart technologies for optimization.'),
+
+(12, 'Server Layouts', 'Learn optimal server placements for better airflow.'),
+(12, 'Heat Management', 'Reduce hotspots by spreading server loads.'),
+(12, 'Density Management', 'Balance server density to optimize cooling.'),
+
+(13, 'PUE Basics', 'Learn how to calculate and improve PUE.'),
+(13, 'Energy Balance', 'Understand the balance between IT equipment and facility energy.'),
+(13, 'Benchmarking', 'Use PUE for performance comparison.'),
+
+(14, 'Adopting Renewables', 'Explore solar and wind energy options for data centers.'),
+(14, 'Energy Storage', 'Understand battery systems for backup and storage.'),
+(14, 'Grid Integration', 'Learn to manage renewable energy with traditional grids.'),
+
+(15, 'Modular Data Centers', 'Discover benefits of modular designs for scalability.'),
+(15, 'AI and ML', 'Use AI and ML for predictive maintenance and efficiency.'),
+(15, 'Sustainable Materials', 'Explore eco-friendly materials in construction.'),
+
+-- Key Concepts for Lesson 4: Monitoring and Optimizing Data Center Energy Usage
+(16, 'Energy Monitoring Basics', 'Learn why monitoring is critical for energy management.'),
+(16, 'Key Metrics', 'Explore metrics like energy usage and cooling efficiency.'),
+(16, 'Monitoring Tools', 'Discover tools like IoT sensors and dashboards.'),
+
+(17, 'Power Meters', 'Measure real-time energy consumption.'),
+(17, 'Cooling Monitors', 'Track cooling system performance.'),
+(17, 'Energy Dashboards', 'Use dashboards for actionable insights.'),
+
+(18, 'Heat Maps', 'Identify hotspots through energy mapping.'),
+(18, 'Anomaly Detection', 'Use analytics to spot inefficiencies.'),
+(18, 'Optimization Strategies', 'Implement corrective measures based on findings.'),
+
+(19, 'Predictive Models', 'Use analytics to forecast energy needs.'),
+(19, 'Proactive Maintenance', 'Reduce downtime with predictive insights.'),
+(19, 'Energy Optimization Goals', 'Set achievable energy reduction targets.'),
+
+(20, 'Plan Framework', 'Create a detailed energy management plan.'),
+(20, 'Stakeholder Roles', 'Assign roles for plan execution.'),
+(20, 'Continuous Improvement', 'Monitor and update the plan for long-term results.'),
+
+-- Key Concepts for Lesson 5: Achieving Carbon Neutrality in Data Centers
+(21, 'Carbon Neutrality Basics', 'Learn the definition and importance of carbon neutrality.'),
+(21, 'Impact of Emissions', 'Understand the effects of carbon emissions on the environment.'),
+(21, 'Reduction Strategies', 'Explore strategies like energy reduction and carbon offsets.'),
+
+(22, 'What Are Offsets?', 'Learn how offsets reduce net carbon emissions.'),
+(22, 'Offset Programs', 'Explore tree-planting and renewable energy initiatives.'),
+(22, 'Implementation', 'Integrate offsets into your carbon neutrality strategy.'),
+
+(23, 'Renewable Energy Benefits', 'Understand how renewables reduce carbon emissions.'),
+(23, 'Grid Independence', 'Learn to minimize reliance on traditional energy grids.'),
+(23, 'Challenges and Solutions', 'Address barriers to renewable energy adoption.'),
+
+(24, 'Carbon Footprint Basics', 'Learn how to calculate your data center''s carbon footprint.'),
+(24, 'Emission Sources', 'Identify primary sources of carbon emissions.'),
+(24, 'Tracking Progress', 'Use tools to monitor emission reductions over time.'),
+
+(25, 'Strategy Framework', 'Develop a step-by-step plan for carbon neutrality.'),
+(25, 'Stakeholder Involvement', 'Ensure all teams contribute to the strategy.'),
+(25, 'Sustainability Metrics', 'Use metrics to measure and achieve goals.');
+
+-- Questions for Lesson 1: Understanding Sustainability in Data Centers
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(1, 'What is the primary benefit of sustainability in data centers?', 'Reduced operational costs', 'Lower carbon emissions', 'Increased uptime', 'Faster network speeds', 'B'),
+(1, 'Which factor contributes most to a data centers carbon footprint?', 'Cooling systems', 'Server placement', 'Employee behavior', 'Lighting systems', 'A'),
+(1, 'What is the purpose of renewable energy in data centers?', 'Reduce energy costs', 'Lower carbon emissions', 'Increase efficiency', 'Improve reliability', 'B'),
+(1, 'Which sustainability practice involves energy-efficient hardware?', 'Recycling', 'Server virtualization', 'Reducing lighting', 'Using hybrid cooling', 'B'),
+(1, 'What is the role of monitoring systems in sustainability?', 'Reducing costs', 'Improving energy awareness', 'Enhancing cooling speed', 'Preventing outages', 'B');
+
+-- Questions for Lesson 2: Advanced Cooling Strategies for Data Centers
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(2, 'What is the purpose of hot and cold aisle containment?', 'Improve server uptime', 'Enhance airflow management', 'Reduce server density', 'Lower lighting costs', 'B'),
+(2, 'Which cooling method is most energy-efficient for high-performance data centers?', 'Air cooling', 'Liquid cooling', 'Mechanical fans', 'Open vents', 'B'),
+(2, 'What is the primary function of Computational Fluid Dynamics (CFD)?', 'Improve server reliability', 'Optimize airflow', 'Track power usage', 'Enhance cooling system durability', 'B'),
+(2, 'What is a common problem with inefficient cooling systems?', 'Slow network speeds', 'Increased energy consumption', 'Reduced server capacity', 'Frequent downtimes', 'B'),
+(2, 'How does raised flooring impact cooling efficiency?', 'Enhances airflow distribution', 'Reduces humidity', 'Improves energy monitoring', 'Prevents server overheating', 'A');
+
+-- Questions for Lesson 3: Energy-Efficient Infrastructure Design
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(3, 'What does PUE (Power Usage Effectiveness) measure?', 'Server performance', 'Energy efficiency', 'Cooling efficiency', 'Airflow effectiveness', 'B'),
+(3, 'Which strategy improves energy efficiency in server placement?', 'Randomized placement', 'Clustered placement', 'Hot aisle placement', 'Cold aisle placement', 'D'),
+(3, 'What is a major advantage of renewable energy for data centers?', 'Increased server uptime', 'Reduced operational costs', 'Lower carbon footprint', 'Improved cooling speeds', 'C'),
+(3, 'How can efficient lighting contribute to sustainability?', 'Reduces carbon emissions', 'Improves server performance', 'Enhances cooling systems', 'Lowers network latency', 'A'),
+(3, 'What is a key factor in designing energy-efficient data centers?', 'Random server configurations', 'Predictive energy monitoring', 'Open-air cooling', 'Minimized airflow management', 'B');
+
+-- Questions for Lesson 4: Monitoring and Optimizing Data Center Energy Usage
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(4, 'What is the purpose of real-time energy monitoring?', 'Reduce server capacity', 'Identify inefficiencies', 'Improve cooling speed', 'Increase uptime', 'B'),
+(4, 'Which tool is commonly used for energy audits?', 'Power meters', 'Cooling fans', 'Airflow blockers', 'Server optimizers', 'A'),
+(4, 'What is predictive analytics used for in data centers?', 'Prevent overheating', 'Predict future energy usage', 'Optimize server placement', 'Enhance airflow systems', 'B'),
+(4, 'Which strategy helps reduce energy consumption?', 'Overcooling servers', 'Improving airflow management', 'Using mechanical cooling only', 'Increasing energy input', 'B'),
+(4, 'What is the role of machine learning in energy optimization?', 'Increase cooling speed', 'Reduce costs', 'Predict energy inefficiencies', 'Track uptime metrics', 'C');
+
+-- Questions for Lesson 5: Achieving Carbon Neutrality in Data Centers
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(5, 'What is the definition of carbon neutrality?', 'Zero energy usage', 'Offsetting all carbon emissions', 'Using renewable energy only', 'Eliminating cooling systems', 'B'),
+(5, 'How can data centers offset carbon emissions?', 'Install more servers', 'Use renewable energy', 'Reduce airflow', 'Increase fan speeds', 'B'),
+(5, 'What is a common method to measure carbon footprints?', 'Server uptime analysis', 'Carbon calculators', 'Cooling efficiency audits', 'Lighting usage reports', 'B'),
+(5, 'Which renewable energy source is commonly used in data centers?', 'Wind energy', 'Geothermal energy', 'Solar energy', 'Hydropower', 'C'),
+(5, 'What is the first step in creating a carbon neutrality strategy?', 'Improve server speeds', 'Conduct a carbon audit', 'Upgrade cooling systems', 'Increase server capacity', 'B');
+
+-- Questions for Lesson 6
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(6, 'What is a common cooling challenge faced by data centers?', 'Overheating servers', 'Excessive power usage', 'Improper storage', 'Network downtime', 'A'),
+(6, 'Why is efficient cooling essential for data centers?', 'It improves employee comfort', 'It reduces operational costs and energy usage', 'It enhances network speed', 'It prevents hardware upgrades', 'B'),
+(6, 'What percentage of energy usage can cooling account for in data centers?', '10%', '20%', '30%', '50%', 'C'),
+(6, 'Which of the following is a sign of poor cooling in a data center?', 'Increased server lifespan', 'Frequent hardware failures', 'Reduced power usage', 'Lower operating costs', 'B'),
+(6, 'What is the primary purpose of cooling systems in data centers?', 'Improving network speed', 'Maintaining optimal temperatures for hardware', 'Enhancing user experience', 'Reducing server density', 'B');
+
+-- Questions for Lesson 7
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(7, 'What is the principle behind hot and cold aisle containment?', 'Separating hot and cold airflows', 'Combining hot and cold airflows', 'Using water cooling', 'Eliminating airflow entirely', 'A'),
+(7, 'How does hot aisle containment improve cooling efficiency?', 'By recycling air', 'By preventing mixing of hot and cold air', 'By increasing air circulation', 'By lowering humidity', 'B'),
+(7, 'Which of the following is a key consideration for implementing aisle containment?', 'Type of racks used', 'Server software versions', 'Network bandwidth', 'Power supply location', 'A'),
+(7, 'What is a common material used for aisle containment?', 'Plastic curtains', 'Metal sheets', 'Fiber glass', 'Rubber seals', 'A'),
+(7, 'What is the main goal of aisle containment?', 'Reducing cooling costs', 'Increasing server speed', 'Improving storage capacity', 'Enhancing power supply', 'A');
+
+-- Questions for Lesson 8
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(8, 'What is the primary advantage of liquid cooling systems?', 'Cost reduction', 'High-performance cooling with less energy use', 'Ease of installation', 'Compatibility with all hardware', 'B'),
+(8, 'What liquid is most commonly used in data center cooling?', 'Distilled water', 'Oil', 'Ethanol', 'Ammonia', 'A'),
+(8, 'Which of the following is a drawback of liquid cooling systems?', 'High installation cost', 'Low cooling efficiency', 'Increased power consumption', 'Reduced hardware lifespan', 'A'),
+(8, 'What is one example of a liquid cooling method?', 'Immersion cooling', 'Airflow cooling', 'Evaporation cooling', 'Conduction cooling', 'A'),
+(8, 'What factor must be considered when designing liquid cooling systems?', 'Network latency', 'Server density', 'Liquid viscosity', 'Rack dimensions', 'C');
+
+-- Questions for Lesson 9
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(9, 'What is the primary benefit of Computational Fluid Dynamics (CFD) in data centers?', 'Optimizing airflow', 'Increasing storage capacity', 'Improving power supply', 'Enhancing software performance', 'A'),
+(9, 'What does CFD primarily simulate?', 'Liquid flow', 'Airflow and cooling efficiency', 'Network traffic', 'Energy distribution', 'B'),
+(9, 'Which factor is essential for accurate CFD simulations?', 'Server operating system', 'Rack design and layout', 'Network bandwidth', 'Backup power supply', 'B'),
+(9, 'What tool is commonly used for CFD simulations?', 'Cooling fans', 'Thermal imaging cameras', 'Specialized software', 'Airflow ducts', 'C'),
+(9, 'How often should CFD simulations be performed in a data center?', 'Monthly', 'Annually', 'Before significant design changes', 'Every week', 'C');
+
+-- Questions for Lesson 10
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(10, 'Which of these is a common cooling optimization technique?', 'Reducing server density', 'Using renewable energy', 'Improving aisle containment', 'Installing more power units', 'C'),
+(10, 'Why is regular maintenance important for cooling optimization?', 'It increases server speed', 'It reduces hardware costs', 'It ensures consistent cooling efficiency', 'It eliminates downtime', 'C'),
+(10, 'What is a key metric for measuring cooling efficiency?', 'Power Usage Effectiveness (PUE)', 'Bandwidth usage', 'Server response time', 'Cooling hardware cost', 'A'),
+(10, 'What is the role of sensors in cooling optimization?', 'Detecting hardware issues', 'Monitoring temperature and humidity', 'Improving network bandwidth', 'Identifying storage limitations', 'B'),
+(10, 'Which practice improves airflow in data centers?', 'Overloading racks', 'Blocking unused rack spaces', 'Installing larger cooling units', 'Reducing humidity', 'B');
+
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(11, 'What is the primary goal of energy-efficient data center design?', 'Reducing server costs', 'Enhancing cooling efficiency', 'Minimizing energy consumption', 'Increasing storage capacity', 'C'),
+(11, 'What principle is key to energy-efficient design?', 'Scalability', 'Redundancy', 'Flexibility', 'Efficiency', 'D'),
+(11, 'Which element impacts energy efficiency in data centers?', 'Server placement', 'Cooling technology', 'Power management', 'All of the above', 'D'),
+(11, 'What is a key benefit of energy-efficient designs?', 'Increased hardware lifespan', 'Reduced cooling requirements', 'Lower operational costs', 'All of the above', 'D'),
+(11, 'What is an important first step in energy-efficient design?', 'Reducing server count', 'Assessing energy needs', 'Increasing cooling capacity', 'Installing larger racks', 'B');
+
+-- Questions for Lesson 12
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(12, 'Why is server placement important for energy efficiency?', 'It increases server speed', 'It optimizes airflow and reduces cooling needs', 'It decreases power consumption', 'It simplifies maintenance', 'B'),
+(12, 'Which factor should be considered when placing servers?', 'Network bandwidth', 'Airflow patterns', 'Server model', 'Cooling unit size', 'B'),
+(12, 'What is the purpose of hot aisle containment?', 'Improving airflow', 'Reducing cooling costs', 'Separating hot and cold airflows', 'All of the above', 'D'),
+(12, 'What can improper server placement lead to?', 'Increased hardware lifespan', 'Reduced cooling efficiency', 'Higher energy savings', 'Improved airflow', 'B'),
+(12, 'Which tool can assist with server placement planning?', 'Thermal imaging', 'Power meters', 'CFD simulations', 'Humidity sensors', 'C');
+
+-- Questions for Lesson 13
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(13, 'What does PUE stand for?', 'Power Usage Efficiency', 'Power Usage Effectiveness', 'Performance Utilization Effectiveness', 'Performance Usage Efficiency', 'B'),
+(13, 'What is considered a good PUE value?', '1.5 or higher', '2.0 or lower', '1.2 or lower', '2.5 or higher', 'C'),
+(13, 'What does a high PUE indicate?', 'Energy efficiency', 'Poor energy efficiency', 'High operational costs', 'Reduced cooling requirements', 'B'),
+(13, 'How is PUE calculated?', 'Total facility energy divided by IT equipment energy', 'Cooling energy divided by server energy', 'Power supply energy divided by network energy', 'Server energy divided by total energy', 'A'),
+(13, 'Which factor can improve PUE?', 'Increasing cooling efficiency', 'Reducing hardware density', 'Using renewable energy', 'All of the above', 'D');
+
+-- Questions for Lesson 14
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(14, 'What is the primary benefit of using renewable energy in data centers?', 'Lower upfront costs', 'Reduced carbon emissions', 'Simpler setup process', 'Increased cooling efficiency', 'B'),
+(14, 'Which of the following is an example of renewable energy?', 'Coal', 'Natural gas', 'Solar energy', 'Nuclear energy', 'C'),
+(14, 'What is a major challenge in using renewable energy for data centers?', 'Low efficiency', 'High operational costs', 'Intermittent availability', 'Lack of government support', 'C'),
+(14, 'What renewable energy source is most commonly integrated into data centers?', 'Wind energy', 'Solar energy', 'Hydropower', 'Geothermal energy', 'B'),
+(14, 'What is a common method for storing renewable energy in data centers?', 'Batteries', 'Fuel cells', 'Generators', 'Capacitors', 'A');
+
+-- Questions for Lesson 15: Future Trends in Data Center Design
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(15, 'Which of the following is an emerging trend in data center design?', 'Increased server density', 'AI-driven efficiency optimization', 'Manual cooling techniques', 'Decreasing storage capacity', 'B'),
+(15, 'What role does AI play in future data center designs?', 'Improves software reliability', 'Enhances cooling efficiency and energy management', 'Increases server performance', 'Reduces hardware costs', 'B'),
+(15, 'What material is being considered for sustainable data center construction?', 'Concrete', 'Sustainable wood', 'Recycled steel', 'All of the above', 'D'),
+(15, 'What is the benefit of modular data center designs?', 'Ease of scalability', 'Improved server speed', 'Lower initial investment', 'Simpler cooling techniques', 'A'),
+(15, 'What trend is driving future data center efficiency?', 'Using smaller racks', 'Deploying edge computing', 'Reducing server density', 'Decreasing renewable energy usage', 'B');
+
+-- Questions for Lesson 16: Introduction to Energy Monitoring
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(16, 'Why is energy monitoring important for data centers?', 'To improve network speed', 'To track energy usage and improve efficiency', 'To reduce hardware costs', 'To optimize storage capacity', 'B'),
+(16, 'What is a common tool used for energy monitoring?', 'Airflow sensors', 'Power meters', 'Liquid coolers', 'Server racks', 'B'),
+(16, 'Which of the following can be identified through energy monitoring?', 'Server bandwidth', 'Cooling inefficiencies', 'Data transfer speeds', 'Server storage issues', 'B'),
+(16, 'What is the primary goal of energy monitoring?', 'Improving hardware compatibility', 'Optimizing energy efficiency and reducing waste', 'Reducing cooling costs', 'Eliminating downtime', 'B'),
+(16, 'What type of data is collected in energy monitoring?', 'Server response times', 'Power consumption data', 'Network latency', 'Storage utilization', 'B');
+
+-- Questions for Lesson 17: Tools for Energy Monitoring
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(17, 'Which tool is commonly used for real-time energy monitoring?', 'Thermal cameras', 'Energy management software', 'Liquid cooling systems', 'Rack sensors', 'B'),
+(17, 'What is a key feature of energy monitoring tools?', 'Historical energy usage tracking', 'Improving server bandwidth', 'Reducing rack density', 'Eliminating airflow issues', 'A'),
+(17, 'Why are energy monitoring tools essential for sustainability?', 'They automate network tasks', 'They provide insights into energy inefficiencies', 'They simplify rack installations', 'They enhance server performance', 'B'),
+(17, 'Which metric is often monitored to optimize energy use?', 'Power Usage Effectiveness (PUE)', 'Server response time', 'Data transfer rates', 'Network latency', 'A'),
+(17, 'What is the benefit of using cloud-based energy monitoring tools?', 'Reduced server maintenance', 'Improved scalability and access to analytics', 'Increased cooling costs', 'Simpler hardware upgrades', 'B');
+
+-- Questions for Lesson 18: Identifying Energy Inefficiencies
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(18, 'What is a common sign of energy inefficiency in data centers?', 'Decreased server response times', 'High PUE values', 'Improved cooling efficiency', 'Low energy costs', 'B'),
+(18, 'Which of the following is a common cause of energy inefficiency?', 'High server density', 'Proper airflow management', 'Optimal cooling solutions', 'Regular maintenance', 'A'),
+(18, 'How can energy inefficiencies be identified?', 'By monitoring energy usage patterns', 'By increasing cooling capacity', 'By reducing storage', 'By upgrading hardware', 'A'),
+(18, 'What is a quick solution for improving airflow inefficiencies?', 'Installing thermal sensors', 'Sealing unused rack spaces', 'Increasing server density', 'Reducing humidity', 'B'),
+(18, 'Which energy monitoring tool can detect inefficiencies?', 'Thermal imaging', 'Power meters', 'Airflow sensors', 'All of the above', 'D');
+
+-- Questions for Lesson 19: Predictive Analytics for Energy Optimization
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(19, 'What is the primary goal of predictive analytics in energy optimization?', 'Improving server response times', 'Forecasting energy usage and improving efficiency', 'Increasing hardware lifespan', 'Enhancing storage capacity', 'B'),
+(19, 'Which technology powers predictive analytics?', 'Blockchain', 'Machine learning', 'Network routing', 'Cooling fans', 'B'),
+(19, 'What type of data is used in predictive analytics?', 'Historical energy usage data', 'Network bandwidth', 'Server uptime', 'Storage capacity', 'A'),
+(19, 'What is a key benefit of predictive analytics in energy management?', 'Identifying potential inefficiencies before they occur', 'Improving network performance', 'Reducing cooling capacity', 'Simplifying hardware installations', 'A'),
+(19, 'Which industry is most likely to benefit from predictive analytics in energy optimization?', 'Data centers', 'Retail', 'Healthcare', 'Education', 'A');
+
+-- Questions for Lesson 20: Developing an Energy Optimization Plan
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(20, 'What is the first step in creating an energy optimization plan?', 'Reducing rack density', 'Assessing current energy usage', 'Upgrading cooling systems', 'Increasing server count', 'B'),
+(20, 'Which of the following should be included in an energy optimization plan?', 'Specific energy goals', 'Implementation strategies', 'Monitoring methods', 'All of the above', 'D'),
+(20, 'Why is it important to set measurable goals in an energy optimization plan?', 'To reduce server response times', 'To track progress and ensure accountability', 'To lower rack density', 'To improve network bandwidth', 'B'),
+(20, 'What is a key challenge in implementing energy optimization strategies?', 'High implementation costs', 'Lack of available tools', 'Increased server density', 'Reduced cooling efficiency', 'A'),
+(20, 'How often should an energy optimization plan be reviewed?', 'Weekly', 'Monthly', 'Periodically, based on performance data', 'Annually', 'C');
+
+-- Questions for Lesson 21: Understanding Carbon Neutrality
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(21, 'What does carbon neutrality mean?', 'Eliminating all carbon emissions', 'Balancing emitted carbon with offsetting measures', 'Reducing energy consumption to zero', 'Replacing all fossil fuels with renewable energy', 'B'),
+(21, 'What is the main goal of achieving carbon neutrality?', 'Improving cooling efficiency', 'Reducing overall energy usage', 'Eliminating the carbon footprint of operations', 'Increasing server capacity', 'C'),
+(21, 'Which activity contributes to carbon emissions in data centers?', 'Using renewable energy', 'Running cooling systems', 'Upgrading hardware', 'Installing racks', 'B'),
+(21, 'What is one way data centers can work towards carbon neutrality?', 'Using carbon offsets', 'Increasing rack density', 'Reducing server speeds', 'Eliminating backup power systems', 'A'),
+(21, 'What is the primary benefit of achieving carbon neutrality?', 'Reduced cooling costs', 'Improved employee productivity', 'Mitigating climate change', 'Lower storage requirements', 'C');
+
+-- Questions for Lesson 22: Carbon Offset Initiatives
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(22, 'What is a carbon offset?', 'A way to reduce energy consumption directly', 'A method to compensate for emissions by supporting environmental projects', 'A tax imposed on carbon emissions', 'A replacement for renewable energy', 'B'),
+(22, 'Which of the following is an example of a carbon offset initiative?', 'Installing additional cooling systems', 'Planting trees to absorb CO2', 'Reducing server count', 'Increasing storage capacity', 'B'),
+(22, 'What type of projects are commonly funded by carbon offsets?', 'Software development', 'Renewable energy projects', 'Server maintenance', 'Cooling optimization', 'B'),
+(22, 'What is the main challenge in implementing carbon offset initiatives?', 'High energy usage', 'Verification and accountability', 'Increased cooling costs', 'Server performance issues', 'B'),
+(22, 'How do carbon offsets help data centers achieve carbon neutrality?', 'By directly reducing emissions', 'By compensating for emissions through external projects', 'By improving server response time', 'By increasing energy consumption', 'B');
+
+-- Questions for Lesson 23: Renewable Energy Integration for Carbon Neutrality
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(23, 'Why is renewable energy important for carbon neutrality?', 'It eliminates emissions from energy production', 'It is cheaper than all other energy sources', 'It requires no maintenance', 'It improves hardware performance', 'A'),
+(23, 'Which renewable energy source is most scalable for data centers?', 'Solar power', 'Geothermal energy', 'Nuclear power', 'Hydropower', 'A'),
+(23, 'What is a major barrier to renewable energy adoption in data centers?', 'High cooling requirements', 'Intermittent energy availability', 'Increased server density', 'Reduced energy demand', 'B'),
+(23, 'What is a Power Purchase Agreement (PPA)?', 'A contract to buy renewable energy', 'A tool for measuring energy usage', 'A method to reduce cooling costs', 'An agreement to upgrade servers', 'A'),
+(23, 'How can renewable energy integration reduce operational costs?', 'By increasing server efficiency', 'By reducing dependency on fossil fuels', 'By requiring less cooling', 'By eliminating power outages', 'B');
+
+-- Questions for Lesson 24: Measuring Carbon Footprints
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(24, 'What is the purpose of measuring a carbon footprint?', 'To improve server response time', 'To calculate the environmental impact of operations', 'To enhance cooling efficiency', 'To monitor server utilization', 'B'),
+(24, 'Which tool is commonly used to measure carbon footprints?', 'Energy management software', 'Carbon accounting tools', 'Cooling sensors', 'Thermal imaging', 'B'),
+(24, 'What is included in a data center''s carbon footprint calculation?', 'Energy consumption', 'Cooling requirements', 'Hardware production impact', 'All of the above', 'D'),
+(24, 'Why is it important to track carbon footprints regularly?', 'To monitor server speed', 'To identify areas for emission reduction', 'To calculate cooling requirements', 'To ensure compliance with storage regulations', 'B'),
+(24, 'What unit is typically used to express carbon footprints?', 'Kilowatt-hours', 'Tons of CO2 equivalent (CO2e)', 'Gigabytes', 'Degrees Celsius', 'B');
+
+-- Questions for Lesson 25: Creating a Carbon Neutral Strategy
+INSERT INTO questions (lesson_id, question_text, option_a, option_b, option_c, option_d, correct_option)
+VALUES
+(25, 'What is the first step in creating a carbon neutral strategy?', 'Reducing server density', 'Assessing the current carbon footprint', 'Increasing cooling capacity', 'Deploying new hardware', 'B'),
+(25, 'Which of the following is a key element of a carbon neutral strategy?', 'Setting measurable goals', 'Eliminating cooling systems', 'Increasing server speeds', 'Decreasing network bandwidth', 'A'),
+(25, 'What is a major challenge in achieving carbon neutrality?', 'Lack of renewable energy sources', 'High operational costs', 'Difficulty in measuring emissions accurately', 'All of the above', 'D'),
+(25, 'Which stakeholders should be involved in a carbon neutral strategy?', 'Only IT staff', 'Only management', 'All stakeholders including employees, customers, and vendors', 'Only external consultants', 'C'),
+(25, 'How often should a carbon neutral strategy be reviewed and updated?', 'Once every 5 years', 'Only when emissions increase', 'Periodically, based on progress and new developments', 'Every month', 'C');
+
+
 `;
 
 async function seedDatabase() {

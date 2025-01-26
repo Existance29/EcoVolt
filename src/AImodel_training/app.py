@@ -1,59 +1,89 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import joblib
+import pandas as pd
+import numpy as np
+from datetime import datetime
+from typing import List, Dict
 
-# Initialize FastAPI app
+# Load the pre-trained model
+model = joblib.load("carbon_emission_model_lr.pkl")
+
+# Initialize FastAPI application
 app = FastAPI()
 
-# Path to your fine-tuned model directory
-MODEL_DIR = "./fine_tuned_model"  # Adjust this path if your fine-tuned model is in a different directory
+# Historical data for trends (this should match the data the model was trained on)
+historical_data = pd.read_csv("data/synthetic_data.csv")
 
-# Load fine-tuned model and tokenizer
-try:
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
-    model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_DIR)
-except Exception as e:
-    raise RuntimeError(f"Error loading model or tokenizer: {e}")
+# Define features that the model was trained on (same as training)
+features = [
+    'cell_tower_energy', 'cell_tower_radio', 'cell_tower_cooling',
+    'cell_tower_backup', 'cell_tower_misc',
+    'data_center_energy', 'data_center_it', 'data_center_cooling',
+    'data_center_backup', 'data_center_misc', 'year', 'month_num'
+]
 
-# Define a request body schema
-class Query(BaseModel):
-    input_text: str
+# Define request model for input data
+class PredictionRequest(BaseModel):
+    num_years: int
 
-@app.get("/")
-def root():
-    """
-    Health check endpoint.
-    """
-    return {"message": "Fine-tuned Hugging Face Model API is running."}
-
-@app.post("/generate")
-def generate_response(query: Query):
-    """
-    Endpoint to generate a response using the fine-tuned model.
-
-    Args:
-        query (Query): The input text wrapped in a Pydantic model.
-
-    Returns:
-        dict: The input text and the generated response.
-    """
+# Prediction endpoint: Accept the number of years and return predicted emissions for that period
+@app.post("/predict")
+async def predict(request: PredictionRequest):
     try:
-        # Tokenize the input text
-        inputs = tokenizer(query.input_text, return_tensors="pt", truncation=True, max_length=512)
+        num_years = request.num_years
 
-        # Generate a response using the fine-tuned model
-        outputs = model.generate(
-            inputs.input_ids, 
-            max_length=512, 
-            num_beams=4, 
-            early_stopping=True
-        )
+        # Calculate the current year
+        current_year = datetime.now().year
 
-        # Decode the generated response
-        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # Determine the start and end year for prediction
+        start_year = current_year + 1  # The first year for prediction (next year)
+        end_year = start_year + num_years - 1  # The last year for prediction
 
-        return {"input": query.input_text, "output": response}
+        # Calculate the historical means of features for trends
+        historical_means = historical_data.mean()
+
+        # List to hold the predictions
+        predictions = []
+
+        # Generate predictions for each year in the range
+        for year in range(start_year, end_year + 1):
+            for month in range(1, 13):  # Loop over each month
+                # Create the input data for this year and month
+                prediction_data = {
+                    'cell_tower_energy': historical_means['cell_tower_energy'],
+                    'cell_tower_radio': historical_means['cell_tower_radio'],
+                    'cell_tower_cooling': historical_means['cell_tower_cooling'],
+                    'cell_tower_backup': historical_means['cell_tower_backup'],
+                    'cell_tower_misc': historical_means['cell_tower_misc'],
+                    'data_center_energy': historical_means['data_center_energy'],
+                    'data_center_it': historical_means['data_center_it'],
+                    'data_center_cooling': historical_means['data_center_cooling'],
+                    'data_center_backup': historical_means['data_center_backup'],
+                    'data_center_misc': historical_means['data_center_misc'],
+                    'year': year,
+                    'month_num': month
+                }
+
+                # Convert to DataFrame
+                input_df = pd.DataFrame([prediction_data])
+
+                # Predict emissions using the model
+                predicted_emission = model.predict(input_df)
+
+                # Add the prediction to the list
+                predictions.append({
+                    'year': year,
+                    'month': month,
+                    'predicted_emission': predicted_emission[0]
+                })
+
+        return {"predictions": predictions}
 
     except Exception as e:
-        # Return an HTTP 500 error with the exception details
-        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
+
+# Run the FastAPI app with uvicorn
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=4999)

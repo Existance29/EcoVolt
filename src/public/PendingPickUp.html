@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="styles/Recycle.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;700;800" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="./scripts/utils.js"></script>
+    <script src="./scripts/common.js" defer></script>
+    <script src="./scripts/api.js"></script>
+    <script src="./scripts/PendingPickUp.js"></script>
+    <title>EcoVolt | Recycle</title>
+</head>
+<body>
+
+    <aside class="sidebar"></aside>
+            <main class="main-content">
+                <header class="mainHeader" data-title="Recyce E-Waste" data-breadcrumb="Pages / Recycle E-Waste"></header>
+
+                <nav class="tabs">
+                    <a href="CompanyEquipment.html">Company Equipment</a>
+                    <a href="EmployeeApplication.html">Employee's Application</a>
+                    <a href="PendingPickUp.html" class="active">Pending Pick Up</a>
+                    <a href="Recycled.html">Recycled</a>
+                </nav>
+
+                <div class="countdown-delivery-container">
+                    <section class="countdown-section">
+                      <div class="countdown-item">
+                        <p class="countdown-value">00</p>
+                        <p class="countdown-label">Days</p>
+                      </div>
+                      <div class="countdown-item">
+                        <p class="countdown-value">00</p>
+                        <p class="countdown-label">Hours</p>
+                      </div>
+                      <div class="countdown-item">
+                        <p class="countdown-value">00</p>
+                        <p class="countdown-label">Minutes</p>
+                      </div>
+                      <div class="countdown-item">
+                        <p class="countdown-value">00</p>
+                        <p class="countdown-label">Seconds</p>
+                      </div>
+                    </section>
+                  
+                    <div class="pickup-info-container">
+                      <div class="pickup-icon-container">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                          <path
+                            d="M247.42,117l-14-35A15.93,15.93,0,0,0,218.58,72H184V64a8,8,0,0,0-8-8H24A16,16,0,0,0,8,72V184a16,16,0,0,0,16,16H41a32,32,0,0,0,62,0h50a32,32,0,0,0,62,0h17a16,16,0,0,0,16-16V120A7.94,7.94,0,0,0,247.42,117ZM184,88h34.58l9.6,24H184ZM24,72H168v64H24ZM72,208a16,16,0,1,1,16-16A16,16,0,0,1,72,208Zm81-24H103a32,32,0,0,0-62,0H24V152H168v12.31A32.11,32.11,0,0,0,153,184Zm31,24a16,16,0,1,1,16-16A16,16,0,0,1,184,208Zm48-24H215a32.06,32.06,0,0,0-31-24V128h48Z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <div class="pickup-text-container">
+                        <p class="pickup-title">Pick Up Person Arrival</p>
+                        <p class="pickup-subtitle">Expected time of pick up person arrival</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  
+              
+                
+                
+                               
+    
+
+                  <div class="search-bar">
+                    <label>
+                        <input type="text" id="search-input" placeholder="Search...." />
+                        <span class="search-icon">&#128269;</span> <!-- Unicode for magnifying glass -->
+                    </label>
+                </div>
+                
+
+                   
+                    
+                    <div class="filter-buttons">
+                        <button data-center-id="All" onclick="setActiveButton('All')">All</button>
+                        <button data-center-id="1" onclick="setActiveButton('1')">Data Center 1</button>
+                        <button data-center-id="2" onclick="setActiveButton('2')">Data Center 2</button>
+                        <button data-center-id="3" onclick="setActiveButton('3')">Data Center 3</button>
+                        <button data-center-id="4" onclick="setActiveButton('4')">Data Center 4</button>
+                        <button data-center-id="5" onclick="setActiveButton('5')">Data Center 5</button>
+                    </div> 
+                    
+                    <br>
+                    
+                    <section class="equipment-section-header">
+                        <h2 id="recycle-items-heading">Company Equipment Pending Pick Up</h2>
+                    </section>   
+                    
+                    
+                    
+                    <section class="equipment-section">
+                    <!-- First table with unique ID -->
+                    <div class="equipment-table">
+                        <table id="equipment-table-2">
+                            <thead>
+                                <tr>
+                                    <th>Device Type</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>S/N</th>
+                                    <th>Age</th>
+                                    <th>Carbon Emission</th>
+                                    <th>Energy Consumption</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    </section>
+
+
+                    <section class="equipment-section-header">
+                        <h2 id="recycle-items-heading">Employee's Devices Pending Pick Up</h2>
+                    </section>  
+                     
+                   
+                    <section class="equipment-section">
+                    <div class="equipment-table">
+                        <table id="equipment-table-1">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Device Type</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>Serial Number</th>
+                                    <th>Submit Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                    
+
+
+                    <div id="details-modal" class="modal hidden">
+                        <div class="modal-content">
+                            <button class="modal-close" onclick="closeModal()">✖</button>
+                            <iframe id="modal-iframe" src="" frameborder="0"></iframe>
+                            <div class="modal-footer">
+                                <button class="modal-Cancel" onclick="closeModal()">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                
+            </main>
+
+
+</body>
+</html>

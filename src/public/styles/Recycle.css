@@ -1,0 +1,589 @@
+body {
+    font-family: "Plus Jakarta Sans", "Noto Sans", sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+}
+
+.user-avatar {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+}
+
+
+.equipment-section-header {
+  display: flex;
+  flex-direction: column;
+  max-width: 960px;
+  flex-grow: 1;
+  gap: 1rem;
+  justify-content: flex-start; /* Align items at the start vertically */
+  align-items: flex-start; /* Align items to the left horizontally */
+  margin-left: 3.5%;
+}
+
+.equipment-section-header h2 {
+  color: #1c160c;
+  font-size: 15px;
+  font-weight: 900;
+  margin-top: 20px; /* Replace 'top' with margin */
+  margin-bottom: 20px; /* Replace 'bottom' with margin */
+  letter-spacing: -0.033em;
+}
+
+
+.search-bar {
+  width: 100%; /* Match the table's width */
+  max-width: 200px; /* Match the table's max-width */
+  margin: 0 auto; /* Center the search bar */
+  margin-bottom: 20px;
+  position: relative; /* For positioning the icon */
+  float: right;
+  margin-right: 3.3%;
+}
+
+.search-bar label {
+  display: block; /* Prevent flex layout for the label */
+  width: 100%;
+  position: relative; /* For positioning the icon */
+}
+
+.search-bar input {
+  width: 100%; /* Ensure the input fills the container */
+  height: 3rem;
+  border: none;
+  border-radius: 0.75rem;
+  background-color: #9FE6DF;
+  padding: 0 3rem 0 1rem; /* Add padding on the right for the icon */
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #1c160c;
+  outline: none;
+  box-sizing: border-box; /* Avoid unexpected padding issues */
+}
+
+.search-bar input::placeholder {
+  color: #2F6D45;
+}
+
+.search-bar .search-icon {
+  position: absolute;
+  right: 1rem; /* Position the icon inside the input */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.25rem; /* Adjust the size of the icon */
+  color: #2F6D45; /* Match placeholder color */
+  pointer-events: none; /* Allow clicks to pass through to the input */
+}
+
+
+.equipment-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    max-width: 100%; /* Increase the maximum width */
+    margin: 0 auto; /* Center the section on the page */
+    gap: 1rem;
+}
+
+.equipment-table {
+    width: 100%; /* Set the table width to occupy the full section width */
+    max-width: 1500px; /* Add a max-width if necessary */
+    overflow: hidden;
+    border: 1px solid #B9E4C9;
+    border-radius: 0.75rem;
+    background-color: #ffffff;
+}
+
+.equipment-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.equipment-table th {
+    background-color: #ffffff;
+    padding: 0.75rem;
+    text-align: left;
+    color: #1c160c;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.equipment-table td {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    color: #1c160c;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    border-top: 1px solid #B9E4C9;
+}
+/* .equipment-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .equipment-table th,
+  .equipment-table td {
+    padding: 10px;
+    border: 1px solid #e9dfce;
+    text-align: left;
+  }
+  
+  .equipment-table th {
+    background-color: #B9E4C9;
+    color: #1c160c;
+  }
+  
+  .equipment-table td {
+    color: #1c160c;
+  }
+   */
+
+.equipment-table td:nth-child(4),
+.equipment-table td:nth-child(5),
+.equipment-table td:nth-child(6),
+.equipment-table td:nth-child(7) {
+    color: #2F6D45;
+}
+
+.equipment-table td:nth-child(7) {
+    font-weight: 700;
+}
+
+.equipment-table tr:hover {
+    background-color: #f1f5f9; /* Light gray for hover effect */
+    cursor: pointer; /* Pointer cursor for interactive rows */
+}
+
+
+.filter-buttons {
+    display: flex; /* Use flexbox layout */
+    gap: 15px; /* Increase spacing between buttons */
+    margin-bottom: 15px; /* Space below the buttons */
+    justify-content: left; /* Align the buttons */
+    margin-left: 3.5%;
+    margin-top: 10px;
+  
+}
+
+.filter-buttons button {
+    padding: 12px 30px; /* Increase padding to make buttons bigger */
+    font-size: 16px; /* Increase font size */
+    border: none; /* Remove borders */
+    border-radius: 25px; /* Keep buttons rounded */
+    background-color: #f1f5f9; /* Light gray */
+    outline: #c9c9c9 solid 1px;
+    color: #1f2937; /* Dark gray */
+    cursor: pointer; /* Pointer cursor on hover */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+}
+
+.filter-buttons button:hover {
+    background-color: #d1d5db; /* Slightly darker gray on hover */
+}
+
+.filter-buttons button.active {
+    background-color: #4FD1C5; /* Blue color for active state */
+    color: #ffffff; /* White text */
+}
+
+
+.did-you-know-container {
+  position: relative;
+  width: 100%;
+  max-width: 1500px;
+  min-height: 250px; /* Adjust as needed */
+  border-radius: 16px;
+  padding: 20px;
+  color: white; /* Ensures text stands out */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-left: 53px;
+  margin-bottom: 35px;
+}
+
+/* Dark overlay for better readability */
+.did-you-know-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* Adjust opacity if needed */
+  border-radius: 16px;
+  z-index: 1;
+}
+
+/* Ensures content stays on top */
+.did-you-know-container .content-wrapper {
+  position: relative;
+  z-index: 2;
+  max-width: 600px; /* Adjust width as needed */
+}
+
+/* Title Styling */
+.did-you-know-container .title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Description Styling */
+.did-you-know-container .description {
+  font-size: 18px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+/* Button Styling */
+.learn-more-btn {
+  background-color: #4FD1C5; /* Adjust button color */
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.learn-more-btn:hover {
+  background-color: #9FE6DF;
+}
+
+
+/* Modal styling */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none; /* Hide the modal initially */
+}
+
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1300px;
+    height: 90%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    position: relative;
+    overflow: hidden;
+    padding: 2rem;
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#modal-iframe {
+    flex: 1; /* Allow iframe to take available space */
+    border: none;
+    width: 100%;
+}
+/* When the modal is active, prevent scrolling */
+body.modal-open {
+    overflow: hidden; /* Disable scrolling */
+}
+
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 12px;
+    /* padding: 16px; */
+    margin-right: 5%;
+    background-color: transparent; /* Ensure footer is visible */
+}
+
+.modal-footer button {
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Cancel button */
+.modal-footer .modal-Cancel {
+    background-color: #ffffff;
+    color: #1C160C;
+    border: 1px solid #ccc;
+}
+
+/* Recycle button */
+.modal-footer .modal-Placeholder {
+    background-color: #019863;
+    color: #ffffff;
+    border: 1px solid #019863;
+}
+
+.modal-footer .modal-Close {
+    background-color: #ffffff;
+    color: #1C160C;
+    border: 1px solid #ccc;
+}
+
+
+
+
+
+
+
+
+
+#thank-you-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    height: 200px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    position: relative;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+#thank-you-modal .modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+.main-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2F6D45;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.main-description {
+    font-size: 1.125rem;
+    color: #1C160C;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.info-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: #F8F8F8;
+    border: 1px solid #B9E4C9;
+    border-radius: 12px;
+    padding: 1.5rem;
+    max-width: 600px;
+    width: 100%;
+}
+
+.info-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #2F6D45;
+    margin-bottom: 0.5rem;
+}
+
+.info-description {
+    font-size: 1rem;
+    color: #1C160C;
+    margin-bottom: 1rem;
+}
+
+.info-link {
+    display: flex;
+    align-items: center;
+    color: #019863;
+    font-weight: bold;
+    font-size: 1rem;
+    text-decoration: none;
+}
+
+.arrow-icon {
+    margin-left: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+
+
+
+
+/* General Container */
+.countdown-delivery-container {
+    padding: 16px;
+    max-width: 1530px;
+    margin: 0 auto;
+  }
+  
+  /* Countdown Section */
+  .countdown-section {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  
+  .countdown-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    background-color: #f4efe6;
+    border-radius: 8px;
+  }
+  
+  .countdown-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #1c160c;
+  }
+  
+  .countdown-label {
+    font-size: 1rem;
+    color: #a18249;
+  }
+  
+  /* Pickup Info Section */
+  .pickup-info-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background-color: #ffffff;
+    padding: 8px 16px;
+    min-height: 72px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .pickup-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f4efe6;
+    color: #1c160c;
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+  
+  .pickup-text-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .pickup-title {
+    color: #1c160c;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .pickup-subtitle {
+    color: #a18249;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+  }
+  
+
+
+  /* extra asearch bar for only application */
+
+  .search-bar-application {
+    width: 100%; /* Match the table's width */
+    max-width: 1505px; /* Match the table's max-width */
+    margin: 0 auto; /* Center the search bar */
+    margin-bottom: 20px;
+    position: relative; /* For positioning the icon */
+    float: right;
+    margin-right: 3.3%;
+  }
+  
+  .search-bar-application  label {
+    display: block; /* Prevent flex layout for the label */
+    width: 100%;
+    position: relative; /* For positioning the icon */
+  }
+  
+  .search-bar-application  input {
+    width: 100%; /* Ensure the input fills the container */
+    height: 3rem;
+    border: none;
+    border-radius: 0.75rem;
+    background-color: #9FE6DF;
+    padding: 0 3rem 0 1rem; /* Add padding on the right for the icon */
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #1c160c;
+    outline: none;
+    box-sizing: border-box; /* Avoid unexpected padding issues */
+  }
+  
+  .search-bar-application  input::placeholder {
+    color: #2F6D45;
+  }
+  
+  .search-bar-application  .search-icon {
+    position: absolute;
+    right: 1rem; /* Position the icon inside the input */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem; /* Adjust the size of the icon */
+    color: #2F6D45; /* Match placeholder color */
+    pointer-events: none; /* Allow clicks to pass through to the input */
+  }
+  
