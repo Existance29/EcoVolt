@@ -21,15 +21,19 @@ function handleKeyPress(event) {
         sendMessage();
     }
 }
-
-function displayMessage(message, className) {
+function displayMessage(message, className, isHTML = false) {
     const messageContainer = document.createElement("div");
     messageContainer.className = `message ${className}`;
-    messageContainer.textContent = message;
+
+    if (isHTML) {
+        messageContainer.innerHTML = message; // Render as HTML for links
+    } else {
+        messageContainer.textContent = message; // Render as plain text
+    }
 
     const messages = document.getElementById("chatbotMessages");
     messages.appendChild(messageContainer);
-    messages.scrollTop = messages.scrollHeight; // Ensure the latest message is visible
+    messages.scrollTop = messages.scrollHeight;
 }
 
 function displayTypingIndicator() {
@@ -96,7 +100,7 @@ async function sendMessage() {
     document.getElementById("userMessage").value = "";
 
     // Show typing indicator
-    displayTypingIndicator();
+    displayMessage("...", "bot-message");
 
     try {
         const companyId = sessionStorage.getItem("company_id");
@@ -119,22 +123,30 @@ async function sendMessage() {
             body: JSON.stringify({
                 userMessage,
                 reportData,
+                latestYear
             }),
         });
 
         // Remove typing indicator once response is received
-        removeTypingIndicator();
+        const typingIndicator = document.querySelector(".bot-message:last-child");
+        if (typingIndicator && typingIndicator.textContent === "...") {
+            typingIndicator.remove();
+        }
 
         if (!response.ok) {
             throw new Error(`Chatbot API call failed. Status: ${response.status}`);
         }
 
         const data = await response.json();
-        displayMessage(data.reply || "Server error. Please try again.", "bot-message");
+        const isHTMLResponse = userMessage.toLowerCase().includes("company initiatives") || userMessage.toLowerCase().includes("company efforts");
+        displayMessage(data.reply, "bot-message", isHTMLResponse); // Render as HTML for specific intents
     } catch (error) {
-        console.error("Error:", error);
-        removeTypingIndicator(); // Ensure typing indicator is removed in case of error
-        displayMessage("Server error. Please try again.", "bot-message");
+        console.error(error);
+        const typingIndicator = document.querySelector(".bot-message:last-child");
+        if (typingIndicator && typingIndicator.textContent === "...") {
+            typingIndicator.remove();
+        }
+        displayMessage("Something went wrong. Please try again later.", "bot-message");
     }
 }
 

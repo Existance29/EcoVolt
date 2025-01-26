@@ -239,3 +239,85 @@ button {
   background-color: #4FD1C5;
   color: #ffffff;
 }
+
+
+/* Chatbot Modal */
+.chatbot-modal {
+  display: none;
+  position: fixed;
+  bottom: 20px; /* Align to bottom */
+  right: 20px; /* Align to right */
+  width: 400px;
+  height: 550px;
+  z-index: 1000;
+  border-radius: 12px;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Chatbot Iframe */
+.chatbot-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+}
+
+/* Close Button */
+.close-chatbot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* Chatbot Toggle Button */
+.chatbot-toggle {
+  position: fixed;
+  bottom: 19px; /* Adjust the vertical positioning */
+  right: 19px; /* Adjust the horizontal positioning */
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 70px; /* Slightly larger for better clickability */
+  height: 70px;
+  font-size: 28px; /* Slightly larger font size for better visibility */
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Add hover and active effects */
+.chatbot-toggle:hover {
+  transform: scale(1.1); /* Slight zoom-in effect */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow */
+}
+
+.chatbot-toggle:active {
+  transform: scale(0.95); /* Press-down effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Softer shadow */
+}
+
+/* Chatbot Icon Styling */
+.chatbot-toggle i {
+  font-size: 32px; /* Icon size */
+}
+
+@media (max-width: 768px) {
+  .chatbot-toggle {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+}
