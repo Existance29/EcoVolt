@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch rewards data from the server
     fetchRewards();
     fetchPoints();
+    fetchCompletedCourses();
   });
   
   async function fetchRewards() {
@@ -75,3 +76,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   
+
+  async function fetchCompletedCourses() {
+    const url = '/profile/completed-courses'; // API endpoint to fetch completed courses
+
+    try {
+        const response = await get(url); // Use your `get` helper function to make a GET request
+
+        if (response.status === 200) {
+            const courses = await response.json(); // Parse the response JSON
+            console.log("Completed Courses:", courses);
+
+            const coursesSection = document.getElementById("courses");
+            coursesSection.innerHTML = ""; // Clear existing content
+
+            if (courses.length === 0) {
+                // If no courses are found, show a default message
+                coursesSection.innerHTML = "User has not completed any courses";
+                return;
+            }
+
+            // Dynamically populate completed courses
+            courses.forEach(course => {
+                const courseElement = document.createElement("div");
+                courseElement.classList.add("course");
+
+                courseElement.innerHTML = `
+<div class="completed-course-card">
+    <div class="completed-course-image-container">
+        <img src="${course.image_path}" alt="${course.title}" class="completed-course-image">
+    </div>
+    <div class="completed-course-details">
+        <h3 class="completed-course-title">${course.title}</h3>
+        <p class="completed-course-description">${course.description}</p>
+        <p class="completed-course-points"><strong>Points For Completion:</strong> ${course.points}</p>
+        <p class="completed-course-completed-at"><strong>Completed At:</strong> ${course.completed_at}</p>
+    </div>
+</div>
+
+                `;
+
+                coursesSection.appendChild(courseElement);
+            });
+        } else {
+            console.error("Error fetching completed courses:", response.status);
+            document.getElementById("courses").innerHTML = "User has no completed courses.";
+        }
+    } catch (error) {
+        console.error("Error fetching completed courses:", error);
+        document.getElementById("courses").innerHTML = "An error occurred while fetching completed courses.";
+    }
+}

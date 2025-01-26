@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="styles/fitnessLogOut.css">
+    <script src="./scripts/api.js"></script>
+    <script src="./scripts/utils.js"></script>
+    <script src="./scripts/lederboard.js"></script>
+    <script src="./scripts/common.js" defer></script>
+    <script src="./scripts/pages/fitnessLogOut.js" defer></script>
+    <title>EcoVolt | Leaderboard</title>
+    <style>
+    @import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700;900&display=swap");
+
+body {
+    font-family: "Be Vietnam Pro", "Noto Sans", sans-serif;
+    background-color: #fcfbf8;
+    margin: 0;
+    padding: 0;
+}
+
+.container-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Ensure it fills the height */
+    gap: 2rem;
+    padding: 2.5rem 1rem;
+}
+
+@media (min-width: 768px) {
+    .container-layout {
+        flex-direction: row;
+        height: 100%; /* Full height of the container */
+        gap: 0; /* No gap between sections */
+    }
+}
+.image-container {
+    flex: 2; /* Maintain 2:1 ratio with text */
+    height: 500px; /* Set a taller height for the image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 1rem;
+}
+
+
+.text-content {
+    flex: 1; /* Allow text to take up space */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    text-align: center; /* Ensure text inside elements is centered */
+    padding: 2rem;
+    box-sizing: border-box; /* Include padding in dimensions */
+}
+
+.title {
+    color: #1b190d;
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: -0.033em;
+    margin-bottom: 1rem;
+}
+
+.subtitle {
+    color: #1b190d;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    height: 3rem;
+    padding: 0 1.5rem;
+    border-radius: 1rem;
+    background-color: #4FD1C5;
+    color: #1b190d;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.leaderboard-container {
+    border: 1px solid #dce5e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Add a slight shadow */
+    padding: 16px;
+}
+        .leaderboard-entry {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            min-height: 72px;
+            border-bottom: 1px solid #e0e0e0; /* Adds a subtle bottom border */
+        }
+
+        .leaderboard-entry .details {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .leaderboard-entry .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.5rem;
+            background-color: #f3f1e7;
+        }
+
+        .leaderboard-entry .icon svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .leaderboard-entry .text {
+            color: #1b190d;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .leaderboard-entry .points {
+            color: #9a8d4c;
+            font-size: 0.875rem;
+        }
+
+        .leaderboard-entry .rank {
+            color: #1b190d;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar"></aside>
+
+    <main class="main-content">
+        <header class="mainHeader" data-title="Leaderboard" data-breadcrumb="Activities / Eco Strava"></header>
+
+        <nav class="tabs">
+            <a href="activityFeed.html">Activity Feed</a>
+            <a href="events.html">Courses & Events</a>
+            <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
+            <a href="rewards.html">Rewards</a>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container-layout">
+            <div class="image-container" style="background-image: url('https://cdn.usegalileo.ai/sdxl10/8bae0ff5-4ae6-4803-a3fe-ff65e4c5aa37.png');"></div>
+            <div class="text-content">
+                <h1 class="title"></h1>
+                <h2 class="subtitle"></h2>
+                <button class="button"></button>
+            </div>
+        </div>
+
+        <!-- Leaderboard Entries -->
+        <div class="leaderboard-container"></div>
+
+    </main>
+</body>
+</html>

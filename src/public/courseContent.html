@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galileo Design</title>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+  <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/courseContent.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;700;800" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="./scripts/courseContent.js"></script>
+  <script src="./scripts/utils.js"></script>
+  <script src="./scripts/api.js"></script>
+  <script src="./scripts/common.js" defer></script>
+</head>
+<body>
+
+    <aside class="sidebar"></aside>
+    <main class="main-content">
+      <header class="mainHeader" data-title="Course" data-breadcrumb="Events / Course"></header>
+
+      <nav class="tabs">
+        <a href="activityFeed.html">Activity Feed</a>
+        <a href="events.html">Courses & Events</a>
+        <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
+        <a href="rewards.html">Rewards</a>
+    </nav>
+
+    <section class="content-header">
+      <div class="header-text">
+        <p class="title">Sustainability with EcoVolt</p>
+        <p class="subtitle">A 5-lesson course for employees</p>
+      </div>
+    </section>
+
+    <section class="progress-container">
+      <p class="progress-text">0% completed</p>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 20%;"></div>
+      </div>
+    </section>
+
+    <section class="intro-section">
+      <div 
+        class="image-section" 
+        id="course-image"
+        style="background-image: url('');"
+      ></div>
+      <div class="text-section">
+        <h1 id="course-title">Course Title</h1>
+        <h2 id="course-description">Course description will appear here.</h2>
+        <button id="start-button" class="start-button">Start course</button>
+      </div>      
+    </section>
+    
+
+    <h2 class="section-title">What's inside</h2>
+
+    <section class="lessons-list" id="lessons-list">
+        <div>
+          <p class="lesson-title">${lesson.title}</p>
+          <p class="lesson-description">${lesson.content}</p>
+      </div>
+      <p class="lesson-duration">${lesson.duration}</p>
+    </section>
+    <p class="note">
+      <br><br>
+      Don't see the button? You may already be enrolled. Check out other courses!
+    </p>
+  </main>
+</body>
+</html>

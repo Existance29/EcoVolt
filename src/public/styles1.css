@@ -1,0 +1,87 @@
+/* General Styles */
+body {
+    font-family: "Public Sans", "Noto Sans", sans-serif;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e7edf3;
+    padding: 16px 40px;
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0e141b;
+  }
+  
+  .menu a {
+    color: #0e141b;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-right: 20px;
+  }
+  
+  .icon-btn {
+    background-color: #e7edf3;
+    padding: 8px;
+    border-radius: 8px;
+  }
+  
+  .avatar {
+    width: 40px;
+    height: 40px;
+    background: center / cover no-repeat url("avatar_url_here");
+    border-radius: 50%;
+  }
+  
+  /* Main Content */
+  .main-content {
+    padding: 20px 40px;
+  }
+  
+  .overview h1 {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  .stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .stat-card {
+    flex: 1;
+    padding: 16px;
+    border: 1px solid #d0dbe7;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  /* Tables */
+  .equipment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+  }
+  
+  .equipment-table th,
+  .equipment-table td {
+    padding: 8px 16px;
+    text-align: left;
+    border-bottom: 1px solid #d0dbe7;
+  }
+  
+  .equipment-table th {
+    font-weight: 600;
+  }
+  

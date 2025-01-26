@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="./styles/overviewDashboard.css">
     <link rel="stylesheet" href="./styles/profile.css">
     <link rel="stylesheet" href="./styles/common.css">
+    <link rel="stylesheet" href="./styles/reward.css">
+    <link rel="stylesheet" href="./styles/rewardHistory.css">
     <title>EcoVolt | Profile</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <!-- Chart.js Library -->
@@ -45,6 +47,8 @@
             <nav class="tabs">
                 <button class="active" id="posts-btn">Posts</button>
                 <button id="comments-btn">Comments</button>
+                <button id="courses-btn">Courses Completed</button>
+                <button id="points-btn">My Points</button>
             </nav>
             
             <section id="posts" class="scrollable">
@@ -52,6 +56,26 @@
             </section>
             <section id="comments" class="scrollable">
                 User has no comments
+            </section>
+            <section id="courses" class="scrollable"> <!-- in rewards.js, css in reward.css -->
+                User has not completed any courses
+            </section>
+            <section id="points" class="scrollable"> <!-- in rewardHistory.js -->
+                <div class="points-info">
+                    <div class="points-details">
+                      <p class="points-title">Points Available</p>
+                      <p class="points-value">0</p>
+                    </div>
+                    <div class="points-history">
+                      <button class="points-history-btn" onclick="window.location.href='rewards.html';">View Rewards</button>
+                    </div>
+                </div>   
+                <h2 class="section-title">Points History</h2>
+                <div class="activity-history-container"></div>
+    
+    
+                <h2 class="section-title">Redemption History</h2>
+                <div id="redeemed-items"></div>
             </section>
         </main>
     </div>
@@ -62,5 +86,7 @@
     <script src="./scripts/api.js"></script>
     <script src="./scripts/utils.js"></script>
     <script src="./scripts/pages/profile.js"></script>
+    <script src="./scripts/rewardHistory.js"></script>
+    <script src="./scripts/reward.js"></script>
 </body>
 </html>
