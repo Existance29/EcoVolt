@@ -102,6 +102,8 @@ const handleChatbotMessage = async (req, res) => {
             // Handle "company initiatives" explicitly
             if (matchedKey === "company initiatives") {
                 contextData = intent.response; // Return response directly, no placeholders
+            } else if (matchedKey === "company efforts") {
+                contextData = intent.response;
             } else if (matchedKey === "energy breakdown") {
                 contextData = `Here is the total energy breakdown for the specified period:\n\n${dynamicValues.totalEnergyBreakdown}`;
             } else if (matchedKey === "monthly energy breakdown") {
@@ -130,7 +132,18 @@ const handleChatbotMessage = async (req, res) => {
             temperature: 0.5,
         });
 
-        const botReply = response.choices[0].message.content.trim();
+        let botReply = response.choices[0].message.content.trim();
+
+        if (
+            matchedIntent.bestMatch.target === "company initiatives" ||
+            matchedIntent.bestMatch.target === "company efforts"
+        ) {
+            botReply += `
+                <br><br>For additional information, you can also visit our <a href="http://localhost:3000/events.html" target="_blank">events page</a>.
+            `;
+        }
+
+
         return res.json({ reply: botReply });
     } catch (error) {
         console.error("Error processing chatbot message:", error);
@@ -190,3 +203,4 @@ const calculateNetZeroProgress = (reportData) => {
 module.exports = {
     handleChatbotMessage,
 };
+
