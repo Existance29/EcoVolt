@@ -14,7 +14,11 @@ async function fetchTableData(pool, query) {
 }
 
 async function main() {
-    const combinedData = {};
+    const combinedData = {
+        cell_tower_monthly: [],
+        data_center_monthly: []
+    };
+
     try {
         const pool = await sql.connect(dbConfig);
 
@@ -24,7 +28,7 @@ async function main() {
                 YEAR(date) AS year,
                 MONTH(date) AS month,
                 SUM(total_energy_kwh) AS total_energy_kwh,
-                SUM(carbon_emission_kg) AS carbon_emission_kg
+                SUM(carbon_emission_kg) / 1000.0 AS carbon_emission_tons
             FROM 
                 cell_tower_energy_consumption
             GROUP BY 
@@ -39,7 +43,7 @@ async function main() {
             SELECT 
                 YEAR(dce.date) AS year,
                 MONTH(dce.date) AS month,
-                SUM(dce.total_energy_mwh) AS total_energy_mwh,
+                SUM(dce.total_energy_mwh) AS total_energy_kwh,
                 SUM(dcce.co2_emissions_tons) AS carbon_emission_tons
             FROM 
                 data_center_energy_consumption dce
@@ -53,10 +57,38 @@ async function main() {
         `;
         combinedData["data_center_monthly"] = await fetchTableData(pool, dataCenterQuery);
 
-        // Write the combined data to a single JSON file
+        // Combine and format the data
+        const outputData = {
+            combined_monthly_data: []
+        };
+
+        // Add cell tower data to the combined data
+        combinedData.cell_tower_monthly.forEach((item) => {
+            outputData.combined_monthly_data.push({
+                year: item.year,
+                month: item.month,
+                total_energy_kwh: item.total_energy_kwh,
+                carbon_emission_tons: item.carbon_emission_tons,
+                source: 'cell_tower'
+            });
+        });
+
+        // Add data center data to the combined data
+        combinedData.data_center_monthly.forEach((item) => {
+            outputData.combined_monthly_data.push({
+                year: item.year,
+                month: item.month,
+                total_energy_kwh: item.total_energy_kwh,
+                carbon_emission_tons: item.carbon_emission_tons,
+                source: 'data_center'
+            });
+        });
+
+        // Write the combined data to a JSON file
         const outputPath = './aggregated_monthly_data.json';
-        fs.writeFileSync(outputPath, JSON.stringify(combinedData, null, 2));
+        fs.writeFileSync(outputPath, JSON.stringify(outputData, null, 2));
         console.log(`Aggregated data has been exported to ${outputPath}`);
+
     } catch (err) {
         console.error('Error:', err.message);
     } finally {

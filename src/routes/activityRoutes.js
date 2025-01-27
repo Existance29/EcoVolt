@@ -17,6 +17,9 @@ const activityRoute = (app) => {
     app.post('/trackActivity', activityController.trackActivity);
     app.post('/activitySummary', activityController.getActivitySummary);
     app.post('/redeemReward', activityController.redeemReward);
+    app.get('/events/current', activityController.getCurrentEvents);
+    app.get('/user-progress/:userId', activityController.getUserProgress);
+    app.post('/events/log-progress', activityController.logUserProgress);
 }
 
 module.exports = activityRoute;

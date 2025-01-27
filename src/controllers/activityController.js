@@ -207,6 +207,35 @@ const redeemReward = async (req, res) => {
     }
 };
 
+const getCurrentEvents = async (req, res) => {
+    try {
+        const events = await activityModel.getCurrentEvents();
+        res.status(200).json({ message: "Getting current events successful." });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
+
+const getUserProgress = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const progress = await activityModel.getUserProgress(userId);
+        res.json(progress);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const logUserProgress = async (req, res) => {
+    try {
+        const { userId, eventId, reductionAmount, postId } = req.body;
+        await activityModel.logUserProgress(userId, eventId, reductionAmount, postId);
+        res.json({ message: "Progress logged!" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Exports
 module.exports = {
     getAllPosts,
@@ -219,4 +248,7 @@ module.exports = {
     trackActivity,
     getActivitySummary,
     redeemReward,
+    getCurrentEvents, 
+    getUserProgress,
+    logUserProgress,
 }

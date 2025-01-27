@@ -1,14 +1,19 @@
-import pandas as pd
 import json
+import pandas as pd
 
 def preprocess_data(file_path):
     # Load data
     with open(file_path, "r") as file:
-        raw_data = json.load(file)
+        raw_data = file.read()
+        try:
+            data = json.loads(raw_data)  # Parse JSON string
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+            return None
 
     # Normalize cell tower and data center data
-    cell_tower_data = pd.json_normalize(raw_data['cell_tower_energy_consumption'])
-    data_center_data = pd.json_normalize(raw_data['data_center_energy_consumption'])
+    cell_tower_data = pd.json_normalize(data['cell_tower_energy_consumption'])
+    data_center_data = pd.json_normalize(data['data_center_energy_consumption'])
 
     # Convert 'date' to datetime for both datasets
     cell_tower_data['date'] = pd.to_datetime(cell_tower_data['date'])
@@ -28,4 +33,8 @@ def preprocess_data(file_path):
 
 # Preprocess and save the data
 data = preprocess_data("./data/combined_data.json")
-data.to_csv("./data/preprocessed_data.csv", index=False)
+if data is not None:
+    data.to_csv("./data/preprocessed_data.csv", index=False)
+    print("Data preprocessing completed successfully.")
+else:
+    print("Data preprocessing failed.")

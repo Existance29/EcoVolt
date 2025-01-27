@@ -11,25 +11,117 @@ body {
     line-height: 1.6;
 }
 
-header.mainHeader {
-    font-weight: normal !important; /* Override any other rules */
-  }
-  
-
-/* Filter and sort styles */
-.filter-sort {
+.activity-header {
     display: flex;
-    justify-content: space-between;
-    margin-left: 30px;
-    margin-bottom: 20px;
-    margin: 20px;
+    align-items: center;
+    gap: 10px;
+    font-family: Arial, sans-serif;
+    position: relative;
 }
 
+
+h1 {
+    color: #4FD1C5;
+    margin: 0;
+    font-size: 2.5rem;
+    text-align: left; /* Aligns the text to the left */
+    display: flex;
+    justify-content: flex-start; /* Aligns the flex content to the start */
+    align-items: center;
+    padding-left: 50.5%; /* Adjust the value to move it further right */
+    height: 150px; /* Adjust the height as needed */
+}
+
+.tooltip-emoji {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #fbc02d; /* Gold-like color */
+    transition: transform 0.2s ease-in-out;
+}
+
+.tooltip-emoji:hover {
+    transform: scale(1.2);
+}
+
+.tooltip-text {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: lightgrey;
+    color: white;
+    font-size: 0.9rem;
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.tooltip-emoji:hover + .tooltip-text {
+    display: block;
+}
+
+.popup {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    text-align: center;
+}
+
+.popup-content h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+.popup-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.popup-content li {
+    margin: 10px 0;
+}
+
+.close-popup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out;
+}
+
+.close-popup:hover {
+    color: #000;
+}
+
+/* Sort styles */
 .sort {
-    flex-direction: column;
+    display: flex;
+    justify-content: flex-end;
     gap: 5px;
     font-weight: bold;
     color: #333;
+    margin: 20px;
 }
 
 #sort {
@@ -56,54 +148,33 @@ label {
     font-weight: bold;
 }
 
-h2.subtitle {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #4FD1C5;
-    margin-top: 20px;
-    text-align: left;
-}
-
 /* Reward Progress Container */
 .reward-progress-container {
-    position: fixed; 
-    bottom: 100px; 
-    right: 30px; 
-    padding: 20px; 
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
-    width: 5px; 
-    height: 60px;
-    max-width: 15%; 
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 55px;
+    height: 55px;
+    background-color: white;
+    border: none;
+    border-radius: 50%;
     cursor: pointer;
-    text-align: center; 
-    z-index: 1002; 
-    transition: transform 0.3s, opacity 0.3s; 
-    transform: translateY(0); 
-    opacity: 1; 
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.reward-progress-container h5 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: white;
-    margin-bottom: 0px;
-}
-
-.reward-progress-container {
-    width: 100%;
-    background-color: #4FD1C5;
-    border-radius: 8px;
-    height: 8px;
-    margin-top: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
 }
 
 .reward-progress-container:hover {
     background-color: #34a6a6;
     transform: scale(1.1);
+}
+
+.reward-progress-container img{
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 50%;
 }
 
 
@@ -426,4 +497,124 @@ h2.subtitle {
 .add-comment-btn:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+.page-sections {
+    display: grid;
+    grid-template-columns: 2fr 1fr; 
+    gap: 20px;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto; 
+    padding: 20px;
+}
+
+.right-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.events {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+#events h2 {
+    font-size: 24px;
+    color: #27ae60; /* Green theme for eco-friendly focus */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#event-container {
+    margin-bottom: 20px;
+}
+
+#event-container h3 {
+    font-size: 20px;
+    color: #27ae60;
+}
+
+#event-container p {
+    font-size: 16px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+#event-container .time-remaining {
+    font-size: 14px;
+    color: #e67e22;
+}
+
+.nav-btn {
+    background-color: #27ae60;
+    border: none;
+    padding: 10px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.nav-btn:hover {
+    background-color: #2ecc71;
+}
+
+#prevEvent {
+    float: left;
+    margin-top: 10px;
+}
+
+#nextEvent {
+    float: right;
+    margin-top: 10px;
+}
+
+#userProgress {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+#userProgress h3 {
+    font-size: 20px;
+    color: #27ae60;
+    margin-bottom: 20px;
+}
+
+#userProgress p {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    background-color: #ecf0f1;
+    height: 20px;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #27ae60;
+    border-radius: 5px;
+    width: 0%; /* Dynamic width will be set via JS */
+}
+
+#streakCount {
+    font-weight: bold;
+    font-size: 18px;
+    color: #27ae60;
+}
+
+#totalReduction {
+    font-weight: bold;
+    font-size: 18px;
+    color: #e67e22;
 }

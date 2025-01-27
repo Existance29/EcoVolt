@@ -1,0 +1,85 @@
+{
+    "intents": {
+      "carbon emissions": {
+        "keywords": ["carbon emissions", "co2 emissions", "ghg emissions", "carbon footprint"],
+        "response": "Carbon emissions refer to the release of carbon dioxide (CO2) and other greenhouse gases into the atmosphere. Let me know if you would like to explore further!",
+        "contextualResponses": {
+          "company": "The company's total carbon emissions are {{totalCO2}} tons for the year, with energy consumption of {{totalEnergy}} kWh."
+        }
+      },
+      "total emissions": {
+        "keywords": ["total emissions", "total carbon emissions", "overall emissions", "total co2"],
+        "response": "The total carbon emissions for the year are {{totalCO2}} tons, with a total energy consumption of {{totalEnergy}} kWh.",
+        "contextualResponses": {
+          "company": "The total carbon emissions for the company are {{totalCO2}} tons, with energy consumption of {{totalEnergy}} kWh."
+        }
+      },
+      "data center emissions": {
+        "keywords": ["data center emissions", "data center co2", "data center carbon", "data center energy", "total data center emissions"],
+        "response": "The total emissions for data centers are {{totalDataCenterCO2}} tons of CO2  with an energy consumption of {{totalDataCenterEnergy}} kWh.",
+        "contextualResponses": {
+          "company": "For the company, the total emissions from data centers are {{totalDataCenterCO2}} tons of CO2,  with an energy consumption of {{totalDataCenterEnergy}} kWh."
+        }
+      },
+      "cell tower emissions": {
+        "keywords": ["cell tower emissions", "cell tower co2", "cell tower carbon", "cell tower energy", "total cell tower emissions"],
+        "response": "The total emissions for cell towers are {{totalCellTowerCO2}} tons of CO2,  with an energy consumption of {{totalCellTowerEnergy}} kWh.",
+        "contextualResponses": {
+          "company": "For the company, the total emissions from cell towers are {{totalCellTowerCO2}} tons of CO2,  with an energy consumption of {{totalCellTowerEnergy}} kWh."
+        }
+      },
+      "highest emission": {
+        "keywords": ["highest emission", "biggest emission", "largest emission", "max emission"],
+        "response": "The highest-emitting data center is {{highestDataCenterName}} with {{highestDataCenterCO2}} tons, and the highest-emitting cell tower is {{highestCellTowerName}} with {{highestCellTowerCO2}} tons.",
+        "contextualResponses": {
+          "company": "Here are your company's emissions details:\n\n- Highest-emitting data center is {{highestDataCenterName}} with {{highestDataCenterCO2}} tons, and the highest-emitting cell tower is {{highestCellTowerName}} with {{highestCellTowerCO2}} tons."
+        }
+      },
+      "recommendations": {
+        "keywords": ["recommendations", "solutions", "suggestions", "how to reduce emissions"],
+        "response": "Here are the top recommendations for optimizing energy usage and reducing emissions:\n- {{recommendationsList}}"
+      },
+      "net zero": {
+        "keywords": ["net zero", "sustainability", "progress"],
+        "response": "The current progress towards net zero is at {{netZeroProgress}}%."
+      },
+      "energy breakdown": {
+        "keywords": ["energy breakdown", "energy usage"],
+        "response": "Here is the total energy breakdown for the specified period:\n\n{{totalEnergyBreakdown}}"
+      },
+      "monthly energy breakdown": {
+        "keywords": ["monthly energy breakdown", "detailed energy usage"],
+        "response": "Here is the detailed monthly energy breakdown:\n\n{{monthlyEnergyBreakdown}}"
+      },
+      "renewable energy": {
+        "keywords": ["renewable energy", "renewables", "green energy", "sustainable energy"],
+        "response": "Here are some insights on renewable energy usage:\n\n- Current Renewable Energy Usage: {{totalrenewableEnergy}} kWh out of {{totalEnergy}} kWh",
+        "contextualResponses": {
+          "company": "The company currently uses {{totalrenewableEnergy}} kWh renewable energy out of {{totalEnergy}} kWh."
+        }
+      },
+      "company initiatives": {
+        "keywords": [
+          "company initiatives",
+          "how the company reduces emissions",
+          "reduce carbon emissions",
+          "company reduce emissions",
+          "efforts to reduce emissions"
+        ],
+        "response": "PLEASE DONT CHANGE THE RESPONSE*** JUST SEND THIS **: The company has several initiatives to reduce carbon emissions:\n 1. Educational Courses: We offer courses to educate employees on energy efficiency and sustainability.\n2. Innovation Champion Award: Employees can submit innovative ideas to improve energy efficiency in data centers and cell towers.\n3. E-Waste Recycling: The company recycles old IT equipment and allows employees to bring in their own devices for recycling in partnership with recycling vendors.\n\nLet me know if you'd like to explore any of these in detail!",
+        "contextualResponses": {
+          "company": "PLEASE DONT CHANGE THE RESPONSE*** JUST SEND THIS **: The company has several initiatives to reduce carbon emissions:\n 1. Educational Courses : We offer courses to educate employees on energy efficiency and sustainability.\n2. Innovation Champion Award: Employees can submit innovative ideas to improve energy efficiency in data centers and cell towers.\n3. E-Waste Recycling: The company recycles old IT equipment and allows employees to bring in their own devices for recycling in partnership with recycling vendors.\n\nLet me know if you'd like to explore any of these in detail!"
+        }
+      },
+      "company efforts": {
+        "keywords": ["company efforts", "how the company is reducing emissions, company efforts in reducing carbon emissions", "company reduce emissions", "efforts to reduce emissions"],
+        "response": "The company has several initiatives to reduce carbon emissions:\n 1. Educational Courses: We offer courses to educate employees on energy efficiency and sustainability.\n2. Innovation Champion Award: Employees can submit innovative ideas to improve energy efficiency in data centers and cell towers.\n3. E-Waste Recycling: The company recycles old IT equipment and allows employees to bring in their own devices for recycling in partnership with recycling vendors.\n\nLet me know if you'd like to explore any of these in detail!",
+        "contextualResponses": {
+          "company": "The company has several initiatives to reduce carbon emissions:\n 1. Educational Courses: We offer courses to educate employees on energy efficiency and sustainability.\n2. Innovation Champion Award: Employees can submit innovative ideas to improve energy efficiency in data centers and cell towers.\n3. E-Waste Recycling: The company recycles old IT equipment and allows employees to bring in their own devices for recycling in partnership with recycling vendors.\n\nLet me know if you'd like to explore any of these in detail!"
+        }
+      },
+      "default": {
+        "response": "I can provide insights on highest emissions, total emissions, energy breakdown, recommendations, or company initiatives to reduce emissions. Let me know what you'd like to learn more about!"
+      }
+    }
+  }
