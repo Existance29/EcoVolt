@@ -73,7 +73,7 @@ body {
   font-weight: 500;
 }
 
-.form-input {
+.form-group input {
   width: 100%;
   height: 3.5rem;
   padding: 15px;
@@ -95,47 +95,53 @@ body {
   background-color: #FFFFFF;
 }
 
-.form-input::placeholder,
+
 .form-input-2::placeholder {
   color: #A18249;
 }
 
+.form-group input::placeholder{
+  color: #A18249;
+}
+
+/* Info Section */
 /* Info Section */
 .info-section {
-  padding: 16px;
+  flex: 2;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 20px;
 }
 
 .info-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding-top: 132px;
-  background: linear-gradient(
-      0deg,
-      rgba(0, 0, 0, 0.2) 0%,
-      rgba(0, 0, 0, 0) 100%
-    ),
-    url("../assets/fitness/formdesign.png");
-  background-size: cover;
-  background-position: center;
+  text-align: center;
+  background: white;
+  padding: 10px;
   border-radius: 12px;
-}
-
-.info-content {
-  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 
+              0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .info-title {
-  color: white;
   font-size: 1.5rem;
   font-weight: bold;
 }
 
 .info-text {
-  color: white;
   font-size: 1rem;
-  font-weight: 500;
+  color: #555;
+  
 }
+
+
+.info-image {
+  height: 400px;
+  background: url("../assets/fitness/formdesign.png") no-repeat center;
+  background-size: cover;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
 
 /* Button Section */
 .button-container {
