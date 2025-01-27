@@ -54,26 +54,57 @@ body {
     flex-direction: column;
     gap: 8px;
   }
+
+  #concept-title-1{
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  #concept-title-2{
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  #concept-title-3{
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
   
   .quiz {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    max-width: 1500px;
+    margin-left: 45px;
     margin-bottom: 32px; /* Added spacing below quiz section */
 }
 
 /* Styling for quiz card layout */
 .quiz-item {
-    background-color: #ffffff;
-    border: 1px solid #e1e1e1;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    transition: all 0.3s ease;
+  background-color: #ffffff;
+  border: 1px solid #e1e1e1;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
 }
+
+.quiz-item.correct {
+  background-color: #d4edda; /* Green for correct */
+  border-color: #28a745; /* Green border */
+}
+
+.quiz-item.wrong {
+  background-color: #f8d7da; /* Red for wrong */
+  border-color: #dc3545; /* Red border */
+}
+
 
 .options {
     display: flex;
@@ -102,12 +133,45 @@ label {
 label:hover {
     color: #1cca7f;
 }
+
+
+.quiz-submit {
+  background-color: #1cca7f;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 45px;
+}
+
+.quiz-submit:hover {
+  background-color: #17a765;
+}
+
+.quiz-feedback {
+  margin-top: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.quiz-feedback.correct {
+  color: #28a745;
+}
+
+.quiz-feedback.wrong {
+  color: #dc3545;
+}
+
   
-  .submit-button-container {
+  .submit-button-container-move {
     text-align: right;
   }
   
-  .submit-button {
+  .submit-button-move {
     background-color: #e8f3ee;
     color: #0e1b15;
     border: none;
@@ -131,6 +195,13 @@ label:hover {
   .progress-container {
     z-index: 1000;
     margin-bottom: 2%;
+    max-width: 1500px;
+    margin-left: 45px;
+  }
+
+  .progress-text {
+    font-size: 18px;
+    margin-bottom: 10px;
   }
   
   body {
@@ -158,40 +229,87 @@ label:hover {
   
   
 
+    .lesson-container {
+      display: flex;
+      flex-direction: column; /* Stack the video and description vertically */
+      align-items: center; /* Center content horizontally */
+      max-width: 1500px; /* Limit container width */
+      margin: 0 auto; /* Center the container */
+      padding: 32px; /* Add padding around the container */
+      background: linear-gradient(135deg, #f0f4f8, #d9e7e3); /* Soft gradient background */
+      border-radius: 16px; /* Rounded corners for a modern look */
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+      box-sizing: border-box; /* Include padding in total width/height */
+    }
+   
+  .video-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .video-overlay {
+    position: relative;
+    width: 1300px; /* Wider width */
+    height: 675px; /* Adjusted height to maintain 16:9 aspect ratio */
+    overflow: hidden;
+  }
+  
+  .youtube-video {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+   
     .lesson-description {
       color: #0e1b15;
-      font-size: 16px;
-      line-height: 1.8; /* Increased line height for better readability */
-      margin: 0 auto 32px; /* Centered horizontally and added spacing below */
-      max-width: 1000px; /* Limit the width for better readability */
-      width: 100%; /* Responsive width */
-      text-align: center; /* Optional: Center-align text if needed */
-      padding: 16px; /* Optional: Add padding for internal spacing */
-      box-sizing: border-box; /* Include padding in the total width */
+      font-size: 20px;
+      line-height: 1.8; /* Increase line height for better readability */
+      max-width: 1500px; /* Limit the description width */
+      text-align: center; /* Center-align the text */
+      padding: 16px; /* Add padding for spacing */
+      box-sizing: border-box; /* Include padding in total width */
     }
+    
+
+
     
   .section-title {
     font-size: 18px;
     font-weight: bold;
     color: #0e1b15;
     margin-bottom: 16px; /* Added spacing below section titles */
+    margin-left: 45px;
   }
   
-  .key-concepts {
+  .key-concepts { 
     display: flex;
     gap: 16px;
     margin-bottom: 32px; /* Added spacing below key concepts */
+    margin-left: 45px;
+    max-width: 1500px;
   }
   
   .concept-card {
     background-color: #ffffff;
     border: 1px solid #e1e1e1;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);    
+    border-radius: 8px;
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-  }
+    width: 50%; /* Set the width to 100% of the parent container */
+    max-width: none; /* Remove the max-width limit */
+    box-sizing: border-box; /* Include padding in the total width */
+}
+
+.icon svg {
+  fill: #4FD1C5; /* Turquoise color */
+  width: 30px;
+  height: 30px;
+}
+
   
   .quiz {
     display: flex;
@@ -272,28 +390,111 @@ label:hover {
 
 
 
-  .video-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .video-overlay {
-    position: relative;
-    width: 1200px; /* Wider width */
-    height: 675px; /* Adjusted height to maintain 16:9 aspect ratio */
-    overflow: hidden;
-  }
-  
-  .youtube-video {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-  
-
 
   .question {
     font-size: 16px;
     font-weight: 500;
   }
+
+
+
+  .popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+  }
+  
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    width: 500px;
+    max-width: 90%;
+    text-align: center;
+  }
+  
+  .popup h2 {
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+  
+  .popup p {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .popup .incorrect-questions {
+    margin: 16px 0;
+    text-align: left;
+  }
+  
+  .popup-card.incorrect-card {
+    background-color: #f8d7da; /* Light red background */
+    border: 2px solid #dc3545; /* Bold red border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 16px; /* Spacing inside the card */
+    margin-bottom: 16px; /* Space between cards */
+  }
+  
+  .popup-card.incorrect-card p {
+    margin: 8px 0; /* Space between lines */
+    font-size: 14px;
+  }
+  
+  
+  .popup-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  
+  .popup-buttons button {
+    background: #1cca7f;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    flex: 1;
+  }
+  
+  .popup-buttons button:hover {
+    background: #17a765;
+  }
+  
+  .popup-buttons button:nth-child(2) {
+    background: #dc3545;
+  }
+  
+  .popup-buttons button:nth-child(2):hover {
+    background: #c82333;
+  }
+  
+  .certificate-link {
+    display: inline-block;
+    margin: 16px 0;
+    padding: 10px 20px;
+    background-color: #1cca7f;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  
+  .certificate-link:hover {
+    background-color: #17a765;
+  }
+  
