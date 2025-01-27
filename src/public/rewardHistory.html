@@ -19,27 +19,21 @@
     <aside class="sidebar"></aside>
 
         <main class="main-content">
+          <header class="mainHeader" data-title="Course" data-breadcrumb="Events / Course"></header>
+
+          <nav class="tabs">
+            <a href="activityFeed.html">Activity Feed</a>
+            <a href="events.html">Courses & Events</a>
+            <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
+            <a href="rewards.html">Rewards</a>
+        </nav>
             <div class="section-header">
                 <div class="header-row">
-                  <button class="back-button" onclick="window.location.href='rewards.html'">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      class="arrow-icon"
-                      width="24"
-                      height="24"
-                    >
-                      <path
-                        d="M10 19a1 1 0 0 1-.71-.29l-7-7a1 1 0 0 1 0-1.42l7-7a1 1 0 1 1 1.42 1.42L4.41 11H21a1 1 0 0 1 0 2H4.41l6.3 6.29A1 1 0 0 1 10 19z"
-                      ></path>
-                    </svg>
-                    <span>Back</span>
-                  </button>
                   <div class="title-description">
                     <h2 class="section-title">Reward History</h2>
                     <p class="section-description">
-                        Track the rewards you’ve redeemed and celebrate your eco-friendly choices!                    </p>
+                        Track the rewards you’ve redeemed and celebrate your eco-friendly choices!                    
+                    </p>
                   </div>
                 </div>
               </div>                                    
@@ -53,51 +47,8 @@
                 </div>
             </div>  
             <h2 class="section-title">Points History</h2>
+            <div class="activity-history-container"></div>
 
-            <div class="history-item">
-              <div class="history-details">
-                <div class="icon" data-icon="ShoppingBag">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                    <path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM176,88a48,48,0,0,1-96,0,8,8,0,0,1,16,0,32,32,0,0,0,64,0,8,8,0,0,1,16,0Z"></path>
-                  </svg>
-                </div>
-                <div class="details">
-                  <p class="description">Signed in to Strava</p>
-                  <p class="date">04/04/2024</p>
-                </div>
-              </div>
-              <div class="points">1,000 points</div>
-            </div>
-
-            <div class="history-item">
-                <div class="history-details">
-                  <div class="icon" data-icon="ShoppingBag">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                      <path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM176,88a48,48,0,0,1-96,0,8,8,0,0,1,16,0,32,32,0,0,0,64,0,8,8,0,0,1,16,0Z"></path>
-                    </svg>
-                  </div>
-                  <div class="details">
-                    <p class="description">Signed in to Strava</p>
-                    <p class="date">04/04/2024</p>
-                  </div>
-                </div>
-                <div class="points">1,000 points</div>
-            </div>
-
-            <div class="history-item">
-                <div class="history-details">
-                  <div class="icon" data-icon="ShoppingBag">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                      <path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM176,88a48,48,0,0,1-96,0,8,8,0,0,1,16,0,32,32,0,0,0,64,0,8,8,0,0,1,16,0Z"></path>
-                    </svg>
-                  </div>
-                  <div class="details">
-                    <p class="description">Signed in to Strava</p>
-                    <p class="date">04/04/2024</p>
-                  </div>
-                </div>
-                <div class="points">1,000 points</div>
-            </div>
 
             <h2 class="section-title">Redemption History</h2>
             <div id="redeemed-items"></div>

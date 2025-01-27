@@ -16,7 +16,7 @@ class userController{
     
     static generateAccessToken(user){
         //make a jsonwetoken containing the user's id and role
-        const accessToken = jwt.sign({userId: user.id, companyId: user.company_id}, process.env.ACCESS_TOKEN_SECRET)
+        const accessToken = jwt.sign({userId: user.id, companyId: user.company_id, accessLevel: user.access_level}, process.env.ACCESS_TOKEN_SECRET)
         return {accessToken: accessToken, companyId: user.company_id}
     }
 
@@ -91,7 +91,7 @@ class userController{
     static async getPublicUserById(req, res){
       const id = req.params.id
         try {
-          const user = await User.getUserById(id)
+          const user = await User.getPublicUserById(id)
           if (!user) {
             return res.status(404).send("User not found")
           }
@@ -162,6 +162,20 @@ class userController{
         console.error("Error retrieving profile picture:", error);
         res.status(500).send("Error retrieving profile picture");
       }
+    }
+  
+    static async getPublicActivityById(req, res){
+      const id = req.params.id
+        try {
+          const user = await User.getUserPublicActivity(id)
+          if (!user) {
+            return res.status(404).send("User not found/User has no activity")
+          }
+          res.json(user);
+        } catch (error) {
+          console.error(error)
+          res.status(500).send("Error retrieving users")
+        }
     }
 }
 

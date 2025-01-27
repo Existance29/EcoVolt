@@ -9,6 +9,12 @@ class Company{
         //return null if no company found
         return result ? result : null
     }
+
+    static async isEmailValid(email){
+        //check the employee_access_level table and ensure that the company has such an email
+        const result = (await query.query("SELECT * FROM employee_access WHERE email = @email", {"email": email})).recordset[0]
+        return Boolean(result)
+    }
 }
 
 module.exports = Company

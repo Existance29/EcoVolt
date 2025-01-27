@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.153.0/three.min.js"></script>
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="styles/fitnessLogIn.css">
+    <script src="./scripts/utils.js"></script>
+    <script src="./scripts/common.js" defer></script>
+    <script src="./scripts/api.js"></script>
+    <script src="./scripts/pages/fitnessLogIn.js" type="module" defer></script>
+    <title>EcoVolt | Strava</title>
+</head>
+<body>
+    <aside class="sidebar"></aside>
+
+    <main class="main-content">
+
+        <header class="mainHeader" data-title="Eco Strava" data-breadcrumb="Activities / Eco Strava"></header>
+
+        <nav class="tabs">
+            <a href="activityFeed.html">Activity Feed</a>
+            <a href="events.html">Courses & Events</a>
+            <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
+            <a href="rewards.html">Rewards</a>
+        </nav>
+
+        <!-- headergreet -->
+
+        <div class="greetingsHeader">
+            <div class="greeting">
+                <h1 id="greeting-message">Good Morning, <span id="user-name">User</span></h1>
+                <p>Two Wheels, Zero Emissions. Cycle Now!</p>
+            </div>
+            
+            <div class="controls">
+                <div class="dropdown">
+                    <a href="leaderboard.html" class="dropdown-button">
+                        LeaderBoard <span class="arrow">►</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- end of headergreet -->
+        <div class="stats-wrapper">
+            <!-- Left Section: Info Panel and Donut Chart -->
+            <div class="left-panel">
+                <div class="info-panel">
+                    <div class="number-of-rides">
+                        <div class="icon-circle">
+                            <img src="assets/fitness/cycling.png" alt="Number of Rides Icon" class="icon" />
+                        </div>
+                        <div class="value">0</div>
+                        <p class="title">Number of Rides</p>
+                    </div>
+        
+                    <div class="time-travelled">
+                        <div class="icon-circle">
+                            <img src="assets/fitness/time-left.png" alt="Time Travelled Icon" class="icon" />
+                        </div>
+                        <div class="value">0h 0m</div>
+                        <p class="title">Time Travelled</p>
+                    </div>
+                </div>
+        
+                <div class="donut-container">
+                    <div class="chart-details">
+                        <h3 class="chart-title">Distance Travelled</h3>
+                        <p class="chart-number">34</p>
+                        <p class="chart-subtitle">km completed</p>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #4FD1C5;"></span>
+                                <span class="legend-label">Completed</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-color" style="background-color: #E0E0E0;"></span>
+                                <span class="legend-label">Remaining</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-overlay">
+                        <canvas id="donutChart"></canvas>
+                    </div>
+                </div>
+                
+            </div>
+        
+            <!-- Right Section: Visualization Container -->
+            <div class="visualization-container">
+                <p id="carbon-avoided">Carbon Avoided: 1.06 kg</p>
+                <div id="container-tree" class="tree-visualization"></div>
+                <img id="garden-image" src="/assets/fitness/garden.jpg" alt="Carbon Emission Reduced" class="carbon-emission-image">
+                <p id="total-distance">Total distance cycled: 9.81 km</p>
+                <p id="trees-planted-message">Your distance cycled is equivalent to the carbon absorption of 0 trees</p>
+            </div>
+        </div>
+        
+          
+          
+        <div class="contribution-container">
+            <h2>Other ways to make an Individual Impact</h2>
+            <p>Your efforts matter! Here are some effective ways you can contribute to our sustainability goals.</p>
+            
+            <div class="impact-grid">
+                <!-- Section 1 -->
+                <div class="impact-section">
+                    <div class="impact-image">
+                        <img src="./assets/fitness/energy.png" alt="Reduce Energy Usage" />
+                    </div>
+                    <div class="impact-content">
+                        <h3>Reduce Energy Usage</h3>
+                        <p>Turn off unused lights and devices to minimize electricity consumption. Switch to LED bulbs that consume less energy and last longer.</p>
+                    </div>
+                </div>
+                <!-- Section 2 -->
+                <div class="impact-section">
+                    <div class="impact-image">
+                        <img src="./assets/fitness/recycle.png" alt="Recycle Materials" />
+                    </div>
+                    <div class="impact-content">
+                        <h3>Recycle Materials</h3>
+                        <p>Properly recycle materials like paper, plastics, and electronics by using designated recycling bins.</p>
+                    </div>
+                </div>
+                <!-- Section 3 -->
+                <div class="impact-section">
+                    <div class="impact-image">
+                        <img src="./assets/fitness/eco.png" alt="Promote Eco-Friendly Habits" />
+                    </div>
+                    <div class="impact-content">
+                        <h3>Promote Eco-Friendly Habits</h3>
+                        <p>Share knowledge and tips on sustainability with your peers and advocate for carpooling or biking.</p>
+                    </div>
+                </div>
+                <!-- Section 4 -->
+                <div class="impact-section">
+                    <div class="impact-image">
+                        <img src="./assets/fitness/water.png" alt="Efficient Water Use" />
+                    </div>
+                    <div class="impact-content">
+                        <h3>Use Water Efficiently</h3>
+                        <p>Be mindful of water usage by fixing leaks and using water-saving fixtures to reduce water wastage.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

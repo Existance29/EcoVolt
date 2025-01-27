@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galileo Design</title>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;700;800">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;700;800" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="./scripts/utils.js"></script>
+  <script src="./scripts/common.js" defer></script>
+  <script src="./scripts/api.js"></script>
+  <link rel="stylesheet" href="styles/ConfirmRecycle.css">
+</head>
+<body>
+    <!-- <aside class="sidebar"></aside> -->
+      <div class="main-content">
+        <!-- <header class="mainHeader" data-title="Recyce E-Waste" data-breadcrumb="Pages / Recycle E-Waste"></header>
+
+        <nav class="tabs">
+            <a href="CompanyEquipment.html">Company Equipment</a>
+            <a href="EmployeeApplication.html">Employee's Application</a>
+            <a href="PendingPickUp.html">Pending Pick Up</a>
+            <a href="Recycled.html">Recycled</a>
+        </nav> -->
+        <div class="header">
+          <div class="header-text">
+            <p class="title">Confirm recycling</p>
+            <p class="subtitle">You're recycling a device</p>
+          </div>
+        </div>
+        <div class="image-section">
+          <div class="image-container" style="background-image: url('https://cdn.usegalileo.ai/sdxl10/cc442231-0f71-4541-893b-0ebc03109557.png');"></div>
+        </div>
+        <p class="device-name">Details</p>
+        <div class="device-details">
+          <div class="detail">
+            <p class="label"></p>
+            <p class="value"></p>
+        </div>
+        <h2 class="section-title">Environmental benefits</h2>
+        <div class="benefits-grid">
+          <div class="benefit" data-icon="star-and-crescent">
+            <div class="icon"></div>
+            <div class="text">
+              <h2>Sustainable practices</h2>
+              <p>We aim to reduce our carbon footprint by using sustainable practices</p>
+            </div>
+          </div>
+          <div class="benefit" data-icon="drop">
+            <div class="icon"></div>
+            <div class="text">
+              <h2>Reducing e-waste</h2>
+              <p>We keep electronics out of landfills and reduce their environmental impact</p>
+            </div>
+          </div>
+          <div class="benefit" data-icon="lightbulb">
+            <div class="icon"></div>
+            <div class="text">
+              <h2>Reusing valuable materials</h2>
+              <p>We give new life to valuable materials like gold, silver, and copper</p>
+            </div>
+          </div>
+        </div>
+        <p class="recycling-info">
+            Recycling this device contributes to reducing carbon emissions, supporting a path toward net-zero and a sustainable future. Every small step brings us closer to a cleaner planet.
+        </p>
+        <div class="confirmation">
+          <label>
+            <input type="checkbox">
+            I confirm that I am the owner of this device and that it is not lost or stolen.
+          </label>
+          <label>
+            <input type="checkbox">
+            I understand that recycling is irreversible and that I cannot get this device back.
+          </label>
+        </div>
+        <!-- <div class="actions">
+            <button class="cancel" onclick="closeModal()">Cancel</button>
+            <button class="recycle">Recycle</button>
+        </div> -->
+    </main>
+
+</body>
+</html>
+
+<script>
+
+const urlParams = new URLSearchParams(window.location.search);
+const serialNumber = urlParams.get("SN");
+const isPersonal = urlParams.get("isPersonal") === "true"; // Check if it's "Personal"
+
+// Ensure the DOM is fully loaded
+document.addEventListener("DOMContentLoaded", () => {
+  async function fetchDetails(SN, isPersonal) {
+    try {
+      console.log("Serial number:", SN, "Is Personal:", isPersonal);
+
+      // Set the endpoint dynamically based on "isPersonal"
+      const endpoint = isPersonal
+        ? `/device/personal/details?SN=${SN}`
+        : `/device/company/details?SN=${SN}`;
+      const response = await fetch(endpoint);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch details: ${response.status}`);
+      }
+
+      const data = await response.json();
+      populateDetails(data, isPersonal);
+    } catch (error) {
+      console.error("Error fetching details:", error);
+    }
+  }
+
+  function populateDetails(data, isPersonal) {
+    if (!data || !data[0]) {
+      console.error("No device data available");
+      return;
+    }
+
+    const device = data[0]; // Access the first object in the array
+    const formattedDate = new Date(device.created_at).toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    // Update device name and subtitle dynamically
+    const deviceTitle = document.querySelector(".header-text .title");
+    const deviceSubtitle = document.querySelector(".header-text .subtitle");
+    deviceTitle.textContent = "Submitted By";
+    deviceSubtitle.textContent = isPersonal
+      ? `${device.name || "N/A"}`
+      : "Company Device";
+
+    // Update device image dynamically
+    const imageContainer = document.querySelector(".image-container");
+    const initialImageUrl =
+      "https://cdn.usegalileo.ai/sdxl10/cc442231-0f71-4541-893b-0ebc03109557.png"; // Initial image in your HTML
+    const imageUrl = isPersonal
+      ? device.image_path
+        ? `/uploads/device-pictures/${device.image_path}`
+        : initialImageUrl // Revert to initial image if not provided
+      : "/images/default-company-device.png"; // Placeholder for company devices
+    imageContainer.style.backgroundImage = `url('${imageUrl}')`;
+
+    // Only update the `.detail` section without touching the rest of the `.device-details`
+    const detailsContainer = document.querySelector(".device-details");
+    const detailsContent = isPersonal
+      ? `
+        <div class="detail">
+          <p class="label">Name</p><p class="value">${device.name || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Device Type</p><p class="value">${device.device_type || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Brand</p><p class="value">${device.brand || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Model</p><p class="value">${device.model || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Serial Number</p><p class="value">${device.serial_number || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Submit Date</p><p class="value">${formattedDate || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Status</p><p class="value">${device.status || "N/A"}</p>
+        </div>
+      `
+      : `
+        <div class="detail">
+          <p class="label">Device Type</p><p class="value">${device.device_type || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Brand</p><p class="value">${device.brand || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Model</p><p class="value">${device.model || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Serial Number</p><p class="value">${device.serial_number || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Age</p><p class="value">${device.device_age_years || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Carbon Emission</p><p class="value">${device.total_device_co2_emissions_tons || "N/A"}</p>
+        </div>
+        <div class="detail">
+          <p class="label">Energy Usage</p><p class="value">${device.total_device_energy_mwh || "N/A"}</p>
+        </div>        
+        <div class="detail">
+          <p class="label">Status</p><p class="value">${device.status || "N/A"}</p>
+        </div>
+      `;
+
+    // Remove only the `.detail` elements and replace them with the new content
+    detailsContainer.querySelectorAll(".detail").forEach((detail) => detail.remove());
+    detailsContainer.insertAdjacentHTML("afterbegin", detailsContent);
+  }
+
+  // Fetch details only if a serial number is provided
+  if (serialNumber) fetchDetails(serialNumber, isPersonal);
+
+  const referrer = document.referrer;
+
+  // Determine which page triggered the pop-up
+  function determineTriggeringPage() {
+    const confirmation = document.querySelector(".confirmation");
+    if (referrer.includes("EmployeeApplication.html")) {
+      confirmation.style.display = "none";
+    } else if (referrer.includes("PendingPickUp.html")) {
+        confirmation.style.display = "none";
+    } else if (referrer.includes("Recycled.html")) {
+        confirmation.style.display = "none";
+    } else {
+      console.log("Triggered by an unknown page");
+    }
+  }
+
+  // Call the function to log or act on the triggering page
+  determineTriggeringPage();
+});
+
+
+
+
+
+
+</script>

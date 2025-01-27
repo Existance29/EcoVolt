@@ -26,10 +26,10 @@ app.use(session({
     cookie: { secure: false } // Change to true if using HTTPS
 }));
 
-//use parse middlewares
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 app.use('/uploads/profile-pictures', express.static(path.join(__dirname, 'uploads/profile-pictures')));
+app.use('/uploads/device-pictures', express.static(path.join(__dirname, 'uploads/device-pictures')));
 
 //setup routes
 route(app);

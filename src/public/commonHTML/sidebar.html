@@ -1,12 +1,13 @@
-<div class="logo">
+<a class="logo" href="index.html" style="text-decoration: none;">
     <img src="assets/logo.png" alt="EcoVolt Logo">
     <h2>EcoVolt</h2>
-</div>
+</a>
 <nav class="nav-menu">
-    <a href="overviewDashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-    <a href="report.html"><i class="fas fa-file-alt"></i> Report</a>
+    <a href="overviewDashboard.html" class="require-admin"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="companyequipment.html" class="require-admin"><i class="fas fa-tools"></i> Equipment</a>
+    <a href="report.html" class="require-admin"><i class="fas fa-file-alt"></i> Report</a>
     <a href="activityFeed.html"><i class="fas fa-blog"></i> Activities</a>
-    <!-- <a href="profile.html"><i class="fas fa-user"></i> Profile</a> -->
+    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
     <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
     <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </nav>
@@ -17,6 +18,7 @@
 <link rel="stylesheet" href="./styles/common.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <script src="https://kit.fontawesome.com/65c10bb262.js" crossorigin="anonymous"></script>
+<script src="../scripts/api.js"></script>
 
 <script>
     // Logout function to clear storage and redirect to the sign-in page
@@ -25,4 +27,11 @@
         localStorage.clear();
         window.location.href = "signIn.html";
     }
+
+    async function sideBarLoad(){
+        if (! await isUserAdmin()){
+            Array.from(document.getElementsByClassName("require-admin")).forEach(x => x.style.display="none")
+        }
+    }
+    sideBarLoad()
 </script>

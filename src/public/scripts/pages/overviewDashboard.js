@@ -1,3 +1,6 @@
+pageRequireSignIn()
+pageRequireAdmin();
+
 async function initializeDashboard() {
     await pageRequireSignIn(); // Ensure the user is signed in
 

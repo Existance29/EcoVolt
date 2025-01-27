@@ -41,7 +41,6 @@ async function generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName) {
 }
 
 
-// Generate report data with optional caching in session
 const generateReportData = async (req, res) => {
     const { company_id } = req.params;
     const year = req.query.year;
@@ -63,76 +62,94 @@ const generateReportData = async (req, res) => {
         if (!reports || reports.length === 0) {
             return res.status(404).json({ error: `No report data found for the year ${year}.` });
         }
+        // Fetch yearly energy breakdown to determine highestEnergyType
+        const energyData = await Report.getYearlyEnergyBreakdown(company_id, year);
 
-        // Fetch total CO2 emissions
-        const carbonEmissions = await Report.getTotalCarbonEmissions(company_id, year);
-        const totalCO2 = carbonEmissions.totalCO2Emissions;
+        const totalEnergyByType = energyData.reduce(
+            (totals, monthData) => {
+                totals.radioEquipment += monthData.radioEquipment || 0;
+                totals.cooling += monthData.cooling || 0;
+                totals.backupPower += monthData.backupPower || 0;
+                totals.misc += monthData.misc || 0;
+                return totals;
+            },
+            { radioEquipment: 0, cooling: 0, backupPower: 0, misc: 0 }
+        );
 
-        const previousYear = parseInt(year) - 1;
-        let previousYearReports = [];
-        let previousYearTotalCO2 = 0;
+        const highestEnergyType = Object.keys(totalEnergyByType).reduce((a, b) =>
+            totalEnergyByType[a] > totalEnergyByType[b] ? a : b
+        );
 
-        try {
-            previousYearReports = await Report.getAllReport(company_id, previousYear);
-            if (previousYearReports.length > 0) {
-                const previousYearEmissions = await Report.getTotalCarbonEmissions(company_id, previousYear);
-                previousYearTotalCO2 = previousYearEmissions.totalCO2Emissions;
-            }
-        } catch (error) {
-            console.warn(`No data available for the year ${previousYear}. Skipping comparison.`);
-            previousYearReports = [];
-            previousYearTotalCO2 = 0;
-        }
+        // Fetch monthly CO2 emissions for the year
+        const emissions = await Report.getMonthlyCarbonEmissions(company_id, year);
+        const monthlyCO2 = emissions.map((entry) => ({
+            month: `${entry.year}-${entry.month.toString().padStart(2, '0')}`,
+            dataCenterCO2: entry.dataCenterCO2Emissions,
+            cellTowerCO2: entry.cellTowerCO2Emissions,
+            totalCO2: entry.dataCenterCO2Emissions + entry.cellTowerCO2Emissions,
+        }));
 
-        // Initialize totals
-        const companyName = reports[0]?.companyName || 'Company';
-        const months = [];
-        const monthlyEnergy = [];
-        const monthlyCO2 = [];
-        let totalEnergy = 0;
+        // Fetch monthly energy consumption for the year
+        const Monthlyenergy = await Report.getMonthlyEnergyConsumption(company_id, year);
+        const monthlyEnergy = Monthlyenergy.map((entry) => ({
+            month: `${entry.year}-${entry.month.toString().padStart(2, '0')}`,
+            dataCenterEnergy: entry.dataCenterEnergyConsumption,
+            cellTowerEnergy: entry.cellTowerEnergyConsumption,
+            totalEnergy: entry.dataCenterEnergyConsumption + entry.cellTowerEnergyConsumption,
+        }));
 
-        reports.forEach((report) => {
-            const month = moment(report.date).format('MMM YYYY');
-            const year =  moment(report.date).format('YYYY');
-            const index = months.indexOf(month);
-            if (index === -1) {
-                months.push(month);
-                monthlyEnergy.push(report.totalEnergyKWH || 0);
-            } else {
-                monthlyEnergy[index] += report.totalEnergyKWH || 0;
-            }
-            totalEnergy += report.totalEnergyKWH || 0;
-        });
+        const totalCO2Yearly = await Report.getTotalCarbonEmissions(company_id, year);
+        const totalEnergyYearly = await Report.getTotalEnergyConsumption(company_id, year);
 
-        // Proportionally distribute CO2 emissions based on energy consumption
-        monthlyEnergy.forEach((energy, index) => {
-            const proportion = energy / totalEnergy || 0;
-            monthlyCO2.push(proportion * totalCO2);
-        });
+        // Calculate total energy consumption
+        const totalEnergy = monthlyEnergy.reduce((sum, entry) => sum + entry.totalEnergy, 0);
+        // Initialize unique months
+        const months = monthlyEnergy.map((entry) => entry.month);
 
         // Fetch efficiency metrics for the current year
         const currentYearMetrics = await Report.getEfficiencyMetricsComparison(company_id, year);
+        const totalRenewableEnergy = await Report.getTotalRenewableEnergy(company_id, year);
+
+        // Fetch previous year data for comparison
+        const previousYear = parseInt(year) - 1;
+        const previousYearReports = await Report.getAllReport(company_id, previousYear).catch(() => []);
         const previousYearMetrics = previousYearReports.length > 0
             ? await Report.getEfficiencyMetricsComparison(company_id, previousYear)
             : {};
 
+        const totalPreviousYearCO2 = previousYearReports.length > 0
+            ? await Report.getTotalCarbonEmissions(company_id, previousYear)
+            : { totalCO2Emissions: 0 };
+
+        const totalPreviousYearEnergy = previousYearReports.length > 0
+            ? await Report.getTotalEnergyConsumption(company_id, previousYear)
+            : { totalEnergyConsumption: 0 };
+
+        const totalPreviousYearRenewableEnergy = previousYearReports.length > 0
+            ? await Report.getTotalRenewableEnergy(company_id, previousYear)
+            : { totalRenewableEnergy: 0 };
         // Performance summary
         const performanceSummary = {
             totalEnergy: {
                 current: totalEnergy,
-                previous: previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0),
-                percentageChange: previousYearReports.length > 0
-                    ? ((totalEnergy -
-                        previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0)) /
-                        (previousYearReports.reduce((sum, r) => sum + (r.totalEnergyKWH || 0), 0) || 1)) *
-                        100
+                previous: totalPreviousYearEnergy.totalEnergyConsumption || 0,
+                percentageChange: totalPreviousYearEnergy.totalEnergyConsumption
+                    ? ((totalEnergy - totalPreviousYearEnergy.totalEnergyConsumption) / totalPreviousYearEnergy.totalEnergyConsumption) * 100
                     : "Not Applicable",
             },
             co2Emissions: {
-                current: totalCO2,
-                previous: previousYearTotalCO2,
-                percentageChange: previousYearTotalCO2 > 0
-                    ? ((totalCO2 - previousYearTotalCO2) / previousYearTotalCO2) * 100
+                current: monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0),
+                previous: totalPreviousYearCO2.totalCO2Emissions || 0,
+                percentageChange: totalPreviousYearCO2.totalCO2Emissions
+                    ? ((monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0) - totalPreviousYearCO2.totalCO2Emissions) /
+                        totalPreviousYearCO2.totalCO2Emissions) * 100
+                    : "Not Applicable",
+            },
+            renewableEnergy: {
+                current: totalRenewableEnergy.totalRenewableEnergy || 0,
+                previous: totalPreviousYearRenewableEnergy.totalRenewableEnergy || 0,
+                percentageChange: totalPreviousYearRenewableEnergy.totalRenewableEnergy
+                    ? ((totalRenewableEnergy.totalRenewableEnergy - totalPreviousYearRenewableEnergy.totalRenewableEnergy) / totalPreviousYearRenewableEnergy.totalRenewableEnergy) * 100
                     : "Not Applicable",
             },
             efficiencyMetrics: {
@@ -161,28 +178,58 @@ const generateReportData = async (req, res) => {
         };
 
         // Generate other sections
-        const executiveSummary = await generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEnergy, monthlyCO2, companyName);
-        const dataAnalysis = await generateDataAnalysis(monthlyEnergy, monthlyCO2, companyName);
-        const recommendations = await getAllAIRecommendations({ totalEnergy, co2Emissions: totalCO2 });
-        const conclusion = await generateConclusion(totalEnergy, totalCO2, recommendations);
-        const emissions = await Report.getAllCarbonEmissions(company_id, year);
-        
+        const companyName = reports[0]?.companyName || "Company";
+        const executiveSummary = await generateExecutiveSummary(
+            totalEnergy,
+            performanceSummary.co2Emissions.current,
+            months,
+            monthlyEnergy.map((item) => item.totalEnergy),
+            monthlyCO2.map((item) => item.totalCO2),
+            companyName
+        );
+        const dataAnalysis = await generateDataAnalysis(
+            monthlyEnergy.map((item) => item.totalEnergy),
+            monthlyCO2.map((item) => item.totalCO2),
+            companyName
+        );
+        const recommendations = await getAllAIRecommendations(
+            {
+                totalEnergy: totalEnergy,
+                co2Emissions: monthlyCO2.reduce((sum, item) => sum + item.totalCO2, 0),
+            },
+            highestEnergyType // Pass the top energy contributor
+        );
+        const description = await generateDescription(highestEnergyType, year);
+
+        const monthlyEnergyBreakdown = await Report.getYearlyEnergyBreakdown(company_id, year);
+
+
+        const conclusion = await generateConclusion(
+            totalEnergy,
+            performanceSummary.co2Emissions.current,
+            recommendations
+        );
 
         const reportData = {
             year,
             months,
             monthlyEnergy,
             monthlyCO2,
+            monthlyEnergyBreakdown,
             totalEnergy,
-            totalCO2,
+            totalCO2: performanceSummary.co2Emissions.current,
             executiveSummary,
             dataAnalysis,
             recommendations,
             conclusion,
             performanceSummary,
             reportData: reports,
-            carbonEmissions,
-            emissions
+            emissions,
+            description, 
+            totalDataCenterCO2 : totalCO2Yearly.dataCenterCO2Emissions,
+            totalCellTowerCO2 : totalCO2Yearly.cellTowerCO2Emissions,
+            totalDataCenterEnergy : totalEnergyYearly.totalDataCenterEnergy,
+            totalCellTowerEnergy : totalEnergyYearly.totalCellTowerEnergy
         };
 
         // Cache the data
@@ -192,10 +239,9 @@ const generateReportData = async (req, res) => {
         res.status(200).json(reportData);
     } catch (error) {
         console.error("Error fetching report data:", error);
-        res.status(500).json({ error: 'Failed to fetch report data.' });
+        res.status(500).json({ error: "Failed to fetch report data." });
     }
 };
-
 
 // Forcefully generate new report data
 const forceGenerateReportData = async (req, res) => {
@@ -240,21 +286,21 @@ const generateReportPDF = async (req, res) => {
     }
 };
 
-// function to get exactly 5 AI recommendations, one from each category
-const getAllAIRecommendations = async (data) => {
+// Function to get exactly 5 AI recommendations, one from each category
+const getAllAIRecommendations = async (data, highestEnergyType) => {
     const categories = [
-        "Energy Efficiency Improvements",
-        "CO2 Emission Reduction Strategies",
-        "Renewable Energy Investments",
-        "Sustainable Cooling Technologies",
-        "Monitoring and Reporting Practices"
+        `Advanced Efficiency Improvements for ${highestEnergyType}`,
+        `Innovative Technology Upgrades for ${highestEnergyType}`,
+        `Future-Oriented Sustainability Strategies for ${highestEnergyType}`,
+        `Behavioral and Operational Changes for ${highestEnergyType}`,
+        `Data-Driven Monitoring and Optimization of ${highestEnergyType}`,
     ];
 
     try {
         const recommendations = await Promise.all(
             categories.map(async (category, index) => {
-                await new Promise(resolve => setTimeout(resolve, index * 1000)); // Delay to avoid rate limiting
-                const detailedRecommendation = await generateAIRecommendations(data, category);
+                await new Promise((resolve) => setTimeout(resolve, index * 1000)); // Delay to avoid rate limiting
+                const detailedRecommendation = await generateAIRecommendations(data, category, highestEnergyType);
                 return detailedRecommendation || `Recommendation for ${category} is unavailable.`;
             })
         );
@@ -266,64 +312,106 @@ const getAllAIRecommendations = async (data) => {
     }
 };
 
-// function to generate a detailed AI recommendation for each category
-async function generateAIRecommendations(data, category) {
-    const prompt = `Based on the following data for Singtel:
+function sanitizeJSON(input) {
+    try {
+        // Add commas between properties that are missing them
+        const sanitizedInput = input
+            .replace(/}\s*{/g, '},{') // Fix adjacent objects
+            .replace(/"\s*"/g, '","') // Fix adjacent strings
+            .replace(/,\s*}/g, '}')   // Remove trailing commas in objects
+            .replace(/,\s*]/g, ']');  // Remove trailing commas in arrays
+
+        // Validate JSON syntax
+        JSON.parse(sanitizedInput);
+        return sanitizedInput;
+    } catch (error) {
+        console.error("Error sanitizing JSON:", error);
+        throw new Error("Invalid JSON format");
+    }
+}
+
+// Function to generate a detailed AI recommendation for each category
+async function generateAIRecommendations(data, category, highestEnergyType) {
+    const prompt = `The company, having already implemented standard solutions, seeks cutting-edge recommendations and also the company already has renewable energy integration so you dont need to focus on that. Based on the following data:
+    - Top Energy Contributor: ${highestEnergyType}
     - Total Energy Consumption: ${data.totalEnergy} MWh
     - Total CO2 Emissions: ${data.co2Emissions} Tons
-    - Current Progress: ${data.currentProgress}%
-    
-    Provide a specific recommendation for ${category} as a JSON object with the following structure:
+
+    Provide a concise recommendation for the category: "${category}" specific to optimizing ${highestEnergyType} operations.
+    Recommendations should include:
+    1. Focus on innovative solutions or emerging technologies.
+    2. Assume that basic energy efficiency measures are already in place.
+    3. Leverage trends in AI, automation, or renewable integration to enhance outcomes.
+
+    **Include exactly 3 actions** in the recommendation.
+
+    Limit the response to no more than **400 words** or less than **350** words and Format the response as a JSON object with:
     {
         "recommendation": "<summary of the recommendation>",
         "actions": [
             {
-                "description": "<first action step>",
-                "explanation": "<why this action is effective>"
-            },
-            {
-                "description": "<second action step>",
-                "explanation": "<why this action is effective>"
-            },
-            ...
+                "description": "<specific action>",
+                "explanation": "<why this action is effective in one sentence>"
+            }
         ],
-        "intendedImpact": "<overall impact>"
+        "intendedImpact": "<overall impact in one concise sentence>"
     }`;
+
+    let rawContent = "";
 
     try {
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
-            max_tokens: 300,
-            temperature: 0.7
+            max_tokens: 400,
+            temperature: 0.7,
         });
 
-        return JSON.parse(response.choices[0].message.content);
+        rawContent = response.choices[0].message.content;
+
+        // Sanitize and parse JSON
+        const sanitizedContent = sanitizeJSON(rawContent);
+        return JSON.parse(sanitizedContent);
     } catch (error) {
-        console.error(`Error fetching ${category} recommendations:`, error);
-        throw error;
+        console.error(`Error parsing JSON for ${category} recommendations:`, error);
+        console.error("Raw Response:", rawContent || "No raw content available");
+
+        // Provide a fallback recommendation in case of failure
+        return {
+            recommendation: `Unable to generate a recommendation for "${category}" due to an error.`,
+            actions: [],
+            intendedImpact: "No impact data available",
+        };
     }
 }
-
 // function to generate a conclusion
-async function generateConclusion(totalEnergy, totalCO2, recommendations) {
+async function generateConclusion(totalEnergy, totalCO2, recommendations, sustainabilityContext = true) {
     let conclusion = '';
     let retries = 0;
 
-    while (conclusion.length < 300 && retries < 3) { // Ensure minimum length and limit retries
+    while (conclusion.length < 300 && retries < 3) {
         try {
+            const prompt = `
+                Provide a structured conclusion for the Singtel Sustainability Report, including:
+                - Total energy consumption: ${totalEnergy.toLocaleString()} kWh
+                - CO2 emissions: ${totalCO2.toFixed(2)} tons
+                - Highlights of recommendations and their intended impact.
+                ${sustainabilityContext ? `
+                - Add a paragraph to include sustainability context:
+                    - Highlight how reducing energy consumption aligns with sustainability goals.
+                    - Link energy and emissions reductions to broader climate targets, such as:
+                        "This aligns with Singtel’s commitment to supporting the UN’s Sustainable Development Goals (Goal 13: Climate Action)."
+                ` : ''}
+                - Predictive actions to achieve net-zero goals by adopting renewables, enhancing energy efficiency, and reducing emissions.
+            `;
+
             const response = await openai.chat.completions.create({
                 model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: `
-                    Provide a final, structured conclusion for the Singtel Sustainability Report, including:
-                    - Total energy consumption ${totalEnergy.toLocaleString()} kWh and CO2 emissions ${totalCO2.toFixed(2)} tons
-                    - Highlights of recommendations and their intended impact.
-                    - Predictive actions to achieve net-zero goals by adopting renewables, enhancing energy efficiency, and reducing emissions.
-                ` }],
-                max_tokens: 250,
+                messages: [{ role: "user", content: prompt }],
+                max_tokens: 300,
                 temperature: 0.7
             });
-            
+
             conclusion = response.choices[0].message.content;
             retries++;
         } catch (error) {
@@ -346,23 +434,47 @@ async function generateExecutiveSummary(totalEnergy, totalCO2, months, monthlyEn
     - Monthly Energy Consumption: ${monthlyEnergy.join(", ")} kWh for months ${months.join(", ")}
     - Monthly CO2 Emissions: ${monthlyCO2.join(", ")} tons for months ${months.join(", ")}
 
-    The summary should highlight any notable trends or changes over time, with insights on how ${companyName}'s energy consumption and emissions have evolved.`;
+    The summary should highlight any notable trends or changes over time, with insights on how ${companyName}'s energy consumption and emissions have evolved.
+
+    Additionally, include a note on how this report aligns with the Sustainability Accounting Standards Board (SASB) framework, focusing on energy consumption, renewable energy, and CO2 emissions reduction. Emphasize ${companyName}'s commitment to global climate action goals, including the UN Sustainable Development Goal 13: Climate Action.`;
 
     try {
         const response = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: [{ role: "user", content: prompt }],
-            max_tokens: 200,
+            max_tokens: 250,
             temperature: 0.7
         });
 
-        return response.choices[0].message.content;
+        let summary = response.choices[0].message.content;
+
+        // Remove "Executive Summary:" if present
+        if (summary.startsWith("Executive Summary:")) {
+            summary = summary.replace("Executive Summary:", "").trim();
+        }
+
+        return summary;
     } catch (error) {
         console.error("Error generating executive summary:", error);
         throw error;
     }
 }
 
+async function generateDescription(highestEnergyType, year) {
+    const prompt = `Generate a short description for a report saying "${highestEnergyType}" is the highest contributor to energy consumption in the worst month of ${year}. Provide a concise analysis of its trend over the course of the year.`;
+    try {
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 100,
+            temperature: 0.7,
+        });
+        return response.choices[0].message.content;
+    } catch (error) {
+        console.error("Error generating description:", error);
+        return `No description available for ${highestEnergyType}.`;
+    }
+}
 
 const getAvailableYears = async (req, res) => {
     try {
@@ -384,14 +496,14 @@ const getEnergyBreakdown = async (req, res) => {
     const { company_id } = req.params;
     const { year, month } = req.query;
 
-    if (!company_id || !year || !month) {
-        return res.status(400).json({ error: 'Company ID, year, and month are required parameters.' });
+    if (!company_id || !year ) {
+        return res.status(400).json({ error: 'Company ID, year are required parameters.' });
     }
 
     try {
         const data = await Report.getMonthlyEnergyBreakdown(company_id, year, month);
         if (!data) {
-            return res.status(404).json({ error: `No data found for ${month}-${year}.` });
+            return res.status(404).json({ error: `No data found for ${year}.` });
         }
 
         res.status(200).json(data);
@@ -401,6 +513,47 @@ const getEnergyBreakdown = async (req, res) => {
     }
 };
 
+const getYearlyEnergyBreakdown = async (req, res) => {
+    const { company_id } = req.params;
+    const { year } = req.query;
+
+    if (!company_id || !year) {
+        return res.status(400).json({ error: "Company ID and year are required parameters." });
+    }
+
+    try {
+        const energyData = await Report.getYearlyEnergyBreakdown(company_id, year);
+
+        // Identify the highest energy type for the entire year
+        const totalEnergyByType = energyData.reduce(
+            (totals, monthData) => {
+                totals.radioEquipment += monthData.radioEquipment;
+                totals.cooling += monthData.cooling;
+                totals.backupPower += monthData.backupPower;
+                totals.misc += monthData.misc;
+                return totals;
+            },
+            { radioEquipment: 0, cooling: 0, backupPower: 0, misc: 0 }
+        );
+
+        const highestEnergyType = Object.keys(totalEnergyByType).reduce((a, b) =>
+            totalEnergyByType[a] > totalEnergyByType[b] ? a : b
+        );
+
+        // Return data filtered for the highest energy type
+        const filteredData = energyData.map((monthData) => ({
+            month: monthData.month,
+            totalEnergy: monthData[highestEnergyType],
+        }));
+
+        res.status(200).json({ highestEnergyType, data: filteredData });
+    } catch (error) {
+        console.error("Error fetching yearly energy breakdown:", error);
+        res.status(500).json({ error: "Failed to fetch yearly energy breakdown." });
+    }
+};
+
+
 
 module.exports = {
     getAllReport,
@@ -408,5 +561,7 @@ module.exports = {
     forceGenerateReportData,
     generateReportPDF,
     getAvailableYears,
-    getEnergyBreakdown
+    getEnergyBreakdown,
+    getYearlyEnergyBreakdown,
+    generateDescription
 };

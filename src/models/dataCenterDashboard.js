@@ -1303,7 +1303,7 @@ static async getDevicesCountByCompanyId(company_id) {
         FROM devices
         INNER JOIN data_centers ON devices.data_center_id = data_centers.id
         INNER JOIN companies ON companies.id = data_centers.company_id
-        WHERE companies.id = @company_id;
+        WHERE companies.id = @company_id AND devices.status != 'Recycled';
         `;
         const request = connection.request();
         request.input('company_id', company_id);
@@ -1323,11 +1323,11 @@ static async getDevicesCountByCompanyIdAndDc(company_id, dc) {
     try{
         connection = await sql.connect(dbConfig);
         const sqlQuery = `
-        SELECT COUNT(devices.device_type) AS device_count
+		SELECT COUNT(devices.device_type) AS device_count
         FROM devices
         INNER JOIN data_centers ON devices.data_center_id = data_centers.id
         INNER JOIN companies ON companies.id = data_centers.company_id
-        WHERE companies.id = @company_id AND data_centers.id = @dc;
+        WHERE companies.id = @company_id AND data_centers.id = @dc AND devices.status != 'Recycled';
         `;
         const request = connection.request();
         request.input('company_id', company_id);
@@ -1363,6 +1363,7 @@ static async getDeviceTypesByCompanyId(company_id) {
         INNER JOIN data_centers ON data_centers.id = devices.data_center_id
         INNER JOIN companies ON data_centers.company_id = companies.id
         WHERE companies.id = @company_id
+        AND devices.status != 'Recycled'
         GROUP BY 
             CASE 
                 WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
@@ -1399,7 +1400,10 @@ static async getDeviceTypesByCompanyIdAndDataCenter(company_id, dc) {
         FROM devices
         INNER JOIN data_centers ON data_centers.id = devices.data_center_id
         INNER JOIN companies ON data_centers.company_id = companies.id
-        WHERE companies.id = @company_id AND data_centers.id = @dc
+        WHERE 
+            companies.id = @company_id 
+            AND data_centers.id = @dc
+            AND devices.status != 'Recycled'
         GROUP BY 
             CASE 
                 WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
@@ -1480,6 +1484,39 @@ static async getCompanyName(company_id) {
                 await connection.close();
             }
         }
+    }
+
+    static async getEnergyConsumptionTrendByCompanyIdAndDate(companyID, dc, month, year){
+        let groupBySQL;
+        let filterStr = ""
+        if (month != "all") filterStr += " AND MONTH(date)=@month"
+
+        if (year != "all") filterStr += " AND YEAR(date)=@year"
+
+        if (dc != "all") filterStr += " AND dc.id=@id"
+
+        if (month == "all" && year == "all"){
+            groupBySQL = "YEAR(date)"
+        }
+        else if (month == "all"){
+            groupBySQL = "MONTH(date)"
+        }else{
+            groupBySQL = "DAY(date)"
+        }
+        
+        let trendSQL = `SELECT SUM(total_energy_mwh) AS total_energy, AVG(pue) AS pue, AVG(cue) as cue, AVG(wue) as wue, ${groupBySQL} AS num
+        FROM data_center_energy_consumption AS ec INNER JOIN data_centers AS dc ON ec.data_center_id=dc.id WHERE dc.company_id=@companyID${filterStr} 
+        GROUP BY ${groupBySQL}
+        ORDER BY ${groupBySQL}`
+        let connection = await sql.connect(dbConfig);
+        const request = connection.request();
+        request.input('companyID', companyID);
+        request.input('id', companyID);
+        request.input('month', month);
+        request.input('year', year);
+        const result = await request.query(trendSQL);
+        connection.close()
+        return result.recordset.length > 0 ? result.recordset : null;
     }
 }
 

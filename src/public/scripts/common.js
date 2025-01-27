@@ -4,6 +4,7 @@ $(document).ready(function() {
     $("footer").load("commonHTML/footer.html");
     $(".mainHeader").load("commonHTML/mainHeader.html");
     $(".sidebar").load("commonHTML/sidebar.html");
+    $(".chatbot").load("commonHTML/chatbot.html");
 });
 
 //prevent reloading page when form submitted
@@ -21,25 +22,23 @@ document.addEventListener("DOMContentLoaded", function () {
   
   })
 
+  async function checkAndRedirect(event) {
+    event.preventDefault(); // Prevent the default link behavior
 
+    try {
+        // Make a GET request to check the user's Strava login status
+        const response = await get('/fitness/stats');
 
-  
+        const isLoggedIn = response.ok; // If response is OK, the user is logged into Strava
 
-  document.getElementById('activityFeedButton').addEventListener('click', () => {
-    window.location.href = './activityFeed.html'; // Correct relative path
-  });
-  
-  document.getElementById('virtualGardenButton').addEventListener('click', () => {
-    window.location.href = './fitness.html'; // Correct relative path
-  });  
-
-// Dynamically set the active class based on the current page
-const currentPage1 = window.location.pathname;
-
-if (currentPage1.includes('activityFeed.html')) {
-  document.getElementById('activityFeedButton').classList.add('active');
-  document.getElementById('virtualGardenButton').classList.remove('active');
-} else if (currentPage1.includes('garden.html')) {
-  document.getElementById('virtualGardenButton').classList.add('active');
-  document.getElementById('activityFeedButton').classList.remove('active');
+        // Redirect based on login status
+        if (isLoggedIn) {
+            window.location.href = 'fitnessLogIn.html'; // Redirect to the logged-in page
+        } else {
+            window.location.href = 'fitnessLogOut.html'; // Redirect to the logged-out page
+        }
+    } catch (error) {
+        console.error('Error checking Strava login status:', error);
+        alert('An error occurred while checking your login status. Please try again.');
+    }
 }

@@ -188,3 +188,181 @@ body {
 .redeem-btn:hover {
     background-color: #e0e6e4;
 }
+
+/*for the first section*/
+
+.course-card {
+  flex: 1;
+  min-width: 158px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.course-image {
+  width: 100%;
+  aspect-ratio: 1;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  /* outline: #ff0040 solid 5px; */
+}
+
+/* Course Details */
+.course-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Ensure 4 columns */
+  gap: 16px; /* Maintain spacing between grid items */
+  margin-bottom: 16px;
+}
+
+.course-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensures consistent spacing */
+  gap: 8px;
+  border: 1px solid #dce5e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Add a slight shadow */
+  padding: 16px;
+}
+
+.course-description {
+  flex-grow: 1; /* Allow the description to take up remaining space */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.course-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111814;
+}
+
+.course-cost {
+  font-size: 14px;
+  color: #638872;
+}
+
+.participate-btn {
+  margin-top: auto; /* Push the button to the bottom */
+  align-self: center; /* Center the button horizontally */
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #f0f4f2;
+  color: #111814;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.participate-btn:hover {
+  background-color: #e0e6e4;
+}
+
+
+
+
+/* Hover effect for course card */
+/* .course-card:hover {
+  transform: translateY(-5px); 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+} *//* Style for the course card container */
+.completed-course-card {
+  display: flex; /* Horizontal layout for image and details */
+  align-items: flex-start; /* Align items to the top */
+  margin: 1rem 0; /* Space between course cards */
+  padding: 1rem; /* Space inside the card */
+  border: 1px solid #ddd; /* Light gray border */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Container for the image and points */
+.completed-course-image-container {
+  display: flex;
+  flex-direction: column; /* Stack image and points vertically */
+  align-items: center; /* Center-align the content */
+  margin-right: 1.5rem; /* Space between image and course details */
+  flex-shrink: 0; /* Prevent shrinking of the image container */
+}
+
+/* Style for the course image */
+.completed-course-image {
+  max-width: 200px; /* Restrict image width */
+  max-height: 200px; /* Restrict image height */
+  border-radius: 5px; /* Rounded corners for the image */
+  object-fit: cover; /* Ensures image maintains aspect ratio */
+  border: 1px solid #ddd; /* Optional: border for the image */
+}
+
+/* Style for course points (below image but within the container) */
+.completed-course-points {
+  margin-top: 0.5rem; /* Space between image and points */
+  font-size: 0.9rem; /* Slightly smaller text */
+  color: #555; /* Medium gray text */
+  text-align: center; /* Center-align the points text */
+}
+
+/* Style for course details container */
+.completed-course-details {
+  flex-grow: 1; /* Take up remaining space */
+  display: flex;
+  flex-direction: column; /* Stack title, description, and completed info vertically */
+  justify-content: flex-start; /* Align content to the top */
+  align-items: flex-start; /* Align details to the left */
+  margin-top: 2rem; /* Add top margin to move details lower */
+  max-width: 75%;
+}
+
+/* Style for course title */
+.completed-course-title {
+  margin: 0 0 0.5rem; /* Bottom margin for spacing */
+  font-size: 1.5rem; /* Larger font size for the title */
+  color: #333333; /* Dark text color */
+  font-weight: bold; /* Bold title */
+}
+
+/* Style for course description */
+.completed-course-description {
+  margin: 0.2rem 0; /* Vertical spacing between paragraphs */
+  color: #555555; /* Medium gray text for descriptions */
+  font-size: 1rem; /* Standard text size */
+  line-height: 1.5; /* Better line spacing for readability */
+}
+
+/* Style for completed at text */
+.completed-course-completed-at {
+  margin: 0.2rem 0; /* Vertical spacing */
+  font-size: 0.95rem; /* Slightly smaller text */
+  color: #555; /* Medium gray text */
+}
+
+/* Bold key details */
+.completed-course-points strong,
+.completed-course-completed-at strong {
+  color: #333333; /* Darker color for emphasis */
+  font-weight: bold; /* Make it bold */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .completed-course-card {
+    flex-direction: column; /* Stack image and details vertically */
+    align-items: center; /* Center-align content on smaller screens */
+  }
+
+  .completed-course-image-container {
+    margin-right: 0; /* Remove margin for stacked layout */
+    align-items: center; /* Center the image and points */
+  }
+
+  .completed-course-details {
+    text-align: center; /* Center-align details on smaller screens */
+    margin-top: 1rem; /* Adjust top margin for smaller screens */
+  }
+}

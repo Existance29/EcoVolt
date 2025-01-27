@@ -1,0 +1,202 @@
+body {
+    font-family: "Plus Jakarta Sans", "Noto Sans", sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    overflow-x: hidden;
+  }
+  
+
+  .content {
+    max-width: 960px;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+  }
+  
+  .header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #1C160C;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+    color: #A18249;
+  }
+  
+  .image-section {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+  }
+  
+  .image-container {
+    width: 100%; /* Full width of the parent container */
+    height: 500px; /* Set the desired height for the image */
+    background-size: cover; /* Ensure the image covers the container */
+    background-position: center; /* Center the image */
+    border-radius: 12px; /* Rounded corners */
+  }
+  
+  
+  .device-name {
+    text-align: center;
+    font-size: 1rem;
+    color: #1C160C;
+    padding: 8px 0;
+  }
+  
+  .device-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Add spacing between details */
+    margin-bottom: 24px; /* Add spacing between details and the next section */
+  }
+  
+  .detail {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9dfce; /* Optional: Add a subtle divider */
+  }
+  
+  .label {
+    font-weight: bold;
+    color: #333; /* Darker color for better readability */
+    width: 30%; /* Fixed width to align labels */
+  }
+  
+  .value {
+    color: #555; /* Subtle text color */
+    width: 70%; /* Remaining width for the value */
+    text-align: right; /* Align values to the right */
+    margin-right: 1%;
+  }
+  
+  
+  .section-title {
+    font-size: 1.375rem;
+    font-weight: bold;
+    color: #1C160C;
+    padding: 16px 0;
+  }
+  
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .benefit {
+    border: 1px solid #E9DFCE;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  
+  .icon {
+    color: #1C160C;
+  }
+  
+  .text h2 {
+    font-size: 1rem;
+    color: #1C160C;
+  }
+  
+  .text p {
+    font-size: 0.875rem;
+    color: #A18249;
+  }
+  
+  .recycling-info {
+    padding: 16px;
+    font-size: 1rem;
+    color: #1C160C;
+  }
+  
+  .confirmation label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+  }
+  
+  .confirmation input {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #E9DFCE;
+    border-radius: 4px;
+    accent-color: #019863;
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .actions button {
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .actions .cancel {
+    background-color: transparent;
+    color: #1C160C;
+    border: 1px solid #ccc;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .actions .recycle {
+    background-color: #019863;
+    color: #ffffff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .benefit .icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  /* Star and Crescent Icon */
+  .benefit[data-icon="star-and-crescent"] .icon {
+    display: inline-block;
+    background: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27currentColor%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M155.64,199.28a80,80,0,0,1,0-142.56,8,8,0,0,0,0-14.25A94.93,94.93,0,0,0,112,32a96,96,0,0,0,0,192,94.93,94.93,0,0,0,43.64-10.47,8,8,0,0,0,0-14.25ZM112,208A80,80,0,1,1,134.4,51.16a96.08,96.08,0,0,0,0,153.68A79.82,79.82,0,0,1,112,208Zm139.17-87.35-26.5-11.43-2.31-29.84a8,8,0,0,0-14.14-4.47L189.63,97.42l-27.71-6.85a8,8,0,0,0-8.81,11.82L168.18,128l-15.07,25.61a8,8,0,0,0,8.81,11.82l27.71-6.85,18.59,22.51a8,8,0,0,0,14.14-4.47l2.31-29.84,26.5-11.43a8,8,0,0,0,0-14.7ZM213.89,134a8,8,0,0,0-4.8,6.73l-1.15,14.89-9.18-11.11a8,8,0,0,0-6.17-2.91,8.4,8.4,0,0,0-1.92.23l-14.12,3.5,7.81-13.27a8,8,0,0,0,0-8.12l-7.81-13.27,14.12,3.5a8,8,0,0,0,8.09-2.68l9.18-11.11,1.15,14.89a8,8,0,0,0,4.8,6.73l13.92,6Z%27/%3e%3c/svg%3e') no-repeat center;
+    width: 24px;
+    height: 24px;
+  }
+  
+  /* Drop Icon */
+  .benefit[data-icon="drop"] .icon {
+    display: inline-block;
+    background: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27currentColor%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M174,47.75a254.19,254.19,0,0,0-41.45-38.3,8,8,0,0,0-9.18,0A254.19,254.19,0,0,0,82,47.75C54.51,79.32,40,112.6,40,144a88,88,0,0,0,176,0C216,112.6,201.49,79.32,174,47.75ZM128,216a72.08,72.08,0,0,1-72-72c0-57.23,55.47-105,72-118,16.53,13,72,60.75,72,118A72.08,72.08,0,0,1,128,216Zm55.89-62.66a57.6,57.6,0,0,1-46.56,46.55A8.75,8.75,0,0,1,136,200a8,8,0,0,1-1.32-15.89c16.57-2.79,30.63-16.85,33.44-33.45a8,8,0,0,1,15.78,2.68Z%27/%3e%3c/svg%3e') no-repeat center;
+    width: 24px;
+    height: 24px;
+  }
+  
+  /* Lightbulb Icon */
+  .benefit[data-icon="lightbulb"] .icon {
+    display: inline-block;
+    background: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27currentColor%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M176,232a8,8,0,0,1-8,8H88a8,8,0,0,1,0-16h80A8,8,0,0,1,176,232Zm40-128a87.55,87.55,0,0,1-33.64,69.21A16.24,16.24,0,0,0,176,186v6a16,16,0,0,1-16,16H96a16,16,0,0,1-16-16v-6a16,16,0,0,0-6.23-12.66A87.59,87.59,0,0,1,40,104.49C39.74,56.83,78.26,17.14,125.88,16A88,88,0,0,1,216,104Zm-16,0a72,72,0,0,0-73.74-72c-39,.92-70.47,33.39-70.26,72.39a71.65,71.65,0,0,0,27.64,56.3A32,32,0,0,1,96,186v6h64v-6a32.15,32.15,0,0,1,12.47-25.35A71.65,71.65,0,0,0,200,104Zm-16.11-9.34a57.6,57.6,0,0,0-46.56-46.55,8,8,0,0,0-2.66,15.78c16.57,2.79,30.63,16.85,33.44,33.45A8,8,0,0,0,176,104a9,9,0,0,0,1.35-.11A8,8,0,0,0,183.89,94.66Z%27/%3e%3c/svg%3e') no-repeat center;
+    width: 24px;
+    height: 24px;
+  }
+  
