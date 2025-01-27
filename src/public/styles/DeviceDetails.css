@@ -11,151 +11,142 @@ body {
     padding: 20px 40px;
   }
   
-  .layout-content-container {
-    max-width: 1500px;
-    width: 100%;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    background-color: #f9f9f9;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: auto; /* Centers horizontally */
-  }
-  
-  .header-section {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 16px;
-  }
-  
-  .header-text {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-width: 288px;
-  }
-  
-  .main-heading {
-    color: #1C160C;
-    font-size: 2.25rem;
-    font-weight: 900;
-    line-height: 1.2;
-    letter-spacing: -0.033em;
-  }
-  
-  .sub-heading {
-    color: #A18249;
-    font-size: 1rem;
-    font-weight: 400;
-  }
-  
-  .form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 480px;
-    padding: 16px;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .form-label {
-    color: #1C160C;
-    font-size: 1rem;
-    font-weight: 500;
-  }
-  
-  .form-group input {
-    width: 100%;
-    height: 3.5rem;
-    padding: 15px;
-    border: 1px solid #E9DFCE;
-    border-radius: 20px;
-    font-size: 1rem;
-    color: #1C160C;
-    background-color: #FFFFFF;
-  }
-  
-  .form-input::placeholder {
-    color: #A18249;
-  }
-  
-  .upload-container {
-    display: flex;
-    align-items: stretch;
-  }
-  
-  .upload-input {
-    border-right: none;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-  
-  .upload-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-left: none;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    padding: 0 15px;
-    color: #A18249;
-    border: 1px solid #E9DFCE;
-    border-radius: 20px;
-    background-color: #FFFFFF;
-  }
-  
-  .imei-description {
-    color: #1C160C;
-    font-size: 1rem;
-    padding: 8px 16px;
-  }
-  
-  .info-section {
-    padding: 16px;
-  }
-  
-  .info-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding-top: 132px;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.4) 100%), 
-                url("../assets/fitness/formdesign.png");
-    background-size: cover;
-    background-position: center;
-    border-radius: 12px;
-  }
-  
-  
-  .info-content {
-    padding: 16px;
-  }
-  
-  .info-title {
-    color: white;
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  
-  .info-text {
-    color: white;
-    font-size: 1rem;
-    font-weight: 500;
-  }
+  /* Main container for layout */
+.layout-content-container {
+  display: flex; /* Horizontal alignment of sections */
+  max-width: 1500px; /* Limit width for clean design */
+  margin: 0 auto; /* Center layout horizontally */
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
 
-  .info-inline-image {
-    width: 100%;
-    max-width: 120px;
-    height: auto;
-    margin: 10px 0;
-    border-radius: 8px;
-  }
+/* Form section (left side) */
+.form-section {
+  flex: 1; /* Takes half the available space */
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header-text {
+  margin-bottom: 20px;
+}
+
+.main-heading {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.sub-heading {
+  font-size: 1rem;
+  color: #777;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-input {
+  width: 100%;
+  height: 40px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.upload-container {
+  display: flex;
+  gap: 8px;
+}
+
+.upload-input {
+  flex: 1;
+}
+
+.upload-button {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.submit-button {
+  padding: 12px;
+  background-color: green;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.imei-description {
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 8px;
+}
+
+/* Info section (right side) */
+.info-section {
+  flex: 1; /* Takes half the available space */
+  background-color: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-card {
+  width: 100%;
+  padding: 40px;
+  background-color: #f1f1f1;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.info-image {
+  height: 200px;
+  background: url("../assets/fitness/formdesign.png") no-repeat center;
+  background-size: cover;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.info-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.info-text {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+  
+
+  
   
   .button-container {
     display: flex;
