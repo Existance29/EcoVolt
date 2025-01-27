@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Load all the fetched posts in the activity feed
         loadPosts(user_id, company_id);
+        loadEvents();
+        loadUserProgress();
 
         // Leads to the reward page for more reward information 
         document.getElementById("reward-progress-container").addEventListener("click", function() {
@@ -42,6 +44,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 });
 
+function showPointsPopup() {
+    const popup = document.getElementById("points-popup");
+    popup.style.display = "flex";
+}
+
+function closePointsPopup() {
+    const popup = document.getElementById("points-popup");
+    popup.style.display = "none";
+}
+
 // Decoding base64 URL-encoded string and parsing to JSON
 function decodeBase64Url(base64Url) {
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -67,106 +79,129 @@ async function loadPosts(user_id, company_id) {
         const postsContainer = document.querySelector('.posts');
         postsContainer.innerHTML = '';
 
-        // Fetches and displays the posts
-        if (posts.length > 0) {
-            posts.forEach(async (post) => {
-                // Create an element for each post
-                const postElement = document.createElement("div");
-                postElement.classList.add("post");
-                postElement.setAttribute("data-post-id", post.post_id);
+        const sortSelect = document.getElementById('sort');
+        sortSelect.addEventListener('change', () => {
+            sortAndRenderPosts(posts, postsContainer, user_id, company_id);
+        });
 
-                // Adding post header 
-                const postHeader = document.createElement("div");
-                postHeader.classList.add("post-header");
-                postHeader.innerHTML = `
-                <h3>${post.user_name || "Anonymous"}</h3>
-                <span class="timestamp">Posted on: ${post.date}</span>
-                `;
+        sortAndRenderPosts(posts, postsContainer, user_id, company_id);
+        
+    } catch (error) {
+        console.error("Error updating likes: ", error);
+    }
+}
 
-                // Adding in post contents
-                const postContent = document.createElement("p");
-                postContent.classList.add("post-content");
-                postContent.textContent = post.context || "No content available.";
+async function sortAndRenderPosts(posts, postsContainer, user_id, company_id) {
+    const sortSelect = document.getElementById('sort');
+    const sortValue = sortSelect.value;
+    // console.log("sort value: ", sortValue);
 
-                const postImage = document.createElement('img');
-                postImage.classList.add('post-image');
-                postImage.alt = 'Post Media';
+    if (sortValue === "recent") {
+        posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    } else if(sortValue === "popular") {
+        posts.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
+    }
 
-                try {
-                    const mediaResponse = await fetch(`/getMedia/${post.post_id}`, {
-                        method:'GET', 
-                    });
+    postsContainer.innerHTML = '';
+
+    // Fetches and displays the posts
+    if (posts.length > 0) {
+        for (const post of posts) {
+            // Create an element for each post
+            const postElement = document.createElement("div");
+            postElement.classList.add("post");
+            postElement.setAttribute("data-post-id", post.post_id);
+
+            // Adding post header 
+            const postHeader = document.createElement("div");
+            postHeader.classList.add("post-header");
+            postHeader.innerHTML = `
+            <h3>${post.user_name || "Anonymous"}</h3>
+            <span class="timestamp">Posted on: ${post.date}</span>
+            `;
+
+            // Adding in post contents
+            const postContent = document.createElement("p");
+            postContent.classList.add("post-content");
+            postContent.textContent = post.context || "No content available.";
+
+            const postImage = document.createElement('img');
+            postImage.classList.add('post-image');
+            postImage.alt = 'Post Media';
+
+            try {
+                const mediaResponse = await fetch(`/getMedia/${post.post_id}`, {
+                    method:'GET', 
+                });
+                const blob = await mediaResponse.blob();
+                const media_url = URL.createObjectURL(blob);
+                if (media_url) {
+                    // console.log("Media url : ", media_url);
                     if (mediaResponse.ok) {
-                        const blob = await mediaResponse.blob();
-                        const media_url = URL.createObjectURL(blob);
-                        console.log("Media url : ", media_url);
-                        if (media_url) {
-                            postImage.src = media_url; // Set the image source to the fetched URL
-                            postImage.style.display = 'block';
-                        } else {
-                            console.warn("Media URL not found for post:", post.post_id);
-                            postImage.style.display = 'none';
-                        }
+                        postImage.src = media_url; // Set the image source to the fetched URL
+                        postImage.style.display = 'block';
                     } else {
-                        console.error(`Failed to fetch media for post ${post.post_id}:`, mediaResponse.status);
+                        console.warn("Media URL not found for post:", post.post_id);
                         postImage.style.display = 'none';
                     }
-                } catch (error) {
-                    console.error("Error fetching media: ", error);
+                } else {
+                    // console.error(`Failed to fetch media for post ${post.post_id}:`, mediaResponse.status);
                     postImage.style.display = 'none';
                 }
-                
+            } catch (error) {
+                // console.error("Error fetching media: ", error);
+                postImage.style.display = 'none';
+            }
+            
 
-                const postFooter = document.createElement("div");
-                postFooter.classList.add("postfooter");
+            const postFooter = document.createElement("div");
+            postFooter.classList.add("postfooter");
 
-                // Adding in interaction buttons to a post
-                const actionButtons = document.createElement("div");
-                actionButtons.classList.add("action-buttons");
+            // Adding in interaction buttons to a post
+            const actionButtons = document.createElement("div");
+            actionButtons.classList.add("action-buttons");
 
-                const likeButton = document.createElement("button");
-                likeButton.classList.add("action-btn", "like-button");
-                likeButton.innerHTML = `
-                <i class = "fa fa-thumbs-up"></i>
-                <span class="likes-count">${post.likes_count || 0} Likes</span>
-                `;
-                likeButton.addEventListener("click", () => updateLikes(user_id, company_id, post.post_id, likeButton));
+            const likeButton = document.createElement("button");
+            likeButton.classList.add("action-btn", "like-button");
+            likeButton.innerHTML = `
+            <i class = "fa fa-thumbs-up"></i>
+            <span class="likes-count">${post.likes_count || 0} Likes</span>
+            `;
+            likeButton.addEventListener("click", () => updateLikes(user_id, company_id, post.post_id, likeButton));
 
-                const dislikeButton = document.createElement("button");
-                dislikeButton.classList.add("action-btn", "dislike-button");
-                dislikeButton.innerHTML = `
-                <i class = "fa fa-thumbs-down"></i>
-                <span class="dislikes-count">${post.dislikes_count || 0} Dislikes</span>
-                `;
-                dislikeButton.addEventListener("click", () => updateDislikes(user_id, company_id, post.post_id, dislikeButton));
+            const dislikeButton = document.createElement("button");
+            dislikeButton.classList.add("action-btn", "dislike-button");
+            dislikeButton.innerHTML = `
+            <i class = "fa fa-thumbs-down"></i>
+            <span class="dislikes-count">${post.dislikes_count || 0} Dislikes</span>
+            `;
+            dislikeButton.addEventListener("click", () => updateDislikes(user_id, company_id, post.post_id, dislikeButton));
 
-                const commentButton = document.createElement("button");
-                commentButton.classList.add("action-btn", "comment-button");
-                commentButton.innerHTML = `
-                <i class = "fa fa-comment"></i>
-                <span class="comments-count">${post.comments_count || 0} Comments</span>
-                `;
-                commentButton.addEventListener("click", () => showComments(user_id, company_id, post.post_id, commentButton));
+            const commentButton = document.createElement("button");
+            commentButton.classList.add("action-btn", "comment-button");
+            commentButton.innerHTML = `
+            <i class = "fa fa-comment"></i>
+            <span class="comments-count">${post.comments_count || 0} Comments</span>
+            `;
+            commentButton.addEventListener("click", () => showComments(user_id, company_id, post.post_id, commentButton));
 
-                // Append buttons and post elements
-                actionButtons.appendChild(likeButton)
-                actionButtons.appendChild(dislikeButton) 
-                actionButtons.appendChild(commentButton);
-                postFooter.appendChild(actionButtons);
+            // Append buttons and post elements
+            actionButtons.appendChild(likeButton)
+            actionButtons.appendChild(dislikeButton) 
+            actionButtons.appendChild(commentButton);
+            postFooter.appendChild(actionButtons);
 
-                const commentsContainer = document.createElement("div");
-                commentsContainer.classList.add("comments-container");
-                commentsContainer.style.display = "none";
+            const commentsContainer = document.createElement("div");
+            commentsContainer.classList.add("comments-container");
+            commentsContainer.style.display = "none";
 
-                postElement.append(postHeader, postContent, postImage, postFooter, commentsContainer);
+            postElement.append(postHeader, postContent, postImage, postFooter, commentsContainer);
 
-                postsContainer.appendChild(postElement);
-            });
-        } else {
-            postsContainer.innerHTML = '<p>No posts available.</p>';
+            postsContainer.appendChild(postElement);
+        
         }
-    } catch (error) {
-        console.error("Error getting all posts: ", error);
+    } else {
+            postsContainer.innerHTML = '<p>No posts available.</p>';
     }
 }
 
@@ -194,9 +229,10 @@ async function updateLikes(user_id, company_id, post_id, likeButton) {
         } else {
             likeButton.classList.remove("liked");
         }
-    } catch (error) {
-        console.error("Error updating likes: ", error);
     }
+    catch (error) {
+        console.error("Error updating likes: ", error);
+    }  
 }
 
 // Function that helps to update dislike function of a post
@@ -429,4 +465,55 @@ async function updateTotalPoints(user_id) {
     } catch (error) {
         console.error("Error fetching total points: ", error);
     }
+}
+
+async function loadEvents() {
+    const response = await fetch('/events/current', {
+        method: 'GET', 
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    });
+    const events = await response.json();
+    const eventContainer = document.getElementById("event-container");
+
+    if (events.length === 0) {
+        eventContainer.innerHTML = "<p>No active events.</p>";
+        return;
+    }
+
+    let currentIndex = 0;
+    function renderEvent(index) {
+        const event = events[index];
+        eventContainer.innerHTML = `
+        <h3>${event.event_title}</h3>
+        <p>${event.event_description}</p>
+        <p>Time left: ${event.time_remaining}</p>`;
+    }
+
+    document.getElementById("prevEvent").addEventListener("click", () => {
+        currentIndex = (currentIndex - 1 + events.length) % events.length;
+        renderEvent(currentIndex);
+    });
+
+    document.getElementById("nextEvent").addEventListener("click", () => {
+        currentIndex = (currentIndex + 1) % events.length;
+        renderEvent(currentIndex);
+    });
+
+    renderEvent(currentIndex);
+}
+
+async function loadUserProgress(user_id) {
+    const response = await fetch(`/user-progress/${user_id}`, {
+        method: 'POST', 
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    });
+    const data = await response.json();
+
+    document.getElementById("streakCount").innerText = data.highest_streak;
+    document.getElementById("totalReduction").innerText = data.total_reduction + " kg";
+    document.getElementById("progressBar").style.width = (data.total_reduction / data.target_reduction) * 100 + "%";
 }

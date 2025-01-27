@@ -411,6 +411,53 @@ class Posts {
                 throw new Error("Error deducting points.");
             }
         }
+
+        static async getCurrentEvents() {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `SELECT *, TIMESTAMPDIFF(SECOND, NOW(), end_date) AS time_remaining FROM events WHERE start_date <= NOW() AND end_date >= NOW();`;
+
+                const request = connection.request();
+
+                const result = await request.query(query);
+                connection.close();
+            } catch (error) {
+                console.error("Error getting current event: ", error);
+            }
+        }
+
+        static async getUserProgress(user_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `Select * FROM user_event_progress WHERE user_id = @user_id;`;
+
+                const request = connection.request;
+                request.input("user_id", user_id);
+
+                const result = await request.query(query);
+                connection.close();
+            } catch (error) {
+                console.error("Error getting user progress: ", error);
+            }
+        }
+
+        static async logUserProgress(user_id, event_id, reduction_amount, post_id) {
+            try {
+                const connection = await sql.connection(dbConfig);
+                const query = `INSERT INTO user_event_daily_progress (user_id, event_id, date, reduction_amount, post_id, streak_count) VALUES (@user_id, @event_id, CURDATE(), ?, @post_id, ?) ON DUPLICATED KEY UPDATE reduction_amount = @reduction_amount + ?, streak_count = streak_count + 1;`;
+
+                const request = connection.request;
+                request.input("user_id", user_id);
+                request.input("event_id", event_id);
+                request.input("reduction_amount", reduction_amount);
+                request.input("post_id", post_id);
+
+                const result = await request.query(query);
+                connection.close();
+            } catch (error) {
+                console.error("Error logging user progress: ", error);
+            }
+        }
 }
 
 module.exports = Posts;
