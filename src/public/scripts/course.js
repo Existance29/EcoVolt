@@ -196,35 +196,9 @@ async function handleQuizSubmission(courseId, lessonId, questions) {
             resetQuiz(questions);
           },
         },
-        {
-          text: "Move to Next Lesson",
-          action: async () => {
-            closePopup();
-            const nextLessonId = parseInt(lessonId) + 1;
-            const hasNextLesson = await checkNextLesson(courseId, nextLessonId);
-            if (hasNextLesson) {
-              window.location.href = `course.html?course_id=${courseId}&lesson_id=${nextLessonId}`;
-            } else {
-              showCertificatePopup(courseId); // Show certificate popup on course completion
-            }
-          },
-        },
       ],
     });
     return;
-  }
-
-  function resetQuiz(questions) {
-    questions.forEach((question) => {
-      const quizItem = document.querySelector(`.quiz-item[data-question-id="${question.question_id}"]`);
-      const selectedOption = document.querySelector(`input[name="question-${question.question_id}"]:checked`);
-  
-      // Uncheck any selected option
-      if (selectedOption) selectedOption.checked = false;
-  
-      // Remove feedback classes
-      quizItem.classList.remove("correct", "wrong");
-    });
   }
 
   // Display popup for correct answers
@@ -233,7 +207,7 @@ async function handleQuizSubmission(courseId, lessonId, questions) {
     message: `<p>Congratulations! ${feedbackMessage}</p>`,
     buttons: [
       {
-        text: "Move to Next Lesson",
+        text: "Submit Progress",
         action: async () => {
           closePopup();
           try {
@@ -244,38 +218,16 @@ async function handleQuizSubmission(courseId, lessonId, questions) {
 
             const data = await response.json();
             if (data.success) {
-              const nextLessonId = parseInt(lessonId) + 1;
-              const hasNextLesson = await checkNextLesson(courseId, nextLessonId);
-
-              if (hasNextLesson) {
-                showPopup({
-                  title: "Progress Updated!",
-                  message: `<p>Proceeding to the next lesson...</p>`,
-                  buttons: [
-                    {
-                      text: "Continue",
-                      action: () => {
-                        closePopup();
-                        window.location.href = `course.html?course_id=${courseId}&lesson_id=${nextLessonId}`;
-                      },
-                    },
-                  ],
-                });
-              } else {
-                showPopup({
-                  title: "Course Completed!",
-                  message: `<p>Congratulations! You have completed the course!</p>`,
-                  buttons: [
-                    {
-                      text: "View Certificate",
-                      action: () => {
-                        closePopup();
-                        window.location.href = `courseCompletion.html?course_id=${courseId}`;
-                      },
-                    },
-                  ],
-                });
-              }
+              showPopup({
+                title: "Progress Updated!",
+                message: `<p>Your progress has been updated successfully.</p>`,
+                buttons: [
+                  {
+                    text: "Close",
+                    action: () => closePopup(),
+                  },
+                ],
+              });
             } else {
               showPopup({
                 title: "Update Failed",
@@ -351,7 +303,18 @@ function closePopup() {
 }
 
 
+function resetQuiz(questions) {
+  questions.forEach((question) => {
+    const quizItem = document.querySelector(`.quiz-item[data-question-id="${question.question_id}"]`);
+    const selectedOption = document.querySelector(`input[name="question-${question.question_id}"]:checked`);
 
+    // Uncheck any selected option
+    if (selectedOption) selectedOption.checked = false;
+
+    // Remove feedback classes
+    quizItem.classList.remove("correct", "wrong");
+  });
+}
 
 async function checkNextLesson(courseId, nextLessonId) {
   const endpoint = `/lesson/${courseId}/${nextLessonId}`;
