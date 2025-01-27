@@ -127,6 +127,11 @@ body {
 
 .info-card {
   text-align: center;
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 
+              0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .info-title {
@@ -137,11 +142,12 @@ body {
 .info-text {
   font-size: 1rem;
   color: #555;
+  
 }
 
 
 .info-image {
-  height: 200px;
+  height: 600px;
   background: url("../assets/fitness/formdesign.png") no-repeat center;
   background-size: cover;
   border-radius: 8px;
@@ -155,18 +161,18 @@ body {
   
   .button-container {
     display: flex;
-    padding: 12px 16px;
+    padding: 16px 16px;
   }
   
   .submit-button {
     display: flex;
-    min-width: 84px;
-    max-width: 480px;
+    width: 100%;
+    max-width: 95%;
     cursor: pointer;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    border-radius: 9999px; /* Fully rounded */
+    border-radius: 20px; /* Fully rounded */
     height: 48px; /* 12 * 4 = 48px */
     padding: 0 20px; /* Horizontal padding */
     flex-grow: 1; /* Allows button to grow */
