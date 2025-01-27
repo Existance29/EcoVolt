@@ -126,7 +126,7 @@ async function markCourseAsCompleted(courseId) {
 
 
 async function downloadCertificate() {
-    const courseId = new URLSearchParams(window.location.search).get("courseId");
+    const courseId = new URLSearchParams(window.location.search).get("course_id");
 
     if (!courseId) {
         console.error("Course ID not found in URL.");
@@ -136,7 +136,7 @@ async function downloadCertificate() {
 
     try {
         // Fetch course details to get the course name
-        const response = await get(`/course/${courseId}`);
+        const response = await get(`/courses/${courseId}`);
         if (!response.ok) {
             console.error("Failed to fetch course details:", await response.text());
             alert("Failed to fetch course details.");
@@ -144,7 +144,7 @@ async function downloadCertificate() {
         }
 
         const data = await response.json();
-        const courseName = data[0]?.title || "Unknown Course";
+        const courseName = data[0]?.course_title || "Ecovolt Course";
 
         // Send request to generate and download the certificate using the post helper function
         const generateResponse = await post("/generate-certificate", { courseName });
