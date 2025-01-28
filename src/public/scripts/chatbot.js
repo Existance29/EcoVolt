@@ -91,15 +91,43 @@ async function fetchReportData(companyId, year) {
     }
 }
 
+function levenshteinDistance(s1, s2) {
+    const len1 = s1.length;
+    const len2 = s2.length;
+    let matrix = Array.from({ length: len1 + 1 }, () => Array(len2 + 1).fill(0));
+
+    for (let i = 0; i <= len1; i++) {
+        for (let j = 0; j <= len2; j++) {
+            if (i === 0) matrix[i][j] = j;
+            else if (j === 0) matrix[i][j] = i;
+            else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j] + 1, // Deletion
+                    matrix[i][j - 1] + 1, // Insertion
+                    matrix[i - 1][j - 1] + (s1[i - 1] !== s2[j - 1] ? 1 : 0) // Substitution
+                );
+            }
+        }
+    }
+    return matrix[len1][len2];
+}
+
+function isSimilar(userMessage, intentKeys, threshold = 2) {
+    let bestMatch = intentKeys.reduce((best, key) => {
+        let distance = levenshteinDistance(userMessage.toLowerCase(), key.toLowerCase());
+        return distance < best.distance ? { key, distance } : best;
+    }, { key: null, distance: Infinity });
+
+    return bestMatch.distance <= threshold ? bestMatch.key : null; // Allow minor typos
+}
+
 async function sendMessage() {
     const userMessage = document.getElementById("userMessage").value.trim();
     if (!userMessage) return;
 
-    // Display the user's message
     displayMessage(userMessage, "user-message");
     document.getElementById("userMessage").value = "";
 
-    // Show typing indicator
     displayMessage("...", "bot-message");
 
     try {
@@ -108,23 +136,29 @@ async function sendMessage() {
             throw new Error("Company ID is not available.");
         }
 
-        // Fetch available years and the latest report
         const availableYears = await fetchAvailableYears(companyId);
         const latestYear = availableYears[0];
         const reportData = await fetchReportData(companyId, latestYear);
 
-        // Send user message along with report data to the chatbot backend
+        // Define the list of intents we want to match against
+        const intentKeys = [
+            "company initiatives",
+            "company efforts",
+            "company initiative",
+            "company effort"
+        ];
+
+        // Check if userMessage is similar to any predefined intents
+        const matchedIntent = isSimilar(userMessage, intentKeys, 2);
+        const isHTMLResponse = matchedIntent !== null; // If matched, assume HTML content
+
         const response = await fetch("/chatbot", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "company-id": companyId, // Add company-id header
+                "company-id": companyId,
             },
-            body: JSON.stringify({
-                userMessage,
-                reportData,
-                latestYear
-            }),
+            body: JSON.stringify({ userMessage, reportData }),
         });
 
         // Remove typing indicator once response is received
@@ -138,8 +172,7 @@ async function sendMessage() {
         }
 
         const data = await response.json();
-        const isHTMLResponse = userMessage.toLowerCase().includes("company initiatives") || userMessage.toLowerCase().includes("company efforts");
-        displayMessage(data.reply, "bot-message", isHTMLResponse); // Render as HTML for specific intents
+        displayMessage(data.reply, "bot-message", isHTMLResponse);
     } catch (error) {
         console.error(error);
         const typingIndicator = document.querySelector(".bot-message:last-child");

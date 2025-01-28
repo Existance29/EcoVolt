@@ -135,8 +135,8 @@ const handleChatbotMessage = async (req, res) => {
         let botReply = response.choices[0].message.content.trim();
 
         if (
-            matchedIntent.bestMatch.target === "company initiatives" ||
-            matchedIntent.bestMatch.target === "company efforts"
+            (matchedIntent.bestMatch.target === "company initiatives" ||
+            matchedIntent.bestMatch.target === "company efforts" || matchedIntent.bestMatch.target === "company initiative" || matchedIntent.bestMatch.target === "company effort") && matchedIntent.bestMatch.rating >= 0.5
         ) {
             botReply += `
                 <br><br>For additional information, you can also visit our <a href="http://localhost:3000/events.html" target="_blank">events page</a>.
