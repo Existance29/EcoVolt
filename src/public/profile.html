@@ -47,8 +47,8 @@
             <nav class="tabs">
                 <button class="active" id="posts-btn">Posts</button>
                 <button id="comments-btn">Comments</button>
-                <button id="courses-btn">Courses Completed</button>
-                <button id="points-btn">My Points</button>
+                <button id="courses-btn">Courses</button>
+                <button id="points-btn">Points</button>
             </nav>
             
             <section id="posts" class="scrollable">
@@ -70,12 +70,21 @@
                       <button class="points-history-btn" onclick="window.location.href='rewards.html';">View Rewards</button>
                     </div>
                 </div>   
-                <h2 class="section-title">Points History</h2>
-                <div class="activity-history-container"></div>
-    
-    
-                <h2 class="section-title">Redemption History</h2>
-                <div id="redeemed-items"></div>
+                <!-- Points History Section -->
+                <div class="history-section">
+                    <h2 class="section-title">Points History</h2>
+                    <div class="activity-history-container">
+                        <p class="empty-message">No activity points history</p>
+                    </div>
+                </div>
+
+                <!-- Redemption History Section -->
+                <div class="history-section">
+                    <h2 class="section-title">Redemption History</h2>
+                    <div id="redeemed-items">
+                        <p class="empty-message">No redeemed items</p>
+                    </div>
+                </div>
             </section>
         </main>
     </div>
