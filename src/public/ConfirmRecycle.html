@@ -139,13 +139,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Update device image dynamically
     const imageContainer = document.querySelector(".image-container");
-    const initialImageUrl =
-      "https://cdn.usegalileo.ai/sdxl10/cc442231-0f71-4541-893b-0ebc03109557.png"; // Initial image in your HTML
-    const imageUrl = isPersonal
-      ? device.image_path
+    const initialImageUrl = 'assets/recycle/server.jpg'; // Default image for all
+
+    const imageUrl = device.image_path && device.image_path.trim() !== "" 
         ? `/uploads/device-pictures/${device.image_path}`
-        : initialImageUrl // Revert to initial image if not provided
-      : "/images/default-company-device.png"; // Placeholder for company devices
+        : initialImageUrl; // Use initial image if image_path is missing or empty
+
     imageContainer.style.backgroundImage = `url('${imageUrl}')`;
 
     // Only update the `.detail` section without touching the rest of the `.device-details`
