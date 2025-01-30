@@ -26,67 +26,71 @@
       <nav class="tabs">
         <a href="activityFeed.html">Activity Feed</a>
         <a href="events.html">Courses & Events</a>
-        <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
         <a href="rewards.html">Rewards</a>
     </nav>
-        <div class="layout-content-container">
-          <div class="header-section">
-            <div class="header-text">
-              <p class="main-heading">Recycle your personal IT devices</p>
-              <p class="sub-heading">
-                We make it easy to recycle your personal IT devices, regardless of brand or condition. Get started by telling us about the devices you'd like to recycle.
-              </p>
+    <div class="layout-content-container">
+      <!-- Left Section: Form -->
+      <div class="form-section">
+        <div class="header-text">
+          <h1 class="main-heading">Recycle your personal IT devices</h1>
+          <p class="sub-heading">
+            We make it easy to recycle your personal IT devices, regardless of brand or condition. Get started by telling us about the devices you'd like to recycle.
+          </p>
+        </div>
+        <form class="form-container">
+          <label class="form-group">
+            <p class="form-label">Device type</p>
+            <input type="text" placeholder="E.g. smartphone, tablet, smartwatch" class="form-input">
+          </label>
+          <label class="form-group">
+            <p class="form-label">Brand</p>
+            <input type="text" placeholder="E.g. Apple, Samsung, LG" class="form-input">
+          </label>
+          <label class="form-group">
+            <p class="form-label">Model</p>
+            <input type="text" placeholder="E.g. iPhone 13, Galaxy S21, V60 ThinQ" class="form-input">
+          </label>
+          <label class="form-group">
+            <p class="form-label">IMEI/MEID or serial number</p>
+            <input type="text" placeholder="Enter IMEI/MEID or serial number" class="form-input">
+          </label>
+          <label class="form-group">
+            <p class="form-label">Upload Device Image</p>
+            <div class="upload-container">
+              <!-- Hidden File Input -->
+              <input type="file" id="fileInput" style="display: none;" />
+              <!-- Display File Name -->
+              <input type="text" placeholder="No file chosen" class="form-input upload-input" id="fileName" readonly />
+              <!-- Upload Button with SVG -->
+              <div class="upload-button" id="uploadButton">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                  <path d="M240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H80a8,8,0,0,1,0,16H32v64H224V136H176a8,8,0,0,1,0-16h48A16,16,0,0,1,240,136ZM85.66,77.66,120,43.31V128a8,8,0,0,0,16,0V43.31l34.34,34.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,77.66ZM200,168a12,12,0,1,0-12,12A12,12,0,0,0,200,168Z"></path>
+                </svg>
+              </div>
             </div>
-          </div>
-          <div class="form-section">
-            <label class="form-group">
-              <p class="form-label">Device type</p>
-              <input type="text" placeholder="E.g. smartphone, tablet, smartwatch" class="form-input">
-            </label>
-            <label class="form-group">
-              <p class="form-label">Brand</p>
-              <input type="text" placeholder="E.g. Apple, Samsung, LG" class="form-input">
-            </label>
-            <label class="form-group">
-              <p class="form-label">Model</p>
-              <input type="text" placeholder="E.g. iPhone 13, Galaxy S21, V60 ThinQ" class="form-input">
-            </label>
-            <label class="form-group">
-              <p class="form-label">IMEI/MEID or serial number</p>
-              <input type="text" placeholder="Enter IMEI/MEID or serial number" class="form-input">
-            </label>
-            <label class="form-group">
-                <p class="form-label">Upload Device Image</p>
-                <div class="upload-container">
-                  <input type="file" id="fileInput" style="display: none;" />
-                  <input type="text" placeholder="No file chosen" class="form-input upload-input" id="fileName" readonly />
-                  <div class="upload-button" id="uploadButton">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
-                      <path d="M240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H80a8,8,0,0,1,0,16H32v64H224V136H176a8,8,0,0,1,0-16h48A16,16,0,0,1,240,136ZM85.66,77.66,120,43.31V128a8,8,0,0,0,16,0V43.31l34.34,34.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,77.66ZM200,168a12,12,0,1,0-12,12A12,12,0,0,0,200,168Z"></path>
-                    </svg>
-                  </div>
-                </div>
-              </label>              
-          </div>
+          </label>
           <p class="imei-description">
             What is IMEI/MEID? This is a 14–16 digit number that can be found in your device's settings or on the original packaging.
           </p>
-          <div class="button-container">
-            <button class="submit-button">
-              <span class="truncate">Submit</span>
-            </button>
-          </div>          
-          <div class="info-section">
-            <div class="info-card">
-              <div class="info-content">
-                <p class="info-title">Did You Know?</p>
-                <p class="info-text">
-                  Recycling one million laptops saves the energy equivalent to the electricity used by more than 3,500 US homes in a year.
-                </p>
-              </div>
-            </div>
+          <button class="submit-button">Submit</button>
+        </form>
+      </div>
+  
+      <!-- Right Section: Info Card -->
+      <div class="info-section">
+        <div class="info-card">
+          <div class="info-image"></div>
+          <div class="info-content">
+            <h2 class="info-title">Did You Know?</h2>
+            <p class="info-text">
+              Recycling one million laptops saves the energy equivalent to the electricity used by more than 3,500 US homes in a year.
+            </p>
           </div>
         </div>
+      </div>
+    </div>
+
+    
     </main>
 
 </body>

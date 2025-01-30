@@ -57,66 +57,69 @@ async function fetchCourseData() {
 }
 
 function updateCourseContent(courseContentArray) {
-  if (!courseContentArray || courseContentArray.length === 0) {
+    if (!courseContentArray || courseContentArray.length === 0) {
       console.error("No course content found.");
       return;
-  }
-
-  // Extract course details from the first object
-  const courseDetails = {
+    }
+  
+    // Extract course details from the first object
+    const courseDetails = {
       course_id: courseContentArray[0].course_id,
       course_title: courseContentArray[0].course_title,
       course_description: courseContentArray[0].course_description,
       course_image_path: courseContentArray[0].course_image_path,
-  };
-
-  // Extract lessons from the array
-  const lessons = courseContentArray.map((item) => ({
+    };
+  
+    // Update the course intro section
+    const courseImageElement = document.getElementById("course-image");
+    const courseTitleElement = document.getElementById("course-title");
+    const courseDescriptionElement = document.getElementById("course-description");
+  
+    courseImageElement.style.backgroundImage = `url('${courseDetails.course_image_path || ''}')`;
+    courseTitleElement.textContent = courseDetails.course_title || "Course Title";
+    courseDescriptionElement.textContent =
+      courseDetails.course_description || "Course description will appear here.";
+  
+    // Extract lessons from the array
+    const lessons = courseContentArray.map((item) => ({
       lesson_id: item.lesson_id,
       lesson_title: item.lesson_title,
       lesson_content: item.lesson_content,
       lesson_duration: item.lesson_duration,
       lesson_position: item.lesson_position,
       lesson_video_link: item.lesson_video_link,
-  }));
-
-  // Update the course intro section
-  const courseImageElement = document.getElementById("course-image");
-  const courseTitleElement = document.getElementById("course-title");
-  const courseDescriptionElement = document.getElementById("course-description");
-
-  courseImageElement.style.backgroundImage = `url('${courseDetails.course_image_path || ''}')`;
-  courseTitleElement.textContent = courseDetails.course_title || "Course Title";
-  courseDescriptionElement.textContent = courseDetails.course_description || "Course description will appear here.";
-
-  // Populate the lessons list
-  const lessonsListElement = document.getElementById("lessons-list");
-  lessonsListElement.innerHTML = ""; // Clear any existing content
-
-  if (lessons.length > 0) {
+    }));
+  
+    // Populate the lessons list
+    const lessonsListElement = document.getElementById("lessons-list");
+    lessonsListElement.innerHTML = ""; // Clear any existing content
+  
+    if (lessons.length > 0) {
       lessons.forEach((lesson, index) => {
-          // Create a container for each lesson
-          const lessonElement = document.createElement("div");
-          lessonElement.className = "lesson-item";
-
-          // Render lesson details dynamically
-          lessonElement.innerHTML = `
-              <div class="lesson-header">
-                  <h3 class="lesson-title">Lesson ${index + 1}: ${lesson.lesson_title || "Lesson Title"}</h3>
-              </div>
-              <div class="lesson-body">
-                  <p class="lesson-description">${lesson.lesson_content || "Lesson content will appear here."}</p>
-                  <p class="lesson-duration">Duration: ${lesson.lesson_duration || "Not available"}</p>
-              </div>
-          `;
-
-          // Append the lesson to the list
-          lessonsListElement.appendChild(lessonElement);
+        // Create a container for each lesson
+        const lessonElement = document.createElement("div");
+        lessonElement.className = "lesson-item";
+  
+        // Render lesson details dynamically
+        lessonElement.innerHTML = `
+          <div class="lesson-details">
+            <p class="lesson-title">${lesson.lesson_title || "Lesson Title"}</p>
+            <p class="lesson-description">${lesson.lesson_content || "Lesson content will appear here."}</p>
+          </div>
+          <div class="lesson-action">
+            <p class="lesson-duration">${lesson.lesson_duration || "Not available"}</p>
+          </div>
+        `;
+  
+        // Append the lesson to the list
+        lessonsListElement.appendChild(lessonElement);
       });
-  } else {
+    } else {
       lessonsListElement.innerHTML = "<p>No lessons available for this course.</p>";
+    }
   }
-}
+  
+  
 
 function updateUserProgress(progress) {
   const progressPercentage = progress.progressPercentage;
