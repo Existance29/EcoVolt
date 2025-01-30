@@ -580,6 +580,26 @@ static async getCoursesCompleted(user_id) {
     }    
     
 
+    static async checkUser (user_id) {
+        let connection;
+        try {
+            connection = await sql.connect(dbConfig);
+            const sqlQuery = `SELECT * FROM users WHERE id = @user_id`;
+            const request = connection.request();
+            request.input('user_id', user_id);
+            const result = await request.query(sqlQuery);
+            return result.recordset;
+        } catch (error) {
+            console.error(error);
+        } finally {
+            if (connection) {
+                connection.close();
+            }
+        }
+    }
+
 }
+
+
 
 module.exports = course;

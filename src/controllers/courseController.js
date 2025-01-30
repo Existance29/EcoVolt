@@ -224,7 +224,6 @@ const addPoints = async (req, res) => {
 const getCoursesCompleted = async (req, res) => {
     const user_id = req.user.userId;
     try {
-        console.log(user_id);
         const completedCourses = await course.getCoursesCompleted(user_id);
         if (!completedCourses || completedCourses.length === 0) {
             return res.status(404).send("No completed courses found.");
@@ -233,7 +232,6 @@ const getCoursesCompleted = async (req, res) => {
             ...course,
             completed_at: course.completed_at ? course.completed_at : "In Progress"
         }));
-        console.log(formattedCourses);
         return res.status(200).json(formattedCourses);
     } catch (error) {
         console.error("Error fetching completed courses:", error);
