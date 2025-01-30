@@ -25,7 +25,7 @@ const toggleLike = async (req, res) => {
             await activityModel.removeLike(post_id, user_id);
         } else {
             await activityModel.addLike(post_id, user_id);
-            await activityModel.trackActivity(user_id, company_id, post_id, "like", 5);
+            // await activityModel.trackActivity(user_id, company_id, post_id, "like", 5);
         }
 
         const updatedLikeCount = await activityModel.getLikeCount(post_id);
@@ -48,7 +48,7 @@ const toggleDislike = async (req, res) => {
             await activityModel.removeDislike(post_id, user_id);
         } else {
             await activityModel.addDislike(post_id, user_id);
-            await activityModel.trackActivity(user_id, company_id, post_id, "dislike", 1);
+            // await activityModel.trackActivity(user_id, company_id, post_id, "dislike", 1);
         }
 
         const updatedDislikeCount = await activityModel.getDislikeCount(post_id);
@@ -85,7 +85,7 @@ const addNewComment = async (req, res) => {
         const updatedComments = await activityModel.getCommentsByPostId(post_id);
         if (newComment) {
             res.status(200).json({newComment, commentsCount: updatedComments.length});
-            await activityModel.trackActivity(user_id, company_id, post_id, "comment", 10);
+            // await activityModel.trackActivity(user_id, company_id, post_id, "comment", 10);
         } else {
             res.status(500).json({ error: "Failed to add comment"})
         }
@@ -273,6 +273,37 @@ const getUserProgress = async (req, res) => {
     }
 }
 
+const getTopContributorsWithinCompany = async(req, res) => {
+    try{
+        const { company_id } = req.params;
+        const contributors = await activityModel.getTopContributorsWithinCompany(company_id);
+
+        res.status(200).json(contributors);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching top contributors", error: error.message });
+    }
+}
+
+const updateCompanyContributions = async(req, res) => {
+    try {
+        const { company_id, reduction_amount } = req.body;
+        await activityModel.updateCompanyContributions(company_id, reduction_amount);
+        res.status(200).json({ message: "Company contributions updated successfully. "});
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching top contributors", error: error.message });
+    }
+}
+
+const getTopCompanies = async(req, res) => {
+    try {
+
+        const companyContributors = await activityModel.getTopCompanies();
+        res.status(200).json(companyContributors);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching top contributors", error: error.message });
+    }
+}
+
 
 // Exports
 module.exports = {
@@ -289,4 +320,7 @@ module.exports = {
     getCurrentEvents, 
     logUserProgress,
     getUserProgress,
+    getTopContributorsWithinCompany,
+    updateCompanyContributions,
+    getTopCompanies,
 }

@@ -18,18 +18,44 @@
             <nav class="tabs">
                 <a href="activityFeed.html">Activity Feed</a>
                 <a href="events.html">Courses & Events</a>
+                <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
                 <a href="rewards.html">Rewards</a>
             </nav>
 
-            <div class="progress-container">
-                <p><strong>You've been a part of "<span id="eventName">this event</span>" for <span id="streakDays">0</span> days.</strong></p>
-                <p><strong>Keep It Up!</strong></p>
-                <p class="carbon-text">Carbon Saved: <span id="carbonSavedAmount">0</span> kg</p>
+            <button id="back-button" onclick="window.location.href='events.html';"">← Back</button>
+
+            <div class="progress-leaderboard-container">
+                <!-- Leaderboard Container -->
+                <div class="leaderboard-container">
+                    <div class="leaderboard-tabs">
+                        <button class="tab-btn active" onclick="openTab(event, 'leaderboard')">🏆 Top Contributors</button>
+                        <button class="tab-btn" onclick="openTab(event, 'topCompanies')">🏆 Top Companies</button>
+                    </div>
+                    
+                    <div id="leaderboard" class="leaderboard-content active">
+                        <ul id="leaderboardList">
+                            <li>Loading...</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="topCompanies" class="leaderboard-content">
+                        <ol id="topCompaniesList">
+                            <li>Loading...</li>
+                        </ol>
+                    </div>
+                </div>
             </div>
 
             <div class="event-page">
-                <button id="back-button" onclick="window.location.href='events.html';"">← Back</button>
                 <div class="course-item">
+                    <!-- Progress Container -->
+                    <div class="progress-container">
+                        <h2>Event Progress</h2>
+                        <p><strong>You've been a part of "<span id="eventName">this event</span>" for <span id="streakDays">0</span> days.</strong></p>
+                        <p><strong>Keep It Up! 🚀</strong></p>
+                        <p class="carbon-text">🌱 Carbon Saved: <span id="carbonSavedAmount">0</span> kg</p>
+                    </div>
+                    
                     <div class="nav-container">
                       <button id="prevEvent" class="nav-btn"> &lt; </button>
                       <div class="course-description">
