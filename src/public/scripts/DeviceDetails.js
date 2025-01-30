@@ -83,8 +83,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Handle successful response
         const result = await response.json();
-        alert('Your device has been submitted successfully! Redirecting you back to Activity Feeed...');
-        window.location.href = 'activityFeed.html';
+        alert('Your device has been submitted successfully! Redirecting you back to Events Page...');
+        window.location.href = 'events.html';
         console.log('Submission response:', result);
     } catch (error) {
         console.error('Error submitting form:', error.message);
