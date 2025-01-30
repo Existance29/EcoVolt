@@ -1,15 +1,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // Getting the user information from the storage 
-    // const accessToken = sessionStorage.accessToken || localStorage.accessToken;
+    const accessToken = sessionStorage.accessToken || localStorage.accessToken;
 
-    // const payloadBase64Url = accessToken.split('.')[1];
-    // const payload = decodeBase64Url(payloadBase64Url);
-    // const user_id = payload.userId;
-    // const company_id = payload.companyId;
-    // let user_name = "";
-
-    const user_id = 2;
-    const company_id = 2;
+    const payloadBase64Url = accessToken.split('.')[1];
+    const payload = decodeBase64Url(payloadBase64Url);
+    const user_id = payload.userId;
+    const company_id = payload.companyId;
+    let user_name = "";
     
     try {
         // Load all the fetched posts in the activity feed
