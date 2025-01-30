@@ -415,47 +415,96 @@ class Posts {
         static async getCurrentEvents() {
             try {
                 const connection = await sql.connect(dbConfig);
-                const query = `SELECT *, TIMESTAMPDIFF(SECOND, NOW(), end_date) AS time_remaining FROM events WHERE start_date <= NOW() AND end_date >= NOW();`;
+                const query = `SELECT *, CONVERT(VARCHAR, end_date, 23) AS end_day FROM time_limited_events WHERE start_date <= GETDATE() AND end_date >= GETDATE();`;
 
                 const request = connection.request();
 
                 const result = await request.query(query);
+                console.log(result.recordset);
                 connection.close();
+                return result.recordset;
             } catch (error) {
                 console.error("Error getting current event: ", error);
             }
         }
 
-        static async getUserProgress(user_id) {
+        static async getLastRecord(user_id, event_id) {
             try {
                 const connection = await sql.connect(dbConfig);
-                const query = `Select * FROM user_event_progress WHERE user_id = @user_id;`;
+                const query = `
+                    SELECT TOP 1 * FROM user_event_daily_progress 
+                    WHERE user_id = @user_id AND event_id = @event_id
+                    ORDER BY last_updated DESC
+                `;
+                const request = connection.request();
+                request.input("user_id", sql.Int, user_id);
+                request.input("event_id", sql.Int, event_id);
 
-                const request = connection.request;
-                request.input("user_id", user_id);
-
-                const result = await request.query(query);
+                const lastRecord = await request.query(query);
                 connection.close();
+                return lastRecord.recordset[0];
             } catch (error) {
-                console.error("Error getting user progress: ", error);
+                console.error("Error getting last record: ", error);
             }
         }
 
-        static async logUserProgress(user_id, event_id, reduction_amount, post_id) {
+        static async logUserProgress(user_id, post_id, event_id, reduction_amount, streak_count, highest_streak, total_post) {
             try {
-                const connection = await sql.connection(dbConfig);
-                const query = `INSERT INTO user_event_daily_progress (user_id, event_id, date, reduction_amount, post_id, streak_count) VALUES (@user_id, @event_id, CURDATE(), ?, @post_id, ?) ON DUPLICATED KEY UPDATE reduction_amount = @reduction_amount + ?, streak_count = streak_count + 1;`;
+                const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                const connection = await sql.connect(dbConfig);
+                const query = `
+                MERGE INTO user_event_daily_progress AS target
+                USING (SELECT @user_id AS user_id, @event_id AS event_id) AS source
+                ON target.user_id = source.user_id AND target.event_id = source.event_id
+                WHEN MATCHED THEN 
+                    UPDATE SET 
+                        reduction_amount = @reduction_amount, 
+                        streak_count = @streak_count, 
+                        highest_streak = @highest_streak, 
+                        total_post = @total_post, 
+                        last_updated = GETDATE()
+                WHEN NOT MATCHED THEN 
+                    INSERT (user_id, event_id, post_id, reduction_amount, streak_count, highest_streak, total_post, last_updated) 
+                    VALUES (@user_id, @event_id, @post_id, @reduction_amount, @streak_count, @highest_streak, @total_post, GETDATE())
+                OUTPUT inserted.*;  -- Return the updated or inserted record       
+                `;
+    
+                const request = connection.request();
+                request.input("user_id", sql.Int, user_id);
+                request.input("event_id", sql.Int, event_id);
+                request.input("post_id", sql.Int, post_id);
+                request.input("reduction_amount", sql.Decimal(10, 2), reduction_amount);
+                request.input("streak_count", sql.Int, streak_count);
+                request.input("highest_streak", sql.Int, highest_streak);
+                request.input("total_post", sql.Int, total_post);
+                
+    
+                const result = await request.query(query);
+                connection.close();
+                return result.recordset;
+            } catch (error) {
+                console.error("Error logging user progress: ", error);
+            }
+        }
 
-                const request = connection.request;
-                request.input("user_id", user_id);
-                request.input("event_id", event_id);
-                request.input("reduction_amount", reduction_amount);
-                request.input("post_id", post_id);
+        static async getUserProgress(user_id, event_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `
+                    SELECT streak_count, reduction_amount
+                    FROM user_event_daily_progress
+                    WHERE user_id = @user_id AND event_id = @event_id;
+                `;
+
+                const request = connection.request();
+                request.input("user_id", sql.Int, user_id);
+                request.input("event_id", sql.Int, event_id);
 
                 const result = await request.query(query);
                 connection.close();
+                return result.recordset;
             } catch (error) {
-                console.error("Error logging user progress: ", error);
+                console.error("Error getting user progress: ", error);
             }
         }
 }

@@ -344,6 +344,37 @@ CREATE TABLE suggestions (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
+
+-- Create table for time-limited events
+CREATE TABLE time_limited_events (
+    event_id INT IDENTITY(1, 1) PRIMARY KEY,
+    company_id INT,            
+    data_center_id INT,         
+    event_title VARCHAR(255),  
+    event_description TEXT,     
+    start_date DATETIME NOT NULL, 
+    end_date DATETIME NOT NULL,
+    category VARCHAR(50) CHECK (category IN ('Transportation', 'Home', 'Office', 'Food', 'Plastic Reduction')),
+    average_carbon_savings_per_post DECIMAL(5,2) NOT NULL,
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (data_center_id) REFERENCES data_centers(id)
+);
+
+-- Create table to log daily activity for users participating in events
+CREATE TABLE user_event_daily_progress (
+    progress_id INT IDENTITY(1, 1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    event_id INT NOT NULL,
+	post_id INT,
+    reduction_amount DECIMAL(10,2) DEFAULT 0,
+    streak_count INT DEFAULT 0, 
+    highest_streak INT DEFAULT 0, 
+    total_post INT DEFAULT 0,
+    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (event_id) REFERENCES time_limited_events(event_id),
+    FOREIGN KEY (post_id) REFERENCES activity_feed(post_id)
+);
 `;
 
 const insertData = `
@@ -5881,6 +5912,21 @@ VALUES
 (25, 'What is a major challenge in achieving carbon neutrality?', 'Lack of renewable energy sources', 'High operational costs', 'Difficulty in measuring emissions accurately', 'All of the above', 'D'),
 (25, 'Which stakeholders should be involved in a carbon neutral strategy?', 'Only IT staff', 'Only management', 'All stakeholders including employees, customers, and vendors', 'Only external consultants', 'C'),
 (25, 'How often should a carbon neutral strategy be reviewed and updated?', 'Once every 5 years', 'Only when emissions increase', 'Periodically, based on progress and new developments', 'Every month', 'C');
+
+-- Insert data into time-limited events table
+INSERT INTO time_limited_events (company_id, data_center_id, event_title, event_description, start_date, end_date, category, average_carbon_savings_per_post)
+VALUES
+(1, NULL, 'No Car Week Challenge', 'Reduce carbon footprint by not using private cars for a week.', '2025-02-01', '2025-02-07', 'Transportation', 0.50),
+(2, NULL, 'Plastic-Free February', 'Avoid using single-use plastics for a month.', '2025-02-01', '2025-02-28', 'Plastic Reduction', 0.40),
+(1, NULL, 'Meatless Mondays', 'Avoid consuming meat every Monday for a month.', '2025-02-01', '2025-02-28', 'Food', 0.30),
+(3, 12, 'Office Energy Saver', 'Reduce electricity use in offices by switching off unused devices.', '2025-01-01', '2025-02-28', 'Office', 0.60),
+(2, NULL, 'Zero-Waste Cooking Challenge', 'Reduce food waste by using all parts of ingredients and meal planning.', '2025-03-01', '2025-03-31', 'Food', 0.35),
+(4, NULL, 'Work from Home Day', 'Reduce transport emissions by working remotely for a day.', '2025-03-15', '2025-03-15', 'Office', 0.20),
+(1, NULL, 'Reusable Cup Challenge', 'Avoid disposable coffee cups and bring a reusable cup.', '2025-03-01', '2025-03-31', 'Plastic Reduction', 0.25),
+(1, NULL, 'Unplug Hour', 'Reduce electricity usage by turning off all electronic devices for an hour daily.', '2025-03-01', '2025-03-31', 'Home', 0.45),
+(4, NULL, 'Minimalist Shopping Challenge', 'Buy only essentials and avoid impulse purchases to reduce production-related emissions.', '2025-01-27', '2025-01-31', 'Home', 0.40),
+(1, NULL, 'Digital Cleanup Day', 'Delete unused emails and files to reduce data storage energy consumption.', '2025-01-27', '2025-01-28', 'Office', 0.15),
+(3, NULL, 'Reusable Bag Challenge', 'Avoid plastic bags and use only reusable ones for grocery shopping.', '2025-01-28', '2025-02-22', 'Plastic Reduction', 0.20);
 
 
 `;

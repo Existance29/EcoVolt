@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/common.css">
+    <link rel="stylesheet" href="styles/activityFeed.css">
+    <link rel="stylesheet" href="styles/reward.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <title>EcoVolt | Time-Limited Events</title>
+</head>
+<body>
+    <div class="main-container">
+        <aside class="sidebar"></aside>
+
+        <main class="main-content">
+            <header class="mainHeader" data-title="Time-Limted Events" data-breadcrumb="Events / Time-Limited Events"></header>
+            <nav class="tabs">
+                <a href="activityFeed.html">Activity Feed</a>
+                <a href="events.html">Courses & Events</a>
+                <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
+                <a href="rewards.html">Rewards</a>
+            </nav>
+
+            <div class="progress-container">
+                <p><strong>You've been a part of "<span id="eventName">this event</span>" for <span id="streakDays">0</span> days.</strong></p>
+                <p><strong>Keep It Up!</strong></p>
+                <p class="carbon-text">Carbon Saved: <span id="carbonSavedAmount">0</span> kg</p>
+            </div>
+
+            <div class="event-page">
+                <button id="back-button" onclick="window.location.href='events.html';"">← Back</button>
+                <div class="course-item">
+                    <div class="nav-container">
+                      <button id="prevEvent" class="nav-btn"> &lt; </button>
+                      <div class="course-description">
+                        <p class="event-title"></p>
+                        <p class="event-category"></p>
+                        <p class="event-description-text"></p>
+                        <button class="start-btn" id="start-btn">Start</button>
+                      </div>
+                      <button id="nextEvent" class="nav-btn"> &gt; </button>
+                      <div class="course-image" style="background-image: url('./assets/activitFeed/time-limited\ events.jpg');"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="postModal" class="modal">
+                <div class="modal-content">
+                    <span id="closeModalBtn" class="close">&times;</span>
+                    <h2>Create New Post</h2>
+                    <form id="postForm" class="postForm">
+                        <input type="text" id="postContext" placeholder="What's on your mind?" required />
+                        <label for="postMediaUrl">Upload an Image:</label>
+                        <input type="file" id="postMediaUrl" name="media" accept="image/*" required />
+                        
+                        <button id="submitEventPostBtn">Post</button>
+                    </form> 
+                </div>
+            </div>
+        </main>
+
+        <script src="./scripts/pages/eventPage.js"></script>
+        <script src="./scripts/pages/activityFeed.js"></script>
+        <script src="./scripts/api.js"></script>
+        <script src="./scripts/common.js"></script>
+    </div>
+</body>
+</html>

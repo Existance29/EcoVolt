@@ -1,23 +1,19 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // Getting the user information from the storage 
-    const accessToken = sessionStorage.accessToken || localStorage.accessToken;
+    // const accessToken = sessionStorage.accessToken || localStorage.accessToken;
 
-    const payloadBase64Url = accessToken.split('.')[1];
-    const payload = decodeBase64Url(payloadBase64Url);
-    const user_id = payload.userId;
-    const company_id = payload.companyId;
-    let user_name = "";
+    // const payloadBase64Url = accessToken.split('.')[1];
+    // const payload = decodeBase64Url(payloadBase64Url);
+    // const user_id = payload.userId;
+    // const company_id = payload.companyId;
+    // let user_name = "";
+
+    const user_id = 2;
+    const company_id = 2;
     
     try {
         // Load all the fetched posts in the activity feed
         loadPosts(user_id, company_id);
-        loadEvents();
-        loadUserProgress();
-
-        // Leads to the reward page for more reward information 
-        document.getElementById("reward-progress-container").addEventListener("click", function() {
-            window.location.href = "../../rewards.html";
-        })
 
         // Post modal for adding a new post
         const addNewPostButton = document.getElementById("new-post-button");
@@ -43,16 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
 });
-
-function showPointsPopup() {
-    const popup = document.getElementById("points-popup");
-    popup.style.display = "flex";
-}
-
-function closePointsPopup() {
-    const popup = document.getElementById("points-popup");
-    popup.style.display = "none";
-}
 
 // Decoding base64 URL-encoded string and parsing to JSON
 function decodeBase64Url(base64Url) {
@@ -141,7 +127,7 @@ async function sortAndRenderPosts(posts, postsContainer, user_id, company_id) {
                         postImage.src = media_url; // Set the image source to the fetched URL
                         postImage.style.display = 'block';
                     } else {
-                        console.warn("Media URL not found for post:", post.post_id);
+                        // console.warn("Media URL not found for post:", post.post_id);
                         postImage.style.display = 'none';
                     }
                 } else {
@@ -465,55 +451,4 @@ async function updateTotalPoints(user_id) {
     } catch (error) {
         console.error("Error fetching total points: ", error);
     }
-}
-
-async function loadEvents() {
-    const response = await fetch('/events/current', {
-        method: 'GET', 
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    });
-    const events = await response.json();
-    const eventContainer = document.getElementById("event-container");
-
-    if (events.length === 0) {
-        eventContainer.innerHTML = "<p>No active events.</p>";
-        return;
-    }
-
-    let currentIndex = 0;
-    function renderEvent(index) {
-        const event = events[index];
-        eventContainer.innerHTML = `
-        <h3>${event.event_title}</h3>
-        <p>${event.event_description}</p>
-        <p>Time left: ${event.time_remaining}</p>`;
-    }
-
-    document.getElementById("prevEvent").addEventListener("click", () => {
-        currentIndex = (currentIndex - 1 + events.length) % events.length;
-        renderEvent(currentIndex);
-    });
-
-    document.getElementById("nextEvent").addEventListener("click", () => {
-        currentIndex = (currentIndex + 1) % events.length;
-        renderEvent(currentIndex);
-    });
-
-    renderEvent(currentIndex);
-}
-
-async function loadUserProgress(user_id) {
-    const response = await fetch(`/user-progress/${user_id}`, {
-        method: 'POST', 
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    });
-    const data = await response.json();
-
-    document.getElementById("streakCount").innerText = data.highest_streak;
-    document.getElementById("totalReduction").innerText = data.total_reduction + " kg";
-    document.getElementById("progressBar").style.width = (data.total_reduction / data.target_reduction) * 100 + "%";
 }
