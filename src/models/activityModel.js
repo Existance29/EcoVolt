@@ -420,7 +420,6 @@ class Posts {
                 const request = connection.request();
 
                 const result = await request.query(query);
-                console.log(result.recordset);
                 connection.close();
                 return result.recordset;
             } catch (error) {
@@ -450,7 +449,6 @@ class Posts {
 
         static async logUserProgress(user_id, post_id, event_id, reduction_amount, streak_count, highest_streak, total_post) {
             try {
-                const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
                 const connection = await sql.connect(dbConfig);
                 const query = `
                 MERGE INTO user_event_daily_progress AS target
@@ -505,6 +503,77 @@ class Posts {
                 return result.recordset;
             } catch (error) {
                 console.error("Error getting user progress: ", error);
+            }
+        }
+
+        static async getTopContributorsWithinCompany(company_id) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `
+                    SELECT TOP 3 u.id AS user_id, u.name, 
+                        SUM(up.total_post) AS total_posts, 
+                        SUM(up.reduction_amount) AS total_carbon_saved
+                    FROM user_event_daily_progress up
+                    JOIN users u ON up.user_id = u.id
+                    WHERE u.company_id = @company_id
+                    GROUP BY u.id, u.name
+                    ORDER BY total_posts DESC;
+                `;
+                const request = connection.request();
+                request.input("company_id", sql.Int, company_id);
+
+                const result = await request.query(query);
+                connection.close();
+                return result.recordset;
+            } catch (error) {
+                console.error("Error getting contributors within a company: ", error);
+            }
+        }
+
+        static async updateCompanyContributions(company_id, reduction_amount) {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `
+                    MERGE INTO company_contributions AS target
+                    USING (SELECT @company_id AS company_id, @carbon_reduction AS carbon_reduction) AS source
+                    ON target.company_id = source.company_id
+                    WHEN MATCHED THEN
+                        UPDATE SET 
+                            total_carbon_reduction = target.total_carbon_reduction + source.carbon_reduction,
+                            total_posts = target.total_posts + 1
+                    WHEN NOT MATCHED THEN
+                        INSERT (company_id, total_carbon_reduction, total_posts)
+                        VALUES (source.company_id, source.carbon_reduction, 1);
+                `;
+                const request =  connection.request();
+                request.input("company_id", sql.Int, company_id);
+                request.input("carbon_reduction", sql.Decimal(10, 2), reduction_amount);
+
+                const result = await request.query(query);
+                connection.close();
+            } catch (error) {
+                console.error("Error updating company contributions: ", error);
+            }
+        }
+
+        static async getTopCompanies() {
+            try {
+                const connection = await sql.connect(dbConfig);
+                const query = `
+                    SELECT TOP 3 c.id AS company_id, c.name, 
+                        cc.total_carbon_reduction, 
+                        cc.total_posts
+                    FROM company_contributions cc
+                    JOIN companies c ON cc.company_id = c.id
+                    ORDER BY cc.total_carbon_reduction DESC;
+                `;
+
+                const request = connection.request();
+                const result = await request.query(query);
+                connection.close();
+                return result.recordset;
+            } catch (error) {
+                console.error("Error getting company contributions: ", error);
             }
         }
 }

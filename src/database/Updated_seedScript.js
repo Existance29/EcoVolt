@@ -375,6 +375,14 @@ CREATE TABLE user_event_daily_progress (
     FOREIGN KEY (event_id) REFERENCES time_limited_events(event_id),
     FOREIGN KEY (post_id) REFERENCES activity_feed(post_id)
 );
+
+CREATE TABLE company_contributions (
+    company_id INT PRIMARY KEY,
+    total_carbon_reduction DECIMAL(10,2) DEFAULT 0,
+    total_posts INT DEFAULT 0,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
+);
+
 `;
 
 const insertData = `
@@ -5928,6 +5936,31 @@ VALUES
 (1, NULL, 'Digital Cleanup Day', 'Delete unused emails and files to reduce data storage energy consumption.', '2025-01-27', '2025-01-28', 'Office', 0.15),
 (3, NULL, 'Reusable Bag Challenge', 'Avoid plastic bags and use only reusable ones for grocery shopping.', '2025-01-28', '2025-02-22', 'Plastic Reduction', 0.20);
 
+
+INSERT INTO user_event_daily_progress (user_id, event_id, reduction_amount, streak_count, highest_streak, total_post, last_updated)
+VALUES
+    (1, 1, 2.5, 3, 5, 7, GETDATE()),
+    (2, 1, 3.0, 5, 8, 12, GETDATE()),
+    (3, 2, 4.2, 2, 4, 5, GETDATE()),
+    (4, 2, 1.8, 1, 3, 3, GETDATE()),
+    (5, 3, 3.5, 6, 9, 15, GETDATE()),
+    (6, 3, 2.7, 4, 6, 10, GETDATE()),
+    (7, 4, 4.0, 7, 10, 18, GETDATE()),
+    (8, 4, 1.5, 2, 5, 4, GETDATE()),
+    (9, 5, 3.8, 5, 7, 9, GETDATE()),
+    (10, 5, 2.9, 3, 6, 6, GETDATE()),
+    (11, 6, 4.5, 8, 11, 22, GETDATE()),
+    (12, 6, 3.2, 4, 7, 10, GETDATE()),
+    (13, 7, 5.1, 10, 15, 30, GETDATE()),
+    (14, 7, 2.3, 3, 5, 5, GETDATE()),
+    (15, 8, 4.8, 6, 9, 12, GETDATE());
+
+INSERT INTO company_contributions (company_id, total_carbon_reduction, total_posts)
+VALUES
+(1, 17.7, 52),
+(2, 20.9, 69),
+(3, 12.2, 47),
+(4, 21.3, 57);
 
 `;
 
