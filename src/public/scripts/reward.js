@@ -101,6 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const courseElement = document.createElement("div");
                 courseElement.classList.add("course");
 
+                const completedDate = course.completed_at && course.completed_at !== "In Progress"
+                ? new Date(course.completed_at).toLocaleDateString('en-GB')
+                : "In Progress";
+                
                 courseElement.innerHTML = `
 <div class="completed-course-card">
     <div class="completed-course-image-container">
@@ -110,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <h3 class="completed-course-title">${course.title}</h3>
         <p class="completed-course-description">${course.description}</p>
         <p class="completed-course-points"><strong>Points For Completion:</strong> ${course.points}</p>
-        <p class="completed-course-completed-at"><strong>Completed At:</strong> ${course.completed_at}</p>
+        <p class="completed-course-completed-at"><strong>Completed At:</strong> ${completedDate}</p>
     </div>
 </div>
 

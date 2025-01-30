@@ -20,6 +20,10 @@ const activityRoute = (app) => {
     app.get('/events/current', activityController.getCurrentEvents);
     app.post('/log-progress', activityController.logUserProgress);
     app.get('/progress/:user_id/:event_id', activityController.getUserProgress);
+    app.get('/top-contributors/:company_id', activityController.getTopContributorsWithinCompany);
+    app.post('/update-contributions', activityController.updateCompanyContributions);
+    app.get('/top-companies', activityController.getTopCompanies);
+
 }
 
 module.exports = activityRoute;

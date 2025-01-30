@@ -10,9 +10,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const user_id = payload.userId;
     const company_id = payload.companyId;
     let user_name = "";
+
     try {
         // Load events and get current event details
         const { currentEventID: eventId, carbonSaved: carbon } = await loadEvents(user_id);
+        fetchTopContributors(company_id);
+        fetchTopCompanies();
+
 
         const startButton = document.getElementById('start-btn');
         const closeModalButton = document.getElementById("closeModalBtn");
@@ -21,14 +25,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Show post modal when new post button is clicked
         startButton.addEventListener("click", () => {
             modal.style.display = "flex";
-            console.log("currentEventID: ", currentEventID);
-            console.log("carbon saved: ", carbonSaved);
             document.getElementById('submitEventPostBtn').addEventListener("click", async () => {   
-                console.log("currentEventID: ", currentEventID);
-                console.log("carbon saved: ", carbonSaved);
                 const eventTitle = document.querySelector(".event-title");
                 await addNewPost(user_id, company_id);
                 await logUserProgress(user_id, currentEventID, carbonSaved, eventTitle.textContent);
+                updateCompanyContributions(company_id, carbonSaved);
                 await loadEvents(user_id, currentIndex); // Refresh events after posting
                 currentEventID = null;
                 carbonSaved = null;
@@ -48,6 +49,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
+function openTab(event, tabName) {
+    let contents = document.querySelectorAll('.leaderboard-content');
+    let buttons = document.querySelectorAll('.tab-btn');
+    
+    contents.forEach(content => content.classList.remove('active'));
+    buttons.forEach(button => button.classList.remove('active'));
+    
+    document.getElementById(tabName).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
 // Function to load events and return event data
 async function loadEvents(user_id, indexToShow = currentIndex) {
     const response = await fetch('/events/current', {
@@ -63,12 +75,14 @@ async function loadEvents(user_id, indexToShow = currentIndex) {
     const eventTitle = document.querySelector(".event-title");
     const eventCategory = document.querySelector(".event-category");
     const eventDescription = document.querySelector(".event-description-text");
-    const participateBtn = document.querySelector(".participate-btn");
+    // const participateBtn = document.querySelector(".participate-btn");
+
 
     if (!events || events.length === 0) {
         eventTitle.textContent = "No Active Events";
         eventDescription.textContent = "Stay tuned for upcoming events!";
-        participateBtn.style.display = "none";
+        // participateBtn.style.display = "none";
+
         return { currentEventID: null, carbonSaved: null };
     }
 
@@ -121,12 +135,11 @@ async function logUserProgress(user_id, currentEventID, carbonSaved, eventName) 
         });
 
         const data = await response.json();
-        console.log("data in log function: ", data);
 
         if (!response.ok) throw new Error(data.error || "Failed to log progress");
 
         updateUserProgress(user_id, currentEventID, eventName);
-        console.log("User progress logged:", data);
+
     } catch (error) {
         console.error("Error logging user progress: ", error);
     }
@@ -146,10 +159,6 @@ async function updateUserProgress(user_id, event_id, eventName) {
         }
 
         const data = await response.json();
-        console.log("update user progress event id: ", event_id);
-        console.log("update user progress user id: ", user_id);
-
-        console.log("User Progress Data:", data);
 
         const streak = data.streak_count || 0;
         const carbonSavedTotal = data.reduction_amount || 0;
@@ -163,3 +172,87 @@ async function updateUserProgress(user_id, event_id, eventName) {
         console.error("Error fetching user progress:", error);
     }
 }
+
+async function fetchTopContributors(company_id) {
+    try {
+        const response = await fetch(`/top-contributors/${company_id}`);
+        const data = await response.json();
+
+        const leaderboardContainer = document.getElementById("leaderboardList");
+        leaderboardContainer.innerHTML = "";
+
+        data.forEach((contributor, index) => {
+            const rankIcon = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "";
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `
+                <div class="contributor-item">
+                    <span class="rank-icon">${rankIcon}</span>
+                    <span class="contributor-name"><strong>${contributor.name}</strong></span>
+                    <div class="contributor-info">
+                        <span>📢 <strong>${contributor.total_posts}</strong> posts</span> 
+                        <span>🌱 <strong>${contributor.total_carbon_saved.toFixed(2)}</strong> kg saved</span>
+                    </div>
+                </div>
+            `;
+            leaderboardContainer.appendChild(listItem);
+        });
+    } catch (error) {
+        console.error("Error fetching top contributors:", error);
+    }
+}
+
+// Function to update company contributions when an event is participated in
+async function updateCompanyContributions(company_id, reduction_amount) {
+    try {
+        const response = await fetch('/update-contributions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                company_id,
+                reduction_amount,
+            }),
+        });
+        
+        const data = await response.json();
+        if (response.ok) {
+            console.log('Company contributions updated successfully');
+        } else {
+            console.error('Error updating contributions:', data.message);
+        }
+    } catch (error) {
+        console.error('Error during the request:', error);
+    }
+}
+
+// Function to fetch the top 3 companies based on the total carbon reduction
+async function fetchTopCompanies() {
+    try {
+        const response = await fetch('/top-companies');
+        const data = await response.json();
+
+        const leaderboardContainer = document.getElementById("topCompaniesList");
+        leaderboardContainer.innerHTML = "";
+
+        // Loop through the companies data and create a list item for each company
+        data.forEach((company, index) => {
+            const rankIcon = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "";
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `
+                <div class="company-item">
+                    <span class="rank-icon">${rankIcon}</span>
+                    <span class="company-name"><strong>${company.name}</strong></span>
+                    <div class="company-info">
+                        <span>🌱 <strong>${company.total_carbon_reduction.toFixed(2)}</strong> kg carbon saved</span> 
+                        <span>📢 <strong>${company.total_posts}</strong> posts</span>
+                    </div>
+                </div>
+            `;
+            leaderboardContainer.appendChild(listItem);
+        });
+    } catch (error) {
+        console.error("Error fetching top companies:", error);
+    }
+}
+

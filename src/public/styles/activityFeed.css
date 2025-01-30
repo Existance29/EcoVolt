@@ -367,6 +367,7 @@ label {
 }
 
 .event-modal-content {
+
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -421,13 +422,153 @@ background-color: #e0e6e4;
     transform: scale(1.05);
 }
 
-
-.progress-container {
-    text-align: center;
-    font-size: 18px;
+/* Layout Styling */
+.progress-leaderboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-.carbon-text {
+/* Progress Container */
+.progress-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    background: linear-gradient(135deg, #e0f2e9, #c7e6d1);
+    border-radius: 12px;
+    box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    align-self: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.progress-container:hover {
+    transform: translateY(-5px);
+}
+
+.progress-container h2 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #2b7a59;
+}
+
+.keep-going {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2b7a59;
+}
+
+.carbon-stats {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 8px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Leaderboard Container */
+.leaderboard-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f4f4f4, #dfe3e6);
+    border-radius: 12px;
+    box-shadow: 2px 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.leaderboard-container h2 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #e0f2e9;
+}
+
+/* Tab Buttons */
+.leaderboard-tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.7rem 1.5rem;
+    font-size: 1rem;
+    background: #ddd;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease-in-out, transform 0.2s ease;
+}
+
+.tab-btn:hover {
+    background: #ccc;
+    transform: scale(1.05);
+}
+
+.tab-btn.active {
+    color: black;
+    background: #e0f2e9;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+}
+
+/* Leaderboard Content */
+.leaderboard-content {
+    display: none;
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.3s ease-in-out;
+}
+
+.leaderboard-content.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Leaderboard List */
+ul, ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul li, ol li {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin: 5px 0;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+ul li:hover, ol li:hover {
+    transform: translateX(5px);
+}
+
+.company-name, .contributor-name {
+    flex: 1;
+    font-weight: bold;
+    font-size: 1.1rem; 
+    color: #0056b3; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px; 
+}
+
+.rank-icon {
+    font-size: 1.5rem; 
+}
+
+.company-info, .contributor-info {
+    display: flex;
+    gap: 15px;
     font-size: 14px;
-    color: #555; 
+    color: #444; 
 }
