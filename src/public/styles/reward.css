@@ -51,7 +51,7 @@ body {
   }
   
   .title-description {
-    text-align: left;
+    text-align: center;
   }
   
   .section-title {
@@ -263,6 +263,56 @@ body {
   background-color: #e0e6e4;
 }
 
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.event-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #111814;
+}
+
+.event-category {
+  font-size: 14px;
+  color: #638872;
+}
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #2c3e50;
+  color: white;
+  border: none;
+  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: #1a252f;
+}
+
+#prevEvent {
+  left: -50px;
+}
+
+#nextEvent {
+  right: -50px;
+}
 
 
 

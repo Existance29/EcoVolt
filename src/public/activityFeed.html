@@ -14,40 +14,16 @@
     <title>EcoVolt | ActivityFeed</title>
 </head>
 <body>
-    <div class="activity-header">
-        <h1> Activity Feed </h1>
-        <span class="tooltip-emoji" onclick="showPointsPopup()">💡</span>
-        <span class="tooltip-text">Learn how to earn points on this page</span>
-    </div>
-    
     <aside class="sidebar"></aside>
-    <div id="points-popup" class="popup">
-        <div class="popup-content">
-            <span class="close-popup" onclick="closePointsPopup()">&times;</span>
-            <h2>Points System: </h2>
-            <ul>
-                <li>Add a new posts: 10 points</li>
-                <li>Like a posts: 5 points</li>
-                <li>Add comment to posts: 5 points</li>
-            </ul>
-        </div>
-    </div>
- 
+
     <main class="main-content">
         <header class="mainHeader" data-title="Recyce E-Waste" data-breadcrumb="Activities / Activity Feed"></header>
-
         <nav class="tabs">
             <a href="activityFeed.html">Activity Feed</a>
             <a href="events.html">Courses & Events</a>
-            <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
             <a href="rewards.html">Rewards</a>
         </nav>
         <div class="content">
-
-            <div class="page-navigation">
-                <button id="activityFeedButton" class="nav-button active">Activity Feed</button>
-                <button id="virtualGardenButton" class="nav-button">Eco Strava</button>
-            </div>
 
             <div class="sort">
                 <select id="sort">
@@ -56,53 +32,28 @@
                 </select>
             </div>
             
-            <div class="page-sections">
-                <div class="posts">
-                    <!-- Example Post -->
-                    <div class="post">
-                        <div class="post-header">
-                            <h3>User Name</h3>
-                            <span class="timestamp">Posted on: YYYY-MM-DD</span>
-                        </div>
-                        <p class="post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        
-                        <div class="post-footer">
-                            <div class="action-buttons">
-                                <button class="action-btn like-button"><i class="fa fa-thumbs-up"></i><span class="likes-count">0 Likes</span></button>
-                                <button class="action-btn dislike-button"><i class="fa fa-thumbs-down"></i><span class="dislikes-count">0 Dislikes</span></button>
-                                <button class="action-btn comment-button"><i class="fa fa-comment"></i><span class="comments-count">0 Comments</span></button>
-                            </div>
+            <div class="posts">
+                <!-- Example Post -->
+                <div class="post">
+                    <div class="post-header">
+                        <h3>User Name</h3>
+                        <span class="timestamp">Posted on: YYYY-MM-DD</span>
+                    </div>
+                    <p class="post-content">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    
+                    <div class="post-footer">
+                        <div class="action-buttons">
+                            <button class="action-btn like-button"><i class="fa fa-thumbs-up"></i><span class="likes-count">0 Likes</span></button>
+                            <button class="action-btn dislike-button"><i class="fa fa-thumbs-down"></i><span class="dislikes-count">0 Dislikes</span></button>
+                            <button class="action-btn comment-button"><i class="fa fa-comment"></i><span class="comments-count">0 Comments</span></button>
                         </div>
                     </div>
                 </div>
-
-                <div class="right-section">
-                    <section id="events" class="events">
-                        <h2>Time-Limited Challenges</h2>
-                        <div id="event-container">
-                            <p>Loading events...</p>
-                        </div>
-                        <button id="prevEvent" class="nav-btn">&lt;</button>
-                        <button id="nextEvent" class="nav-btn">&gt;</button>
-                    </section>
-
-                    <section id="userProgress">
-                        <h3>Your Progress</h3>
-                        <p>Current Streak: <span id="streakCount">0</span> days</p>
-                        <p>Total CO₂ Reduced: <span id="totalReduction">0</span> kg</p>
-                        <div class="progress-bar">
-                            <div id="progressBar" class="progress-fill"></div>
-                        </div>
-                    </section>
-                    
-                </div>
             </div>
+        
 
             <!-- Comments section -->
             <div class="comments-container" style="display: none;"></div>
-            <div class="reward-progress-container" id="reward-progress-container"> 
-                <img src="assets/activitFeed/rewards icon.jpg"/>
-            </div>
             <button class="new-post-button" id="new-post-button">+</button>
 
             <div id="postModal" class="modal">

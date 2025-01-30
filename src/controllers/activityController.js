@@ -114,8 +114,6 @@ const addNewPost = async (req, res) => {
             );
             if (newPost) {
                 res.status(201).json({ message: "Post created successfully", post_id: newPost.post_id });
-                const postId = newPost.post_id;
-                await activityModel.trackActivity(user_id, company_id, postId, "posts", 20);
             } else {
                 await fs.promises.unline(targetPath);
                 res.status(500).json({ error: "Failed to create post" });
@@ -133,15 +131,13 @@ const addNewPost = async (req, res) => {
 const getMedia = async (req, res) => {
     try {
         const post_id = req.params.post_id;
-        console.log("post:id", post_id);
         const media = await activityModel.getMedia(post_id);
         if (!media || !media.media_url) {
             return res.status(404).json({ error: "Media not found"})
         }
         
         const mediaPath = path.join(__dirname, `../uploads/activity-feed/${media.media_url}`);
-        console.log("Serving file: ", mediaPath);
-
+        
         res.sendFile(mediaPath);
     } catch (error) {
         console.error("Error retrieving media: ", error);
@@ -210,31 +206,73 @@ const redeemReward = async (req, res) => {
 const getCurrentEvents = async (req, res) => {
     try {
         const events = await activityModel.getCurrentEvents();
-        res.status(200).json({ message: "Getting current events successful." });
+        res.status(200).json({ message: "Getting current events successful.", events: events });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 }
 
-const getUserProgress = async (req, res) => {
+// Controller to log user progress
+const logUserProgress = async (req, res) => {
+    const { user_id, post_id, event_id, reduction_amount } = req.body;
+    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    let newStreak = 1;
+    let highestStreak = 1;
+    let totalPosts = 1;
+    let updatedReduction = reduction_amount;
+
     try {
-        const { userId } = req.params;
-        const progress = await activityModel.getUserProgress(userId);
-        res.json(progress);
+        const lastRecord = await activityModel.getLastRecord(user_id, event_id);
+
+        if (lastRecord) {
+            totalPosts = lastRecord.total_post + 1;
+            const lastUpdated = lastRecord.last_updated.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+            if (lastUpdated === yesterdayStr) {
+                newStreak = lastRecord.streak_count + 1;
+                highestStreak = Math.max(lastRecord.highest_streak, newStreak);
+            } else {
+                highestStreak = Math.max(lastRecord.highest_streak, lastRecord.streak_count);
+            }
+
+            updatedReduction += lastRecord.reduction_amount;
+        }
+    
+        await activityModel.logUserProgress(user_id, post_id, event_id, updatedReduction, newStreak, highestStreak, totalPosts);
+        res.status(200).json({ message: "Progress logged successfully"});
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Error logging user progress:", error);
+        res.status(500).json({ error: "Failed to log user progress." });
     }
 };
 
-const logUserProgress = async (req, res) => {
+const getUserProgress = async (req, res) => {
+    const { user_id, event_id } = req.params;
+
     try {
-        const { userId, eventId, reductionAmount, postId } = req.body;
-        await activityModel.logUserProgress(userId, eventId, reductionAmount, postId);
-        res.json({ message: "Progress logged!" });
+        const userProgress = await activityModel.getUserProgress(user_id, event_id);
+
+        if (userProgress.length === 0) {
+            return res.json({ streak_count: 0, reduction_amount: 0 });
+        }
+
+        const { streak_count, reduction_amount } = userProgress[0];
+
+        res.status(200).json({
+            streak_count,
+            reduction_amount,
+        });
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Error fetching progress:", error);
+        res.status(500).json({ error: "Failed to retrieve progress data" });
     }
-};
+}
+
 
 // Exports
 module.exports = {
@@ -249,6 +287,6 @@ module.exports = {
     getActivitySummary,
     redeemReward,
     getCurrentEvents, 
-    getUserProgress,
     logUserProgress,
+    getUserProgress,
 }
