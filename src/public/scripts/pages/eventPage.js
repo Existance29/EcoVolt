@@ -3,9 +3,13 @@ let carbonSaved = null;
 let currentIndex = 0;
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // Assuming user_id and company_id are already set
-    const user_id = 2;
-    const company_id = 2;
+    const accessToken = sessionStorage.accessToken || localStorage.accessToken;
+
+    const payloadBase64Url = accessToken.split('.')[1];
+    const payload = decodeBase64Url(payloadBase64Url);
+    const user_id = payload.userId;
+    const company_id = payload.companyId;
+    let user_name = "";
     try {
         // Load events and get current event details
         const { currentEventID: eventId, carbonSaved: carbon } = await loadEvents(user_id);
@@ -96,6 +100,13 @@ async function loadEvents(user_id, indexToShow = currentIndex) {
     // Initial rendering of first event
     renderEvent(currentIndex);
     return { currentEventID: events[currentIndex].event_id, carbonSaved: events[currentIndex].average_carbon_savings_per_post };
+}
+
+// Decoding base64 URL-encoded string and parsing to JSON
+function decodeBase64Url(base64Url) {
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = atob(base64);
+    return JSON.parse(decoded);
 }
 
 // Function to log user progress
