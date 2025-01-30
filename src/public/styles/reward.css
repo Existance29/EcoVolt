@@ -211,10 +211,30 @@ body {
 /* Course Details */
 .course-details {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Ensure 4 columns */
-  gap: 16px; /* Maintain spacing between grid items */
+  grid-template-columns: repeat(4, 1fr); /* Ensures 4 columns */
+  gap: 16px; /* Adds space between items */
   margin-bottom: 16px;
 }
+
+/* Responsive Adjustments */
+@media (max-width: 1200px) {
+  .course-details {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns on medium screens */
+  }
+}
+
+@media (max-width: 900px) {
+  .course-details {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
+  }
+}
+
+@media (max-width: 600px) {
+  .course-details {
+    grid-template-columns: repeat(1, 1fr); /* 1 column on mobile */
+  }
+}
+
 
 .course-item {
   display: flex;
