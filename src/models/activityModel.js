@@ -420,6 +420,7 @@ class Posts {
                 const request = connection.request();
 
                 const result = await request.query(query);
+                console.log(result.recordset);
                 connection.close();
                 return result.recordset;
             } catch (error) {
@@ -501,10 +502,12 @@ class Posts {
                 const result = await request.query(query);
                 connection.close();
                 return result.recordset;
+
             } catch (error) {
                 console.error("Error getting user progress: ", error);
             }
         }
+
 
         static async getTopContributorsWithinCompany(company_id) {
             try {
@@ -548,13 +551,14 @@ class Posts {
                 const request =  connection.request();
                 request.input("company_id", sql.Int, company_id);
                 request.input("carbon_reduction", sql.Decimal(10, 2), reduction_amount);
-
+              
                 const result = await request.query(query);
                 connection.close();
             } catch (error) {
                 console.error("Error updating company contributions: ", error);
             }
         }
+
 
         static async getTopCompanies() {
             try {

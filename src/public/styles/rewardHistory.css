@@ -85,7 +85,10 @@ body {
     color: #637588;
     font-size: 14px;
   }
-  
+
+  .history-section .activity-history-container {
+    margin-top: 18px;
+}
 
   /* Redeemed Items Container */
 #redeemed-items {

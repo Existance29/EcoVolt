@@ -5962,6 +5962,7 @@ VALUES
 (3, 12.2, 47),
 (4, 21.3, 57);
 
+
 `;
 
 async function seedDatabase() {

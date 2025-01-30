@@ -11,12 +11,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const company_id = payload.companyId;
     let user_name = "";
 
-    console.log("userId;", user_id);
     try {
         // Load events and get current event details
         const { currentEventID: eventId, carbonSaved: carbon } = await loadEvents(user_id);
         fetchTopContributors(company_id);
         fetchTopCompanies();
+
 
         const startButton = document.getElementById('start-btn');
         const closeModalButton = document.getElementById("closeModalBtn");
@@ -25,11 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Show post modal when new post button is clicked
         startButton.addEventListener("click", () => {
             modal.style.display = "flex";
-            console.log("currentEventID: ", currentEventID);
-            console.log("carbon saved: ", carbonSaved);
             document.getElementById('submitEventPostBtn').addEventListener("click", async () => {   
-                console.log("currentEventID: ", currentEventID);
-                console.log("carbon saved: ", carbonSaved);
                 const eventTitle = document.querySelector(".event-title");
                 await addNewPost(user_id, company_id);
                 await logUserProgress(user_id, currentEventID, carbonSaved, eventTitle.textContent);
@@ -81,10 +77,12 @@ async function loadEvents(user_id, indexToShow = currentIndex) {
     const eventDescription = document.querySelector(".event-description-text");
     // const participateBtn = document.querySelector(".participate-btn");
 
+
     if (!events || events.length === 0) {
         eventTitle.textContent = "No Active Events";
         eventDescription.textContent = "Stay tuned for upcoming events!";
         // participateBtn.style.display = "none";
+
         return { currentEventID: null, carbonSaved: null };
     }
 
@@ -141,6 +139,7 @@ async function logUserProgress(user_id, currentEventID, carbonSaved, eventName) 
         if (!response.ok) throw new Error(data.error || "Failed to log progress");
 
         updateUserProgress(user_id, currentEventID, eventName);
+
     } catch (error) {
         console.error("Error logging user progress: ", error);
     }
@@ -160,7 +159,7 @@ async function updateUserProgress(user_id, event_id, eventName) {
         }
 
         const data = await response.json();
-        
+
         const streak = data.streak_count || 0;
         const carbonSavedTotal = data.reduction_amount || 0;
 
@@ -256,3 +255,4 @@ async function fetchTopCompanies() {
         console.error("Error fetching top companies:", error);
     }
 }
+

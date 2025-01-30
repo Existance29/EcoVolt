@@ -23,6 +23,7 @@ const activityRoute = (app) => {
     app.get('/top-contributors/:company_id', activityController.getTopContributorsWithinCompany);
     app.post('/update-contributions', activityController.updateCompanyContributions);
     app.get('/top-companies', activityController.getTopCompanies);
+
 }
 
 module.exports = activityRoute;
