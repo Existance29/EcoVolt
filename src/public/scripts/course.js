@@ -201,7 +201,7 @@ async function handleQuizSubmission(courseId, lessonId, questions) {
     return;
   }
 
-  // Display popup for correct answers
+  // All answers are correct - update progress and check next lesson
   showPopup({
     title: "All answers are correct!",
     message: `<p>Congratulations! ${feedbackMessage}</p>`,
@@ -218,16 +218,40 @@ async function handleQuizSubmission(courseId, lessonId, questions) {
 
             const data = await response.json();
             if (data.success) {
-              showPopup({
-                title: "Progress Updated!",
-                message: `<p>Your progress has been updated successfully.</p>`,
-                buttons: [
-                  {
-                    text: "Close",
-                    action: () => closePopup(),
-                  },
-                ],
-              });
+              // Check if there's a next lesson
+              const nextLessonId = parseInt(lessonId) + 1;
+              const hasNextLesson = await checkNextLesson(courseId, nextLessonId);
+
+              if (hasNextLesson) {
+                showPopup({
+                  title: "Progress Updated!",
+                  message: `<p>Proceeding to the next lesson...</p>`,
+                  buttons: [
+                    {
+                      text: "Continue",
+                      action: () => {
+                        closePopup();
+                        window.location.href = `course.html?course_id=${courseId}&lesson_id=${nextLessonId}`;
+                      },
+                    },
+                  ],
+                });
+              } else {
+                // No more lessons, course completed
+                showPopup({
+                  title: "Course Completed!",
+                  message: `<p>Congratulations! You have completed the course!</p>`,
+                  buttons: [
+                    {
+                      text: "View Certificate",
+                      action: () => {
+                        closePopup();
+                        window.location.href = `courseCompletion.html?course_id=${courseId}`;
+                      },
+                    },
+                  ],
+                });
+              }
             } else {
               showPopup({
                 title: "Update Failed",
@@ -258,6 +282,7 @@ async function handleQuizSubmission(courseId, lessonId, questions) {
     ],
   });
 }
+
 
 
 function showPopup({ title, message, buttons }) {
