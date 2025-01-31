@@ -61,6 +61,7 @@
       "company initiatives": {
         "keywords": [
           "company initiatives",
+          "company initiative",
           "how the company reduces emissions",
           "reduce carbon emissions",
           "company reduce emissions",
@@ -72,7 +73,7 @@
         }
       },
       "company efforts": {
-        "keywords": ["company efforts", "how the company is reducing emissions, company efforts in reducing carbon emissions", "company reduce emissions", "efforts to reduce emissions"],
+        "keywords": ["company efforts", "company effort","how the company is reducing emissions, company efforts in reducing carbon emissions", "company reduce emissions", "efforts to reduce emissions"],
         "response": "The company has several initiatives to reduce carbon emissions:\n 1. Educational Courses: We offer courses to educate employees on energy efficiency and sustainability.\n2. Innovation Champion Award: Employees can submit innovative ideas to improve energy efficiency in data centers and cell towers.\n3. E-Waste Recycling: The company recycles old IT equipment and allows employees to bring in their own devices for recycling in partnership with recycling vendors.\n\nLet me know if you'd like to explore any of these in detail!",
         "contextualResponses": {
           "company": "The company has several initiatives to reduce carbon emissions:\n 1. Educational Courses: We offer courses to educate employees on energy efficiency and sustainability.\n2. Innovation Champion Award: Employees can submit innovative ideas to improve energy efficiency in data centers and cell towers.\n3. E-Waste Recycling: The company recycles old IT equipment and allows employees to bring in their own devices for recycling in partnership with recycling vendors.\n\nLet me know if you'd like to explore any of these in detail!"
