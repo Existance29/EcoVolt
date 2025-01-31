@@ -90,7 +90,7 @@ async function fetchActivityHistory() {
                               <p class="date">${activityDate}</p>
                           </div>
                       </div>
-                      <div class="points">${activity.points_awarded.toLocaleString()} points</div>
+                      <div class="points">+${activity.points_awarded.toLocaleString()} points</div>
                   </div>
               `;
               activityContainer.innerHTML += activityHTML;

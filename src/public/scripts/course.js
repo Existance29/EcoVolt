@@ -135,65 +135,211 @@ function populateMiniQuiz(questions) {
 }
 
 function evaluateQuiz(questions) {
-  let allCorrect = true;
+  let score = 0; // Track the number of correct answers
+  const incorrectQuestions = []; // Track incorrect questions
 
   questions.forEach((question) => {
     const selectedOption = document.querySelector(`input[name="question-${question.question_id}"]:checked`);
+    const quizItem = document.querySelector(`.quiz-item[data-question-id="${question.question_id}"]`);
 
-    // If the user didn't select an option or the selected option is incorrect
+    // Remove existing feedback classes
+    quizItem.classList.remove("correct", "wrong");
+
     if (!selectedOption || selectedOption.value !== question.question_correct_option) {
-      allCorrect = false;
+      // Mark incorrect questions
+      quizItem.classList.add("wrong");
+      incorrectQuestions.push({
+        questionText: question.question_text,
+        correctAnswer: question[`question_option_${question.question_correct_option.toLowerCase()}`],
+      });
+    } else {
+      // Mark correct answers
+      quizItem.classList.add("correct");
+      score++; // Increment score for correct answers
     }
   });
 
-  return allCorrect;
+  return { score, incorrectQuestions }; // Return score and incorrect questions
 }
 
 
 async function handleQuizSubmission(courseId, lessonId, questions) {
   // Evaluate quiz answers
-  const allCorrect = evaluateQuiz(questions);
+  const { score, incorrectQuestions } = evaluateQuiz(questions);
+  const totalQuestions = questions.length;
+  const feedbackMessage = `You scored ${score} out of ${totalQuestions}.`;
 
-  if (!allCorrect) {
-    alert("Some answers are incorrect. Please try again.");
+  if (incorrectQuestions.length > 0) {
+    // Display popup for incorrect answers
+    const incorrectDetails = incorrectQuestions
+      .map(
+        (item, index) => `
+        <div class="popup-card incorrect-card">
+          <p><strong>Question ${index + 1}:</strong></p>
+          <p>${item.questionText}</p>
+          <p><strong>Correct Answer:</strong> ${item.correctAnswer}</p>
+        </div>`
+      )
+      .join("");
+
+    showPopup({
+      title: "Some answers are incorrect!",
+      message: `
+        <p>${feedbackMessage}</p>
+        <div class="incorrect-questions">${incorrectDetails}</div>
+      `,
+      buttons: [
+        {
+          text: "Try Again",
+          action: () => {
+            closePopup();
+            resetQuiz(questions);
+          },
+        },
+      ],
+    });
     return;
   }
 
-  try {
-    // Use the `post` helper function to update progress
-    const response = await post(`/lessons/${courseId}/${lessonId}/progress`, {});
+  // All answers are correct - update progress and check next lesson
+  showPopup({
+    title: "All answers are correct!",
+    message: `<p>Congratulations! ${feedbackMessage}</p>`,
+    buttons: [
+      {
+        text: "Submit Progress",
+        action: async () => {
+          closePopup();
+          try {
+            const response = await post(`/lessons/${courseId}/${lessonId}/progress`, {});
+            if (!response.ok) {
+              throw new Error("Failed to update progress.");
+            }
 
-    if (!response.ok) {
-      throw new Error("Failed to update progress.");
-    }
+            const data = await response.json();
+            if (data.success) {
+              // Check if there's a next lesson
+              const nextLessonId = parseInt(lessonId) + 1;
+              const hasNextLesson = await checkNextLesson(courseId, nextLessonId);
 
-    const data = await response.json();
-    if (data.success) {
-      // Check if there is a next lesson
-      const nextLessonId = parseInt(lessonId) + 1;
-      const hasNextLesson = await checkNextLesson(courseId, nextLessonId);
-
-      if (hasNextLesson) {
-        alert("Progress updated! Proceeding to the next lesson...");
-        window.location.href = `course.html?course_id=${courseId}&lesson_id=${nextLessonId}`;
-      } else {
-        // No more lessons; update button text to "Submit"
-        const submitButton = document.getElementById("submit-quiz");
-        submitButton.textContent = "Submit";
-        submitButton.disabled = true; // Optional: Disable the button after submission
-        alert("You have completed the course! Congratulations!");
-        window.location.href = `courseCompletion.html?course_id=${courseId}`;
-      }
-    } else {
-      alert("Failed to update progress. Please try again.");
-    }
-  } catch (error) {
-    console.error("Error updating progress:", error);
-    alert("An error occurred while updating your progress.");
-  }
+              if (hasNextLesson) {
+                showPopup({
+                  title: "Progress Updated!",
+                  message: `<p>Proceeding to the next lesson...</p>`,
+                  buttons: [
+                    {
+                      text: "Continue",
+                      action: () => {
+                        closePopup();
+                        window.location.href = `course.html?course_id=${courseId}&lesson_id=${nextLessonId}`;
+                      },
+                    },
+                  ],
+                });
+              } else {
+                // No more lessons, course completed
+                showPopup({
+                  title: "Course Completed!",
+                  message: `<p>Congratulations! You have completed the course!</p>`,
+                  buttons: [
+                    {
+                      text: "View Certificate",
+                      action: () => {
+                        closePopup();
+                        window.location.href = `courseCompletion.html?course_id=${courseId}`;
+                      },
+                    },
+                  ],
+                });
+              }
+            } else {
+              showPopup({
+                title: "Update Failed",
+                message: `<p>Failed to update progress. Please try again.</p>`,
+                buttons: [
+                  {
+                    text: "Retry",
+                    action: () => closePopup(),
+                  },
+                ],
+              });
+            }
+          } catch (error) {
+            console.error("Error updating progress:", error);
+            showPopup({
+              title: "Error",
+              message: `<p>An error occurred while updating your progress. Please try again later.</p>`,
+              buttons: [
+                {
+                  text: "Close",
+                  action: () => closePopup(),
+                },
+              ],
+            });
+          }
+        },
+      },
+    ],
+  });
 }
 
 
+
+function showPopup({ title, message, buttons }) {
+  // Create the popup overlay
+  const overlay = document.createElement("div");
+  overlay.className = "popup-overlay";
+
+  // Create the popup container
+  const popup = document.createElement("div");
+  popup.className = "popup";
+
+  // Add title
+  const popupTitle = document.createElement("h2");
+  popupTitle.textContent = title;
+  popup.appendChild(popupTitle);
+
+  // Add message
+  const popupMessage = document.createElement("div");
+  popupMessage.innerHTML = message; // Allow for HTML in the message
+  popup.appendChild(popupMessage);
+
+  // Add buttons
+  const buttonContainer = document.createElement("div");
+  buttonContainer.className = "popup-buttons";
+  buttons.forEach((buttonConfig) => {
+    const button = document.createElement("button");
+    button.textContent = buttonConfig.text;
+    button.addEventListener("click", buttonConfig.action);
+    buttonContainer.appendChild(button);
+  });
+  popup.appendChild(buttonContainer);
+
+  // Append popup and overlay to the body
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+}
+
+function closePopup() {
+  const overlay = document.querySelector(".popup-overlay");
+  const popup = document.querySelector(".popup");
+  if (overlay) overlay.remove();
+  if (popup) popup.remove();
+}
+
+
+function resetQuiz(questions) {
+  questions.forEach((question) => {
+    const quizItem = document.querySelector(`.quiz-item[data-question-id="${question.question_id}"]`);
+    const selectedOption = document.querySelector(`input[name="question-${question.question_id}"]:checked`);
+
+    // Uncheck any selected option
+    if (selectedOption) selectedOption.checked = false;
+
+    // Remove feedback classes
+    quizItem.classList.remove("correct", "wrong");
+  });
+}
 
 async function checkNextLesson(courseId, nextLessonId) {
   const endpoint = `/lesson/${courseId}/${nextLessonId}`;

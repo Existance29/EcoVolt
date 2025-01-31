@@ -19,24 +19,20 @@
     <aside class="sidebar"></aside>
 
         <main class="main-content">
-          <header class="mainHeader" data-title="Course" data-breadcrumb="Events / Course"></header>
+          <header class="mainHeader" data-title="Reward History" data-breadcrumb="Activities / Rewards"></header>
 
           <nav class="tabs">
             <a href="activityFeed.html">Activity Feed</a>
             <a href="events.html">Courses & Events</a>
-            <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
             <a href="rewards.html">Rewards</a>
         </nav>
-            <div class="section-header">
-                <div class="header-row">
                   <div class="title-description">
                     <h2 class="section-title">Reward History</h2>
                     <p class="section-description">
                         Track the rewards you’ve redeemed and celebrate your eco-friendly choices!                    
                     </p>
-                  </div>
-                </div>
-              </div>                                    
+                    <br>
+                  </div>                                    
             <div class="points-info">
                 <div class="points-details">
                   <p class="points-title">Points Available</p>
@@ -46,12 +42,22 @@
                     <button class="points-history-btn" onclick="window.location.href='rewards.html';">Redeem Rewards</button>
                 </div>
             </div>  
-            <h2 class="section-title">Points History</h2>
-            <div class="activity-history-container"></div>
+<!-- Points History Section -->
+<div class="history-section">
+    <h2 class="section-title">Points History</h2>
+    <div class="activity-history-container">
+        <p class="empty-message">No activity points history</p>
+    </div>
+</div>
 
+<!-- Redemption History Section -->
+<div class="history-section">
+    <h2 class="section-title">Redemption History</h2>
+    <div id="redeemed-items">
+        <p class="empty-message">No redeemed items</p>
+    </div>
+</div>
 
-            <h2 class="section-title">Redemption History</h2>
-            <div id="redeemed-items"></div>
             </main>
 
   </body>

@@ -150,7 +150,16 @@ async function sortAndRenderPosts(posts, postsContainer, user_id, company_id) {
             <i class = "fa fa-thumbs-up"></i>
             <span class="likes-count">${post.likes_count || 0} Likes</span>
             `;
-            likeButton.addEventListener("click", () => updateLikes(user_id, company_id, post.post_id, likeButton));
+            likeButton.addEventListener("click", async() => {
+                try {
+                    const likeCount = await updateLikes(user_id, company_id, post.post_id, likeButton);
+
+                    post.likes_count = likeCount;
+                    likeButton.querySelector(".likes-count").textContent = `${likeCount} Likes`;
+                } catch (error) {
+                    console.error("Error updating like:", error);
+                }
+            });
 
             const dislikeButton = document.createElement("button");
             dislikeButton.classList.add("action-btn", "dislike-button");
@@ -158,7 +167,16 @@ async function sortAndRenderPosts(posts, postsContainer, user_id, company_id) {
             <i class = "fa fa-thumbs-down"></i>
             <span class="dislikes-count">${post.dislikes_count || 0} Dislikes</span>
             `;
-            dislikeButton.addEventListener("click", () => updateDislikes(user_id, company_id, post.post_id, dislikeButton));
+            dislikeButton.addEventListener("click", async() => {
+                try {
+                    const dislikeCount = await updateDislikes(user_id, company_id, post.post_id, likeButton);
+
+                    post.dislikes_count = dislikeCount;
+                    dislikeButton.querySelector(".dislikes-count").textContent = `${dislikeCount} Dislikes`;
+                } catch (error) {
+                    console.error("Error updating dislike:", error);
+                }
+            });
 
             const commentButton = document.createElement("button");
             commentButton.classList.add("action-btn", "comment-button");
@@ -166,7 +184,16 @@ async function sortAndRenderPosts(posts, postsContainer, user_id, company_id) {
             <i class = "fa fa-comment"></i>
             <span class="comments-count">${post.comments_count || 0} Comments</span>
             `;
-            commentButton.addEventListener("click", () => showComments(user_id, company_id, post.post_id, commentButton));
+            commentButton.addEventListener("click", async() => {
+                try {
+                    const commentCount = await showComments(user_id, company_id, post.post_id, commentButton);
+
+                    post.comments_count = commentCount;
+                    commentButton.querySelector(".comments-count").textContent = `${commentCount} Comments`;
+                } catch (error) {
+                    console.error("Error updating comment:", error);
+                }
+            });
 
             // Append buttons and post elements
             actionButtons.appendChild(likeButton)
@@ -204,14 +231,14 @@ async function updateLikes(user_id, company_id, post_id, likeButton) {
         }
 
         const data = await response.json();
-        const likesCountElement = likeButton.querySelector('.likes-count');
-        likesCountElement.textContent = `${data.likeCount} Likes`;
-
+    
         if (data.isLiked) {
             likeButton.classList.add("liked");
         } else {
             likeButton.classList.remove("liked");
         }
+
+        return data.likeCount;
     }
     catch (error) {
         console.error("Error updating likes: ", error);
@@ -220,6 +247,7 @@ async function updateLikes(user_id, company_id, post_id, likeButton) {
 
 // Function that helps to update dislike function of a post
 async function updateDislikes(user_id, company_id, post_id, dislikeButton) {
+    
     try {
         const response = await fetch('/toggleDislike', {
             method: 'POST',
@@ -234,14 +262,13 @@ async function updateDislikes(user_id, company_id, post_id, dislikeButton) {
         }
 
         const data = await response.json();
-        const dislikesCountElement = dislikeButton.querySelector('.dislikes-count');
-        dislikesCountElement.textContent = `${data.dislikeCount} Dislikes`;
-
+       
         if (data.isDisliked) {
             dislikeButton.classList.add("disliked");
         } else {
             dislikeButton.classList.remove("disliked");
         }
+        return data.dislikeCount;
     } catch (error) {
         console.error("Error updating dislikes: ", error);
     }
@@ -253,10 +280,14 @@ async function showComments(user_id, company_id, postId, commentButton) {
     const commentsContainer = postElement.querySelector('.comments-container');
     commentsContainer.style.display = commentsContainer.style.display === 'none' ? 'block' : 'none';
 
+    let commentCount;
+
     if (commentsContainer.style.display === 'block') {
         // loading all fetched comments
-        loadComments(user_id, company_id, postId, commentsContainer, commentButton);
+        commentCount = await loadComments(user_id, company_id, postId, commentsContainer, commentButton);
     }
+
+    return commentCount;
 }
 
 // Function to take care of the incoming comment data
@@ -274,6 +305,7 @@ async function loadComments(user_id, company_id, post_id, commentsContainer, com
         }
 
         const comments = await response.json();
+        let commentCount = comments.length;
         commentsContainer.innerHTML = "";
 
         if (comments.length === 0) {
@@ -302,14 +334,17 @@ async function loadComments(user_id, company_id, post_id, commentsContainer, com
         <button class="add-comment-btn">Post</button>`;
 
         const postButton = newCommentDiv.querySelector('.add-comment-btn');
-        postButton.addEventListener("click", () => {
+        postButton.addEventListener("click", async() => {
             const commentInput = document.getElementById(`new-comment-${post_id}`);
             // Helps to call the function that add the new comment to the database
-            addComment(post_id, company_id, user_id, commentInput.value, commentButton);
+            const updatedCommentCount = await addComment(post_id, company_id, user_id, commentInput.value, commentButton);
+            commentCount = updatedCommentCount;
+
         });
 
         commentsContainer.appendChild(newCommentDiv);
 
+        return commentCount;
     } catch (error) {
         console.error("Error loading comments: ", error);
     }
@@ -351,6 +386,8 @@ async function addComment(post_id, company_id, user_id, commentText, commentButt
 
         document.getElementById(`new-comment-${post_id}`).value = "";
         
+        return commentsCount;
+
     } catch (error) {
         console.error("Error adding comments: ", error);
     }

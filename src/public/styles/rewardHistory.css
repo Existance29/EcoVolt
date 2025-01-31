@@ -13,6 +13,27 @@ body {
     font-weight: bold;
     margin: 20px 0;
   }
+
+  /* Style for history sections */
+.history-section {
+  background-color: #ffffff; /* Keep it clean and white */
+  padding: 16px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #e5e7eb; /* Subtle border */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Soft shadow for elevation */
+}
+
+/* Style for section titles inside history-section */
+.history-section .section-title {
+  font-size: 20px; /* Keep it neat */
+  font-weight: 700;
+  color: #374151; /* Slightly darker for better contrast */
+  border-bottom: none; /* Remove bottom border */
+  margin-bottom: 10px;
+  text-transform: capitalize; /* Uniform text styling */
+}
+
   
   .history-item {
     display: flex;
@@ -38,8 +59,8 @@ body {
     justify-content: center;
     background-color: #f0f2f4;
     border-radius: 8px;
-    width: 48px;
-    height: 48px;
+    width: 68px;
+    height: 68px;
   }
   
   .details {
@@ -48,10 +69,11 @@ body {
   }
   
   .points {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: medium;
     color: inherit;
     cursor: pointer;
+    color: rgb(0, 160, 106);
   }
   
   .description {
@@ -64,7 +86,10 @@ body {
     color: #637588;
     font-size: 14px;
   }
-  
+
+  .history-section .activity-history-container {
+    margin-top: 18px;
+}
 
   /* Redeemed Items Container */
 #redeemed-items {
@@ -152,7 +177,6 @@ body {
 /* Redeemed Spent Points */
 .redeemed-spent {
     font-size: 18px; /* Slightly larger for emphasis */
-    font-weight: bold;
     color: #e63946; /* Red color for points spent */
     white-space: nowrap; /* Prevent wrapping */
     margin-left: auto; /* Push to the far right */

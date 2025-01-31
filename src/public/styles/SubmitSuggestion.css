@@ -11,186 +11,168 @@ body {
     padding: 20px 40px;
   }
   
-  .layout-content-container {
-    max-width: 960px;
-    width: 100%;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    background-color: #f9f9f9;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: auto; /* Centers horizontally */
-  }
-  
-  .header-section {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 16px;
-  }
-  
-  .header-text {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-width: 288px;
-  }
-  
-  .main-heading {
-    color: #1C160C;
-    font-size: 2.25rem;
-    font-weight: 900;
-    line-height: 1.2;
-    letter-spacing: -0.033em;
-  }
-  
-  .sub-heading {
-    color: #A18249;
-    font-size: 1rem;
-    font-weight: 400;
-  }
-  
-  .form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 16px;
-    width: 100%; /* Ensures it stretches to fill its container */
+  /* Layout Container */
+.layout-content-container {
+  max-width: 1500px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: auto; /* Centers horizontally */
 }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .form-label {
-    color: #1C160C;
-    font-size: 1rem;
-    font-weight: 500;
-  }
-  
-  .form-input {
-    width: 100%;
-    height: 3.5rem;
-    padding: 15px;
-    border: 1px solid #E9DFCE;
-    border-radius: 12px;
-    font-size: 1rem;
-    color: #1C160C;
-    background-color: #FFFFFF;
-  }
 
-  .form-input-2 {
-    width: 100%;
-    height: 8rem;
-    padding: 15px;
-    border: 1px solid #E9DFCE;
-    border-radius: 12px;
-    font-size: 1rem;
-    color: #1C160C;
-    background-color: #FFFFFF;
-  }
+/* Header Section */
+.header-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 288px;
+}
+
+.main-heading {
+  color: #1C160C;
+  font-size: 2.25rem;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: -0.033em;
+}
+
+.sub-heading {
+  color: #A18249;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* Form Section */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  width: 100%; /* Ensures it stretches to fill its container */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  color: #1C160C;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  height: 3.5rem;
+  padding: 15px;
+  border: 1px solid #E9DFCE;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: #1C160C;
+  background-color: #FFFFFF;
+}
+
+.form-input-2 {
+  width: 100%;
+  height: 8rem;
+  padding: 15px;
+  border: 1px solid #E9DFCE;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: #1C160C;
+  background-color: #FFFFFF;
+}
+
+
+.form-input-2::placeholder {
+  color: #A18249;
+}
+
+.form-group input::placeholder{
+  color: #A18249;
+}
+
+/* Info Section */
+/* Info Section */
+.info-section {
+  flex: 2;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.info-card {
+  text-align: center;
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 
+              0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.info-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.info-text {
+  font-size: 1rem;
+  color: #555;
   
-  .form-input::placeholder {
-    color: #A18249;
-  }  
-  
-  .form-input-2::placeholder {
-    color: #A18249;
-  }
-  
-  .upload-container {
-    display: flex;
-    align-items: stretch;
-  }
-  
-  .upload-input {
-    border-right: none;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-  
-  .upload-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-left: none;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    padding: 0 15px;
-    color: #A18249;
-    border: 1px solid #E9DFCE;
-    background-color: #FFFFFF;
-  }
-  
-  .imei-description {
-    color: #1C160C;
-    font-size: 1rem;
-    padding: 8px 16px;
-  }
-  
-  .info-section {
-    padding: 16px;
-  }
-  
-  .info-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding-top: 132px;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 100%), 
-                url("https://cdn.usegalileo.ai/sdxl10/ec6538ed-c340-4864-8243-1f1d27831156.png");
-    background-size: cover;
-    background-position: center;
-    border-radius: 12px;
-  }
-  
-  
-  .info-content {
-    padding: 16px;
-  }
-  
-  .info-title {
-    color: white;
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  
-  .info-text {
-    color: white;
-    font-size: 1rem;
-    font-weight: 500;
-  }
-  .button-container {
-    display: flex;
-    padding: 12px 16px;
-  }
-  
-  .submit-button {
-    display: flex;
-    width: 100%;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: 9999px; /* Fully rounded */
-    height: 48px; /* 12 * 4 = 48px */
-    padding: 0 20px; /* Horizontal padding */
-    flex-grow: 1; /* Allows button to grow */
-    background-color: #019863;
-    color: #ffffff;
-    font-size: 1rem; /* Base font size */
-    font-weight: 700; /* Bold */
-    line-height: normal;
-    letter-spacing: 0.015em;
-    text-align: center;
-  }
-  
-  .submit-button .truncate {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
+}
+
+
+.info-image {
+  height: 400px;
+  background: url("../assets/fitness/formdesign.png") no-repeat center;
+  background-size: cover;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+
+/* Button Section */
+.button-container {
+  display: flex;
+  padding: 12px 16px;
+}
+
+.submit-button {
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 9999px; /* Fully rounded */
+  height: 48px; /* 12 * 4 = 48px */
+  padding: 0 20px; /* Horizontal padding */
+  flex-grow: 1; /* Allows button to grow */
+  background-color: #019863;
+  color: #ffffff;
+  font-size: 1rem; /* Base font size */
+  font-weight: 700; /* Bold */
+  line-height: normal;
+  letter-spacing: 0.015em;
+  text-align: center;
+}
+
+.submit-button .truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
   

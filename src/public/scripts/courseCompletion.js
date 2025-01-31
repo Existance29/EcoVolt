@@ -170,3 +170,197 @@ async function downloadCertificate() {
         alert("An error occurred while downloading the certificate.");
     }
 }
+
+
+// Function to decode Base64URL-encoded JWT token
+function decodeBase64Url(base64Url) {
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const decoded = atob(base64);
+    return JSON.parse(decoded);
+}
+
+
+async function shareCertificate() {
+    const courseId = new URLSearchParams(window.location.search).get("course_id");
+
+    if (!courseId) {
+        showPopup("Error", "Course ID not found.");
+        return;
+    }
+
+    try {
+        // Fetch course details to get the course name
+        const response = await get(`/courses/${courseId}`);
+        if (!response.ok) {
+            showPopup("Error", "Failed to fetch course details.");
+            return;
+        }
+
+        const data = await response.json();
+        const courseName = data[0]?.course_title || "Ecovolt Course";
+
+        // Check if the user already posted this certificate
+        const hasPosted = await checkIfCertificatePosted(courseName);
+        if (hasPosted) {
+            showPopup("Notice", "You have already shared this certificate.");
+            return;
+        }
+
+        // Request certificate generation
+        const generateResponse = await post("/generate-certificate", { courseName });
+
+        if (!generateResponse.ok) {
+            showPopup("Error", "Failed to generate certificate.");
+            return;
+        }
+
+        // Convert response to file
+        const blob = await generateResponse.blob();
+        const file = new File([blob], `${courseName}_certificate.png`, { type: "image/png" });
+
+        // Upload to activity feed
+        await uploadToActivityFeed(file, courseName);
+
+        // Show success popup
+        showPopup("Success", "Certificate successfully shared!", () => {
+            window.location.href = 'activityFeed.html'; // Redirect after clicking OK
+        });
+
+    } catch (error) {
+        console.error("Error sharing certificate:", error);
+        showPopup("Error", "An error occurred while sharing the certificate.");
+    }
+}
+
+
+
+async function uploadToActivityFeed(file, courseName) {
+    const accessToken = sessionStorage.accessToken || localStorage.accessToken;
+
+    if (!accessToken) {
+        console.error("No access token found.");
+        return;
+    }
+
+    // Extract and decode the JWT payload
+    const payloadBase64Url = accessToken.split('.')[1]; // Extract payload part
+    const payload = decodeBase64Url(payloadBase64Url); // Decode it
+    const user_id = payload.userId;
+    const company_id = payload.companyId;
+
+    if (!user_id || !company_id) {
+        console.error("User or company ID missing.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("user_id", user_id);
+    formData.append("company_id", company_id);
+    formData.append("context", ` I just completed the ${courseName} course and earned my certificate! `);
+    formData.append("media", file);
+
+    try {
+        const response = await fetch('/addPost', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        console.log("Certificate successfully posted to activity feed!");
+    } catch (error) {
+        console.error("Error posting to activity feed:", error);
+    }
+}
+
+async function checkIfCertificatePosted(courseName) {
+    try {
+        const response = await fetch('/posts', { method: 'GET' });
+
+        if (!response.ok) {
+            console.error("Error fetching posts:", response.status);
+            return false;
+        }
+
+        const posts = await response.json();
+        return posts.some(post => post.context.includes(courseName));
+    } catch (error) {
+        console.error("Error checking certificate post:", error);
+        return false;
+    }
+}
+
+
+function showPopup(title, message, callback = null) {
+    // Create modal elements
+    const modal = document.createElement("div");
+    modal.classList.add("modal-overlay");
+
+    const modalContent = document.createElement("div");
+    modalContent.classList.add("modal-content");
+
+    const modalTitle = document.createElement("h2");
+    modalTitle.textContent = title;
+
+    const modalMessage = document.createElement("p");
+    modalMessage.textContent = message;
+
+    const closeButton = document.createElement("button");
+    closeButton.textContent = "OK";
+    closeButton.classList.add("modal-close-btn");
+    closeButton.onclick = function () {
+        document.body.removeChild(modal);
+        if (callback) callback();
+    };
+
+    // Append elements
+    modalContent.appendChild(modalTitle);
+    modalContent.appendChild(modalMessage);
+    modalContent.appendChild(closeButton);
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+}
+
+// CSS Styles for Modal
+const modalStyles = `
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 400px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    .modal-close-btn {
+        margin-top: 15px;
+        padding: 10px 20px;
+        border: none;
+        background: #4FD1C5;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .modal-close-btn:hover {
+        background: #509577;
+    }
+`;
+
+// Append styles to document
+const styleSheet = document.createElement("style");
+styleSheet.innerText = modalStyles;
+document.head.appendChild(styleSheet);

@@ -9,7 +9,7 @@
       href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope%3Awght%40400%3B500%3B700%3B800&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"/>
     <link rel="stylesheet" href="styles/reward.css">
     <link rel="stylesheet" href="styles/common.css">
-    <title>EcoVolt Rewards</title>
+    <title>EcoVolt | Courses & Events</title>
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
@@ -24,12 +24,11 @@
     <aside class="sidebar"></aside>
 
     <main class="main-content">
-      <header class="mainHeader" data-title="Events" data-breadcrumb="Activities / Events"></header>
+      <header class="mainHeader" data-title="Courses & Events" data-breadcrumb="Pages / Activities"></header>
 
       <nav class="tabs">
         <a href="activityFeed.html">Activity Feed</a>
-        <a href="events.html">Courses & Events</a>
-        <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
+        <a href="events.html" class="active">Courses & Events</a>
         <a href="rewards.html">Rewards</a>
     </nav>
 
@@ -44,11 +43,43 @@
               <button class="points-history-btn" onclick="window.location.href='rewardHistory.html';">Points History</button>
             </div>
           </div> -->
-          <h1 class="reward-header" style="font-size: 24px; font-weight: bold; color: #2c3e50; text-align: center; margin: 20px 0; line-height: 1.5;">
-            Create Impact Through Innovation and Action
-          </h1>
+
+          
+
+
+          <div class="title-description">
+            <br>
+            <h2 class="section-title">Learn how you can contribute to our net-zero journey</h2>
+            <p class="section-description">
+              Take courses to learn how you can support our net-zero and sustainability goals.
+            </p>
+            <br>
+          </div>
+          
+
+          <div class="reward-details" id="reward-container">
+            <!-- Dynamic content will be inserted here -->
+          </div>
+
+
+
+
+
+
+
+
+
+
+
+          <div class="title-description">
+            <h2 class="section-title">Create Impact Through Innovation and Action</h2>
+            <p class="section-description">
+              Participate in limited-time events that drive sustainability through innovation and action.
+            </p>
+            <br>
+          </div>
           <div class="course-details" id="course-container">
-            <div class="course-item">
+            <!-- <div class="course-item">
               <div class="course-image" style="background-image: url('./assets/courses/static1.jpg');"></div>
               <div class="course-description">
                 <p class="course-title">Innovation Champion Award</p>
@@ -58,14 +89,14 @@
                 </p>
                 <button class="participate-btn" onclick="window.location.href='SubmitSuggestion.html';">Participate Now</button>
               </div>
-            </div>
+            </div> -->
             <div class="course-item">
               <div class="course-image" style="background-image: url('./assets/courses/static2.jpg');"></div>
               <div class="course-description">
-                <p class="course-title">E-Waste Recycling Champion</p>
+                <p class="course-title">E-Waste Recycling</p>
                 <p class="course-cost">Recycle E-Waste</p>
                 <p class="course-description-text">
-                  Join us in making a difference by recycling e-waste responsibly. Bring in outdated devices, cables, and other electronics to our program and be recognized for your commitment to sustainability.
+                  Join us in making a difference by recycling e-waste responsibly. Bring in outdated devices, cables, and other electronics to our program and be recognized for your commitment to sustainability. Points will be awarded upon admin's approval.
                 </p>
                 <button class="participate-btn" onclick="window.location.href='DeviceDetails.html';">Participate Now</button>
               </div>
@@ -82,37 +113,6 @@
                 </div>
               </div>
             </div>
-            <div class="course-item-1">
-              <div class="course-image-1"></div>
-              <div class="course-description-1">
-                <p class="course-title-1"></p>
-                <p class="course-cost-1"></p>
-                <p class="course-description-text-1">
-                </p>
-                <button class="participate-btn-1"></button>
-              </div>
-            </div>
-            <div class="course-item-1">
-              <div class="course-image-1"></div>
-              <div class="course-description-1">
-                <p class="course-title-1"></p>
-                <p class="course-cost-1"></p>
-                <p class="course-description-text-1">
-                </p>
-                <button class="participate-btn-1"></button>
-              </div>
-            </div>
-          </div>
-          
-
-
-          <h1 class="reward-header" style="font-size: 24px; font-weight: bold; color: #2c3e50; text-align: center; margin: 20px 0; line-height: 1.5;">
-            Learn how you can contribute to our net-zero journey
-          </h1>
-          
-
-          <div class="reward-details" id="reward-container">
-            <!-- Dynamic content will be inserted here -->
           </div>
           
           

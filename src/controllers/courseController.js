@@ -272,19 +272,30 @@ async function generateCertificate(userName, courseName) {
         fs.mkdirSync(outputDir, { recursive: true });
     }
 
+    const currentDate = new Date().toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+
     // Adjusted SVG overlay with a stylish font
     const textOverlay = `
-        <svg width="1200" height="800">
-            <style>
-                .username { fill: #EBA800; font-size: 86px; font-family: 'Brush Script MT, cursive'; font-weight: bold; }
-                .coursetitle { fill: #000; font-size: 36px; font-family: 'Arial, sans-serif'; }
-            </style>
-            <!-- Adjusted username position -->
-            <text x="600" y="460" text-anchor="middle" class="username">${userName || "Unknown User"}</text>
-            <!-- Adjusted course title position -->
-            <text x="600" y="650" text-anchor="middle" class="coursetitle">For completing ${courseName || "Unknown Course"}</text>
-        </svg>
-    `;
+    <svg width="2000" height="1414">
+        <style>
+            .username { fill: #EBA800; font-size: 120px; font-family: 'Brush Script MT, cursive'; font-weight: bold; }
+            .coursetitle { fill: #000; font-size: 60px; font-family: 'Arial, sans-serif'; }
+            .company, .date { fill: #004080; font-size: 50px; font-family: 'Arial, sans-serif'; font-weight: normal; }
+        </style>
+        <!-- Adjusted username position -->
+        <text x="1000" y="700" text-anchor="middle" class="username">${userName || "Unknown User"}</text>
+        <!-- Adjusted course title position -->
+        <text x="1000" y="900" text-anchor="middle" class="coursetitle">For completing ${courseName || "Unknown Course"}</text>
+        <!-- Shift EcoVolt slightly to the left -->
+        <text x="650" y="1140" text-anchor="middle" class="company">EcoVolt</text>
+        <!-- Shift Date slightly to the right -->
+        <text x="1350" y="1140" text-anchor="middle" class="date">${currentDate}</text>
+    </svg>
+`;
     try {
         await sharp(templatePath)
             .composite([{ input: Buffer.from(textOverlay), blend: "over" }]) // Apply the overlay explicitly

@@ -18,7 +18,7 @@
 
     <aside class="sidebar"></aside>
             <main class="main-content">
-                <header class="mainHeader" data-title="Recyce E-Waste" data-breadcrumb="Pages / Recycle E-Waste"></header>
+                <header class="mainHeader" data-title="Company Equipment" data-breadcrumb="Pages / Equipment"></header>
 
                 <nav class="tabs">
                     <a href="CompanyEquipment.html" class="active">Company Equipment</a>
@@ -37,13 +37,70 @@
                             Recycling electronics reduces carbon emissions by up to 80% compared to manufacturing new products.
                           </p>
                         </div>
-                        <button class="learn-more-btn">
-                          <span class="truncate">Learn More</span>
-                        </button>
+                        <button class="learn-more-btn" id="showMoreBtn" >
+                            <span class="truncate">Show More</span>
+                          </button>                          
                       </div>
                     </div>
                   </div>
-                  
+
+                  <!-- onclick="window.location.href='https://www.metalointernational.com/e-waste-recycling/?utm_source=chatgpt.com'" -->
+
+
+<!-- Hidden Section (Expands on Button Click) -->
+<div class="expanded-info" id="expandedInfo">
+    <div class="info-card">
+        <i class="fas fa-leaf info-icon"></i>
+        <h3>Environmental Protection</h3>
+        <p>
+            Proper e-waste recycling prevents hazardous substances like heavy metals and carcinogens from polluting the atmosphere, landfills, and waterways. 
+        </p>
+        <a href="https://samsolu.com/our-services/electronics-recycling-services/?utm_source=chatgpt.com" target="_blank" class="partner-link">Learn More</a>
+    </div>
+
+    <div class="info-card">
+        <i class="fas fa-recycle info-icon"></i>
+        <h3>Resource Conservation</h3>
+        <p>
+            Recycling electronic devices helps recover valuable materials such as metals, plastics, and glass—reducing the demand for virgin raw materials.
+        </p>
+        <a href="https://samsolu.com/the-importance-and-benefits-of-e-waste-management-in-singapore/?utm_source=chatgpt.com" target="_blank" class="partner-link">Learn More</a>
+    </div>
+
+    <div class="info-card">
+        <i class="fas fa-globe info-icon"></i>
+        <h3>Pollution Prevention</h3>
+        <p>
+            Proper recycling reduces the extraction and processing of raw materials, minimizing air and water pollution while preserving natural ecosystems.
+        </p>
+        <a href="https://samsolu.com/the-importance-and-benefits-of-e-waste-management-in-singapore/?utm_source=chatgpt.com" target="_blank" class="partner-link">Learn More</a>
+    </div>
+</div>
+
+<!-- Partnership Announcement Section (Initially Hidden) -->
+<div class="partnership-container" id="partnershipContainer"  
+    style="background-image: url('assets/tree/foliage_texture.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+    
+    <div class="partnership-content">
+        <!-- Left Side: Text Content -->
+        <div class="partnership-text">
+            <h1>SAMS & Sustainable Recycling</h1>
+            <p>
+                We're excited to announce our partnership with <strong>Sustainable Asset Management Solutions (SAMS)</strong>. 
+                Together, we are working to enhance sustainability by ensuring responsible e-waste recycling for a greener future.
+            </p>
+            <button class="learn-more-btn-hidden" onclick="window.location.href='https://samsolu.com/our-services/electronics-recycling-services/?utm_source=chatgpt.com'">
+                Learn More
+            </button>
+        </div>
+
+        <!-- Right Side: Image -->
+        <div class="partnership-image">
+            <img src="assets/fitness/partnershipbanner.png" alt="SAMS Partnership">
+        </div>
+    </div>
+</div>
+
 
               
                 
@@ -411,5 +468,40 @@ function closeThankYouModal() {
         setActiveButton('All');
         populateTable(); // Populate the table initially
     });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const showMoreBtn = document.getElementById("showMoreBtn");
+    const partnershipContainer = document.getElementById("partnershipContainer");
+    const expandedInfo = document.getElementById("expandedInfo");
+
+    // Toggle visibility on click
+    showMoreBtn.addEventListener("click", function () {
+        if (partnershipContainer.style.display === "none" || partnershipContainer.style.display === "") {
+            // Show both sections
+            partnershipContainer.style.display = "flex";
+            expandedInfo.style.display = "flex";
+            setTimeout(() => {
+                partnershipContainer.style.opacity = "1";
+                partnershipContainer.style.transform = "translateY(0)";
+                expandedInfo.classList.add("active");
+            }, 10);
+            showMoreBtn.textContent = "Show Less";
+        } else {
+            // Hide both sections
+            partnershipContainer.style.opacity = "0";
+            partnershipContainer.style.transform = "translateY(-20px)";
+            expandedInfo.classList.remove("active");
+            setTimeout(() => {
+                partnershipContainer.style.display = "none";
+                expandedInfo.style.display = "none";
+            }, 300);
+            showMoreBtn.textContent = "Show More";
+        }
+    });
+});
+
+
+
 
 </script>
