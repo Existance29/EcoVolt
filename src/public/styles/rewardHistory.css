@@ -59,8 +59,8 @@ body {
     justify-content: center;
     background-color: #f0f2f4;
     border-radius: 8px;
-    width: 48px;
-    height: 48px;
+    width: 68px;
+    height: 68px;
   }
   
   .details {
@@ -69,10 +69,11 @@ body {
   }
   
   .points {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: medium;
     color: inherit;
     cursor: pointer;
+    color: rgb(0, 160, 106);
   }
   
   .description {
@@ -176,7 +177,6 @@ body {
 /* Redeemed Spent Points */
 .redeemed-spent {
     font-size: 18px; /* Slightly larger for emphasis */
-    font-weight: bold;
     color: #e63946; /* Red color for points spent */
     white-space: nowrap; /* Prevent wrapping */
     margin-left: auto; /* Push to the far right */
