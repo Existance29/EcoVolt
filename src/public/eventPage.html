@@ -18,54 +18,55 @@
             <nav class="tabs">
                 <a href="activityFeed.html">Activity Feed</a>
                 <a href="events.html">Courses & Events</a>
-                <a href="#" onclick="checkAndRedirect(event)">Eco Strava</a>
                 <a href="rewards.html">Rewards</a>
             </nav>
 
-            <button id="back-button" onclick="window.location.href='events.html';"">← Back</button>
+            <button id="back-button" onclick="window.location.href='events.html';">← Back</button>
 
-            <div class="progress-leaderboard-container">
-                <!-- Leaderboard Container -->
-                <div class="leaderboard-container">
-                    <div class="leaderboard-tabs">
-                        <button class="tab-btn active" onclick="openTab(event, 'leaderboard')">🏆 Top Contributors</button>
-                        <button class="tab-btn" onclick="openTab(event, 'topCompanies')">🏆 Top Companies</button>
-                    </div>
-                    
-                    <div id="leaderboard" class="leaderboard-content active">
-                        <ul id="leaderboardList">
-                            <li>Loading...</li>
-                        </ul>
-                    </div>
-                    
-                    <div id="topCompanies" class="leaderboard-content">
-                        <ol id="topCompaniesList">
-                            <li>Loading...</li>
-                        </ol>
+            <div class="content-container">
+                <div class="event-page">
+                    <div class="event-item">
+                        <!-- Progress Container -->
+                        <div class="progress-container">
+                            <h2>Event Progress</h2>
+                            <p><strong>You've been a part of "<span id="eventName">this event</span>" for <span id="streakDays">0</span> days.</strong></p>
+                            <p><strong>Keep It Up! 🚀</strong></p>
+                            <p class="carbon-text">🌱 Carbon Saved: <span id="carbonSavedAmount">0</span> kg</p>
+                        </div>
+                        
+                        <div class="nav-container">
+                          <button id="prevEvent" class="nav-btn"> &lt; </button>
+                          <div class="course-description">
+                            <p class="event-title"></p>
+                            <p class="event-category"></p>
+                            <p class="event-description-text"></p>
+                            <button class="start-btn" id="start-btn">Start</button>
+                          </div>
+                          <button id="nextEvent" class="nav-btn"> &gt; </button>
+                          <div class="course-image" style="background-image: url('./assets/activitFeed/time-limited event.jpg');"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="event-page">
-                <div class="course-item">
-                    <!-- Progress Container -->
-                    <div class="progress-container">
-                        <h2>Event Progress</h2>
-                        <p><strong>You've been a part of "<span id="eventName">this event</span>" for <span id="streakDays">0</span> days.</strong></p>
-                        <p><strong>Keep It Up! 🚀</strong></p>
-                        <p class="carbon-text">🌱 Carbon Saved: <span id="carbonSavedAmount">0</span> kg</p>
-                    </div>
-                    
-                    <div class="nav-container">
-                      <button id="prevEvent" class="nav-btn"> &lt; </button>
-                      <div class="course-description">
-                        <p class="event-title"></p>
-                        <p class="event-category"></p>
-                        <p class="event-description-text"></p>
-                        <button class="start-btn" id="start-btn">Start</button>
-                      </div>
-                      <button id="nextEvent" class="nav-btn"> &gt; </button>
-                      <div class="course-image" style="background-image: url('./assets/activitFeed/time-limited\ events.jpg');"></div>
+    
+                <div class="progress-leaderboard-container">
+                    <!-- Leaderboard Container -->
+                    <div class="leaderboard-container">
+                        <div class="leaderboard-tabs">
+                            <button class="tab-btn active" onclick="openTab(event, 'leaderboard')">🏆 Top Contributors</button>
+                            <button class="tab-btn" onclick="openTab(event, 'topCompanies')">🏆 Top Companies</button>
+                        </div>
+                        
+                        <div id="leaderboard" class="leaderboard-content active">
+                            <ul id="leaderboardList">
+                                <li>Loading...</li>
+                            </ul>
+                        </div>
+                        
+                        <div id="topCompanies" class="leaderboard-content">
+                            <ol id="topCompaniesList">
+                                <li>Loading...</li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
