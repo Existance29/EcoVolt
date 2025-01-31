@@ -28,8 +28,8 @@ body {
 
 .equipment-section-header h2 {
   color: #1c160c;
-  font-size: 15px;
-  font-weight: 900;
+  font-size: 20px;
+  font-weight: 700;
   margin-top: 20px; /* Replace 'top' with margin */
   margin-bottom: 20px; /* Replace 'bottom' with margin */
   letter-spacing: -0.033em;
@@ -763,3 +763,6 @@ body.modal-open {
   font-size: 1em;
   color: #555;
 }
+
+
+
