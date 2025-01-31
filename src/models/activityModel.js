@@ -420,7 +420,6 @@ class Posts {
                 const request = connection.request();
 
                 const result = await request.query(query);
-                console.log(result.recordset);
                 connection.close();
                 return result.recordset;
             } catch (error) {
