@@ -311,7 +311,6 @@ class Reward {
             request.input("DataCenterId", dataCenterId); // Add DataCenterId as input
             request.input("ImagePath", sql.VarChar, imagePath); 
             const result = await request.query(sqlQuery);
-            console.log(result);
             return { message: "Device added successfully" };
         } catch (error) {
             console.error("Error adding personal device:", error);
