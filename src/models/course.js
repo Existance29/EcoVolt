@@ -115,6 +115,11 @@ class course {
         try {
             connection = await sql.connect(dbConfig);
     
+            // Query 1: Get raw progress percentage
+            const progressRequest = connection.request();
+            progressRequest.input('user_id', user_id);
+            progressRequest.input('course_id', course_id);
+    
             const sqlQuery = `
                 SELECT 
                     (
@@ -132,14 +137,50 @@ class course {
                     l.course_id;
             `;
     
-            const request = connection.request();
-            request.input('user_id', user_id);
-            request.input('course_id', course_id);
+            const result = await progressRequest.query(sqlQuery);
+            let rawProgressPercentage = Math.floor(result.recordset[0]?.progress_percentage || 0);
     
-            const result = await request.query(sqlQuery);
-            return Math.floor(result.recordset[0]?.progress_percentage || 0); // Default to 0% if no progress
+            // Query 2: Fetch total lessons in the course
+            const totalLessonsRequest = connection.request();
+            totalLessonsRequest.input('course_id', course_id);
+    
+            const totalLessonsQuery = `
+                SELECT COUNT(*) AS total_lessons
+                FROM lessons
+                WHERE course_id = @course_id
+            `;
+            const totalLessonsResult = await totalLessonsRequest.query(totalLessonsQuery);
+            const totalLessons = totalLessonsResult.recordset[0]?.total_lessons || 0;
+    
+            // Query 3: Fetch completed lessons for the user
+            const completedLessonsRequest = connection.request();
+            completedLessonsRequest.input('user_id', user_id);
+            completedLessonsRequest.input('course_id', course_id);
+    
+            const completedLessonsQuery = `
+                SELECT COUNT(*) AS completed_lessons
+                FROM user_lessons
+                WHERE user_id = @user_id AND lesson_id IN (
+                    SELECT id FROM lessons WHERE course_id = @course_id
+                )
+            `;
+            const completedLessonsResult = await completedLessonsRequest.query(completedLessonsQuery);
+            const completedLessons = completedLessonsResult.recordset[0]?.completed_lessons || 0;
+    
+            // Calculate custom progress: Each lesson is worth (100 / totalLessons) percent
+            let progressPercentage = (completedLessons / totalLessons) * 100;
+    
+            // Round to the nearest 20%
+            progressPercentage = Math.min(100, Math.floor(progressPercentage / 20) * 20);
+    
+            // Ensure 100% is only shown when all lessons are completed
+            if (completedLessons === totalLessons) {
+                progressPercentage = 100;
+            }
+    
+            return progressPercentage;
         } catch (error) {
-            console.error(error);
+            console.error("Error fetching user progress:", error);
             return 0;
         } finally {
             if (connection) {
@@ -147,6 +188,8 @@ class course {
             }
         }
     }
+    
+    
     
     
 
