@@ -6,7 +6,7 @@ const intentsData = require("../database/intents.json"); // Import intents JSON
 const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 const handleChatbotMessage = async (req, res) => {
-    const { userMessage, reportData } = req.body; // User message and company data
+    const { userMessage, reportData, accessToken } = req.body; // User message and company data
     const companyId = req.headers["company-id"];
     let contextData = "";
 
@@ -138,6 +138,7 @@ const handleChatbotMessage = async (req, res) => {
             (matchedIntent.bestMatch.target === "company initiatives" ||
             matchedIntent.bestMatch.target === "company efforts" || matchedIntent.bestMatch.target === "company initiative" || matchedIntent.bestMatch.target === "company effort") && matchedIntent.bestMatch.rating >= 0.5
         ) {
+            
             botReply += `
                 <br><br>For additional information, you can also visit our <a href="http://localhost:3000/events.html" target="_blank">events page</a>.
             `;
@@ -199,6 +200,19 @@ const calculateNetZeroProgress = (reportData) => {
     const averageProgress = (weightedTotalProgress / totalWeight).toFixed(1);
     return `${averageProgress}%`;
 };
+
+function navigateToEventsPage() {
+    // Preserve session data if needed (optional)
+    const accessToken = sessionStorage.getItem('accessToken');
+    
+    // Navigate to events.html in the same tab
+    window.location.href = 'events.html';
+    
+    // Restore the access token after navigating (if needed on events.html)
+    if (accessToken) {
+        sessionStorage.setItem('accessToken', accessToken);
+    }
+}
 
 module.exports = {
     handleChatbotMessage,
