@@ -96,16 +96,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+            // Track course titles to avoid duplicates
+            const addedCourseTitles = new Set();
+
             // Dynamically populate completed courses
             courses.forEach(course => {
-                const courseElement = document.createElement("div");
-                courseElement.classList.add("course");
+                if (!addedCourseTitles.has(course.title)) {
+                    addedCourseTitles.add(course.title); // Add title to the set to track it
 
-                const completedDate = course.completed_at && course.completed_at !== "In Progress"
-                ? new Date(course.completed_at).toLocaleDateString('en-GB')
-                : "In Progress";
-                
-                courseElement.innerHTML = `
+                    const courseElement = document.createElement("div");
+                    courseElement.classList.add("course");
+
+                    const completedDate = course.completed_at && course.completed_at !== "In Progress"
+                        ? new Date(course.completed_at).toLocaleDateString('en-GB')
+                        : "In Progress";
+
+                    courseElement.innerHTML = `
 <div class="completed-course-card">
     <div class="completed-course-image-container">
         <img src="${course.image_path}" alt="${course.title}" class="completed-course-image">
@@ -117,10 +123,10 @@ document.addEventListener("DOMContentLoaded", () => {
         <p class="completed-course-completed-at"><strong>Completed At:</strong> ${completedDate}</p>
     </div>
 </div>
+                    `;
 
-                `;
-
-                coursesSection.appendChild(courseElement);
+                    coursesSection.appendChild(courseElement);
+                }
             });
         } else {
             console.error("Error fetching completed courses:", response.status);

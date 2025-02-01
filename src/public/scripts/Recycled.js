@@ -123,8 +123,8 @@ function renderCompanyTable(data) {
             <td>${item.model || 'N/A'}</td>
             <td>${item.serial_number || 'N/A'}</td>
             <td>${item.device_age_years || 'N/A'}</td>
-            <td>${item.total_device_co2_emissions_tons ? item.total_device_co2_emissions_tons.toFixed(2) : 'N/A'}</td>
-            <td>${item.total_device_energy_mwh ? item.total_device_energy_mwh.toFixed(2) : 'N/A'}</td>
+            <td style="font-weight: 700;">${item.total_device_co2_emissions_tons ? item.total_device_co2_emissions_tons.toFixed(2) : 'N/A'}</td>
+            <td style="font-weight: 700;">${item.total_device_energy_mwh ? item.total_device_energy_mwh.toFixed(2) : 'N/A'}</td>
             <td>${item.status || 'N/A'}</td>
         `;
         tableBody.appendChild(row);

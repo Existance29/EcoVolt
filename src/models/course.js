@@ -327,10 +327,11 @@ static async increaseUserProgress(user_id, course_id, lesson_id) {
             .input("lesson_id", lesson_id)
             .query(markLessonQuery);
 
-        // Calculate progress percentage
+        // Calculate progress percentage with a mock extra lesson
         const progressQuery = `
             SELECT 
-                (CAST(COUNT(ul.lesson_id) AS FLOAT) / CAST(COUNT(l.id) AS FLOAT)) * 100 AS progress_percentage
+                (CAST(COUNT(ul.lesson_id) AS FLOAT) / 
+                 CAST((COUNT(l.id) + 1) AS FLOAT)) * 100 AS progress_percentage
             FROM lessons l
             LEFT JOIN user_lessons ul ON l.id = ul.lesson_id AND ul.user_id = @user_id
             WHERE l.course_id = @course_id
@@ -341,7 +342,37 @@ static async increaseUserProgress(user_id, course_id, lesson_id) {
             .input("course_id", course_id)
             .query(progressQuery);
 
-        const progressPercentage = Math.round(progressResult.recordset[0]?.progress_percentage || 0);
+        let progressPercentage = Math.round(progressResult.recordset[0]?.progress_percentage || 0);
+
+        // Manually set to 100% if all lessons are completed
+        const totalLessonsQuery = `
+            SELECT COUNT(*) AS total_lessons
+            FROM lessons
+            WHERE course_id = @course_id
+        `;
+        const totalLessonsResult = await connection.request()
+            .input("course_id", course_id)
+            .query(totalLessonsQuery);
+
+        const totalLessons = totalLessonsResult.recordset[0]?.total_lessons || 0;
+
+        const completedLessonsQuery = `
+            SELECT COUNT(*) AS completed_lessons
+            FROM user_lessons
+            WHERE user_id = @user_id AND lesson_id IN (
+                SELECT id FROM lessons WHERE course_id = @course_id
+            )
+        `;
+        const completedLessonsResult = await connection.request()
+            .input("user_id", user_id)
+            .input("course_id", course_id)
+            .query(completedLessonsQuery);
+
+        const completedLessons = completedLessonsResult.recordset[0]?.completed_lessons || 0;
+
+        if (completedLessons === totalLessons) {
+            progressPercentage = 100;
+        }
 
         // Update the user's progress in the user_courses table
         const updateProgressQuery = `
@@ -365,6 +396,7 @@ static async increaseUserProgress(user_id, course_id, lesson_id) {
         }
     }
 }
+
 
 
 

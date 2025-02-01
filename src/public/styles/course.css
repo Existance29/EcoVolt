@@ -136,7 +136,7 @@ label:hover {
 
 
 .quiz-submit {
-  background-color: #1cca7f;
+  background-color: #4FD1C5; /* Adjust button color */
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -148,7 +148,7 @@ label:hover {
 }
 
 .quiz-submit:hover {
-  background-color: #17a765;
+  background-color: #47bcb0; /* Adjust button color */
 }
 
 .quiz-feedback {
@@ -459,7 +459,7 @@ label:hover {
   }
   
   .popup-buttons button {
-    background: #1cca7f;
+    background: #4FD1C5;
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -471,7 +471,7 @@ label:hover {
   }
   
   .popup-buttons button:hover {
-    background: #17a765;
+    background: #38bcaf;
   }
   
   .popup-buttons button:nth-child(2) {

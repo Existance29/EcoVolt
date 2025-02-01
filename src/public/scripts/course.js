@@ -47,9 +47,18 @@ function updateProgressBar(progressPercentage) {
   // Handle edge cases (e.g., 0% or 100%)
   if (progressPercentage === 0) {
     progressText.textContent = "You are just starting the course. Let's begin with the first lesson!";
+  } else if (progressPercentage === 25) {
+    progressText.textContent = `${progressPercentage - 5}% completed`;
+    progressFill.style.width = `${progressPercentage - 5}%`
+  } else if (progressPercentage === 50) {
+    progressText.textContent = `${progressPercentage - 10}% completed`;
+    progressFill.style.width = `${progressPercentage - 10}%`
+  } else if (progressPercentage === 75) {
+    progressText.textContent = `${progressPercentage - 15}% completed`;
+    progressFill.style.width = `${progressPercentage - 15}%`
   } else if (progressPercentage === 100) {
-    progressText.textContent = "Congratulations! You've completed this course.";
-  }
+    progressText.textContent = `${progressPercentage - 20}% completed`;
+    progressFill.style.width = `${progressPercentage - 20}%`  }
 }
 
 function populateVideoSection(videoLink) {

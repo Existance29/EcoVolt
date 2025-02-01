@@ -154,9 +154,12 @@ body {
     color: #2F6D45;
 }
 
+/* .equipment-table td:nth-child(6) {
+  font-weight: 700;
+}
 .equipment-table td:nth-child(7) {
     font-weight: 700;
-}
+} */
 
 .equipment-table tr:hover {
     background-color: #f1f5f9; /* Light gray for hover effect */
@@ -343,9 +346,8 @@ body.modal-open {
 
 /* Recycle button */
 .modal-footer .modal-Placeholder {
-    background-color: #019863;
+  background-color: #4FD1C5; /* Adjust button color */
     color: #ffffff;
-    border: 1px solid #019863;
 }
 
 .modal-footer .modal-Close {

@@ -176,7 +176,7 @@ body {
     height: 48px; /* 12 * 4 = 48px */
     padding: 0 20px; /* Horizontal padding */
     flex-grow: 1; /* Allows button to grow */
-    background-color: #019863;
+    background-color: #4FD1C5; /* Adjust button color */
     color: #ffffff;
     font-size: 1rem; /* Base font size */
     font-weight: 700; /* Bold */
