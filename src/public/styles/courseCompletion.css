@@ -111,7 +111,7 @@ body {
 }
 
 .download-button {
-    background: #1cca7f;
+    background-color: #4FD1C5; /* Adjust button color */
     color: #0e1b15;
 }
 

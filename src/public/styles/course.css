@@ -136,7 +136,7 @@ label:hover {
 
 
 .quiz-submit {
-  background-color: #1cca7f;
+  background-color: #4FD1C5; /* Adjust button color */
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -148,7 +148,7 @@ label:hover {
 }
 
 .quiz-submit:hover {
-  background-color: #17a765;
+  background-color: #47bcb0; /* Adjust button color */
 }
 
 .quiz-feedback {

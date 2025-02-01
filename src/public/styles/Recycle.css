@@ -343,9 +343,8 @@ body.modal-open {
 
 /* Recycle button */
 .modal-footer .modal-Placeholder {
-    background-color: #019863;
+  background-color: #4FD1C5; /* Adjust button color */
     color: #ffffff;
-    border: 1px solid #019863;
 }
 
 .modal-footer .modal-Close {
