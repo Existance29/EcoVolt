@@ -154,9 +154,12 @@ body {
     color: #2F6D45;
 }
 
+/* .equipment-table td:nth-child(6) {
+  font-weight: 700;
+}
 .equipment-table td:nth-child(7) {
     font-weight: 700;
-}
+} */
 
 .equipment-table tr:hover {
     background-color: #f1f5f9; /* Light gray for hover effect */
