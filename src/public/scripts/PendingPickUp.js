@@ -334,25 +334,25 @@ document.addEventListener('DOMContentLoaded', function () {
 //     updateCountdown(); // Initial call to set values immediately
 // });
 
-async function updateAllDevicesToRecycled() {
-    try {
-        // Fetch all personal devices and update their statuses
-        for (const personalDevice of allData) {
-            await updatePersonalDeviceStatus(personalDevice.serial_number, 'Recycled');
-        }
+// async function updateAllDevicesToRecycled() {
+//     try {
+//         // Fetch all personal devices and update their statuses
+//         for (const personalDevice of allData) {
+//             await updatePersonalDeviceStatus(personalDevice.serial_number, 'Recycled');
+//         }
 
-        // Fetch all company devices and update their statuses
-        for (const companyDevice of companyData) {
-            await updateCompanyDeviceStatus(companyDevice.serial_number, 'Recycled');
-        }
+//         // Fetch all company devices and update their statuses
+//         for (const companyDevice of companyData) {
+//             await updateCompanyDeviceStatus(companyDevice.serial_number, 'Recycled');
+//         }
 
-        alert('All devices have been successfully updated to "Recycled".');
-        location.reload(); // Reload the page to reflect changes
-    } catch (error) {
-        console.error('Error updating devices to "Recycled":', error);
-        alert('An error occurred while updating devices to "Recycled".');
-    }
-}
+//         alert('All devices have been successfully updated to "Recycled".');
+//         location.reload(); // Reload the page to reflect changes
+//     } catch (error) {
+//         console.error('Error updating devices to "Recycled":', error);
+//         alert('An error occurred while updating devices to "Recycled".');
+//     }
+// }
 
 async function updatePersonalDeviceStatus(serialNumber, status) {
     try {

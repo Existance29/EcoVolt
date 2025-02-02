@@ -579,16 +579,16 @@ WHERE recyclables.type = 'Personal'
     }
     
     static async insertIntoRecyclables(details) {
-        const { brand, model, serial_number, status, type, device_type, user_id, company_id, data_center_id, image_path } = details;
+        const { brand, model, serial_number, status, type, device_type, user_id, company_id, data_center_id, created_at, image_path } = details;
     
         let connection;
         try {
             connection = await sql.connect(dbConfig);
             const sqlQuery = `
                 INSERT INTO recyclables (
-                    brand, model, serial_number, status, type, device_type, user_id, company_id, data_center_id, image_path
+                    brand, model, serial_number, status, type, device_type, user_id, company_id, data_center_id, created_at, image_path
                 ) VALUES (
-                    @brand, @model, @serial_number, @status, @type, @device_type, @user_id, @company_id, @data_center_id, @image_path
+                    @brand, @model, @serial_number, @status, @type, @device_type, @user_id, @company_id, @data_center_id, @created_at, @image_path
                 );
             `;
             const request = connection.request();
@@ -601,6 +601,7 @@ WHERE recyclables.type = 'Personal'
             request.input('user_id', sql.Int, user_id || null);
             request.input('company_id', sql.Int, company_id);
             request.input('data_center_id', sql.Int, data_center_id);
+            request.input('created_at', sql.DateTime, created_at);
             request.input('image_path', sql.VarChar, image_path);
     
             const result = await request.query(sqlQuery);

@@ -355,21 +355,17 @@ class recycleController {
     static async updateCompanyDeviceStatus(req, res) {
         const { SN: serial_number } = req.query;
         const { status, company_id } = req.body; // Assuming the new status is sent in the request body
-    
         if (!serial_number || !status) {
             return res.status(400).send('Serial number and status are required.');
         }
-    
         try {
             // Update the device status in the devices table
             const success = await recyclables.updateCompanyDeviceStatus(serial_number, status);
-    
             if (!success) {
                 return res.status(404).send('Device not found or status unchanged.');
             }
-    
             // If the status is "Pending Pick Up", insert the device into the recyclables table
-            if (status === 'Pending Pick Up') {
+            if (status === 'Recycled') {
                 // Retrieve the device details to insert into the recyclables table
                 const deviceData = await recyclables.filterByCompanySerialNumber(serial_number);
                 if (!deviceData || deviceData.length === 0) {
@@ -389,10 +385,12 @@ class recycleController {
                     user_id: null, // it's not a personal device
                     company_id: company_id,
                     data_center_id: dataCenterId,
+                    created_at: new Date(),
                     image_path: '34567890-.png',
                 };
     
                 // Insert the device into the recyclables table
+                console.log(details);
                 const insertSuccess = await recyclables.insertIntoRecyclables(details);
                 if (!insertSuccess) {
                     console.error('Failed to insert into recyclables table.');
