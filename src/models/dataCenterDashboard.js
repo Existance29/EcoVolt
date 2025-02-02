@@ -1293,50 +1293,159 @@ static async getEnergyConsumptionGroupByDcForSelectedDcByYearMonth(company_id, d
 
 
 
-
-static async getDevicesCountByCompanyId(company_id) {
+static async getDevicesCountByCompanyId(company_id, selectedYear = null, selectedMonth = null) {
     let connection;
-    try{
+    try {
         connection = await sql.connect(dbConfig);
-        const sqlQuery = `
-        SELECT COUNT(devices.device_type) AS device_count
-        FROM devices
-        INNER JOIN data_centers ON devices.data_center_id = data_centers.id
-        INNER JOIN companies ON companies.id = data_centers.company_id
-        WHERE companies.id = @company_id AND devices.status != 'Recycled';
-        `;
+        let sqlQuery;
+
+        if (!selectedYear && !selectedMonth) {
+            // All-Time: Show devices that are in use or not in use
+            sqlQuery = `
+                SELECT COUNT(*) AS total_devices
+                FROM devices
+                INNER JOIN data_centers ON devices.data_center_id = data_centers.id
+                WHERE data_centers.company_id = @company_id
+                  AND devices.status IN ('in use', 'not in use');
+            `;
+        } else if (selectedYear && !selectedMonth) {
+            // Yearly Filter: Match the direct SQL logic
+            sqlQuery = `
+                SELECT COUNT(*) AS total_devices
+                FROM devices
+                INNER JOIN data_centers ON devices.data_center_id = data_centers.id
+                LEFT JOIN recyclables ON devices.serial_number = recyclables.serial_number
+                WHERE data_centers.company_id = @company_id
+                  AND (
+                        devices.status IN ('in use', 'not in use')
+                        OR (devices.status = 'Recycled' AND recyclables.status != 'Recycled')  -- Include Recycled devices not marked recycled in recyclables
+                        OR recyclables.serial_number IS NULL  -- Devices never recycled
+                  )
+                  AND (
+                        recyclables.serial_number IS NULL
+                        OR YEAR(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedYear  -- Recycled after selected year
+                  );
+            `;
+        } else if (selectedYear && selectedMonth) {
+            // Monthly Filter: Exclude devices recycled in the selected month
+            sqlQuery = `
+                SELECT COUNT(*) AS total_devices
+                FROM devices
+                INNER JOIN data_centers ON devices.data_center_id = data_centers.id
+                LEFT JOIN recyclables ON devices.serial_number = recyclables.serial_number
+                WHERE data_centers.company_id = @company_id
+                  AND (
+                        devices.status IN ('in use', 'not in use')
+                        OR (devices.status = 'Recycled' AND recyclables.status != 'Recycled')  -- Include Recycled devices not marked recycled in recyclables
+                        OR recyclables.serial_number IS NULL  -- Devices never recycled
+                  )
+                  AND (
+                        recyclables.serial_number IS NULL
+                        OR (
+                            YEAR(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedYear 
+                            OR (
+                                YEAR(ISNULL(recyclables.created_at, '1900-01-01')) = @selectedYear 
+                                AND MONTH(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedMonth
+                            )
+                        )
+                  );
+            `;
+        }
+
         const request = connection.request();
         request.input('company_id', company_id);
+        if (selectedYear) request.input('selectedYear', selectedYear);
+        if (selectedMonth) request.input('selectedMonth', selectedMonth);
         const result = await request.query(sqlQuery);
+
         return result.recordset.length > 0 ? result.recordset : null;
+
     } catch (error) {
+        console.error('SQL Error:', error);
         throw new Error("Error retrieving devices by company id");
-    } finally { 
+    } finally {
         if (connection) {
             await connection.close();
         }
     }
 }
 
-static async getDevicesCountByCompanyIdAndDc(company_id, dc) {
+
+static async getDevicesCountByCompanyIdAndDc(company_id, data_center_id, selectedYear = null, selectedMonth = null) {
     let connection;
-    try{
+    try {
         connection = await sql.connect(dbConfig);
-        const sqlQuery = `
-		SELECT COUNT(devices.device_type) AS device_count
-        FROM devices
-        INNER JOIN data_centers ON devices.data_center_id = data_centers.id
-        INNER JOIN companies ON companies.id = data_centers.company_id
-        WHERE companies.id = @company_id AND data_centers.id = @dc AND devices.status != 'Recycled';
-        `;
+        let sqlQuery;
+
+        if (!selectedYear && !selectedMonth) {
+            // All-Time: Show current devices in the data center that are not recycled
+            sqlQuery = `
+                SELECT COUNT(*) AS total_devices
+                FROM devices
+                INNER JOIN data_centers ON devices.data_center_id = data_centers.id
+                WHERE data_centers.company_id = @company_id
+                  AND devices.data_center_id = @data_center_id
+                  AND devices.status IN ('in use', 'not in use');
+            `;
+        } else if (selectedYear && !selectedMonth) {
+            // Yearly Filter: Exclude devices recycled in the selected year
+            sqlQuery = `
+                SELECT COUNT(*) AS total_devices
+                FROM devices
+                INNER JOIN data_centers ON devices.data_center_id = data_centers.id
+                LEFT JOIN recyclables ON devices.serial_number = recyclables.serial_number
+                WHERE data_centers.company_id = @company_id
+                  AND devices.data_center_id = @data_center_id
+                  AND (
+                        devices.status IN ('in use', 'not in use')
+                        OR (devices.status = 'Recycled' AND recyclables.status != 'Recycled')
+                        OR recyclables.serial_number IS NULL  -- Devices never recycled
+                  )
+                  AND (
+                        recyclables.serial_number IS NULL
+                        OR YEAR(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedYear
+                  );
+            `;
+        } else if (selectedYear && selectedMonth) {
+            // Monthly Filter: Exclude devices recycled in the selected month
+            sqlQuery = `
+                SELECT COUNT(*) AS total_devices
+                FROM devices
+                INNER JOIN data_centers ON devices.data_center_id = data_centers.id
+                LEFT JOIN recyclables ON devices.serial_number = recyclables.serial_number
+                WHERE data_centers.company_id = @company_id
+                  AND devices.data_center_id = @data_center_id
+                  AND (
+                        devices.status IN ('in use', 'not in use')
+                        OR (devices.status = 'Recycled' AND recyclables.status != 'Recycled')
+                        OR recyclables.serial_number IS NULL  -- Devices never recycled
+                  )
+                  AND (
+                        recyclables.serial_number IS NULL
+                        OR (
+                            YEAR(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedYear
+                            OR (
+                                YEAR(ISNULL(recyclables.created_at, '1900-01-01')) = @selectedYear
+                                AND MONTH(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedMonth
+                            )
+                        )
+                  );
+            `;
+        }
+
         const request = connection.request();
         request.input('company_id', company_id);
-        request.input('dc', dc);
+        request.input('data_center_id', data_center_id);
+        if (selectedYear) request.input('selectedYear', selectedYear);
+        if (selectedMonth) request.input('selectedMonth', selectedMonth);
+
         const result = await request.query(sqlQuery);
         return result.recordset.length > 0 ? result.recordset : null;
+
     } catch (error) {
-        throw new Error("Error retrieving devices by Data center id");
-    } finally { 
+        console.error('SQL Error:', error);
+        throw new Error("Error retrieving devices by company id and data center");
+    } finally {
         if (connection) {
             await connection.close();
         }
@@ -1345,86 +1454,244 @@ static async getDevicesCountByCompanyIdAndDc(company_id, dc) {
 
 
 
-
-// for device types n quantity by cid
-static async getDeviceTypesByCompanyId(company_id) {
+static async getDeviceTypesByCompanyId(company_id, selectedYear = null, selectedMonth = null) {
     let connection;
-    try{
+    try {
         connection = await sql.connect(dbConfig);
-        const sqlQuery = `
-        SELECT 
-            CASE 
-                WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
-                WHEN device_type LIKE 'Server Rack%' THEN 'server rack'
-                ELSE device_type 
-            END AS device_type_group,
-            COUNT(*) AS device_count
-        FROM devices
-        INNER JOIN data_centers ON data_centers.id = devices.data_center_id
-        INNER JOIN companies ON data_centers.company_id = companies.id
-        WHERE companies.id = @company_id
-        AND devices.status != 'Recycled'
-        GROUP BY 
-            CASE 
-                WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
-                WHEN device_type LIKE 'Server Rack%' THEN 'server rack'
-                ELSE device_type 
-            END
-        ORDER BY device_count ASC;
-        `;
+        let sqlQuery;
+
+        if (!selectedYear && !selectedMonth) {
+            // All-Time: Reverting to original correct logic
+            sqlQuery = `
+                SELECT 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END AS device_type_group,
+                    COUNT(*) AS device_count
+                FROM devices
+                INNER JOIN data_centers ON data_centers.id = devices.data_center_id
+                LEFT JOIN recyclables ON devices.serial_number = recyclables.serial_number
+                WHERE data_centers.company_id = @company_id
+                  AND devices.status IN ('in use', 'not in use')  -- Only include devices in use or not in use
+                  AND (
+                        recyclables.serial_number IS NULL  -- Devices never recycled
+                        OR recyclables.status != 'Recycled'  -- Exclude devices marked as recycled
+                  )
+                GROUP BY 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END
+                ORDER BY device_count ASC;
+            `;
+        } else if (selectedYear && !selectedMonth) {
+            // Yearly Filter: Exclude devices recycled in or before the selected year
+            sqlQuery = `
+                SELECT 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END AS device_type_group,
+                    COUNT(*) AS device_count
+                FROM devices
+                INNER JOIN data_centers ON data_centers.id = devices.data_center_id
+                LEFT JOIN recyclables ON devices.serial_number = recyclables.serial_number
+                WHERE data_centers.company_id = @company_id
+                  AND (
+                        devices.status IN ('in use', 'not in use')
+                        OR (devices.status = 'Recycled' AND (recyclables.status IS NULL OR recyclables.status != 'Recycled'))
+                        OR recyclables.serial_number IS NULL
+                  )
+                  AND (
+                        recyclables.serial_number IS NULL 
+                        OR YEAR(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedYear
+                  )
+                GROUP BY 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END
+                ORDER BY device_count ASC;
+            `;
+        } else if (selectedYear && selectedMonth) {
+            // Monthly Filter: Exclude devices recycled in or before the selected month
+            sqlQuery = `
+                SELECT 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END AS device_type_group,
+                    COUNT(*) AS device_count
+                FROM devices
+                INNER JOIN data_centers ON data_centers.id = devices.data_center_id
+                LEFT JOIN recyclables ON devices.serial_number = recyclables.serial_number
+                WHERE data_centers.company_id = @company_id
+                  AND (
+                        devices.status IN ('in use', 'not in use')
+                        OR (devices.status = 'Recycled' AND (recyclables.status IS NULL OR recyclables.status != 'Recycled'))
+                        OR recyclables.serial_number IS NULL
+                  )
+                  AND (
+                        recyclables.serial_number IS NULL 
+                        OR YEAR(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedYear
+                        OR (
+                            YEAR(ISNULL(recyclables.created_at, '1900-01-01')) = @selectedYear
+                            AND MONTH(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedMonth
+                        )
+                  )
+                GROUP BY 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END
+                ORDER BY device_count ASC;
+            `;
+        }
+
         const request = connection.request();
         request.input('company_id', company_id);
+        if (selectedYear) request.input('selectedYear', selectedYear);
+        if (selectedMonth) request.input('selectedMonth', selectedMonth);
+
         const result = await request.query(sqlQuery);
         return result.recordset.length > 0 ? result.recordset : null;
     } catch (error) {
-        throw new Error("Error retrieving devices by company id");
-    } finally { 
-        if (connection) {
-            await connection.close();
-        }
+        console.error('SQL Error:', error);
+        throw new Error("Error retrieving device types by company id");
+    } finally {
+        if (connection) await connection.close();
     }
 }
-// for device types n quantity by cid and dcid
-static async getDeviceTypesByCompanyIdAndDataCenter(company_id, dc) {
+
+
+
+static async getDeviceTypesByCompanyIdAndDataCenter(company_id, data_center_id, selectedYear = null, selectedMonth = null) {
     let connection;
-    try{
-        connection =  await sql.connect(dbConfig);
-        const sqlQuery = `
-        SELECT 
-            CASE 
-                WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
-                WHEN device_type LIKE 'Server Rack%' THEN 'server rack'
-                ELSE device_type 
-            END AS device_type_group,
-            COUNT(*) AS device_count
-        FROM devices
-        INNER JOIN data_centers ON data_centers.id = devices.data_center_id
-        INNER JOIN companies ON data_centers.company_id = companies.id
-        WHERE 
-            companies.id = @company_id 
-            AND data_centers.id = @dc
-            AND devices.status != 'Recycled'
-        GROUP BY 
-            CASE 
-                WHEN device_type LIKE 'cooling system%' THEN 'cooling system'
-                WHEN device_type LIKE 'Server Rack%' THEN 'server rack'
-                ELSE device_type 
-            END
-        ORDER BY device_count ASC;
-        `;
+    try {
+        connection = await sql.connect(dbConfig);
+        let sqlQuery;
+
+        if (!selectedYear && !selectedMonth) {
+            // All-Time: Include only devices that are in use or not in use, and exclude any recycled devices
+            sqlQuery = `
+                SELECT 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END AS device_type_group,
+                    COUNT(*) AS device_count
+                FROM devices
+                INNER JOIN data_centers ON data_centers.id = devices.data_center_id
+                LEFT JOIN recyclables ON devices.serial_number = recyclables.serial_number
+                WHERE data_centers.company_id = @company_id
+                  AND devices.data_center_id = @data_center_id
+                  AND devices.status IN ('in use', 'not in use')
+                  AND (
+                        recyclables.serial_number IS NULL  -- Devices never recycled
+                        OR recyclables.status != 'Recycled'  -- Exclude devices marked as recycled
+                  )
+                GROUP BY 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END
+                ORDER BY device_count ASC;
+            `;
+        } else if (selectedYear && !selectedMonth) {
+            // Yearly Filter: Exclude devices recycled in or before the selected year
+            sqlQuery = `
+                SELECT 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END AS device_type_group,
+                    COUNT(*) AS device_count
+                FROM devices
+                INNER JOIN data_centers ON data_centers.id = devices.data_center_id
+                LEFT JOIN recyclables ON devices.serial_number = recyclables.serial_number
+                WHERE data_centers.company_id = @company_id
+                  AND devices.data_center_id = @data_center_id
+                  AND (
+                        devices.status IN ('in use', 'not in use')
+                        OR (devices.status = 'Recycled' AND (recyclables.status IS NULL OR recyclables.status != 'Recycled'))
+                        OR recyclables.serial_number IS NULL
+                  )
+                  AND (
+                        recyclables.serial_number IS NULL  -- Devices never recycled
+                        OR YEAR(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedYear  -- Devices recycled after selected year
+                  )
+                GROUP BY 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END
+                ORDER BY device_count ASC;
+            `;
+        } else if (selectedYear && selectedMonth) {
+            // Monthly Filter: Exclude devices recycled in or before the selected month
+            sqlQuery = `
+                SELECT 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END AS device_type_group,
+                    COUNT(*) AS device_count
+                FROM devices
+                INNER JOIN data_centers ON data_centers.id = devices.data_center_id
+                LEFT JOIN recyclables ON devices.serial_number = recyclables.serial_number
+                WHERE data_centers.company_id = @company_id
+                  AND devices.data_center_id = @data_center_id
+                  AND (
+                        devices.status IN ('in use', 'not in use')
+                        OR (devices.status = 'Recycled' AND (recyclables.status IS NULL OR recyclables.status != 'Recycled'))
+                        OR recyclables.serial_number IS NULL
+                  )
+                  AND (
+                        recyclables.serial_number IS NULL  -- Devices never recycled
+                        OR YEAR(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedYear  -- Devices recycled after selected year
+                        OR (
+                            YEAR(ISNULL(recyclables.created_at, '1900-01-01')) = @selectedYear
+                            AND MONTH(ISNULL(recyclables.created_at, '1900-01-01')) > @selectedMonth  -- Devices recycled after selected month
+                        )
+                  )
+                GROUP BY 
+                    CASE 
+                        WHEN devices.device_type LIKE 'cooling system%' THEN 'cooling system'
+                        WHEN devices.device_type LIKE 'Server Rack%' THEN 'server rack'
+                        ELSE devices.device_type 
+                    END
+                ORDER BY device_count ASC;
+            `;
+        }
+
         const request = connection.request();
         request.input('company_id', company_id);
-        request.input('dc', dc);
+        request.input('data_center_id', data_center_id);
+        if (selectedYear) request.input('selectedYear', selectedYear);
+        if (selectedMonth) request.input('selectedMonth', selectedMonth);
+
         const result = await request.query(sqlQuery);
         return result.recordset.length > 0 ? result.recordset : null;
     } catch (error) {
-        throw new Error("Error retrieving devices by company id and data center id");
-    } finally { 
-        if (connection) {
-            await connection.close();
-        }
+        console.error('SQL Error:', error);
+        throw new Error("Error retrieving device types by company id and data center id");
+    } finally {
+        if (connection) await connection.close();
     }
 }
+
 
 
 
