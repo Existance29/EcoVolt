@@ -122,7 +122,7 @@ function isSimilar(userMessage, intentKeys, threshold = 2) {
 }
 
 async function sendMessage() {
-    const accessToken = sessionStorage.getItem("accessToken"); // Retrieve the token from sessionStorage
+    const accessToken = sessionStorage.getItem("accessToken") || localStorage.getItem("accessToken"); // Retrieve the token from sessionStorage
 
     const userMessage = document.getElementById("userMessage").value.trim();
     if (!userMessage) return;
@@ -133,7 +133,7 @@ async function sendMessage() {
     displayMessage("...", "bot-message");
 
     try {
-        const companyId = sessionStorage.getItem("company_id");
+        const companyId = sessionStorage.getItem("company_id") || localStorage.getItem("company_id");
         if (!companyId) {
             throw new Error("Company ID is not available.");
         }
