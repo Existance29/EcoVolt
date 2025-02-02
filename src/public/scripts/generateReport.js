@@ -330,12 +330,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         const forecastPeriod = 4;
     
         try {
+            const selectedYear = parseInt(yearSelector.value, 10); // Get the selected report year
             const allYears = Array.from(yearSelector.options).map(option => parseInt(option.value, 10));
-            const recentYears = allYears.slice(0, 5).reverse(); // Take the latest 4 years and reverse them
-    
-            if (recentYears.length === 0) {
-                throw new Error("No years available for prediction.");
-            }
     
             let historicalCO2 = [];
     
@@ -360,8 +356,8 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
     
             // Retry mechanism to ensure all years' data is fetched
-            while (historicalCO2.length < recentYears.length) {
-                const missingYears = recentYears.filter(
+            while (historicalCO2.length < allYears.length) {
+                const missingYears = allYears.filter(
                     year => !historicalCO2.some(data => data.year === year)
                 );    
                 if (missingYears.length === 0) break;
@@ -374,13 +370,18 @@ document.addEventListener('DOMContentLoaded', async function () {
                 throw new Error("Insufficient data for prediction.");
             }
     
-            // Sort data by year (in ascending order)
+            // Sort data by year (ascending order)
             historicalCO2.sort((a, b) => a.year - b.year);
     
-            console.log("Cleaned Historical CO₂ data for prediction:", historicalCO2);
+            console.log("All Historical CO₂ data:", historicalCO2);
     
-            // Extract CO2 values for prediction
-            const historicalCO2Values = historicalCO2.map(data => data.totalCO2);
+            // Filter out years beyond the selected report year
+            const filteredHistoricalCO2 = historicalCO2.filter(data => data.year <= selectedYear);
+            const historicalCO2Values = filteredHistoricalCO2.map(data => data.totalCO2);
+    
+            if (historicalCO2Values.length < 2) {
+                throw new Error("Not enough historical data after filtering.");
+            }
     
             // Fetch forecast data
             const response = await post(`/Dashboard/Forecast/holt-linear/${forecastPeriod}`, {
@@ -390,17 +391,18 @@ document.addEventListener('DOMContentLoaded', async function () {
             console.log("Forecast Data:", carbonEmissionPredictionData);
     
             // Generate labels for the chart
-            let allLabels = historicalCO2.map(data => data.year.toString());
+            let allLabels = filteredHistoricalCO2.map(data => data.year.toString());
             const lastHistoricalYear = parseInt(allLabels[allLabels.length - 1], 10);
     
             for (let i = 1; i <= forecastPeriod; i++) {
                 allLabels.push((lastHistoricalYear + i).toString());
             }
     
+            // Render chart with filtered original data and full forecast data
             renderForecastLineChart(
                 document.getElementById('predictionChart'),
-                historicalCO2Values,
-                carbonEmissionPredictionData,
+                historicalCO2Values,                 // Filtered Original Data
+                carbonEmissionPredictionData,       // Full Forecast Data
                 allLabels,
                 "#4FD1C5",
                 "#AE85FF"
@@ -561,29 +563,53 @@ document.addEventListener('DOMContentLoaded', async function () {
             return;
         }
     
-        // Validate data
-        if (!originalData.length || !forecastData.length || !labels.length) {
-            console.error("Data arrays are empty or invalid:", { originalData, forecastData, labels });
+        // Get the selected year from the dropdown
+        const selectedYear = parseInt(document.getElementById('yearSelector').value, 10);
+    
+        // Filter original data and labels to exclude years beyond the selected year
+        const filteredOriginalData = [];
+        const filteredLabels = [];
+    
+        labels.forEach((label, index) => {
+            const year = parseInt(label, 10);
+            if (year <= selectedYear) {
+                filteredOriginalData.push(originalData[index]);
+                filteredLabels.push(label);
+            }
+        });
+    
+        // Append forecast data to the filtered original data
+        const combinedData = filteredOriginalData.concat(forecastData);
+    
+        // Extend the labels for forecasted years
+        const lastFilteredYear = parseInt(filteredLabels[filteredLabels.length - 1], 10);
+        for (let i = 1; i <= forecastData.length; i++) {
+            filteredLabels.push((lastFilteredYear + i).toString());
+        }
+    
+        // Check if there's enough data to render
+        if (!filteredOriginalData.length && !forecastData.length) {
+            console.error("No data available to display in the chart.");
             return;
         }
     
-        // Clear existing chart
+        // Clear any existing chart instance
         if (Chart.getChart(canvasElement.id)) {
-            Chart.getChart(canvasElement.id)?.destroy();
+            Chart.getChart(canvasElement.id).destroy();
         }
     
         // Prepare datasets
         const datasets = [
             {
-                label: '',
-                data: originalData.concat(forecastData),
+                label: 'CO2 Emissions',
+                data: combinedData,
                 segment: {
-                    borderColor: ctx => ctx.p0.parsed.x < originalData.length - 1 ? color1 : color2,
-                    borderDash: ctx => ctx.p0.parsed.x < originalData.length - 1 ? undefined : [4, 4],
+                    borderColor: ctx => ctx.p0.parsed.x < filteredOriginalData.length - 1 ? color1 : color2,
+                    borderDash: ctx => ctx.p0.parsed.x < filteredOriginalData.length - 1 ? undefined : [4, 4],
                     backgroundColor: ctx => {
-                        const canvasContext = canvasElement.getContext("2d");
-                        const gradient = canvasContext.createLinearGradient(0, 0, 0, canvasElement.height);
-                        if (ctx.p0.parsed.x < originalData.length - 1) {
+                        const ctxCanvas = canvasElement.getContext("2d");
+                        const gradient = ctxCanvas.createLinearGradient(0, 0, 0, canvasElement.height);
+                        if (ctx.p0.parsed.x < filteredOriginalData.length - 1) {
                             gradient.addColorStop(0, color1 + "80");
                             gradient.addColorStop(1, color1 + "00");
                             return gradient;
@@ -594,17 +620,17 @@ document.addEventListener('DOMContentLoaded', async function () {
                         }
                     },
                 },
-                pointBorderColor: ctx => ctx.dataIndex < originalData.length ? color1 : color2,
+                pointBorderColor: ctx => ctx.dataIndex < filteredOriginalData.length ? color1 : color2,
                 tension: 0.4,
                 fill: true,
             }
         ];
     
-        // Create the chart
+        // Render the chart
         new Chart(canvasElement, {
             type: 'line',
             data: {
-                labels: labels,
+                labels: filteredLabels,
                 datasets: datasets,
             },
             options: {
