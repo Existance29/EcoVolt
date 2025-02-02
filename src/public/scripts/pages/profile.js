@@ -21,7 +21,6 @@ tabSwitch(document.getElementById("posts-btn"))
 
 async function loadData(){
     userId = getUrlParameter("id") || (await getUserJWTPayload()).userId
-    console.log(userId)
     //profile picture
     let profilePictureResponse = await get(`/users/profile-picture/public/${userId}`)
     let profilePictureSRC = "assets/profile/defaultprofilepic.jpg" //default profile picture
@@ -37,8 +36,10 @@ async function loadData(){
             done = isDone
         }
 
-        const blob = new Blob(chunks)
-        profilePictureSRC = URL.createObjectURL(blob)
+        if (chunks.length){  
+            const blob = new Blob(chunks)
+            profilePictureSRC = URL.createObjectURL(blob)
+        }
     }
     document.getElementById('profile-picture').src = profilePictureSRC
 
