@@ -122,6 +122,8 @@ function isSimilar(userMessage, intentKeys, threshold = 2) {
 }
 
 async function sendMessage() {
+    const accessToken = sessionStorage.getItem("accessToken") || localStorage.getItem("accessToken"); // Retrieve the token from sessionStorage
+
     const userMessage = document.getElementById("userMessage").value.trim();
     if (!userMessage) return;
 
@@ -131,7 +133,7 @@ async function sendMessage() {
     displayMessage("...", "bot-message");
 
     try {
-        const companyId = sessionStorage.getItem("company_id");
+        const companyId = sessionStorage.getItem("company_id") || localStorage.getItem("company_id");
         if (!companyId) {
             throw new Error("Company ID is not available.");
         }
@@ -152,13 +154,18 @@ async function sendMessage() {
         const matchedIntent = isSimilar(userMessage, intentKeys, 2);
         const isHTMLResponse = matchedIntent !== null; // If matched, assume HTML content
 
+        if (isHTMLResponse) {
+            localStorage.setItem("company_id", companyId);
+            localStorage.setItem("accessToken", accessToken);
+        }
+
         const response = await fetch("/chatbot", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "company-id": companyId,
             },
-            body: JSON.stringify({ userMessage, reportData }),
+            body: JSON.stringify({ userMessage, reportData, accessToken }),
         });
 
         // Remove typing indicator once response is received
