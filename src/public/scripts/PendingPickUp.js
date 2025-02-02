@@ -249,51 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// document.addEventListener('DOMContentLoaded', function () {
-//     const countdownElements = {
-//         days: document.querySelectorAll('.countdown-value')[0],
-//         hours: document.querySelectorAll('.countdown-value')[1],
-//         minutes: document.querySelectorAll('.countdown-value')[2],
-//         seconds: document.querySelectorAll('.countdown-value')[3],
-//     };
-
-//     function calculateNextMonth() {
-//         const now = new Date();
-//         return new Date(now.getFullYear(), now.getMonth() + 1, now.getDate(), 0, 0, 0);
-//     }
-
-//     function updateCountdown() {
-//         const now = new Date();
-//         const targetDate = calculateNextMonth();
-//         const timeDifference = targetDate - now;
-
-//         if (timeDifference <= 0) {
-//             clearInterval(intervalId);
-//             countdownElements.days.textContent = '00';
-//             countdownElements.hours.textContent = '00';
-//             countdownElements.minutes.textContent = '00';
-//             countdownElements.seconds.textContent = '00';
-//             updateAllDevicesToRecycled();
-
-//             return;
-//         }
-
-//         const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-//         const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-//         const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-//         const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
-
-//         countdownElements.days.textContent = String(days).padStart(2, '0');
-//         countdownElements.hours.textContent = String(hours).padStart(2, '0');
-//         countdownElements.minutes.textContent = String(minutes).padStart(2, '0');
-//         countdownElements.seconds.textContent = String(seconds).padStart(2, '0');
-//     }
-
-//     const intervalId = setInterval(updateCountdown, 1000);
-//     updateCountdown(); // Initial call to set values immediately
-// });
-
-
 document.addEventListener('DOMContentLoaded', function () {
     const countdownElements = {
         days: document.querySelectorAll('.countdown-value')[0],
@@ -302,11 +257,14 @@ document.addEventListener('DOMContentLoaded', function () {
         seconds: document.querySelectorAll('.countdown-value')[3],
     };
 
-    // Calculate the target date once
-    const targetDate = new Date(new Date().getTime() + 5000); // 5 seconds from now
+    function calculateNextMonth() {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth() + 1, now.getDate(), 0, 0, 0);
+    }
 
     function updateCountdown() {
         const now = new Date();
+        const targetDate = calculateNextMonth();
         const timeDifference = targetDate - now;
 
         if (timeDifference <= 0) {
@@ -315,7 +273,8 @@ document.addEventListener('DOMContentLoaded', function () {
             countdownElements.hours.textContent = '00';
             countdownElements.minutes.textContent = '00';
             countdownElements.seconds.textContent = '00';
-            updateAllDevicesToRecycled(); // Trigger the action when the countdown ends
+            updateAllDevicesToRecycled();
+
             return;
         }
 
@@ -334,25 +293,66 @@ document.addEventListener('DOMContentLoaded', function () {
     updateCountdown(); // Initial call to set values immediately
 });
 
-async function updateAllDevicesToRecycled() {
-    try {
-        // Fetch all personal devices and update their statuses
-        for (const personalDevice of allData) {
-            await updatePersonalDeviceStatus(personalDevice.serial_number, 'Recycled');
-        }
 
-        // Fetch all company devices and update their statuses
-        for (const companyDevice of companyData) {
-            await updateCompanyDeviceStatus(companyDevice.serial_number, 'Recycled');
-        }
+// document.addEventListener('DOMContentLoaded', function () {
+//     const countdownElements = {
+//         days: document.querySelectorAll('.countdown-value')[0],
+//         hours: document.querySelectorAll('.countdown-value')[1],
+//         minutes: document.querySelectorAll('.countdown-value')[2],
+//         seconds: document.querySelectorAll('.countdown-value')[3],
+//     };
 
-        alert('All devices have been successfully updated to "Recycled".');
-        location.reload(); // Reload the page to reflect changes
-    } catch (error) {
-        console.error('Error updating devices to "Recycled":', error);
-        alert('An error occurred while updating devices to "Recycled".');
-    }
-}
+//     // Calculate the target date once
+//     const targetDate = new Date(new Date().getTime() + 5000); // 5 seconds from now
+
+//     function updateCountdown() {
+//         const now = new Date();
+//         const timeDifference = targetDate - now;
+
+//         if (timeDifference <= 0) {
+//             clearInterval(intervalId);
+//             countdownElements.days.textContent = '00';
+//             countdownElements.hours.textContent = '00';
+//             countdownElements.minutes.textContent = '00';
+//             countdownElements.seconds.textContent = '00';
+//             updateAllDevicesToRecycled(); // Trigger the action when the countdown ends
+//             return;
+//         }
+
+//         const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+//         const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+//         const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+//         const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+//         countdownElements.days.textContent = String(days).padStart(2, '0');
+//         countdownElements.hours.textContent = String(hours).padStart(2, '0');
+//         countdownElements.minutes.textContent = String(minutes).padStart(2, '0');
+//         countdownElements.seconds.textContent = String(seconds).padStart(2, '0');
+//     }
+
+//     const intervalId = setInterval(updateCountdown, 1000);
+//     updateCountdown(); // Initial call to set values immediately
+// });
+
+// async function updateAllDevicesToRecycled() {
+//     try {
+//         // Fetch all personal devices and update their statuses
+//         for (const personalDevice of allData) {
+//             await updatePersonalDeviceStatus(personalDevice.serial_number, 'Recycled');
+//         }
+
+//         // Fetch all company devices and update their statuses
+//         for (const companyDevice of companyData) {
+//             await updateCompanyDeviceStatus(companyDevice.serial_number, 'Recycled');
+//         }
+
+//         alert('All devices have been successfully updated to "Recycled".');
+//         location.reload(); // Reload the page to reflect changes
+//     } catch (error) {
+//         console.error('Error updating devices to "Recycled":', error);
+//         alert('An error occurred while updating devices to "Recycled".');
+//     }
+// }
 
 async function updatePersonalDeviceStatus(serialNumber, status) {
     try {
