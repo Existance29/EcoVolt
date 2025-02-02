@@ -777,12 +777,16 @@ const getEnergyConsumptionGroupByDc = async (req, res) => {
 
 
 const getDevicesCountByCompanyId = async (req, res) => {
-    const company_id = req.user.companyId
+    const company_id = req.user.companyId;
+    const selectedYear = req.query.year ? parseInt(req.query.year) : null;
+    const selectedMonth = req.query.month ? parseInt(req.query.month) : null;
+
     if (!company_id) {
         return res.status(400).json({ error: "Company ID is required" });
     }
+
     try {
-        const data = await dataCenterDashboard.getDevicesCountByCompanyId(company_id);
+        const data = await dataCenterDashboard.getDevicesCountByCompanyId(company_id, selectedYear, selectedMonth);
         if (!data) {
             return res.status(404).send('Device count not found for this company.');
         }
@@ -794,13 +798,17 @@ const getDevicesCountByCompanyId = async (req, res) => {
 };
 
 const getDevicesCountByCompanyIdAndDc = async (req, res) => {
-    const company_id = req.user.companyId
+    const company_id = req.user.companyId;
+    const data_center_id = parseInt(req.params.data_center_id);
+    const selectedYear = req.query.year ? parseInt(req.query.year) : null;
+    const selectedMonth = req.query.month ? parseInt(req.query.month) : null;
+
     if (!company_id) {
         return res.status(400).json({ error: "Company ID is required" });
     }
-    const dc = parseInt(req.params.data_center_id); 
+
     try {
-        const data = await dataCenterDashboard.getDevicesCountByCompanyIdAndDc(company_id, dc);
+        const data = await dataCenterDashboard.getDevicesCountByCompanyIdAndDc(company_id, data_center_id, selectedYear, selectedMonth);
         if (!data) {
             return res.status(404).send('Device count not found for this data center.');
         }
@@ -813,41 +821,51 @@ const getDevicesCountByCompanyIdAndDc = async (req, res) => {
 
 
 
+// For device types and quantity by company id
 const getDeviceTypesByCompanyId = async (req, res) => {
-    const company_id = req.user.companyId
+    const company_id = req.user.companyId;
+    const selectedYear = req.query.year ? parseInt(req.query.year) : null;
+    const selectedMonth = req.query.month ? parseInt(req.query.month) : null;
+
     if (!company_id) {
         return res.status(400).json({ error: "Company ID is required" });
     }
+
     try {
-        const data = await dataCenterDashboard.getDeviceTypesByCompanyId(company_id);
+        const data = await dataCenterDashboard.getDeviceTypesByCompanyId(company_id, selectedYear, selectedMonth);
         if (!data) {
             return res.status(404).send('Device type by company id Data not found.');
         }
         res.status(200).json(data);
     } catch (error) {
-        console.error(error);
+        console.error('Error:', error);
         res.status(500).send('Failed to retrieve Device Type by company id: Internal Server Error.');
     }
 };
 
-
+// For device types and quantity by company id and data center
 const getDeviceTypesByCompanyIdAndDataCenter = async (req, res) => {
-    const company_id = req.user.companyId
+    const company_id = req.user.companyId;
+    const dc = parseInt(req.params.data_center_id);
+    const selectedYear = req.query.year ? parseInt(req.query.year) : null;
+    const selectedMonth = req.query.month ? parseInt(req.query.month) : null;
+
     if (!company_id) {
         return res.status(400).json({ error: "Company ID is required" });
     }
-    const dc = parseInt(req.params.data_center_id); 
+
     try {
-        const data = await dataCenterDashboard.getDeviceTypesByCompanyIdAndDataCenter(company_id, dc);
+        const data = await dataCenterDashboard.getDeviceTypesByCompanyIdAndDataCenter(company_id, dc, selectedYear, selectedMonth);
         if (!data) {
             return res.status(404).send('Device type by company id and data center Data not found.');
         }
         res.status(200).json(data);
     } catch (error) {
-        console.error(error);
+        console.error('Error:', error);
         res.status(500).send('Failed to retrieve Device Type by company id and data center: Internal Server Error.');
     }
 };
+
 
 
 

@@ -307,6 +307,8 @@ async function fetchData() {
     // } else {
     //     yearErrorMessage.style.display = "none"; // Hide the error message if validation passes
     // }
+    await fetchDeviceTypesData();
+    await fetchDeviceCount(); 
 
     const selectedDate = selectedYear && selectedMonth ? `${selectedYear}-${selectedMonth}` : selectedYear;
 
@@ -1278,31 +1280,32 @@ function renderGaugeChart(value, label) {
 // Function to fetch device count based on the selected data center
 async function fetchDeviceCount() {
     const selectedDataCenter = dataCenterDropdown.value;
-    let apiUrl;
-    if (selectedDataCenter === "all" || !selectedDataCenter) {
-        // No specific data center selected, fetch count for all devices under the company
-        apiUrl = `/Dashboard/Data-Center/Devices`;
-    } else {
-        // Specific data center selected, fetch count for devices in that data center
-        apiUrl = `/Dashboard/Data-Center/Devices/${selectedDataCenter}`;
+    const selectedYear = yearPicker.value;
+    const selectedMonth = monthPicker.value;
+
+    let apiUrl = `/Dashboard/Data-Center/Devices`;
+    if (selectedDataCenter !== "all") {
+        apiUrl += `/${selectedDataCenter}`;
     }
+
+    // Append year and month filters if selected
+    const queryParams = [];
+    if (selectedYear) queryParams.push(`year=${selectedYear}`);
+    if (selectedMonth) queryParams.push(`month=${selectedMonth}`);
+    if (queryParams.length > 0) apiUrl += `?${queryParams.join('&')}`;
 
     try {
         const response = await get(apiUrl);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch device count. Status: ${response.status}`);
-        }
-        
         const data = await response.json();
-        console.log("Device count data:", data);
 
-        // Assuming you have an element to display device count
         const deviceCountElement = document.getElementById("totalDevices");
-        deviceCountElement.textContent = `${data[0].device_count} Devices`;
+        // Always show total devices, regardless of the filter
+        deviceCountElement.textContent = `${data[0].total_devices} Devices`;
     } catch (error) {
         console.error("Error fetching device count:", error);
     }
 }
+
 
 // Call fetchDeviceCount whenever the data center dropdown changes
 dataCenterDropdown.addEventListener("change", fetchDeviceCount);
@@ -1323,8 +1326,11 @@ dataCenterDropdown.addEventListener("change", fetchDeviceCount);
 // Function to fetch device types data
 async function fetchDeviceTypesData() {
     const selectedDataCenter = document.getElementById('dataCenterDropdown').value;
+    const selectedYear = document.getElementById('yearPicker').value;  // Year picker element
+    const selectedMonth = document.getElementById('monthPicker').value;  // Month picker element
 
     let apiUrl;
+
     // Determine the endpoint based on the selected data center
     if (selectedDataCenter === "all" || !selectedDataCenter) {
         apiUrl = `/Dashboard/Data-Center/DevicesTypes`;
@@ -1332,7 +1338,15 @@ async function fetchDeviceTypesData() {
         apiUrl = `/Dashboard/Data-Center/DevicesTypes/${selectedDataCenter}`;
     }
 
+    // Append query parameters for year and month if selected
+    const queryParams = [];
+    if (selectedYear) queryParams.push(`year=${selectedYear}`);
+    if (selectedMonth) queryParams.push(`month=${selectedMonth}`);
+    if (queryParams.length > 0) apiUrl += `?${queryParams.join('&')}`;
+
     try {
+        console.log(`Fetching device types from: ${apiUrl}`);  // Debugging API URL
+
         const response = await get(apiUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch device types. Status: ${response.status}`);
