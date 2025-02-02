@@ -1296,7 +1296,7 @@ VALUES
     (2, 'Dell', 'PowerEdge R740', 'SN-20002', 'Server Rack', 'Pending Pick Up'),
     (2, 'Schneider', 'Cooling System Pro', 'SN-20003', 'Cooling System', 'in use'),
     (2, 'Schneider', 'Cooling System Pro', 'SN-20004', 'Cooling System', 'in use'),
-    (2, 'APC', 'Smart-UPS 1500', 'SN-20005', 'Backup Power Unit', 'recycled'),
+    (2, 'APC', 'Smart-UPS 1500', 'SN-20005', 'Backup Power Unit', 'in use'),
     (2, 'Philips', 'Hue Light 5000', 'SN-20006', 'Lighting System', 'in use'),
 
     -- Data center 3
@@ -1304,14 +1304,14 @@ VALUES
     (3, 'HP', 'ProLiant DL380', 'SN-30002', 'Server Rack', 'Pending Pick Up'),
     (3, 'Daikin', 'Cooling System X', 'SN-30003', 'Cooling System', 'in use'),
     (3, 'Daikin', 'Cooling System X', 'SN-30004', 'Cooling System', 'in use'),
-    (3, 'Eaton', 'Power Xpert 9395', 'SN-30005', 'Backup Power Unit', 'recycled'),
+    (3, 'Eaton', 'Power Xpert 9395', 'SN-30005', 'Backup Power Unit', 'in use'),
     (3, 'Osram', 'LED Pro 9000', 'SN-30006', 'Lighting System', 'in use'),
 
     -- Repeat similar patterns for other data centers (4 through 20)
 
     -- Example for Data center 4
     (4, 'Dell', 'PowerEdge R740', 'SN-40001', 'Server Rack', 'in use'),
-    (4, 'Dell', 'PowerEdge R740', 'SN-40002', 'Server Rack', 'recycled'),
+    (4, 'Dell', 'PowerEdge R740', 'SN-40002', 'Server Rack', 'in use'),
     (4, 'Schneider', 'Cooling System Pro', 'SN-40003', 'Cooling System', 'in use'),
     (4, 'Schneider', 'Cooling System Pro', 'SN-40004', 'Cooling System', 'in use'),
     (4, 'APC', 'Smart-UPS 1500', 'SN-40005', 'Backup Power Unit', 'not in use'),
